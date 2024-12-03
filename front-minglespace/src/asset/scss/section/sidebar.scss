@@ -1,0 +1,21 @@
+.sidebar {
+  margin: 10px 0;
+  width: 300px;
+  display: flex;
+  justify-content: center;
+  min-height: 735px;
+  border-right: solid 1px;
+  background-color: #fcfcfc;
+  .sidebar_menuitem {
+    margin-top: 10px;
+    font-size: 22px;
+    text-align: center;
+    li {
+      min-width: 150px;
+      padding: 10px;
+      margin-bottom: 20px;
+      border-bottom: solid 2px;
+      border-top: solid 2px;
+    }
+  }
+}

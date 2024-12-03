@@ -1,0 +1,40 @@
+use mingledb;
+
+insert into user(id,email) values (1,'abc@abc');
+insert into user(id,email) values (2,'123@123');
+insert into user(id,email) values (3,'13433@123');
+insert into user(id,email) values (4,'134123@123');
+insert into user(id,email) values (5,'134123@123');
+insert into user(id,email) values (6,'134123@123');
+
+insert into workspace(id,name,wsdesc) values(1,"밍글","입니다");
+insert into workspace(id,name,wsdesc) values(2,"밍글2","입니다2");
+insert into workspace(id,name,wsdesc) values(3,"밍글3","입니다3");
+insert into workspace(id,name,wsdesc) values(4,"밍글4","입니다4");
+insert into workspace(id,name,wsdesc) values(5,"밍글5","입니다5");
+insert into workspace(id,name,wsdesc) values(6,"밍글6","입니다6");
+insert into workspace(id,name,wsdesc) values(7,"밍글7","입니다7");
+
+insert into wsmember value(1,'LEADER',1,1);
+insert into wsmember value(2,'LEADER',1,2);
+insert into wsmember value(3,'LEADER',1,3);
+insert into wsmember value(4,'LEADER',1,4);
+insert into wsmember value(5,'LEADER',1,5);
+insert into wsmember value(6,'LEADER',1,6);
+insert into wsmember value(7,'LEADER',1,7);
+
+insert into wsmember value(8,'LEADER',2,1);
+insert into wsmember value(9,'LEADER',2,2);
+insert into wsmember value(10,'LEADER',2,3);
+insert into wsmember value(11,'LEADER',3,4);
+insert into wsmember value(12,'LEADER',3,5);
+insert into wsmember value(13,'LEADER',3,6);
+insert into wsmember value(14,'LEADER',3,7);
+
+insert into wsmember value(15,'LEADER',4,1);
+insert into wsmember value(16,'LEADER',5,1);
+
+
+select *
+from wsmember
+where workspace_id=1;

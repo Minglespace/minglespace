@@ -1,0 +1,37 @@
+.add_button {
+    background-color: #5c6ac4;
+    border: solid 1px;
+    border-radius: 10px;
+    padding: 5px;
+}
+
+.add_button_2 {
+    background-color: #7f8Fdf;
+    color: #fff;
+    width: 80px;
+    border-radius: 10px;
+    padding: 5px;
+    cursor: pointer;
+    &:hover{
+        background-color: #5c6ac4;
+    }
+}
+
+.exit_button {
+    background-color: red;
+    border: solid 1px;
+    width: 80px;
+    border-radius: 10px;
+    padding: 5px;
+}
+
+.cancle_button {
+    background-color: lightgray;
+    width: 80px;
+    border-radius: 10px;
+    padding: 5px;
+    cursor: pointer;
+    &:hover{
+        background-color: gray;
+    }
+}

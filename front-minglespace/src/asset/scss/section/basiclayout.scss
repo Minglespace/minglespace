@@ -1,0 +1,13 @@
+.midcontainer {
+  display: flex;
+
+  .main_container {
+    margin: 10px;
+    width: 90%;
+    height: 733px;
+    border: solid 1px;
+    border-radius: 10px;
+    background-color: aliceblue;
+    box-shadow: 5px 5px #d7d7d7;
+  }
+}
