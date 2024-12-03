@@ -16,6 +16,7 @@ const Workspace = () => {
 
   useEffect(() => {
     getList(userId).then((data) => {
+      console.log("data : ", data);
       //userId 요청 후 받은 data
       setWorkspaceData(data); //useState 상태에 저장
     });
