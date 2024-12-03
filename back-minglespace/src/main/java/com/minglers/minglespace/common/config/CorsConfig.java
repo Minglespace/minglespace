@@ -16,19 +16,14 @@ public class CorsConfig implements WebMvcConfigurer {
 //    }
     @Override
     public void addCorsMappings(CorsRegistry registry) {
-        log.info("================================================");
-        log.info("");
-        log.info("");
-        log.info("addCorsMappings 설정을 해요~");
-        log.info("");
-        log.info("");
 
-        registry.addMapping("/**")
-                .allowedOrigins("/**")
+//        registry.addMapping("/**")
+//
+//
 //                .allowedOrigins("http://localhost:3000", "http://localhost:3001")  // 필요한 도메인만 허용
-
-                .allowedMethods("HEAD","GET","POST","DELETE","PUT")
-                .maxAge(300)
-                .allowedHeaders("Authorization", "Cache-Control", "Content-Type");
+//
+//                .allowedMethods("HEAD","GET","POST","DELETE","PUT")
+//                .maxAge(300)
+//                .allowedHeaders("Authorization", "Cache-Control", "Content-Type");
     }
 }
