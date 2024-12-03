@@ -16,6 +16,7 @@ public class WorkspaceController {
      //2. 예외 처리
      //3. 삭제시 leader만 삭제가능 하게 하기.
      //4. 권한 부여시점은 하나 클릭했을떄 권한 조회후 jwt에 넣기.
+  //asdfasdfsaf
   private final WorkspaceService workspaceService;
 
   //사이드바에서 workspace 클릭시 보여주는 리스트
