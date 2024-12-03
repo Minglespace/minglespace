@@ -19,10 +19,19 @@ import java.util.function.Function;
 public class JWTUtils {
 
     private final SecretKey Key;
-    private static final long EXPIRATION_TIME_A = 60 * 2 * 1000; // 1 분
-    private static final long EXPIRATION_TIME_R = 60 * 60 * 1000; // 1 Hour
-//public static final long EXPIRATION_TIME_R = 60 * 2 * 1000; // 1 Hour
-    public static final long EXPIRATION_TIME = 60 * 2 * 1000; // 1 Hour
+
+    // ACCESS TOKEN 만료시간
+    //private static final long EXPIRATION_TIME_A = 60 * 60 * 1000;           // 60 분
+    private static final long EXPIRATION_TIME_A = 5 * 60 * 1000;            // 5 분 for test
+
+    // REFRESH TOKEN 만료시간
+    //private static final long EXPIRATION_TIME_R = 6 * 60 * 60 * 1000;       // 6 시간
+    public static final long EXPIRATION_TIME_R = 10 * 60 * 1000;             // 10 분 for test
+
+    // 주기적으로 만료된 토큰을 삭제하는 메서드
+    //public static final long BLACKLIST_UPDATE_TIME = 60 * 60 * 1000;        // 1 시간
+    public static final long BLACKLIST_UPDATE_TIME = 4 * 60 * 1000;         // 3 분 for test
+
 
     public JWTUtils() {
         String secreteString = "843567893696976453275974432697R634976R738467TR678T34865R6834R8763T478378637664538745673865783678548735687R3";

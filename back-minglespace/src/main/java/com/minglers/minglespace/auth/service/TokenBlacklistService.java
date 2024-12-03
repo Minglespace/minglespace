@@ -32,8 +32,7 @@ public class TokenBlacklistService {
   }
 
   // 주기적으로 만료된 토큰을 삭제하는 메서드
-//  @Scheduled(fixedRate = 3600000 / 2) // 1시간마다 실행
-  @Scheduled(fixedDelay = JWTUtils.EXPIRATION_TIME) // 1시간마다 실행
+  @Scheduled(fixedDelay = JWTUtils.BLACKLIST_UPDATE_TIME)
   @Transactional
   public void removeExpiredTokens() {
     LocalDateTime now = LocalDateTime.now();

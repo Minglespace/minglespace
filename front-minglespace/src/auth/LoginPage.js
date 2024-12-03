@@ -5,7 +5,9 @@ import { X, Eye, EyeOff } from "lucide-react";
 
 import "./LoginPage.css"; 
 import { Link, useNavigate } from "react-router-dom";
-import { login } from "../api/workspaceApi";
+import { abuserTest, API_SERVER_HOST, login } from "../api/workspaceApi";
+import Repo from "./Repo";
+import axios from "axios";
 
 
 const LoginPage = () => {
@@ -70,6 +72,21 @@ const LoginPage = () => {
       }));
     }
   };
+
+  const handleClickAbuser = async()=>{
+
+    console.log("abuse test");
+
+    Repo.setAccessToken(Repo.getAccessTokenForAbuse());
+    Repo.setRefreshToken(Repo.getRefreshTokenForAbuse());
+
+    // <Link to="/workspace/">WorkSpace</Link>
+    navigate("/workspace/");
+
+   
+    
+  }
+
 
   // if (!isOpen) return null;
 
@@ -171,6 +188,7 @@ const LoginPage = () => {
               {/* <a href="#" className="footer-link">비밀번호 찾기</a>
               <a href="#" className="footer-link">회원가입</a> */}
               <Link to={`/auth/signup`}>비밀번호 찾기</Link>
+              <button onClick={handleClickAbuser}>Abser Token Test</button>
               <Link to={`/auth/signup`}>회원가입</Link>
             </div>
           </div>

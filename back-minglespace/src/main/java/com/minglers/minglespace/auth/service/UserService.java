@@ -31,6 +31,7 @@ public class UserService {
     private final AuthenticationManager authenticationManager;
     private final PasswordEncoder passwordEncoder;
     private final ModelMapper modelMapper;
+    private final TokenBlacklistService tokenBlacklistService;
 
     public DefaultResponse signup(SignupRequest req) {
 
@@ -169,6 +170,24 @@ public class UserService {
 
         try {
             String refreshToken = req.getRefreshToken();
+
+            if(tokenBlacklistService.isBlacklisted(refreshToken)){
+                log.error("================================================");
+                log.error("");
+                log.error("");
+                log.error("어뷰저 딱걸림.");
+                log.error("");
+                log.error("");
+
+                throw new BadCredentialsException("UNAUTHORIZED 잘못된 자격 증명");
+            }
+
+            log.error("================================================");
+            log.error("");
+            log.error("");
+            log.error("어뷰저 아님.");
+            log.error("");
+            log.error("");
 
             String ourEmail = jwtUtils.extractUsername(refreshToken);
             Optional<User> opt = usersRepo.findByEmail(ourEmail);

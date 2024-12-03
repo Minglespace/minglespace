@@ -1,8 +1,8 @@
 import axios from "axios";
 import Repo from "../auth/Repo";
 
-export const API_SERVER_HOST = "http://localhost:8080";
-// export const API_SERVER_HOST = "http://localhost:8081";
+// export const API_SERVER_HOST = "http://localhost:8080";
+export const API_SERVER_HOST = "http://localhost:8081";
 
 const prefix = `${API_SERVER_HOST}/workspace`;
 
@@ -31,7 +31,7 @@ axiosInstance.interceptors.request.use(
           config.headers["Authorization"] = `Bearer ${accessToken}`;
       } 
       
-      console.log("요청 URL : {}", config.url);
+      console.log("요청 URL : ", config.url);
       console.log("  accessToken이 보여? 그럼 서버로 보낸거에요 : ", accessToken)
 
       return config;
@@ -74,8 +74,8 @@ axiosInstance.interceptors.response.use(
                     // 여기에 필요한 다른 필드도 추가할 수 있음, 예: email, password 등
                 };
                 const res = await axios.post( `${API_SERVER_HOST}/auth/refresh`, reqRes);
-                console.log("res : {}", res);
-                console.log("res.data : {}", res.data.accessToken);
+                console.log("res : ", res);
+                console.log("res.data : ", res.data.accessToken);
 
                 // 새로운 AccessToken을 localStorage에 저장
                 const newAccessToken = res.data.accessToken;
@@ -212,4 +212,5 @@ export const logout = async() =>{
         throw err;
     }
 }
+
 

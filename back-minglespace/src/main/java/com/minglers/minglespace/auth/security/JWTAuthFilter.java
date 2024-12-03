@@ -32,7 +32,6 @@ public class JWTAuthFilter extends OncePerRequestFilter {
 
     private final JWTUtils jwtUtils;
     private final UserDetailsServiceImpl userDetailsService;
-    private final TokenBlacklistService tokenBlacklistService;
 
     @Override
     protected void doFilterInternal(
@@ -118,11 +117,8 @@ public class JWTAuthFilter extends OncePerRequestFilter {
 
         if (token != null && !token.isBlank()) {
 
-            if(tokenBlacklistService.isBlacklisted(token)){
-                throw new BadCredentialsException("UNAUTHORIZED 잘못된 자격 증명");
-            }
-
             final String userEmail = jwtUtils.extractUsername(token);
+
             if (userEmail != null && SecurityContextHolder.getContext().getAuthentication() == null) {
                 UserDetails userDetails = userDetailsService.loadUserByUsername(userEmail);
 
