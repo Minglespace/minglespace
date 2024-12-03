@@ -3,6 +3,7 @@ package com.minglers.minglespace.auth.security;
 import com.minglers.minglespace.auth.exception.CustomAuthenticationEntryPoint;
 import com.minglers.minglespace.auth.service.UserDetailsServiceImpl;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.log4j.Log4j2;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -19,6 +20,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
+@Log4j2
 @RequiredArgsConstructor
 @Configuration
 @EnableWebSecurity
@@ -30,6 +32,14 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
+
+        log.info("================================================");
+        log.info("");
+        log.info("");
+        log.info("securityFilterChain 설정을 해요~");
+        log.info("");
+        log.info("");
+
         httpSecurity.csrf(AbstractHttpConfigurer::disable)
                 .cors(Customizer.withDefaults())
                 .authorizeHttpRequests(request -> request
