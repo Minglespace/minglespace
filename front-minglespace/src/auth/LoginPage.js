@@ -184,11 +184,12 @@ const LoginPage = () => {
             </div>
 
             <div className="footer-links">
-              {/* <a href="#" className="footer-link">비밀번호 찾기</a>
-              <a href="#" className="footer-link">회원가입</a> */}
               <Link to={`/auth/signup`}>비밀번호 찾기</Link>
-              <button onClick={handleClickAbuser}>Abser Token Test</button>
               <Link to={`/auth/signup`}>회원가입</Link>
+
+              {/* // for tset */}
+              {/* <button onClick={handleClickAbuser}>Abser Token Test</button> */}
+
             </div>
           </div>
         </div>
