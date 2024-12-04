@@ -1,12 +1,19 @@
 package com.minglers.minglespace.chat.entity;
 
 import com.minglers.minglespace.chat.role.ChatRole;
+import com.minglers.minglespace.common.converter.LocalDateTimeAttributeConverter;
 import com.minglers.minglespace.workspace.entity.WSMember;
 import jakarta.persistence.*;
+import lombok.*;
 
-import java.sql.Timestamp;
+import java.time.LocalDateTime;
 
 @Entity
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 @Table(name = "chatroommember", uniqueConstraints = { @UniqueConstraint(columnNames = {"chatroom_id", "wsmember_id"}) })
 public class ChatRoomMember {
 
@@ -14,7 +21,9 @@ public class ChatRoomMember {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private Timestamp joined_at;
+//    private Timestamp joined_at;
+    @Convert(converter = LocalDateTimeAttributeConverter.class)
+    private LocalDateTime date;
 
     @Enumerated(EnumType.STRING)
     private ChatRole chatRole;
@@ -26,4 +35,6 @@ public class ChatRoomMember {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "wsmember_id")
     private WSMember wsMember;
+
+    private boolean isLeft = false;
 }
