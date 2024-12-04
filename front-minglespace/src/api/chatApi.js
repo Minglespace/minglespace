@@ -131,20 +131,18 @@ export const createChatRoom = async (workspaceId, requestDTO, imageFile) => {
 
 	const formData = new FormData();
 
-	// formData.append('requestDTO', new Blob([JSON.stringify(requestDTO)], { type: 'application/json' }));
-	formData.append('requestDTO', JSON.stringify(requestDTO));
+	formData.append('requestDTO', new Blob([JSON.stringify(requestDTO)], { type: 'application/json' }));
 	formData.append('image', imageFile);
 
 	//헤더 만들기
 	const accessToken = Repo.getAccessToken();
 	const headers = {
 		'Authorization': `Bearer ${accessToken}`,
-		'Content-Type': 'multipart/form-data'
 	};
 
 	try {
 		// 요청 보내기
-		const res = await axiosInstance.post(`${prefix}/${workspaceId}/chatRooms`, formData, { headers });
+		const res = await axios.post(`${prefix}/${workspaceId}/chatRooms`, formData, { headers });
 		return res.data;  // 서버 응답 반환
 	} catch (error) {
 		console.error("채팅방 생성 실패:", error);

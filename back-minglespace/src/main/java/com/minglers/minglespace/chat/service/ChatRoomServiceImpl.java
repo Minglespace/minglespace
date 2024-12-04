@@ -19,6 +19,7 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
@@ -74,12 +75,12 @@ public class ChatRoomServiceImpl implements ChatRoomService {
 
     @Override
     @Transactional
-    public ChatListResponseDTO createRoom(CreateChatRoomRequestDTO requestDTO, WSMember createMember) {
+    public ChatListResponseDTO createRoom(CreateChatRoomRequestDTO requestDTO, WSMember createMember, MultipartFile image) {
         WorkSpace wspace = workspaceRepository.findById(requestDTO.getWorkspaceId()).orElse(null);
 
         Image saveFile = null;
         try{
-            saveFile = imageService.uploadImage(requestDTO.getImage());
+            saveFile = imageService.uploadImage(image);
         }catch (RuntimeException | IOException e) {
             log.error("Image upload failed: " + e.getMessage(), e);
             throw new RuntimeException("채팅방 이미지 업로드 실패 : ", e);  // 업로드 실패 시 처리

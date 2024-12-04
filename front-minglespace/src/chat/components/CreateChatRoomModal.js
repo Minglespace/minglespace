@@ -1,10 +1,10 @@
 import { useState, useRef, useEffect } from "react";
 import Userinfo from "../../common/Layouts/components/Userinfo";
 import { API_SERVER_HOST } from "../../api/chatApi";
+import default_img from "../../asset/imgs/profile1.png";
 
 const initCreateChatRoomRequest = {
   name: "",
-  image: null,
   workspaceId: 0,
   participantIds: []
 };
@@ -117,7 +117,7 @@ const CreateChatRoomModal = ({ isOpen, onClose, onCreate, wsMembers }) => {
           <div className="modal_img">
             <img
               className="chat_create_Img"
-              src={selectedImage || "../../asset/imgs/default-profile.png"}
+              src={selectedImage || default_img}
               alt="채팅방 이미지"
             />
           </div>

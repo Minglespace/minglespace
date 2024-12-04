@@ -4,6 +4,7 @@ import CreateChatRoomModal from "./CreateChatRoomModal";
 import { FiChevronsLeft } from "react-icons/fi";
 import { createChatRoom, getChatList, getwsMembers } from "../../api/chatApi";
 import { useParams } from "react-router-dom";
+import Repo from "../../auth/Repo";
 
 const initRooms = [{
   id: 0,
@@ -53,10 +54,12 @@ const ChatList = () => {
       }
     };
 
+    //워크스페이스 멤버 목록
     const fetchWsMembers = async () => {
       try {
         const wsmembers = await getwsMembers(workspaceId);
-        setWsMembers(wsmembers);
+        //현재 유저 제외한 목록 만들기
+        setWsMembers(wsmembers.filter((member) => member.wsMemberId !== Number(Repo.getUserId())));
         console.log("wsmembers: ", wsmembers);
       } catch (error) {
         console.error("Error fetching ws members:", error);

@@ -62,8 +62,8 @@ public class ChatRoomController {
     WSMember createMember = wsMemberService.findByUserIdAndWsId(userId, workspaceId);
 
     requestDTO.setWorkspaceId(workspaceId);
-    requestDTO.setImage(image);
-    ChatListResponseDTO chatRoomdto = chatRoomService.createRoom(requestDTO, createMember);
+//    requestDTO.setImage(image);
+    ChatListResponseDTO chatRoomdto = chatRoomService.createRoom(requestDTO, createMember, image);
     return ResponseEntity.ok(chatRoomdto);
   }
 

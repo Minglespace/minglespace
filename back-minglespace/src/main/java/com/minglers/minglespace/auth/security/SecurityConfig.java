@@ -68,7 +68,7 @@ public class SecurityConfig {
         httpSecurity.csrf(AbstractHttpConfigurer::disable)
                 .cors(c->c.configurationSource(corsConfigurationSource()))
                 .authorizeHttpRequests(request -> request
-                        .requestMatchers("/auth/**", "/public/**").permitAll()
+                        .requestMatchers("/auth/**", "/public/**","/images/**").permitAll()
                         .requestMatchers("/admin/**").hasAnyAuthority("ADMIN")
                         .requestMatchers("/user/**").hasAnyAuthority("USER")
                         .requestMatchers("/adminuser/**").hasAnyAuthority("ADMIN", "USER")
