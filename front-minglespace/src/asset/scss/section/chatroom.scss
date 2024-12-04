@@ -1,0 +1,32 @@
+// ChatRomm.js
+
+.chatroom_container {
+  background-color: #f9f5f6;
+  border: solid 1px #aaa;
+  margin: 15px;
+
+  border-radius: 10px;
+  flex-grow: 1;
+  transition: all 0.3s ease;
+  width: 1100px;
+
+  &.folded {
+    margin: 20px;
+  }
+}
+
+.chatroom_header {
+  border: solid 1px;
+  margin-bottom: 15px;
+  padding: 15px;
+}
+
+.chat_message_list {
+  border: solid 1px;
+}
+
+.chat_message_input {
+  border: solid 1px;
+  padding: 12px;
+  border-radius: 5px;
+}
