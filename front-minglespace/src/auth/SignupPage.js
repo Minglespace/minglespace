@@ -1,8 +1,13 @@
 import { X, Eye, EyeOff, Check } from "lucide-react";
 import React, { useState } from "react";
 import { render } from "react-dom";
-import { signup } from "../api/workspaceApi";
+
+
+import apiAuth from "../api/ApiAuth";
+// import { signup } from "../api/workspaceApi";
 import Repo from "./Repo";
+
+
 import { useNavigate } from "react-router-dom";
 
 import "./SignupPage.css"
@@ -67,7 +72,7 @@ const SignupPage = () => {
     if (validate()) {
       console.log("Form submitted:", formData);
 
-      signup(formData).then((data) => {
+      apiAuth.signup(formData).then((data) => {
         console.log(data);
         if(data.code === 200){
           Repo.setItem(data);

@@ -5,9 +5,12 @@ import { X, Eye, EyeOff } from "lucide-react";
 
 import "./LoginPage.css"; 
 import { Link, useNavigate } from "react-router-dom";
-import { abuserTest, API_SERVER_HOST, login } from "../api/workspaceApi";
+// import { abuserTest, API_SERVER_HOST, login } from "../api/workspaceApi";
 import Repo from "./Repo";
 import axios from "axios";
+
+import apiAuth from "../api/ApiAuth";
+
 
 
 const LoginPage = () => {
@@ -48,14 +51,23 @@ const LoginPage = () => {
 
       const {email, password} = formData;
 
-      login(email, password).then((data) => {
-        console.log(data);
-        if(data.code === 200){
-          navigate("/main");
-        }else{
-          // 뭘할까?
-        }        
-      });    
+      // login(email, password).then((data) => {
+      //   console.log(data);
+      //   if(data.code === 200){
+      //     navigate("/main");
+      //   }else{
+      //     // 뭘할까?
+      //   }        
+      // });    
+
+
+      const data = await apiAuth.login(email, password);
+      console.log(data);
+      if(data.code === 200){
+        navigate("/main");
+      }else{
+        // 뭘할까?
+      }   
     }
   };
 

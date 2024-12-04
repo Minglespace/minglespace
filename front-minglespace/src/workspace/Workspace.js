@@ -1,7 +1,12 @@
 import React, { useEffect, useState } from "react";
 import WorkspaceItem from "./components/WorkspaceItem";
 import { useNavigate } from "react-router-dom";
-import { deleteOne, getList, modifyOne } from "../api/workspaceApi";
+
+
+import apiWorkspace from "../api/ApiWorkspace";
+// import { deleteOne, getList, modifyOne } from "../api/workspaceApi";
+
+
 import WorkspaceAdd from "./components/WorkspaceAdd";
 import { FaPlus } from "react-icons/fa6";
 
@@ -15,7 +20,7 @@ const Workspace = () => {
   //onClick으로 상세보기 페이지 이동을 위한 navigate 지정
 
   useEffect(() => {
-    getList(userId).then((data) => {
+    apiWorkspace.getList(userId).then((data) => {
       console.log("data : ", data);
       //userId 요청 후 받은 data
       setWorkspaceData(data); //useState 상태에 저장
@@ -61,7 +66,7 @@ const Workspace = () => {
   };
 
   const handleUpdateWorkspace = (updatedWorkspace) => {
-    modifyOne(updatedWorkspace.id, updatedWorkspace)
+    apiWorkspace.modifyOne(updatedWorkspace.id, updatedWorkspace)
       .then((result) => {
         setWorkspaceData((prevData) =>
           prevData.map((workspace) =>
@@ -78,7 +83,7 @@ const Workspace = () => {
       });
   };
   const handleDeleteWorkspace = (workspaceId) => {
-    deleteOne(userId, workspaceId).then(() => {
+    apiWorkspace.deleteOne(userId, workspaceId).then(() => {
       setWorkspaceData((prevData) =>
         prevData.filter((workspace) => workspace.id !== workspaceId)
       );

@@ -3,7 +3,12 @@ import Sidebar from "./section/SideBar";
 import Footer from "./section/Footer";
 import Header from "./section/Header";
 import { useParams } from "react-router-dom";
-import { getOne } from "../../api/workspaceApi";
+
+
+import apiWorkspace from "../../api/ApiWorkspace";
+// import { getOne } from "../../api/workspaceApi";
+
+
 const initData = {
   id: "",
   name: "Mingle Space에 오신것을 환영합니다.",
@@ -16,7 +21,7 @@ const BasicLayout = ({ children }) => {
 
   useEffect(() => {
     if (workspaceId) {
-      getOne(workspaceId).then((workspaceServerData) => {
+      apiWorkspace.getOne(workspaceId).then((workspaceServerData) => {
         setWorkspaceData(workspaceServerData);
       });
     }
