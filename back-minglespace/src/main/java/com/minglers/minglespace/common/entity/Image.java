@@ -1,8 +1,14 @@
 package com.minglers.minglespace.common.entity;
 
 import jakarta.persistence.*;
+import lombok.*;
 
 @Entity
+@Getter
+@Setter
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 @Table(name = "image")
 public class Image {
     @Id
