@@ -73,6 +73,7 @@ const LoginPage = () => {
     }
   };
 
+  // for test
   const handleClickAbuser = async()=>{
 
     console.log("abuse test");
@@ -80,10 +81,8 @@ const LoginPage = () => {
     Repo.setAccessToken(Repo.getAccessTokenForAbuse());
     Repo.setRefreshToken(Repo.getRefreshTokenForAbuse());
 
-    // <Link to="/workspace/">WorkSpace</Link>
     navigate("/workspace/");
 
-   
     
   }
 

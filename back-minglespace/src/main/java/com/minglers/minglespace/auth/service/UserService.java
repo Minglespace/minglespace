@@ -2,6 +2,7 @@ package com.minglers.minglespace.auth.service;
 
 import com.minglers.minglespace.auth.dto.*;
 import com.minglers.minglespace.auth.entity.User;
+import com.minglers.minglespace.auth.exception.JwtExceptionCode;
 import com.minglers.minglespace.auth.repository.UserRepository;
 import com.minglers.minglespace.auth.security.JWTUtils;
 import lombok.RequiredArgsConstructor;
@@ -213,7 +214,11 @@ public class UserService {
                 res.setStatus(HttpStatus.NOT_FOUND);
             }
 
-        } catch (Exception e) {
+        }catch (BadCredentialsException e){
+            res.setStatus(HttpStatus.UNAUTHORIZED);  // 리프레시 토큰이 유효하지 않음
+            res.setMsg("This token is on the blacklist");
+        }
+        catch (Exception e) {
             res.setStatus(HttpStatus.INTERNAL_SERVER_ERROR);
             res.setMsg(e.getMessage());
         }

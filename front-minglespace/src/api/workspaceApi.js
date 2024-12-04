@@ -1,5 +1,6 @@
 import axios from "axios";
 import Repo from "../auth/Repo";
+import { useNavigate } from "react-router-dom";
 
 export const API_SERVER_HOST = "http://localhost:8080";
 // export const API_SERVER_HOST = "http://localhost:8081";
@@ -24,23 +25,42 @@ const axiosInstance = axios.create({
 axiosInstance.interceptors.request.use(
   (config) => {
 
+		// for test
     // Repo.cleaerItem();
 
-      const accessToken = Repo.getAccessToken();
-      if (accessToken) {
-          config.headers["Authorization"] = `Bearer ${accessToken}`;
-      } 
-      
-      console.log("요청 URL : ", config.url);
-      console.log("  accessToken이 보여? 그럼 서버로 보낸거에요 : ", accessToken)
+		console.log("요청 URL : ", config.url);
+		
 
-      return config;
+		const skipToken = isSkipTokenPacket(config.url);
+	
+		console.log("skipToken : ", skipToken);
+
+		const accessToken = Repo.getAccessToken();
+		if (!skipToken && accessToken) {
+			config.headers["Authorization"] = `Bearer ${accessToken}`;
+			console.log("accessToken : ", accessToken)
+		}else{
+			console.log("토큰이 불필요한 패킷이라 같이 안보내요 : ", accessToken)
+		} 
+      
+    
+		return config;
   },
   (error) => {
       console.error("요청 Error:", error);
       return Promise.reject(error);
   }
 );
+
+const isSkipTokenPacket = (url)=>{
+	if(url.includes("/auth/login"))
+		return true;
+
+	if(url.includes("/auth/signup"))
+		return true;
+
+	return false;
+}
 
 
 // 응답 인터셉터 설정
@@ -74,17 +94,21 @@ axiosInstance.interceptors.response.use(
                     // 여기에 필요한 다른 필드도 추가할 수 있음, 예: email, password 등
                 };
                 const res = await axios.post( `${API_SERVER_HOST}/auth/refresh`, reqRes);
-                console.log("res : ", res);
+                console.log("res.data : ", res.data);
                 console.log("res.data : ", res.data.accessToken);
 
-                // 새로운 AccessToken을 localStorage에 저장
-                const newAccessToken = res.data.accessToken;
-                Repo.setAccessToken(newAccessToken);
-                
-                // 원래 요청을 새로운 토큰을 포함해서 재시도
-                error.config.headers['Authorization'] = `Bearer ${newAccessToken}`;
-                return axios(error.config);
-
+                if(res.data.code === 200){
+                    // 새로운 AccessToken을 localStorage에 저장
+                    const newAccessToken = res.data.accessToken;
+                    Repo.setAccessToken(newAccessToken);
+                    
+                    // 원래 요청을 새로운 토큰을 포함해서 재시도
+                    error.config.headers['Authorization'] = `Bearer ${newAccessToken}`;
+                    return axios(error.config);
+                }else{
+                    // something todo here
+										console.log("넌 어뷰저야 꺼정~")
+                }
             }
         } else if (status === 500) {
             // 500 서버 오류
@@ -96,6 +120,10 @@ axiosInstance.interceptors.response.use(
         // 사용자 정의 에러 코드에 따른 추가 처리 (예: EXPIRED_TOKEN 등)
         if (data.code === "EXPIRED_TOKEN") {
             console.log("리프레시 토큰을 요청하세요.");
+
+					// 어떤 패킷을 보내든 토큰 에러가 났을경우
+			    // 공통에러처리가 필요하다
+
         }
 
         return Promise.reject(error); // 계속해서 오류를 처리할 수 있도록 반환

@@ -21,16 +21,16 @@ public class JWTUtils {
     private final SecretKey Key;
 
     // ACCESS TOKEN 만료시간
-    //private static final long EXPIRATION_TIME_A = 60 * 60 * 1000;           // 60 분
-    private static final long EXPIRATION_TIME_A = 5 * 60 * 1000;            // 5 분 for test
+    private static final long EXPIRATION_TIME_A = 60 * 60 * 1000;           // 60 분
+    //private static final long EXPIRATION_TIME_A = 1 * 60 * 1000;            // 5 분 for test
 
     // REFRESH TOKEN 만료시간
-    //private static final long EXPIRATION_TIME_R = 6 * 60 * 60 * 1000;       // 6 시간
-    public static final long EXPIRATION_TIME_R = 10 * 60 * 1000;             // 10 분 for test
+    private static final long EXPIRATION_TIME_R = 6 * 60 * 60 * 1000;       // 6 시간
+    //public static final long EXPIRATION_TIME_R = 5 * 60 * 1000;             // 10 분 for test
 
     // 주기적으로 만료된 토큰을 삭제하는 메서드
-    //public static final long BLACKLIST_UPDATE_TIME = 60 * 60 * 1000;        // 1 시간
-    public static final long BLACKLIST_UPDATE_TIME = 4 * 60 * 1000;         // 3 분 for test
+    public static final long BLACKLIST_UPDATE_TIME = 60 * 60 * 1000;        // 1 시간
+    //public static final long BLACKLIST_UPDATE_TIME = 2 * 60 * 1000;         // 3 분 for test
 
 
     public JWTUtils() {
