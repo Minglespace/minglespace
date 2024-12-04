@@ -17,6 +17,7 @@ public class CustomHandShakeInterceptor implements HandshakeInterceptor {
 //                attributes.put("username", username);
 //            }
 //        }
+//        test
         return true; //websocket 연결 허용
     }
 
