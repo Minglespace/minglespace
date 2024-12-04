@@ -4,10 +4,7 @@ import Footer from "./section/Footer";
 import Header from "./section/Header";
 import { useParams } from "react-router-dom";
 
-
-import apiWorkspace from "../../api/ApiWorkspace";
-// import { getOne } from "../../api/workspaceApi";
-
+import WorkspaceApi from "../../api/workspaceApi";
 
 const initData = {
   id: "",
@@ -21,7 +18,7 @@ const BasicLayout = ({ children }) => {
 
   useEffect(() => {
     if (workspaceId) {
-      apiWorkspace.getOne(workspaceId).then((workspaceServerData) => {
+      WorkspaceApi.getOne(workspaceId).then((workspaceServerData) => {
         setWorkspaceData(workspaceServerData);
       });
     }

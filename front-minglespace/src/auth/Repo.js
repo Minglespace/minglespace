@@ -19,7 +19,7 @@ class Repo{
 
   }
 
-  static cleaerItem(){
+  static clearItem(){
 
     localStorage.removeItem(this.ACCESS_TOKEN);
     localStorage.removeItem(this.REFRESH_TOKEN);

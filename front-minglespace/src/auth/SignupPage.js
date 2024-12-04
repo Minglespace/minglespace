@@ -3,8 +3,7 @@ import React, { useState } from "react";
 import { render } from "react-dom";
 
 
-import apiAuth from "../api/ApiAuth";
-// import { signup } from "../api/workspaceApi";
+import AuthApi from "../api/AuthApi";
 import Repo from "./Repo";
 
 
@@ -72,7 +71,7 @@ const SignupPage = () => {
     if (validate()) {
       console.log("Form submitted:", formData);
 
-      apiAuth.signup(formData).then((data) => {
+      await AuthApi.signup(formData).then((data) => {
         console.log(data);
         if(data.code === 200){
           Repo.setItem(data);

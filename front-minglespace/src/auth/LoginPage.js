@@ -5,13 +5,9 @@ import { X, Eye, EyeOff } from "lucide-react";
 
 import "./LoginPage.css"; 
 import { Link, useNavigate } from "react-router-dom";
-// import { abuserTest, API_SERVER_HOST, login } from "../api/workspaceApi";
+
 import Repo from "./Repo";
-import axios from "axios";
-
-import apiAuth from "../api/ApiAuth";
-
-
+import AuthApi from "../api/AuthApi";
 
 const LoginPage = () => {
   // const [isOpen, setIsOpen] = useState(true);
@@ -61,7 +57,7 @@ const LoginPage = () => {
       // });    
 
 
-      const data = await apiAuth.login(email, password);
+      const data = await AuthApi.login(email, password);
       console.log(data);
       if(data.code === 200){
         navigate("/main");

@@ -1,12 +1,12 @@
-import apiClient from "./ApiClient";
+
+import api from "./Api";
 import Repo from "../auth/Repo";
 
-
-class ApiAuth{
+class AuthApi{
 
   static signup = async (userData) => {
     try {
-      const response = await apiClient.post("/auth/signup", userData);
+      const response = await api.axiosIns.post("/auth/signup", userData);
 
       if (response.data.code === 200) {
         console.log("회원가입 성공");
@@ -23,7 +23,7 @@ class ApiAuth{
 
   static login = async (email, password) => {
     try {
-      const response = await apiClient.post("/auth/login", { email, password });
+      const response = await api.axiosIns.post("/auth/login", { email, password });
 
       if (response.data.code === 200) {
         console.log("로그인 성공 : ", response.data);
@@ -47,7 +47,7 @@ class ApiAuth{
       console.log("refreshToken", refreshToken);
       const reqRes = { refreshToken: refreshToken };
 
-      const response = await this.axiosInstance.post("/auth/logout", reqRes);
+      const response = await api.axiosIns.post("/auth/logout", reqRes);
 
       if (response.data.code === 200) {
         console.error("로그아웃 성공 : ");
@@ -67,4 +67,4 @@ class ApiAuth{
 
 }
 
-export default ApiAuth;
+export default AuthApi;

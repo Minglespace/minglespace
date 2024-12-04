@@ -3,8 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 
 
 
-import apiAuth from "../../../api/ApiAuth";
-// import { logout } from "../../../api/workspaceApi";
+import authApi from "../../../api/AuthApi";
 import Repo from "../../../auth/Repo";
 
 import "./Header.css"
@@ -28,7 +27,7 @@ const Header = ({ workspaceData }) => {
   const handleClickLogout = () =>{
     console.log("handleClickLogout");
 
-    apiAuth.logout().then((data) => {
+    authApi.logout().then((data) => {
       
       console.log("logout data : ", data);
 
