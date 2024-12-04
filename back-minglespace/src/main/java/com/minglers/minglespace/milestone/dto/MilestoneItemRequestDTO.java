@@ -2,17 +2,13 @@ package com.minglers.minglespace.milestone.dto;
 
 import lombok.*;
 
-import java.util.List;
-
-@Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@ToString
 @Getter
-@Setter
-public class MilestoneResponseDTO {
+@ToString
+public class MilestoneItemRequestDTO {
   private Long id;
   private String title;
-
-  private List<MilestoneItemResponseDTO> milestoneItemDTOList;
+  private Long start_time;
+  private Long end_time;
 }
