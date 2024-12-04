@@ -2,6 +2,7 @@ package com.minglers.minglespace.workspace.service;
 
 import com.minglers.minglespace.auth.entity.User;
 import com.minglers.minglespace.auth.repository.UserRepository;
+import com.minglers.minglespace.chat.dto.ChatRoomMemberDTO;
 import com.minglers.minglespace.workspace.dto.WorkspaceDTO;
 import com.minglers.minglespace.workspace.entity.WSMember;
 import com.minglers.minglespace.workspace.entity.WorkSpace;
@@ -15,6 +16,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -29,6 +31,8 @@ public class WorkspaceServiceImpl implements WorkspaceService{
   private final WorkspaceRepository workspaceRepository;
 
   private final WSMemberRepository wsMemberRepository;
+
+  private final WSMemberService wsMemberService;
 
   //공통 메서드////////////////
   //유저 정보 가져오기
@@ -144,6 +148,31 @@ public class WorkspaceServiceImpl implements WorkspaceService{
     response.setCount(workSpace.getWorkSpaceList().size());
 
     return response;
+  }
+
+  @Override
+  public List<ChatRoomMemberDTO> getWsMemberWithUserInfo(Long workspaceId){
+    List<WSMember> wsMembers = wsMemberService.findByWorkSpaceId(workspaceId);
+
+    List<ChatRoomMemberDTO> wsMemberList = new ArrayList<>();
+
+    for(WSMember member : wsMembers){
+      User user = userRepository.findById(member.getUser().getId()).orElseThrow(()-> new RuntimeException("찾는 유저가 없습니다."));
+
+      String imageUriPath = (user.getImage() != null && user.getImage().getUripath() != null) ? user.getImage().getUripath() : "";
+
+      ChatRoomMemberDTO dto = ChatRoomMemberDTO.builder()
+              .email(user.getEmail())
+              .wsMemberId(member.getId())
+              .name(user.getName())
+              .imageUriPath(imageUriPath)
+              .position(user.getPosition())
+              .build();
+
+      wsMemberList.add(dto);
+    }
+
+    return wsMemberList;
   }
 }
 

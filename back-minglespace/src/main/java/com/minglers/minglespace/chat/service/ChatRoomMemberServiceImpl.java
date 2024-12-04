@@ -84,7 +84,7 @@ public class ChatRoomMemberServiceImpl implements ChatRoomMemberService {
         return chatRoomMembers.stream()
                 .map(member -> {
                     ChatRoomMemberDTO dto = ChatRoomMemberDTO.builder()
-                            .id(member.getWsMember().getId())
+                            .wsMemberId(member.getWsMember().getId())
                             .email(member.getWsMember().getUser().getEmail())
                             .build();
                     dto.setChatRole(member.getChatRole());

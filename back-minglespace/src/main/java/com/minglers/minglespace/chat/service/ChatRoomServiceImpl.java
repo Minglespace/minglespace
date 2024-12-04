@@ -46,6 +46,7 @@ public class ChatRoomServiceImpl implements ChatRoomService {
         return chatRoomMembers.stream()
                 .map(chatRoomMember -> {
                     ChatRoom chatRoom = chatRoomMember.getChatRoom();
+                    String imageUriPath = (chatRoom.getImage() != null && chatRoom.getImage().getUripath() != null) ? chatRoom.getImage().getUripath() : "";
 
                     // 마지막 메시지
                     Optional<ChatMessage> lastMessage = chatMessageRepository.findLatestMessageByChatRoomId(chatRoom.getId());
@@ -57,7 +58,7 @@ public class ChatRoomServiceImpl implements ChatRoomService {
                     return ChatListResponseDTO.builder()
                             .id(chatRoom.getId())
                             .name(chatRoom.getName())
-                            .imageUriPath(chatRoom.getImage().getUripath())
+                            .imageUriPath(imageUriPath)
                             .workSpaceId(chatRoom.getWorkSpace().getId())
                             .date(chatRoom.getDate())
                             .lastMessage(lastMsgContent)
@@ -73,7 +74,7 @@ public class ChatRoomServiceImpl implements ChatRoomService {
 
     @Override
     @Transactional
-    public ChatListResponseDTO createRoom(CreateChatRoomRequestDTO requestDTO) {
+    public ChatListResponseDTO createRoom(CreateChatRoomRequestDTO requestDTO, WSMember createMember) {
         WorkSpace wspace = workspaceRepository.findById(requestDTO.getWorkspaceId()).orElse(null);
 
         Image saveFile = null;
@@ -97,13 +98,13 @@ public class ChatRoomServiceImpl implements ChatRoomService {
         log.info("createRoom_ newRoomId: " + chatRoom.getId());
 
         // 방장 설정
-        Long creatorMemberId = requestDTO.getParticipantIds().get(0);
-        log.info("createRoom_ member_0 : " + creatorMemberId);
-        WSMember creatorMember = wsMemberRepository.findById(creatorMemberId).orElse(null);
+//        Long creatorMemberId = requestDTO.getParticipantIds().get(0);
+//        log.info("createRoom_ member_0 : " + creatorMemberId);
+//        WSMember creatorMember = wsMemberRepository.findById(creatorMemberId).orElse(null);
 
         ChatRoomMember creatorChatRoomMember = ChatRoomMember.builder()
                 .chatRoom(chatRoom)
-                .wsMember(creatorMember)
+                .wsMember(createMember)
                 .chatRole(ChatRole.CHATLEADER)
                 .date(LocalDateTime.now())
                 .build();
@@ -112,8 +113,7 @@ public class ChatRoomServiceImpl implements ChatRoomService {
         chatRoomMemberRepository.save(creatorChatRoomMember);
 
         // 일반 멤버 추가
-        for (int i = 1; i < requestDTO.getParticipantIds().size(); i++) {
-            Long memberId = requestDTO.getParticipantIds().get(i);
+        for (Long memberId : requestDTO.getParticipantIds()) {
             WSMember member = wsMemberRepository.findById(memberId).orElseThrow(() -> new RuntimeException("Member not found"));
 
             ChatRoomMember chatRoomMember = ChatRoomMember.builder()
@@ -127,10 +127,12 @@ public class ChatRoomServiceImpl implements ChatRoomService {
             chatRoomMemberRepository.save(chatRoomMember);
         }
 
+        String imageUriPath = (chatRoom.getImage() != null && chatRoom.getImage().getUripath() != null) ? chatRoom.getImage().getUripath() : "";
+
         return ChatListResponseDTO.builder()
                 .id(chatRoom.getId())
                 .name(chatRoom.getName())
-                .imageUriPath(chatRoom.getImage().getUripath())
+                .imageUriPath(imageUriPath)
                 .workSpaceId(chatRoom.getWorkSpace().getId())
                 .date(chatRoom.getDate())
                 .lastMessage("")

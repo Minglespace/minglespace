@@ -1,14 +1,15 @@
 import React from "react";
 import { BsPeopleFill } from "react-icons/bs";
-const ChatListItem = ({ chat, me }) => {
+import { API_SERVER_HOST } from "../../api/chatApi";
+const ChatListItem = ({ chat }) => {
   // 채팅방 정보 추출
-  const participantsCount = chat.members ? chat.members.length : 0; // 참여자 수
-  console.log(participantsCount);
+  // const participantsCount = chat.members ? chat.members.length : 0; // 참여자 수
+  // console.log(participantsCount);
 
-  const lastMessage =
-    chat.messages && chat.messages.length > 0
-      ? chat.messages[chat.messages.length - 1].text
-      : "대화 내용 없음"; // 마지막 메시지
+  // const lastMessage =
+  //   chat.messages && chat.messages.length > 0
+  //     ? chat.messages[chat.messages.length - 1].text
+  //     : "대화 내용 없음"; // 마지막 메시지
 
   // unread_count가 이미 더미 데이터에 포함되어 있으므로, 그것을 사용합니다.
   const unreadCount = chat.unreadCount || 0; // chat.unread_count 사용
@@ -21,7 +22,7 @@ const ChatListItem = ({ chat, me }) => {
     <div className="chat_list_item">
       <div className="chat_img">
         <img
-          src={chat.img || "../../asset/imgs/default-profile.png"}
+          src={chat.imageUriPath ? `${API_SERVER_HOST}${chat.imageUriPath}` : "../../asset/imgs/default-profile.png"}
           alt="채팅방 이미지"
         />
       </div>
@@ -30,11 +31,11 @@ const ChatListItem = ({ chat, me }) => {
           <h3 className="chat_name">{chat.name}</h3>
           <span className="participants_count">
             <BsPeopleFill />
-            {participantsCount}명 참여중
+            {chat.participantCount}명 참여중
           </span>
         </div>
         <div className="chat_footer">
-          <p className="last_message">{lastMessage}</p>
+          <p className="last_message">{chat.lastMessage}</p>
           {unreadCount > 0 && (
             <span className="unread_count">{unreadCount}</span>
           )}

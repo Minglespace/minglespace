@@ -1,5 +1,6 @@
 package com.minglers.minglespace.workspace.controller;
 
+import com.minglers.minglespace.chat.dto.ChatRoomMemberDTO;
 import com.minglers.minglespace.workspace.dto.WorkspaceDTO;
 import com.minglers.minglespace.workspace.service.WorkspaceService;
 import lombok.RequiredArgsConstructor;
@@ -52,4 +53,10 @@ public class WorkspaceController {
     return ResponseEntity.ok(workspaceService.getOne(workspaceId));
   }
 
+  //워크스페이스 참여 멤버 가져오기 - dto 새로 만들기 귀찮아서 chatRoom관련 dto를 가져옴 - 추후 처리 필요
+  @GetMapping("/{workspaceId}/members")
+  public ResponseEntity<List<ChatRoomMemberDTO>> getWsMemberWithUserInfo(@PathVariable Long workspaceId){
+    List<ChatRoomMemberDTO> dtos = workspaceService.getWsMemberWithUserInfo(workspaceId);
+    return ResponseEntity.ok(dtos);
+  }
 }

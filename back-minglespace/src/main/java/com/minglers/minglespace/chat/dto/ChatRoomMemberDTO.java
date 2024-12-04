@@ -12,11 +12,11 @@ import lombok.NoArgsConstructor;
 @Builder
 public class ChatRoomMemberDTO {
     //채팅방에 참여중인 멤버들의 목록
-    private Long id;
+    private Long wsMemberId;
     private String email;
-//    private String name;
-//    private String image;
-//    직책
+    private String name;
+    private String imageUriPath;
+    private String position;
     private String chatRole;
 
     //enum인 권한 string으로 변환해 저장하기
