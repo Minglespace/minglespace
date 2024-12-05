@@ -1,6 +1,5 @@
 import React from "react";
 import { BsPeopleFill } from "react-icons/bs";
-import { API_SERVER_HOST } from "../../api/chatApi";
 import default_img from "../../asset/imgs/profile1.png";
 
 const ChatListItem = ({ chat }) => {
@@ -24,7 +23,7 @@ const ChatListItem = ({ chat }) => {
     <div className="chat_list_item">
       <div className="chat_img">
         <img
-          src={chat.imageUriPath ? `${API_SERVER_HOST}${chat.imageUriPath}` : default_img}
+          src={chat.imageUriPath ? `http://localhost:8080${chat.imageUriPath}` : default_img}
           alt="채팅방 이미지"
         />
       </div>

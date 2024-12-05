@@ -2,9 +2,9 @@ import React, { useEffect, useState, useRef } from "react";
 import ChatListItem from "./ChatListItem";
 import CreateChatRoomModal from "./CreateChatRoomModal";
 import { FiChevronsLeft } from "react-icons/fi";
-import { createChatRoom, getChatList, getwsMembers } from "../../api/chatApi";
 import { useParams } from "react-router-dom";
 import Repo from "../../auth/Repo";
+import ChatApi from "../../api/ChatApi"
 
 const initRooms = [{
   id: 0,
@@ -46,7 +46,7 @@ const ChatList = () => {
   useEffect(() => {
     const fetchChatRooms = async () => {
       try {
-        const roomsData = await getChatList(workspaceId);
+        const roomsData = await ChatApi.getChatList(workspaceId);
         setRooms(roomsData);
         console.log("chatrooms: ", roomsData);
       } catch (error) {
@@ -58,7 +58,7 @@ const ChatList = () => {
     //워크스페이스 멤버 목록
     const fetchWsMembers = async () => {
       try {
-        const wsmembers = await getwsMembers(workspaceId);
+        const wsmembers = await ChatApi.getwsMembers(workspaceId);
         //현재 유저 제외한 목록 만들기
         setWsMembers(wsmembers.filter((member) => member.userId !== Number(Repo.getUserId())));
         console.log("wsmembers: ", wsmembers);
@@ -76,7 +76,7 @@ const ChatList = () => {
   // 새로운 채팅방 추가 함수
   const handleCreateRoom = async (newRoomData, imageFile) => {
     try {
-      const createdRoomData = await createChatRoom(workspaceId, newRoomData, imageFile);
+      const createdRoomData = await ChatApi.createChatRoom(workspaceId, newRoomData, imageFile);
 
       setRooms((prev) => [...prev, createdRoomData]);
     } catch (error) {
