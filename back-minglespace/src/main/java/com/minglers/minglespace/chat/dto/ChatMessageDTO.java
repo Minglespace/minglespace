@@ -6,6 +6,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Data
 @AllArgsConstructor
@@ -18,5 +19,6 @@ public class ChatMessageDTO {
     private Long chatRoomId;
     private Long replyId;
     private LocalDateTime date;
+    private List<Long> mentionedUserIds;
     //파일
 }
