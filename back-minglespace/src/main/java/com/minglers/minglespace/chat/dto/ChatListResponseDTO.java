@@ -12,18 +12,18 @@ import java.time.LocalDateTime;
 @Setter
 @Builder
 public class ChatListResponseDTO {
-    private Long id;
+  private Long id;
 
-    private String name;
+  private String name;
 
-    private String imageUriPath;
+  private String imageUriPath;
 
-    private Long workSpaceId;
+  private Long workSpaceId;
 
-    private LocalDateTime date;
+  private LocalDateTime date;
 
-    //마지막 메시지
-    private String lastMessage;
-    //참여 인원수
-    private int participantCount;
+  //마지막 메시지
+  private String lastMessage;
+  //참여 인원수
+  private int participantCount;
 }

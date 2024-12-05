@@ -19,6 +19,7 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
@@ -46,6 +47,7 @@ public class ChatRoomServiceImpl implements ChatRoomService {
         return chatRoomMembers.stream()
                 .map(chatRoomMember -> {
                     ChatRoom chatRoom = chatRoomMember.getChatRoom();
+                    String imageUriPath = (chatRoom.getImage() != null && chatRoom.getImage().getUripath() != null) ? chatRoom.getImage().getUripath() : "";
 
                     // 마지막 메시지
                     Optional<ChatMessage> lastMessage = chatMessageRepository.findLatestMessageByChatRoomId(chatRoom.getId());
@@ -57,7 +59,7 @@ public class ChatRoomServiceImpl implements ChatRoomService {
                     return ChatListResponseDTO.builder()
                             .id(chatRoom.getId())
                             .name(chatRoom.getName())
-                            .imageUriPath(chatRoom.getImage().getUripath())
+                            .imageUriPath(imageUriPath)
                             .workSpaceId(chatRoom.getWorkSpace().getId())
                             .date(chatRoom.getDate())
                             .lastMessage(lastMsgContent)
@@ -73,12 +75,12 @@ public class ChatRoomServiceImpl implements ChatRoomService {
 
     @Override
     @Transactional
-    public ChatListResponseDTO createRoom(CreateChatRoomRequestDTO requestDTO) {
+    public ChatListResponseDTO createRoom(CreateChatRoomRequestDTO requestDTO, WSMember createMember, MultipartFile image) {
         WorkSpace wspace = workspaceRepository.findById(requestDTO.getWorkspaceId()).orElse(null);
 
         Image saveFile = null;
         try{
-            saveFile = imageService.uploadImage(requestDTO.getImage());
+            saveFile = imageService.uploadImage(image);
         }catch (RuntimeException | IOException e) {
             log.error("Image upload failed: " + e.getMessage(), e);
             throw new RuntimeException("채팅방 이미지 업로드 실패 : ", e);  // 업로드 실패 시 처리
@@ -97,13 +99,13 @@ public class ChatRoomServiceImpl implements ChatRoomService {
         log.info("createRoom_ newRoomId: " + chatRoom.getId());
 
         // 방장 설정
-        Long creatorMemberId = requestDTO.getParticipantIds().get(0);
-        log.info("createRoom_ member_0 : " + creatorMemberId);
-        WSMember creatorMember = wsMemberRepository.findById(creatorMemberId).orElse(null);
+//        Long creatorMemberId = requestDTO.getParticipantIds().get(0);
+//        log.info("createRoom_ member_0 : " + creatorMemberId);
+//        WSMember creatorMember = wsMemberRepository.findById(creatorMemberId).orElse(null);
 
         ChatRoomMember creatorChatRoomMember = ChatRoomMember.builder()
                 .chatRoom(chatRoom)
-                .wsMember(creatorMember)
+                .wsMember(createMember)
                 .chatRole(ChatRole.CHATLEADER)
                 .date(LocalDateTime.now())
                 .build();
@@ -112,8 +114,7 @@ public class ChatRoomServiceImpl implements ChatRoomService {
         chatRoomMemberRepository.save(creatorChatRoomMember);
 
         // 일반 멤버 추가
-        for (int i = 1; i < requestDTO.getParticipantIds().size(); i++) {
-            Long memberId = requestDTO.getParticipantIds().get(i);
+        for (Long memberId : requestDTO.getParticipantIds()) {
             WSMember member = wsMemberRepository.findById(memberId).orElseThrow(() -> new RuntimeException("Member not found"));
 
             ChatRoomMember chatRoomMember = ChatRoomMember.builder()
@@ -127,10 +128,12 @@ public class ChatRoomServiceImpl implements ChatRoomService {
             chatRoomMemberRepository.save(chatRoomMember);
         }
 
+        String imageUriPath = (chatRoom.getImage() != null && chatRoom.getImage().getUripath() != null) ? chatRoom.getImage().getUripath() : "";
+
         return ChatListResponseDTO.builder()
                 .id(chatRoom.getId())
                 .name(chatRoom.getName())
-                .imageUriPath(chatRoom.getImage().getUripath())
+                .imageUriPath(imageUriPath)
                 .workSpaceId(chatRoom.getWorkSpace().getId())
                 .date(chatRoom.getDate())
                 .lastMessage("")

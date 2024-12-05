@@ -12,10 +12,6 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @Builder
 public class ChatMessageDTO {
-//    요청
-//    내용, 보낸 사람, 채팅방 아이디, 답글여부, 날짜
-//    응답은 id만이니까
-
     private Long id;
     private String content;
     private Long writer;

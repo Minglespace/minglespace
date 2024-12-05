@@ -2,41 +2,90 @@ import React, { useEffect, useState, useRef } from "react";
 import ChatListItem from "./ChatListItem";
 import CreateChatRoomModal from "./CreateChatRoomModal";
 import { FiChevronsLeft } from "react-icons/fi";
+import { createChatRoom, getChatList, getwsMembers } from "../../api/chatApi";
+import { useParams } from "react-router-dom";
+import Repo from "../../auth/Repo";
 
-// 더미 데이터
-const dummyRooms = [
-  {
-    id: 1,
-    name: "채팅방 1",
-    members: ["member1", "member2"],
-    messages: [{ text: "안녕하세요", sender: "member1" }],
-    unreadCount: 2,
-    img: "/src/asset/imgs/profile1.png",
-  },
-  {
-    id: 2,
-    name: "채팅방 2",
-    members: ["member2", "member3"],
-    messages: [{ text: "반갑습니다!", sender: "member3" }],
-    unreadCount: 4,
-    img: "/src/asset/imgs/profile1.png",
-  },
-  {
-    id: 3,
-    name: "채팅방 3",
-    members: ["member3", "member4, member5"],
-    messages: [{ text: "집에 가자!", sender: "member4" }],
-    unreadCount: 5,
-    img: "/src/asset/imgs/profile1.png",
-  },
-];
+const initRooms = [{
+  id: 0,
+  name: "",
+  imageUriPath: "",
+  participantCount: 0,
+  lastMessage: "",
+  date: ""
+}];
 
-const ChatList = ({ me }) => {
-  // console.log(pb);
-  const [rooms, setRooms] = useState([dummyRooms]); // 채팅방 상태
+const initMembers = [{
+  wsMemberId: 0,
+  userId: 0,
+  email: "",
+  name: "",
+  imageUriPath: "",
+  position: "",
+  chatRole: ""
+}];
+
+const ChatList = () => {
+  const [rooms, setRooms] = useState(initRooms); // 채팅방 정보
+  const [wsmembers, setWsMembers] = useState(initMembers);
   const [error, setError] = useState(null); //오류 상태
   const [isModalOpen, setIsModalOpen] = useState(false); //모달 열림/닫힘 상태
   const chatListRef = useRef(null); // 채팅방 목록을 참조하기 위한 ref
+
+  const { workspaceId } = useParams(); //url에서 워크스페이스 아이디 가져오기
+
+  // 채팅방 목록이 변경될 때마다 자동 스크롤
+  useEffect(() => {
+    if (chatListRef.current) {
+      // 스크롤을 맨 아래로 이동
+      chatListRef.current.scrollTop = chatListRef.current.scrollHeight;
+    }
+  }, [rooms]); // rooms 배열이 변경될 때마다 실행
+
+  //마운트 시, 채팅방 목록 가져오기
+  useEffect(() => {
+    const fetchChatRooms = async () => {
+      try {
+        const roomsData = await getChatList(workspaceId);
+        setRooms(roomsData);
+        console.log("chatrooms: ", roomsData);
+      } catch (error) {
+        console.error("Error fetching chat rooms:", error);
+        setError("채팅방 데이터를 가져오는 데 문제가 발생했습니다.");
+      }
+    };
+
+    //워크스페이스 멤버 목록
+    const fetchWsMembers = async () => {
+      try {
+        const wsmembers = await getwsMembers(workspaceId);
+        //현재 유저 제외한 목록 만들기
+        setWsMembers(wsmembers.filter((member) => member.userId !== Number(Repo.getUserId())));
+        console.log("wsmembers: ", wsmembers);
+      } catch (error) {
+        console.error("Error fetching ws members:", error);
+        setError("워크스페이스 멤버 목록을 가져오는 데 문제가 발생했습니다.");
+      }
+    }
+
+    fetchChatRooms();
+    fetchWsMembers();
+  }, [workspaceId]);
+
+
+  // 새로운 채팅방 추가 함수
+  const handleCreateRoom = async (newRoomData, imageFile) => {
+    try {
+      const createdRoomData = await createChatRoom(workspaceId, newRoomData, imageFile);
+
+      setRooms((prev) => [...prev, createdRoomData]);
+    } catch (error) {
+      setError("채팅방을 생성하는 중 오류가 발생했습니다.");
+      console.error(error);
+    }
+  };
+
+
 
   //모달을 여는 함수
   const openModal = () => {
@@ -47,45 +96,6 @@ const ChatList = ({ me }) => {
   const closeModal = () => {
     setIsModalOpen(false);
   };
-
-  // 새로운 채팅방 추가 함수
-  const handleCreateRoom = (newRoom) => {
-    setRooms((prevRooms) => [
-      ...prevRooms,
-      { ...newRoom, id: prevRooms.length + 1 },
-    ]);
-  };
-
-  // 채팅방 목록이 변경될 때마다 자동 스크롤
-  useEffect(() => {
-    if (chatListRef.current) {
-      // 스크롤을 맨 아래로 이동
-      chatListRef.current.scrollTop = chatListRef.current.scrollHeight;
-    }
-  }, [rooms]); // rooms 배열이 변경될 때마다 실행
-
-  useEffect(() => {
-    const fetchChatRooms = async () => {
-      setRooms(dummyRooms);
-
-      // try {
-      //   if (!pb) {
-      //     console.error("pb 객체가 없다 ");
-      //     setError("채팅 데이터를 가져올 수 없습니다.");
-      //     setRooms(dummyRooms); // 더미 데이터 설정
-      //     return;
-      //   }
-      //   const roomsData = await pb.collection("chats").getFullList();
-      //   setRooms(roomsData);
-      // } catch (error) {
-      //   console.error("Error fetching chat rooms: ", error);
-      //   setError("채팅방 데이터를 가져오는 데 문제가 발생했습니다.");
-      //   setRooms(dummyRooms);
-      // }
-    };
-
-    fetchChatRooms();
-  }, []);
 
   return (
     <div>
@@ -98,7 +108,7 @@ const ChatList = ({ me }) => {
           <p>채팅방이 없습니다. </p>
         ) : (
           rooms.map((room) => (
-            <ChatListItem key={room.id} chat={room} me={me} />
+            <ChatListItem key={room.id} chat={room} />
           ))
         )}
         <button className="create_button" onClick={openModal}>
@@ -110,6 +120,7 @@ const ChatList = ({ me }) => {
           isOpen={isModalOpen}
           onClose={closeModal}
           onCreate={handleCreateRoom}
+          wsMembers={wsmembers}
         />
       </div>
     </div>
