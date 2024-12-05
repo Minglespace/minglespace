@@ -1,7 +1,9 @@
 import React, { useEffect, useState } from "react";
 import Button from "../../common/Layouts/components/Button";
 import Modal from "../../common/Layouts/components/Modal"; // Modal 컴포넌트 임포트
-import { postAdd } from "../../api/workspaceApi";
+
+import WorkspaceApi from "../../api/workspaceApi";
+
 import { useNavigate } from "react-router-dom";
 
 const initState = {
@@ -36,7 +38,7 @@ const WorkspaceAdd = ({
     if (editingWorkspace) {
       onUpdateWorkspace(newWorkspace);
     } else {
-      postAdd(userId, newWorkspace).then((result) => {
+      WorkspaceApi.postAdd(userId, newWorkspace).then((result) => {
         setNewWorkspace({ ...initState });
         onAddWorkspace(result);
         onClose();
