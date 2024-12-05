@@ -1,7 +1,8 @@
 import React from "react";
-import { Link } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 
 const SideBar = ({ addmenu }) => {
+  const { workspaceId } = useParams();
   return (
     <div className="sidebar">
       <ul className="sidebar_menuitem">
@@ -18,7 +19,7 @@ const SideBar = ({ addmenu }) => {
               <Link to="/milestone/">MileStone</Link>
             </li>
             <li>
-              <Link to="/workspace/chat/">ChatRoom</Link>
+              <Link to={`/workspace/${workspaceId}/chat`}>ChatRoom</Link>
             </li>
           </>
         )}

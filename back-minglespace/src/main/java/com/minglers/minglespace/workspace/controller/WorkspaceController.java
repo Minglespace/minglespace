@@ -1,6 +1,9 @@
 package com.minglers.minglespace.workspace.controller;
 
+import com.minglers.minglespace.auth.security.JWTUtils;
+import com.minglers.minglespace.chat.dto.ChatRoomMemberDTO;
 import com.minglers.minglespace.workspace.dto.WorkspaceDTO;
+import com.minglers.minglespace.workspace.service.WSMemberService;
 import com.minglers.minglespace.workspace.service.WorkspaceService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -18,6 +21,8 @@ public class WorkspaceController {
      //4. 권한 부여시점은 하나 클릭했을떄 권한 조회후 jwt에 넣기.
   //asdfasdfsaf
   private final WorkspaceService workspaceService;
+  private final WSMemberService wsMemberService;
+  private final JWTUtils jwtUtils;
 
   //사이드바에서 workspace 클릭시 보여주는 리스트
   @GetMapping("/user/{userId}")
@@ -52,4 +57,11 @@ public class WorkspaceController {
     return ResponseEntity.ok(workspaceService.getOne(workspaceId));
   }
 
+  //워크스페이스 참여 멤버 가져오기 - dto 새로 만들기 귀찮아서 chatRoom관련 dto를 가져옴 - 추후 처리 필요
+  @GetMapping("/{workspaceId}/members")
+  public ResponseEntity<List<ChatRoomMemberDTO>> getWsMemberWithUserInfo(@PathVariable Long workspaceId,
+                                                                         @RequestHeader("Authorization") String authorizationHeader){
+    List<ChatRoomMemberDTO> dtos = workspaceService.getWsMemberWithUserInfo(workspaceId);
+    return ResponseEntity.ok(dtos);
+  }
 }

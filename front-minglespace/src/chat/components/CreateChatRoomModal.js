@@ -1,80 +1,96 @@
 import { useState, useRef, useEffect } from "react";
 import Userinfo from "../../common/Layouts/components/Userinfo";
+import default_img from "../../asset/imgs/profile1.png";
+import { HOST_URL } from "../../api/Api";
 
-const CreateChatRoomModal = ({ isOpen, onClose, onCreate }) => {
+const initCreateChatRoomRequest = {
+  name: "",
+  workspaceId: 0,
+  participantIds: []
+};
+
+const CreateChatRoomModal = ({ isOpen, onClose, onCreate, wsMembers }) => {
+  //채팅방 생성 > 워크스페이스 멤버 목록과 채팅방에 초대할 멤버들, 채팅방 제목, 이미지..
   // 모달이 열렸을 때 폼에서 입력하는 값을 관리하는 상태
-  const [chatRoomName, setChatRoomName] = useState("");
-  const [selectedFriends, setSelectedFriends] = useState([]); // 선택된 친구 목록
+  const [newChatRoomData, setNewChatRoomData] = useState(initCreateChatRoomRequest);
   const [selectedImage, setSelectedImage] = useState(null); // 선택된 이미지 파일 선택
 
   const fileInputRef = useRef(null);
 
   // 친구 목록 더미 데이터
-  const friendsList = [
-    {
-      id: 1,
-      name: "친구1",
-      role: "멤버",
-      email: "friend1@example.com",
-      src: "path_to_image1",
-    },
-    {
-      id: 2,
-      name: "친구2",
-      role: "멤버",
-      email: "friend2@example.com",
-      src: "path_to_image2",
-    },
-    {
-      id: 3,
-      name: "친구3",
-      role: "방장",
-      email: "friend3@example.com",
-      src: "path_to_image3",
-    },
-    {
-      id: 4,
-      name: "친구4",
-      role: "멤버",
-      email: "friend4@example.com",
-      src: "path_to_image4",
-    },
-    {
-      id: 5,
-      name: "친구5",
-      role: "멤버",
-      email: "friend5@example.com",
-      src: "path_to_image5",
-    },
-  ];
+  // const friendsList = [
+  //   {
+  //     id: 1,
+  //     name: "친구1",
+  //     role: "멤버",
+  //     email: "friend1@example.com",
+  //     src: "path_to_image1",
+  //   },
+  //   {
+  //     id: 2,
+  //     name: "친구2",
+  //     role: "멤버",
+  //     email: "friend2@example.com",
+  //     src: "path_to_image2",
+  //   },
+  //   {
+  //     id: 3,
+  //     name: "친구3",
+  //     role: "방장",
+  //     email: "friend3@example.com",
+  //     src: "path_to_image3",
+  //   },
+  //   {
+  //     id: 4,
+  //     name: "친구4",
+  //     role: "멤버",
+  //     email: "friend4@example.com",
+  //     src: "path_to_image4",
+  //   },
+  //   {
+  //     id: 5,
+  //     name: "친구5",
+  //     role: "멤버",
+  //     email: "friend5@example.com",
+  //     src: "path_to_image5",
+  //   },
+  // ];
 
   // selectedFriends가 변경될 때마다 로그를 찍는 useEffect
   useEffect(() => {
-    console.log("selectedFriends updated: ", selectedFriends);
-  }, [selectedFriends]);
+    console.log("selectedFriends updated: ", newChatRoomData.participantIds);
+  }, [newChatRoomData.participantIds]);
+
 
   //폼에서 채팅방 이름을 변경하는 함수
   const handleInputChange = (e) => {
-    setChatRoomName(e.target.value);
+    setNewChatRoomData((prev) => ({
+      ...prev, name: e.target.value
+    }));
   };
 
   // 친구 선택 변경 함수
-  const handleFriendSelect = (e, friendId) => {
-    console.log("checkbox _ click: ", friendId);
-    console.log("checkbox _ check: ", e.target.checked);
-    if (e.target.checked) {
-      setSelectedFriends((prevSelected) => [...prevSelected, friendId]);
-    } else {
-      setSelectedFriends((prevSelected) =>
-        prevSelected.filter((id) => id !== friendId)
-      );
-    }
+  const handleMemberSelect = (e, memberId) => {
+    setNewChatRoomData((prev) => {
+      const updatedParticipantIds = e.target.checked
+        ? [...prev.participantIds, memberId] // 배열에 멤버 ID 추가
+        : prev.participantIds.filter((id) => id !== memberId); // 배열에서 멤버 ID 제거
+
+      // 만약 prev.participantIds가 배열이 아니라면 빈 배열로 초기화
+      return {
+        ...prev,
+        participantIds: Array.isArray(updatedParticipantIds) ? updatedParticipantIds : []
+      };
+    });
   };
 
   const handleImageChange = (e) => {
     const file = e.target.files ? e.target.files[0] : null; // 파일이 있는지 확인
     if (file) {
       setSelectedImage(URL.createObjectURL(file)); // 선택된 파일을 미리보기로 사용
+      setNewChatRoomData((prev) => ({
+        ...prev, image: file
+      }));
     }
   };
 
@@ -85,17 +101,7 @@ const CreateChatRoomModal = ({ isOpen, onClose, onCreate }) => {
 
   //채팅방 생성 버튼 클릭시
   const handleCreate = () => {
-    // 채팅방 생성 API 호출이나 데이터 저장 등 처리 가능
-    // console.log(` 새 채팅방 이름 : ${chatRoomName}`);
-    // console.log(`선택된 친구들 : ${selectedFriends}`);
-    // console.log(` 선택된 이미지 : ${selectedImage}`);
-
-    const newChatRoom = {
-      name: chatRoomName,
-      friends: selectedFriends,
-      img: selectedImage,
-    };
-    onCreate(newChatRoom);
+    onCreate(newChatRoomData, newChatRoomData.image);
     onClose(); // 채팅방 생성 후 모달 닫기
   };
 
@@ -111,7 +117,7 @@ const CreateChatRoomModal = ({ isOpen, onClose, onCreate }) => {
           <div className="modal_img">
             <img
               className="chat_create_Img"
-              src={selectedImage || "../../asset/imgs/default-profile.png"}
+              src={selectedImage || default_img}
               alt="채팅방 이미지"
             />
           </div>
@@ -135,7 +141,7 @@ const CreateChatRoomModal = ({ isOpen, onClose, onCreate }) => {
           <input
             className="chatroom_name"
             type="text"
-            value={chatRoomName}
+            value={newChatRoomData.name}
             onChange={handleInputChange}
             placeholder="채팅방 이름을 입력해주세요"
           />
@@ -144,19 +150,19 @@ const CreateChatRoomModal = ({ isOpen, onClose, onCreate }) => {
           <div className="friends-list">
             <h1>친구 추가</h1>
             <ul>
-              {friendsList.map((friend) => (
-                <li key={friend.id}>
+              {wsMembers.map((member) => (
+                <li key={member.wsMemberId}>
                   <label>
                     <input
                       type="checkbox"
-                      checked={selectedFriends.includes(friend.id)} // 체크 상태 유지
-                      onChange={(e) => handleFriendSelect(e, friend.id)}
+                      checked={newChatRoomData.participantIds.includes(member.wsMemberId)} // 체크 상태 유지
+                      onChange={(e) => handleMemberSelect(e, member.wsMemberId)}
                     />
                     <Userinfo
-                      name={friend.name}
-                      role={friend.role}
-                      email={friend.email}
-                      src={friend.src}
+                      name={member.name}
+                      role={member.position}
+                      email={member.email}
+                      src={`${HOST_URL}${member.imageUriPath}`}
                       title="친구 정보"
                     />
                   </label>
