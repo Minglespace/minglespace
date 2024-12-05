@@ -23,8 +23,7 @@ const initItem = [
   },
 ];
 
-const MileStoneTest = () => {
-  console.log("API");
+const MileStoneTest = ({ key, refresh }) => {
   const [groups, setGroups] = useState([...initGroup]);
   const [items, setItems] = useState([...initItem]);
   const { workspaceId } = useParams("workspaceId");
@@ -42,10 +41,8 @@ const MileStoneTest = () => {
     }
     console.warn(...args);
   };
-  console.log("items : ", items);
   useEffect(() => {
     MilestoneApi.getList(workspaceId).then((data) => {
-      console.log("data : ", data);
       const updateGroup = data.map(({ id, title }) => ({
         id: id,
         title: title,
@@ -65,11 +62,6 @@ const MileStoneTest = () => {
     });
   }, [workspaceId]);
 
-  useEffect(() => {
-    console.log("group : ", groups);
-    console.log("item : ", items);
-  }, [groups, selectedItem]);
-
   const [visibleTimeStart, setVisibleTimeStart] = useState(
     moment().startOf("month").valueOf()
   );
@@ -85,7 +77,7 @@ const MileStoneTest = () => {
   };
 
   //아이템 이동 핸들러
-  function handleItemMove(itemId, time) {
+  const handleItemMove = (itemId, time) => {
     const updatedItems = items.map((item) =>
       item.id === itemId
         ? {
@@ -96,10 +88,10 @@ const MileStoneTest = () => {
         : item
     );
     setItems(updatedItems);
-  }
+  };
 
   //아이템 사이즈 조절 핸들러
-  function handleItemResize(itemId, time, edge) {
+  const handleItemResize = (itemId, time, edge) => {
     const updatedItems = items.map((item) =>
       item.id === itemId
         ? {
@@ -110,10 +102,10 @@ const MileStoneTest = () => {
         : item
     );
     setItems(updatedItems);
-  }
+  };
 
   //캔버스 클릭 핸들러(아이템 추가)
-  function handleCanvasClick(groupId, time) {
+  const handleCanvasClick = (groupId, time) => {
     const startOfDay = new Date(new Date(time).setHours(0, 0, 0, 0)).getTime();
     const endOfDay = startOfDay + 86400000;
     const newItem = {
@@ -137,16 +129,16 @@ const MileStoneTest = () => {
         ]);
       }
     );
-  }
+  };
 
-  function handleGroupAdd() {
+  const handleGroupAdd = () => {
     const newGroup = {
       title: "New Group",
     };
     MilestoneApi.postAddGroup(workspaceId, newGroup).then(({ id, title }) => {
       setGroups([...groups, { id, title }]);
     });
-  }
+  };
 
   //아이템 더블클릭 핸들러(아이템 title 수정)
   const handleItemDoubleClick = (itemId) => {
@@ -196,7 +188,7 @@ const MileStoneTest = () => {
                 : item
             )
           );
-          console.log("선택된 아이템 제목 : ", updatedItem.title);
+          refresh();
           setModalOpen(false);
         }
       );
@@ -213,6 +205,7 @@ const MileStoneTest = () => {
         setGroups(
           groups.map((group) => (group.id === id ? { ...group, title } : group))
         );
+        refresh();
         setModalOpen(false);
       });
     }
@@ -222,16 +215,17 @@ const MileStoneTest = () => {
     if (selectedItem) {
       MilestoneApi.deleteItem(workspaceId, selectedItem.id).then(() => {
         setItems(items.filter((item) => item.id !== selectedItem.id));
+        refresh();
         setModalOpen(false);
       });
     } else if (selectedGroup) {
       MilestoneApi.deleteGroup(workspaceId, selectedGroup.id).then(() => {
         setItems(groups.filter((group) => group.id !== selectedGroup.id));
+        refresh();
         setModalOpen(false);
       });
     }
   };
-
   return (
     <div
       style={{
@@ -268,7 +262,6 @@ const MileStoneTest = () => {
                 itemContext.selected ? "timeline-item-selected" : ""
               }`}
               {...getItemProps({
-                onMouseDown: () => console.log("onMouseDown", item),
                 onDoubleClick: () => handleItemDoubleClick(item.id),
               })}
             >
