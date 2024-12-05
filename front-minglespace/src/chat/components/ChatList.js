@@ -7,7 +7,7 @@ import Repo from "../../auth/Repo";
 import ChatApi from "../../api/ChatApi";
 
 const initRooms = [{
-  id: 0,
+  chatRoomId: 0,
   name: "",
   imageUriPath: "",
   participantCount: 0,
@@ -108,7 +108,7 @@ const ChatList = () => {
           <p>채팅방이 없습니다. </p>
         ) : (
           rooms.map((room) => (
-            <ChatListItem key={room.id} chat={room} />
+            <ChatListItem key={room.chatRoomId} chat={room} />
           ))
         )}
         <button className="create_button" onClick={openModal}>

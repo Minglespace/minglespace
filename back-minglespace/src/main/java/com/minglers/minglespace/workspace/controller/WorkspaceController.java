@@ -3,6 +3,7 @@ package com.minglers.minglespace.workspace.controller;
 import com.minglers.minglespace.auth.security.JWTUtils;
 import com.minglers.minglespace.chat.dto.ChatRoomMemberDTO;
 import com.minglers.minglespace.workspace.dto.WorkspaceDTO;
+import com.minglers.minglespace.workspace.entity.WSMember;
 import com.minglers.minglespace.workspace.service.WSMemberService;
 import com.minglers.minglespace.workspace.service.WorkspaceService;
 import lombok.RequiredArgsConstructor;
@@ -61,7 +62,10 @@ public class WorkspaceController {
   @GetMapping("/{workspaceId}/members")
   public ResponseEntity<List<ChatRoomMemberDTO>> getWsMemberWithUserInfo(@PathVariable Long workspaceId,
                                                                          @RequestHeader("Authorization") String authorizationHeader){
-    List<ChatRoomMemberDTO> dtos = workspaceService.getWsMemberWithUserInfo(workspaceId);
+    List<WSMember> wsMembers = wsMemberService.findByWorkSpaceId(workspaceId);
+
+
+    List<ChatRoomMemberDTO> dtos = workspaceService.getWsMemberWithUserInfo(workspaceId, wsMembers);
     return ResponseEntity.ok(dtos);
   }
 }

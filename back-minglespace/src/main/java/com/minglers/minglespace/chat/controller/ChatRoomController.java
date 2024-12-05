@@ -56,14 +56,14 @@ public class ChatRoomController {
       }});
     }
 
-    List<ChatListResponseDTO> chatRooms = chatRoomService.getRoomsByWsMember(workspaceId, wsMember.getId());
+    List<ChatRoomDTO.ListResponse> chatRooms = chatRoomService.getRoomsByWsMember(workspaceId, wsMember.getId());
     return ResponseEntity.ok(chatRooms);
   }
 
   //방 생성
   @PostMapping("")
-  public ResponseEntity<ChatListResponseDTO> createRoom(@PathVariable Long workspaceId,
-                                                        @RequestPart("requestDTO") CreateChatRoomRequestDTO requestDTO,
+  public ResponseEntity<ChatRoomDTO.ListResponse> createRoom(@PathVariable Long workspaceId,
+                                                        @RequestPart("requestDTO") ChatRoomDTO.CreateRequest requestDTO,
                                                         @RequestPart("image") MultipartFile image,
                                                         @RequestHeader("Authorization") String authorizationHeader) {
     String token = authorizationHeader.replace("Bearer ", "");
@@ -83,7 +83,7 @@ public class ChatRoomController {
     }
 
 //    requestDTO.setImage(image);
-    ChatListResponseDTO chatRoomdto = chatRoomService.createRoom(requestDTO, createMember, saveFile);
+    ChatRoomDTO.ListResponse chatRoomdto = chatRoomService.createRoom(requestDTO, createMember, saveFile);
     return ResponseEntity.ok(chatRoomdto);
   }
 
@@ -117,7 +117,7 @@ public class ChatRoomController {
     String imageUriPath = (chatRoom.getImage() != null && chatRoom.getImage().getUripath() != null) ? chatRoom.getImage().getUripath() : "";
 
 
-    ChatRoomResponseDTO chatRoomResponseDTO = ChatRoomResponseDTO.builder()
+    ChatRoomDTO.RoomResponse chatRoomResponseDTO = ChatRoomDTO.RoomResponse.builder()
             .chatRoomId(chatRoomId)
             .name(chatRoom.getName())
             .participants(participants)
@@ -184,6 +184,12 @@ public class ChatRoomController {
     Long wsMemberId = wsMemberService.findByUserIdAndWsId(userId, workspaceId).getId();
 
     chatRoomMemberService.updateIsLeftFromLeave(chatRoomId, wsMemberId);
+
+    boolean isChatRoomEmpty = !chatRoomMemberService.isChatRoomEmpty(chatRoomId);
+    if (isChatRoomEmpty) {
+      chatRoomService.deleteChatRoomData(chatRoomId);
+    }
+
     return ResponseEntity.ok("채팅방 나가기 완료");
   }
 
