@@ -1,7 +1,6 @@
-import React, { useEffect, useState, useRef } from "react";
+﻿import React, { useEffect, useState, useRef } from "react";
 import ChatListItem from "./ChatListItem";
 import CreateChatRoomModal from "./CreateChatRoomModal";
-import { FiChevronsLeft } from "react-icons/fi";
 import { useParams } from "react-router-dom";
 import Repo from "../../auth/Repo";
 import ChatApi from "../../api/ChatApi";
@@ -25,7 +24,7 @@ const initMembers = [{
   chatRole: ""
 }];
 
-const ChatList = () => {
+const ChatList = ( isFold, onCreateRoom) => {
   const [rooms, setRooms] = useState(initRooms); // 채팅방 정보
   const [wsmembers, setWsMembers] = useState(initMembers);
   const [error, setError] = useState(null); //오류 상태
@@ -33,6 +32,11 @@ const ChatList = () => {
   const chatListRef = useRef(null); // 채팅방 목록을 참조하기 위한 ref
 
   const { workspaceId } = useParams(); //url에서 워크스페이스 아이디 가져오기
+
+  // 모달을 닫는 함수
+  const closeModal = () => {
+    setIsModalOpen(false);
+  };
 
   // 채팅방 목록이 변경될 때마다 자동 스크롤
   useEffect(() => {
@@ -99,11 +103,9 @@ const ChatList = () => {
 
   return (
     <div>
-      <div className="chat_list_container">
-        <h1>채팅방 목록 </h1>
-        <button className="chat_toggle">
-          <FiChevronsLeft />
-        </button>
+      <div className={`chat_list_container ${isFold ? "collapsed" : ""}`}>
+        {!isFold && <h1>채팅방 목록</h1>}
+        {/* isFold 상태가 false일 때만 '채팅방 목록'을 보여줌 */}
         {rooms.length === 0 ? (
           <p>채팅방이 없습니다. </p>
         ) : (
@@ -114,8 +116,7 @@ const ChatList = () => {
         <button className="create_button" onClick={openModal}>
           +
         </button>
-
-        {/* 모달을 isModalOpen 상태에 따라 보여줌  */}
+        {/* 모달을 isModalOpen 상태에 따라 보여줌 */}
         <CreateChatRoomModal
           isOpen={isModalOpen}
           onClose={closeModal}
