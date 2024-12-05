@@ -1,7 +1,17 @@
 import React from "react";
 
-const MessageList = () => {
-  return <div className="chat_message_list">채팅 리스트</div>;
+const MessageList = ({ messages }) => {
+  return (
+    <div className="message-list">
+      {messages.map((message, index) => (
+        <div key={index} className="message-item">
+          <span className="message-sender">{message.sender}: </span>
+
+          {message.text}
+        </div>
+      ))}
+    </div>
+  );
 };
 
 export default MessageList;

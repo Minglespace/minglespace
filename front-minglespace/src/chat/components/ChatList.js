@@ -5,26 +5,30 @@ import { useParams } from "react-router-dom";
 import Repo from "../../auth/Repo";
 import ChatApi from "../../api/chatApi";
 
-const initRooms = [{
-  chatRoomId: 0,
-  name: "",
-  imageUriPath: "",
-  participantCount: 0,
-  lastMessage: "",
-  date: ""
-}];
+const initRooms = [
+  {
+    chatRoomId: 0,
+    name: "",
+    imageUriPath: "",
+    participantCount: 0,
+    lastMessage: "",
+    date: "",
+  },
+];
 
-const initMembers = [{
-  wsMemberId: 0,
-  userId: 0,
-  email: "",
-  name: "",
-  imageUriPath: "",
-  position: "",
-  chatRole: ""
-}];
+const initMembers = [
+  {
+    wsMemberId: 0,
+    userId: 0,
+    email: "",
+    name: "",
+    imageUriPath: "",
+    position: "",
+    chatRole: "",
+  },
+];
 
-const ChatList = ( isFold, onCreateRoom) => {
+const ChatList = ({ isFold, onCreateRoom }) => {
   const [rooms, setRooms] = useState(initRooms); // 채팅방 정보
   const [wsmembers, setWsMembers] = useState(initMembers);
   const [error, setError] = useState(null); //오류 상태
@@ -32,7 +36,6 @@ const ChatList = ( isFold, onCreateRoom) => {
   const chatListRef = useRef(null); // 채팅방 목록을 참조하기 위한 ref
 
   const { workspaceId } = useParams(); //url에서 워크스페이스 아이디 가져오기
-
 
   // 채팅방 목록이 변경될 때마다 자동 스크롤
   useEffect(() => {
@@ -60,23 +63,30 @@ const ChatList = ( isFold, onCreateRoom) => {
       try {
         const wsmembers = await ChatApi.getwsMembers(workspaceId);
         //현재 유저 제외한 목록 만들기
-        setWsMembers(wsmembers.filter((member) => member.userId !== Number(Repo.getUserId())));
+        setWsMembers(
+          wsmembers.filter(
+            (member) => member.userId !== Number(Repo.getUserId())
+          )
+        );
         console.log("wsmembers: ", wsmembers);
       } catch (error) {
         console.error("Error fetching ws members:", error);
         setError("워크스페이스 멤버 목록을 가져오는 데 문제가 발생했습니다.");
       }
-    }
+    };
 
     fetchChatRooms();
     fetchWsMembers();
   }, [workspaceId]);
 
-
   // 새로운 채팅방 추가 함수
   const handleCreateRoom = async (newRoomData, imageFile) => {
     try {
-      const createdRoomData = await ChatApi.createChatRoom(workspaceId, newRoomData, imageFile);
+      const createdRoomData = await ChatApi.createChatRoom(
+        workspaceId,
+        newRoomData,
+        imageFile
+      );
 
       setRooms((prev) => [...prev, createdRoomData]);
     } catch (error) {
@@ -84,8 +94,6 @@ const ChatList = ( isFold, onCreateRoom) => {
       console.error(error);
     }
   };
-
-
 
   //모달을 여는 함수
   const openModal = () => {
