@@ -33,7 +33,7 @@ public class ChatMessageServiceImpl implements ChatMessageService {
 
   // 메시지 저장
   @Override
-  public Long saveMessage(ChatMessageDTO messageDTO, Long writerUserId) {
+  public ChatMessage saveMessage(ChatMessageDTO messageDTO, Long writerUserId) {
     try {
       ChatRoom chatRoom = chatRoomRepository.findById(messageDTO.getChatRoomId()).orElseThrow(() -> new RuntimeException("채팅방이 존재하지 않습니다."));
 
@@ -70,7 +70,7 @@ public class ChatMessageServiceImpl implements ChatMessageService {
         }
       }
 
-      return savedMessage.getId();
+      return savedMessage;
     } catch (RuntimeException e) {
       log.error("메시지 저장 중 오류 발생 : ", e);
       throw e; //클라이언트에게 오류 던짐

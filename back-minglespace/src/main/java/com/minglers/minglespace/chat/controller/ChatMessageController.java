@@ -2,7 +2,9 @@ package com.minglers.minglespace.chat.controller;
 
 import com.minglers.minglespace.chat.config.interceptor.CustomHandShakeInterceptor;
 import com.minglers.minglespace.chat.dto.ChatMessageDTO;
+import com.minglers.minglespace.chat.entity.ChatMessage;
 import com.minglers.minglespace.chat.service.ChatMessageService;
+import com.minglers.minglespace.chat.service.MsgReadStatusService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.messaging.handler.annotation.MessageMapping;
@@ -18,6 +20,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 @RequiredArgsConstructor
 public class ChatMessageController {
     private final ChatMessageService chatMessageService;
+    private final MsgReadStatusService msgReadStatusService;
     private final SimpMessagingTemplate simpMessagingTemplate;
     private final CustomHandShakeInterceptor customHandShakeInterceptor;
 
@@ -39,8 +42,11 @@ public class ChatMessageController {
         try{
             messageDTO.setChatRoomId(chatRoomId);
 
-            Long savedId = chatMessageService.saveMessage(messageDTO, writerUserId);
-            messageDTO.setId(savedId);
+            ChatMessage savedMsg = chatMessageService.saveMessage(messageDTO, writerUserId);
+            messageDTO.setId(savedMsg.getId());
+
+            //MsgReadStatus테이블에 추가
+            msgReadStatusService.createMsgForMembers(savedMsg);
 
             return messageDTO;
         }catch (Exception e){
