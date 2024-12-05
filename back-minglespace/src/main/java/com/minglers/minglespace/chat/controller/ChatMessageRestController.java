@@ -16,7 +16,7 @@ public class ChatMessageRestController {
   private final ChatMessageService chatMessageService;
 
   @GetMapping("/search")
-  public List<ChatMessageDTO> searchMessages(@PathVariable("chatRoomId") Long chatRoomId,
+  public List<Long> searchMessages(@PathVariable("chatRoomId") Long chatRoomId,
                                              @RequestParam List<String> keywords){
     return chatMessageService.searchMessages(chatRoomId, keywords);
   }

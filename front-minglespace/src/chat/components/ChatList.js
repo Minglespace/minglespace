@@ -3,7 +3,7 @@ import ChatListItem from "./ChatListItem";
 import CreateChatRoomModal from "./CreateChatRoomModal";
 import { useParams } from "react-router-dom";
 import Repo from "../../auth/Repo";
-import ChatApi from "../../api/ChatApi";
+import ChatApi from "../../api/chatApi";
 
 const initRooms = [{
   chatRoomId: 0,
