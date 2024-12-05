@@ -5,6 +5,7 @@ import Header from "./section/Header";
 import { useParams } from "react-router-dom";
 
 import WorkspaceApi from "../../api/workspaceApi";
+import { WSMemberRoleContext } from "../../workspace/context/WSMemberRoleContext";
 
 const initData = {
   id: "",
@@ -15,21 +16,27 @@ const initData = {
 const BasicLayout = ({ children }) => {
   const { workspaceId } = useParams();
   const [workspaceData, setWorkspaceData] = useState({ ...initData });
-
+  const [wsMemberData, setWsMEmberData] = useState({ memberId: "", role: "" });
   useEffect(() => {
     if (workspaceId) {
       WorkspaceApi.getOne(workspaceId).then((workspaceServerData) => {
         setWorkspaceData(workspaceServerData);
       });
+      WorkspaceApi.getWsMemberRole(workspaceId).then((wsMemberServiceData) => {
+        setWsMEmberData(wsMemberServiceData);
+      });
     }
   }, [children]);
+
   return (
     <>
-      <Header workspaceData={workspaceData} />
-      <div className="midcontainer">
-        <Sidebar addmenu={workspaceId} />
-        <div className="main_container">{children}</div>
-      </div>
+      <WSMemberRoleContext.Provider value={wsMemberData}>
+        <Header workspaceData={workspaceData} />
+        <div className="midcontainer">
+          <Sidebar addmenu={workspaceId} />
+          <div className="main_container">{children}</div>
+        </div>
+      </WSMemberRoleContext.Provider>
       <Footer />
     </>
   );

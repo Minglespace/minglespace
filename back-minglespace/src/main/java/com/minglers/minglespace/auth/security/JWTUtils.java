@@ -1,5 +1,6 @@
 package com.minglers.minglespace.auth.security;
 
+import com.minglers.minglespace.auth.entity.User;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -40,19 +41,21 @@ public class JWTUtils {
         this.Key = new SecretKeySpec(keyBytes, "HmacSHA256");
     }
 
-    public String generateToken(UserDetails userDetails) {
+    public String generateToken(User userDetails) {
         return Jwts.builder()
                 .subject(userDetails.getUsername())
+                .claim("userId",userDetails.getId())
                 .issuedAt(new Date(System.currentTimeMillis()))
                 .expiration(new Date(System.currentTimeMillis() + EXPIRATION_TIME_A))
                 .signWith(Key)
                 .compact();
     }
 
-    public String generateRefreshToken(Map<String, Object> claims, UserDetails userDetails) {
+    public String generateRefreshToken(Map<String, Object> claims, User userDetails) {
         return Jwts.builder()
                 .claims(claims)
                 .subject(userDetails.getUsername())
+                .claim("userId",userDetails.getId())
                 .issuedAt(new Date(System.currentTimeMillis()))
                 .expiration(new Date(System.currentTimeMillis() + EXPIRATION_TIME_R))
                 .signWith(Key)
@@ -62,6 +65,8 @@ public class JWTUtils {
     public String extractUsername(String token) {
         return extractClaims(token, Claims::getSubject);
     }
+
+    public Long extractUserId(String token) { return extractClaims(token, claims -> claims.get("userId", Long.class));}
 
     private <T> T extractClaims(String token, Function<Claims, T> claimsTFunction) {
         return claimsTFunction.apply(Jwts.parser().verifyWith(Key).build().parseSignedClaims(token).getPayload());

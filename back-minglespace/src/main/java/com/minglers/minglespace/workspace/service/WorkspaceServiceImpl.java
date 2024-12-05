@@ -2,7 +2,9 @@ package com.minglers.minglespace.workspace.service;
 
 import com.minglers.minglespace.auth.entity.User;
 import com.minglers.minglespace.auth.repository.UserRepository;
-import com.minglers.minglespace.workspace.dto.WorkspaceDTO;
+import com.minglers.minglespace.workspace.dto.WSMemberResponseDTO;
+import com.minglers.minglespace.workspace.dto.WorkSpaceResponseDTO;
+import com.minglers.minglespace.workspace.dto.WorkspaceRequestDTO;
 import com.minglers.minglespace.workspace.entity.WSMember;
 import com.minglers.minglespace.workspace.entity.WorkSpace;
 import com.minglers.minglespace.workspace.exception.WorkspaceException;
@@ -45,6 +47,12 @@ public class WorkspaceServiceImpl implements WorkspaceService{
             .orElseThrow(() -> new WorkspaceException(HttpStatus.NOT_FOUND.value(), "워크스페이스 정보를 찾을수 없습니다."));
   }
 
+  //워크스페이스멤버 가져오기
+  private WSMember findWSMemberBy(Long userId, Long workSpaceId){
+    return wsMemberRepository.findByUserIdAndWorkSpaceId(userId,workSpaceId)
+            .orElseThrow(() -> new WorkspaceException(HttpStatus.NOT_FOUND.value(), "워크스페이스 멤버가 아닙니다"));
+  }
+
   //워크스페이스 삭제여부체크
   private void checkDelflag(WorkSpace workSpace){
     if(workSpace.isDelflag())
@@ -52,12 +60,12 @@ public class WorkspaceServiceImpl implements WorkspaceService{
   }
 
   //워크스페이스 엔티티를 DTO 로 변환
-  private WorkspaceDTO.Response workspaceDtoFromEntity(WorkSpace workSpace){
-    return modelMapper.map(workSpace, WorkspaceDTO.Response.class);
+  private WorkSpaceResponseDTO workspaceDtoFromEntity(WorkSpace workSpace){
+    return modelMapper.map(workSpace, WorkSpaceResponseDTO.class);
   }
 
   //워크스페이스 DTO를 entity로 변환
-  private WorkSpace workspaceEntityFromRequest(WorkspaceDTO.Request request){
+  private WorkSpace workspaceEntityFromRequest(WorkspaceRequestDTO request){
     return modelMapper.map(request, WorkSpace.class);
   }
 
@@ -66,12 +74,12 @@ public class WorkspaceServiceImpl implements WorkspaceService{
   //사이드바에서 workspace 클릭시 보여주는 리스트
   @Override
   @Transactional(readOnly = true)
-  public List<WorkspaceDTO.Response> getList(Long userId) {
+  public List<WorkSpaceResponseDTO> getList(Long userId) {
     return findUserById(userId).getWsMembers().stream()
             .filter((wsMember) -> !wsMember.getWorkSpace().isDelflag()) //삭제된 워크스페이스는 제외
             .map((wsMember) -> {//워크스페이스 조회후 카운트 추가
               WorkSpace workSpace = wsMember.getWorkSpace();
-              WorkspaceDTO.Response response = workspaceDtoFromEntity(workSpace);
+              WorkSpaceResponseDTO response = workspaceDtoFromEntity(workSpace);
               response.setCount(workSpace.getWorkSpaceList().size());
               return response;
             }).toList();
@@ -80,7 +88,7 @@ public class WorkspaceServiceImpl implements WorkspaceService{
   //workspace 추가
   @Override
   @Transactional
-  public WorkspaceDTO.Response resister(Long userId,WorkspaceDTO.Request workspaceDTO) {
+  public WorkSpaceResponseDTO resister(Long userId, WorkspaceRequestDTO workspaceDTO) {
     User user = findUserById(userId);
 
     WorkSpace targetWorkSpace = workspaceEntityFromRequest(workspaceDTO);
@@ -93,7 +101,7 @@ public class WorkspaceServiceImpl implements WorkspaceService{
             .build();
     WSMember savedWSMeber = wsMemberRepository.save(targetwsMember);
 
-    WorkspaceDTO.Response response = workspaceDtoFromEntity(savedWorkSpace);
+    WorkSpaceResponseDTO response = workspaceDtoFromEntity(savedWorkSpace);
     response.setCount(1);//처음 참여인원은 무조건1로 리턴
 
     return response;
@@ -102,7 +110,7 @@ public class WorkspaceServiceImpl implements WorkspaceService{
   //workspace수정
   @Override
   @Transactional
-  public WorkspaceDTO.Response modify(Long workSpaceId, WorkspaceDTO.Request workspaceDTO) {
+  public WorkSpaceResponseDTO modify(Long workSpaceId, WorkspaceRequestDTO workspaceDTO) {
     //원본 가져오고 수정해서 save하기
     WorkSpace workSpace = findWorkSpaceById(workSpaceId);
     checkDelflag(workSpace);
@@ -137,15 +145,37 @@ public class WorkspaceServiceImpl implements WorkspaceService{
   //하나만 조회하기
   @Override
   @Transactional(readOnly = true)
-  public WorkspaceDTO.Response getOne(Long workSpaceId) {
+  public WorkSpaceResponseDTO getOne(Long workSpaceId) {
 
     WorkSpace workSpace = findWorkSpaceById(workSpaceId);
     checkDelflag(workSpace);
 
-    WorkspaceDTO.Response response = workspaceDtoFromEntity(workSpace);
+    WorkSpaceResponseDTO response = workspaceDtoFromEntity(workSpace);
     response.setCount(workSpace.getWorkSpaceList().size());
 
     return response;
+  }
+  //리더 체크하기
+  @Override
+  @Transactional(readOnly = true)
+  public void checkLeader(Long userId, Long workSpaceId) {
+
+    WSMember wsMember = findWSMemberBy(userId,workSpaceId);
+
+    if(WSMemberRole.LEADER !=wsMember.getRole())//리더가 아니라면
+      throw new WorkspaceException(HttpStatus.UNAUTHORIZED.value(),"워크스페이스 리더가 아닙니다");
+  }
+  //유저id+권한 가져오기
+  @Override
+  @Transactional(readOnly = true)
+  public WSMemberResponseDTO getWorkSpaceRole(Long userId, Long workSpaceId) {
+
+    WSMember wsMember = findWSMemberBy(userId,workSpaceId);
+
+    return WSMemberResponseDTO.builder()
+            .memberId(wsMember.getId())
+            .role(wsMember.getRole().name())
+            .build();
   }
 }
 

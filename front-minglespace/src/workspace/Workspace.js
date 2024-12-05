@@ -8,7 +8,6 @@ import WorkspaceAdd from "./components/WorkspaceAdd";
 import { FaPlus } from "react-icons/fa6";
 
 const Workspace = () => {
-  const userId = "1"; // 로그인 정보 검증을 위한 initData
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [workspaceData, setWorkspaceData] = useState([]);
   const [editingWorkspace, setEditingWorkspace] = useState(null);
@@ -17,12 +16,10 @@ const Workspace = () => {
   //onClick으로 상세보기 페이지 이동을 위한 navigate 지정
 
   useEffect(() => {
-    WorkspaceApi.getList(userId).then((data) => {
-      console.log("data : ", data);
-      //userId 요청 후 받은 data
+    WorkspaceApi.getList().then((data) => {
       setWorkspaceData(data); //useState 상태에 저장
     });
-  }, [userId]); //userId의 변화를 감지
+  }, []);
 
   // useEffect(() => {
 
@@ -80,7 +77,7 @@ const Workspace = () => {
       });
   };
   const handleDeleteWorkspace = (workspaceId) => {
-    WorkspaceApi.deleteOne(userId, workspaceId).then(() => {
+    WorkspaceApi.deleteOne(workspaceId).then(() => {
       setWorkspaceData((prevData) =>
         prevData.filter((workspace) => workspace.id !== workspaceId)
       );
