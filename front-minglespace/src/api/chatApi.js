@@ -114,6 +114,7 @@ axiosInstance.interceptors.response.use(
 // ======================================================================================
 // ======================================================================================
 
+//////////////////////ChatList.js와 관련 API/////////////////////////////
 //채팅방 목록 조회
 export const getChatList = async (workspaceId) => {
 	try {
@@ -155,6 +156,16 @@ export const createChatRoom = async (workspaceId, requestDTO, imageFile) => {
 	}
 };
 
+//워크스페이스 참여 멤버 가져오기.
+export const getwsMembers = async (workspaceId) => {
+	const res = await axiosInstance.get(`http://localhost:8080/workspace/${workspaceId}/members`);
+	return res.data;
+};
+
+
+
+
+/////////////////ChatRoom 관련 API//////////////////////////
 //특정방 조회
 export const getChatRoom = async (workspaceId, chatRoomId) => {
 	const res = await axiosInstance.get(`${prefix}/${workspaceId}/chatRooms/${chatRoomId}`);
@@ -189,8 +200,3 @@ export const delegateLeader = async (workspaceId, chatRoomId, newLeaderId) => {
 };
 
 
-//워크스페이스 참여 멤버 가져오기.
-export const getwsMembers = async (workspaceId) => {
-	const res = await axiosInstance.get(`http://localhost:8080/workspace/${workspaceId}/members`);
-	return res.data;
-};
