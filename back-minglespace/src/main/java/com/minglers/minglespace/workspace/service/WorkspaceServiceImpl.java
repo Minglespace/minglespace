@@ -34,7 +34,6 @@ public class WorkspaceServiceImpl implements WorkspaceService{
 
   private final WSMemberRepository wsMemberRepository;
 
-  private final WSMemberService wsMemberService;
 
   //공통 메서드////////////////
   //유저 정보 가져오기
@@ -153,13 +152,12 @@ public class WorkspaceServiceImpl implements WorkspaceService{
   }
 
   @Override
-  public List<ChatRoomMemberDTO> getWsMemberWithUserInfo(Long workspaceId){
-    List<WSMember> wsMembers = wsMemberService.findByWorkSpaceId(workspaceId);
-
+  public List<ChatRoomMemberDTO> getWsMemberWithUserInfo(Long workspaceId, List<WSMember> wsMembers){
     List<ChatRoomMemberDTO> wsMemberList = new ArrayList<>();
 
     for(WSMember member : wsMembers){
-      User user = userRepository.findById(member.getUser().getId()).orElseThrow(()-> new RuntimeException("찾는 유저가 없습니다."));
+      User user = userRepository.findById(member.getUser().getId())
+              .orElseThrow(()-> new RuntimeException("찾는 유저가 없습니다."));
 
       String imageUriPath = (user.getImage() != null && user.getImage().getUripath() != null) ? user.getImage().getUripath() : "";
 

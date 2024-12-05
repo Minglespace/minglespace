@@ -4,15 +4,6 @@ import default_img from "../../asset/imgs/profile1.png";
 import { HOST_URL } from "../../api/Api";
 
 const ChatListItem = ({ chat }) => {
-  // 채팅방 정보 추출
-  // const participantsCount = chat.members ? chat.members.length : 0; // 참여자 수
-  // console.log(participantsCount);
-
-  // const lastMessage =
-  //   chat.messages && chat.messages.length > 0
-  //     ? chat.messages[chat.messages.length - 1].text
-  //     : "대화 내용 없음"; // 마지막 메시지
-
   // unread_count가 이미 더미 데이터에 포함되어 있으므로, 그것을 사용합니다.
   const unreadCount = chat.unreadCount || 0; // chat.unread_count 사용
 

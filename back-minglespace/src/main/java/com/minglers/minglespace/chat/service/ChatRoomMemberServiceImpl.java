@@ -24,7 +24,6 @@ public class ChatRoomMemberServiceImpl implements ChatRoomMemberService {
     private final ChatRoomMemberRepository chatRoomMemberRepository;
     private final ChatRoomRepository chatRoomRepository;
     private final WSMemberRepository wsMemberRepository;
-    private final ChatRoomService chatRoomService;
     //알림 처리
     private final CustomHandShakeInterceptor customHandShakeInterceptor;
     private final SimpMessagingTemplate simpMessagingTemplate;
@@ -42,11 +41,6 @@ public class ChatRoomMemberServiceImpl implements ChatRoomMemberService {
         int updateResult = chatRoomMemberRepository.updateIsLeftStatus(true, chatRoomId, wsMemberId);
         if (updateResult == 0) {
             throw new IllegalArgumentException("Failed to mark user as left. User not found in the chat room.");
-        }
-
-        boolean isChatRoomEmpty = !chatRoomMemberRepository.existsByChatRoomIdAndIsLeftFalse(chatRoomId);
-        if (isChatRoomEmpty) {
-            chatRoomService.deleteChatRoomData(chatRoomId);
         }
     }
 
@@ -139,5 +133,9 @@ public class ChatRoomMemberServiceImpl implements ChatRoomMemberService {
     @Override
     public boolean existsByChatRoomIdAndWsMemberIdAndIsLeftFalse(Long chatRoomId, Long wsMemberId) {
         return chatRoomMemberRepository.existsByChatRoomIdAndWsMemberIdAndIsLeftFalse(chatRoomId, wsMemberId);
+    }
+
+    public boolean isChatRoomEmpty(Long chatRoomId){
+        return !chatRoomMemberRepository.existsByChatRoomIdAndIsLeftFalse(chatRoomId);
     }
 }
