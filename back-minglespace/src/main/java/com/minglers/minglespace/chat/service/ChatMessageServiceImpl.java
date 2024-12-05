@@ -16,6 +16,7 @@ import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -117,7 +118,7 @@ public class ChatMessageServiceImpl implements ChatMessageService {
 
   ///메시지 검색 결과
   @Override
-  public List<ChatMessageDTO> searchMessages(Long chatRoomId, List<String> keywords) {
+  public List<Long> searchMessages(Long chatRoomId, List<String> keywords) {
     //chatRoomId에 맞는 조건 추가
     Specification<ChatMessage> spec = Specification.where(ChatMessageSpecification.hasChatRoomId(chatRoomId));
 
@@ -125,23 +126,29 @@ public class ChatMessageServiceImpl implements ChatMessageService {
       //키워드 검색 조건 추가
       spec = spec.and(ChatMessageSpecification.contentContainKeywords(keywords));
     }
-    
+
     //조건에 맞는 레코드 검색
     List<ChatMessage> msgs = chatMessageRepository.findAll(spec);
 
-    return msgs.stream()
-            .map(msg ->{
-              Long replyId = (msg.getParentMessage() != null) ? msg.getParentMessage().getId() : null;
-              return ChatMessageDTO.builder()
-                      .id(msg.getId())
-                      .chatRoomId(msg.getChatRoom().getId())
-                      .date(msg.getDate())
-                      .content(msg.getContent())
-                      .replyId(replyId)
-                      .writerWsMemberId(msg.getWsMember().getId())
-                      .isAnnouncement(msg.getIsAnnouncement())
-                      .build();
-            })
-            .collect(Collectors.toList());
+    List<Long> resultIds = new ArrayList<>();
+    for (ChatMessage msg: msgs){
+      resultIds.add(msg.getId());
+    }
+
+    return resultIds;
+//    return msgs.stream()
+//            .map(msg ->{
+//              Long replyId = (msg.getParentMessage() != null) ? msg.getParentMessage().getId() : null;
+//              return ChatMessageDTO.builder()
+//                      .id(msg.getId())
+//                      .chatRoomId(msg.getChatRoom().getId())
+//                      .date(msg.getDate())
+//                      .content(msg.getContent())
+//                      .replyId(replyId)
+//                      .writerWsMemberId(msg.getWsMember().getId())
+//                      .isAnnouncement(msg.getIsAnnouncement())
+//                      .build();
+//            })
+//            .collect(Collectors.toList());
   }
 }
