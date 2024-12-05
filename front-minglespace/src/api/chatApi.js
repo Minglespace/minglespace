@@ -121,8 +121,13 @@ export const getChatList = async (workspaceId) => {
 		console.log("채팅방 목록 응답:", res);
 		return res.data;  // 서버 응답 데이터 반환
 	} catch (error) {
-		console.error("채팅방 목록 가져오기 실패:", error);
-		throw error;  // 에러 발생시 예외 처리
+		if (error.response && error.response.status === 403) {
+			alert(error.response.data.error);
+			window.location.href = `/workspace`;
+		} else {
+			console.error("채팅방 목록 가져오기 실패:", error);
+			throw error;  // 에러 발생시 예외 처리
+		}
 	}
 };
 

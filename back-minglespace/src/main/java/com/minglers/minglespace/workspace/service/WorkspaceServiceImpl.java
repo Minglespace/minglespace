@@ -164,6 +164,7 @@ public class WorkspaceServiceImpl implements WorkspaceService{
       ChatRoomMemberDTO dto = ChatRoomMemberDTO.builder()
               .email(user.getEmail())
               .wsMemberId(member.getId())
+              .userId(user.getId())
               .name(user.getName())
               .imageUriPath(imageUriPath)
               .position(user.getPosition())

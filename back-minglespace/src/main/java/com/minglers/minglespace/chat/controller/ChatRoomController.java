@@ -18,6 +18,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -35,16 +37,22 @@ public class ChatRoomController {
 
   //채팅방 목록 조회
   @GetMapping("/members")
-  public ResponseEntity<List<ChatListResponseDTO>> getRoomsByMember(@PathVariable Long workspaceId,
+  public ResponseEntity<?> getRoomsByMember(@PathVariable Long workspaceId,
                                                                     @RequestHeader("Authorization") String authorizationHeader) {
     String token = authorizationHeader.replace("Bearer ", "");
 
     Long userId = jwtUtils.extractUserId(token);
     log.info("chatRoom_getRoomByMember - requestUserId : "+ userId);
 
-    Long wsMemberId = wsMemberService.findByUserIdAndWsId(userId, workspaceId).getId();
+    WSMember wsMember = wsMemberService.findByUserIdAndWsId(userId, workspaceId);
+    if (wsMember == null){
+      log.info("getRoom_ requestUser_ not participant");
+      return ResponseEntity.status(HttpStatus.FORBIDDEN).body(new HashMap<String, String>(){{
+        put("error", "워크스페이스에 참여하는 유저가 아닙니다.");
+      }});
+    }
 
-    List<ChatListResponseDTO> chatRooms = chatRoomService.getRoomsByWsMember(workspaceId, wsMemberId);
+    List<ChatListResponseDTO> chatRooms = chatRoomService.getRoomsByWsMember(workspaceId, wsMember.getId());
     return ResponseEntity.ok(chatRooms);
   }
 

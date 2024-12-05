@@ -13,6 +13,7 @@ import lombok.NoArgsConstructor;
 public class ChatRoomMemberDTO {
     //채팅방에 참여중인 멤버들의 목록
     private Long wsMemberId;
+    private Long userId;
     private String email;
     private String name;
     private String imageUriPath;

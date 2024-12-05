@@ -17,6 +17,7 @@ const initRooms = [{
 
 const initMembers = [{
   wsMemberId: 0,
+  userId: 0,
   email: "",
   name: "",
   imageUriPath: "",
@@ -43,7 +44,6 @@ const ChatList = () => {
 
   //마운트 시, 채팅방 목록 가져오기
   useEffect(() => {
-    console.log("userId _ ", Repo.getUserId);
     const fetchChatRooms = async () => {
       try {
         const roomsData = await getChatList(workspaceId);
@@ -60,7 +60,7 @@ const ChatList = () => {
       try {
         const wsmembers = await getwsMembers(workspaceId);
         //현재 유저 제외한 목록 만들기
-        setWsMembers(wsmembers.filter((member) => member.wsMemberId !== Number(Repo.getUserId())));
+        setWsMembers(wsmembers.filter((member) => member.userId !== Number(Repo.getUserId())));
         console.log("wsmembers: ", wsmembers);
       } catch (error) {
         console.error("Error fetching ws members:", error);

@@ -17,7 +17,7 @@ public class WSMemberServiceImpl implements WSMemberService{
   @Override
   public WSMember findByUserIdAndWsId(Long userId, Long wsId) {
     return wsMemberRepository.findByUserIdAndWorkSpaceId(userId, wsId)
-            .orElseThrow(() -> new RuntimeException("워크스페이스에서 멤버를 찾을 수 없습니다."));
+            .orElse(null);
   }
 
   @Override
