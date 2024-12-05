@@ -9,5 +9,4 @@ import java.util.Optional;
 public interface WSMemberRepository extends JpaRepository<WSMember,Long> {
   Optional<WSMember> findByUserIdAndWorkSpaceId(Long userId, Long workspaceId);
   List<WSMember> findByWorkSpaceId(Long workspaceId);
-
 }

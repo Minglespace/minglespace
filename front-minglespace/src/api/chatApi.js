@@ -1,6 +1,6 @@
 import axios from "axios";
 import Repo from "../auth/Repo";
-import api from "./Api";
+import api, { HOST_URL } from "./Api";
 
 
 const prefix = `/workspaces`;
@@ -39,7 +39,7 @@ class ChatApi {
 
         try {
             // 요청 보내기
-            const res = await axios.post(`http://localhost:8080${prefix}/${workspaceId}/chatRooms`, formData, { headers });
+            const res = await axios.post(`${HOST_URL}${prefix}/${workspaceId}/chatRooms`, formData, { headers });
             return res.data;  // 서버 응답 반환
         } catch (error) {
             console.error("채팅방 생성 실패:", error);

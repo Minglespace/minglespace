@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from "react";
 import Userinfo from "../../common/Layouts/components/Userinfo";
 import default_img from "../../asset/imgs/profile1.png";
+import { HOST_URL } from "../../api/Api";
 
 const initCreateChatRoomRequest = {
   name: "",
@@ -161,7 +162,7 @@ const CreateChatRoomModal = ({ isOpen, onClose, onCreate, wsMembers }) => {
                       name={member.name}
                       role={member.position}
                       email={member.email}
-                      src={`http://localhost:8080${member.imageUriPath}`}
+                      src={`${HOST_URL}${member.imageUriPath}`}
                       title="친구 정보"
                     />
                   </label>

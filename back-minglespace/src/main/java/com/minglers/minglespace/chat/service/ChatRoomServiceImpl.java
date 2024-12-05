@@ -75,16 +75,16 @@ public class ChatRoomServiceImpl implements ChatRoomService {
 
     @Override
     @Transactional
-    public ChatListResponseDTO createRoom(CreateChatRoomRequestDTO requestDTO, WSMember createMember, MultipartFile image) {
+    public ChatListResponseDTO createRoom(CreateChatRoomRequestDTO requestDTO, WSMember createMember, Image saveFile) {
         WorkSpace wspace = workspaceRepository.findById(requestDTO.getWorkspaceId()).orElse(null);
 
-        Image saveFile = null;
-        try{
-            saveFile = imageService.uploadImage(image);
-        }catch (RuntimeException | IOException e) {
-            log.error("Image upload failed: " + e.getMessage(), e);
-            throw new RuntimeException("채팅방 이미지 업로드 실패 : ", e);  // 업로드 실패 시 처리
-        }
+//        Image saveFile = null;
+//        try{
+//            saveFile = imageService.uploadImage(image);
+//        }catch (RuntimeException | IOException e) {
+//            log.error("Image upload failed: " + e.getMessage(), e);
+//            throw new RuntimeException("채팅방 이미지 업로드 실패 : ", e);  // 업로드 실패 시 처리
+//        }
 
 
         // 사진 처리 필요
@@ -97,11 +97,6 @@ public class ChatRoomServiceImpl implements ChatRoomService {
 
         chatRoom = chatRoomRepository.save(chatRoom);
         log.info("createRoom_ newRoomId: " + chatRoom.getId());
-
-        // 방장 설정
-//        Long creatorMemberId = requestDTO.getParticipantIds().get(0);
-//        log.info("createRoom_ member_0 : " + creatorMemberId);
-//        WSMember creatorMember = wsMemberRepository.findById(creatorMemberId).orElse(null);
 
         ChatRoomMember creatorChatRoomMember = ChatRoomMember.builder()
                 .chatRoom(chatRoom)

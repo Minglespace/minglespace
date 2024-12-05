@@ -1,6 +1,7 @@
 import React from "react";
 import { BsPeopleFill } from "react-icons/bs";
 import default_img from "../../asset/imgs/profile1.png";
+import { HOST_URL } from "../../api/Api";
 
 const ChatListItem = ({ chat }) => {
   // 채팅방 정보 추출
@@ -23,7 +24,7 @@ const ChatListItem = ({ chat }) => {
     <div className="chat_list_item">
       <div className="chat_img">
         <img
-          src={chat.imageUriPath ? `http://localhost:8080${chat.imageUriPath}` : default_img}
+          src={chat.imageUriPath ? `${HOST_URL}${chat.imageUriPath}` : default_img}
           alt="채팅방 이미지"
         />
       </div>

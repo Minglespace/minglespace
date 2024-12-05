@@ -8,6 +8,8 @@ import com.minglers.minglespace.chat.entity.ChatRoom;
 import com.minglers.minglespace.chat.service.ChatMessageService;
 import com.minglers.minglespace.chat.service.ChatRoomMemberService;
 import com.minglers.minglespace.chat.service.ChatRoomService;
+import com.minglers.minglespace.common.entity.Image;
+import com.minglers.minglespace.common.service.ImageService;
 import com.minglers.minglespace.workspace.entity.WSMember;
 import com.minglers.minglespace.workspace.service.WSMemberService;
 import com.minglers.minglespace.workspace.service.WorkspaceService;
@@ -18,6 +20,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -32,6 +35,7 @@ public class ChatRoomController {
   private final ChatRoomMemberService chatRoomMemberService;
   private final ChatMessageService chatMessageService;
   private final WSMemberService wsMemberService;
+  private final ImageService imageService;
   private final JWTUtils jwtUtils;
 
 
@@ -70,8 +74,16 @@ public class ChatRoomController {
     WSMember createMember = wsMemberService.findByUserIdAndWsId(userId, workspaceId);
 
     requestDTO.setWorkspaceId(workspaceId);
+    Image saveFile = null;
+    try{
+      saveFile = imageService.uploadImage(image);
+    }catch (RuntimeException | IOException e) {
+      log.error("Image upload failed: " + e.getMessage(), e);
+      throw new RuntimeException("채팅방 이미지 업로드 실패 : ", e);  // 업로드 실패 시 처리
+    }
+
 //    requestDTO.setImage(image);
-    ChatListResponseDTO chatRoomdto = chatRoomService.createRoom(requestDTO, createMember, image);
+    ChatListResponseDTO chatRoomdto = chatRoomService.createRoom(requestDTO, createMember, saveFile);
     return ResponseEntity.ok(chatRoomdto);
   }
 

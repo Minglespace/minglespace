@@ -6,10 +6,12 @@ import com.minglers.minglespace.chat.entity.ChatMessage;
 import com.minglers.minglespace.chat.entity.ChatRoom;
 import com.minglers.minglespace.chat.repository.ChatMessageRepository;
 import com.minglers.minglespace.chat.repository.ChatRoomRepository;
+import com.minglers.minglespace.chat.repository.specification.ChatMessageSpecification;
 import com.minglers.minglespace.workspace.entity.WSMember;
 import com.minglers.minglespace.workspace.repository.WSMemberRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 
@@ -30,10 +32,14 @@ public class ChatMessageServiceImpl implements ChatMessageService {
 
   // 메시지 저장
   @Override
-  public Long saveMessage(ChatMessageDTO messageDTO) {
+  public Long saveMessage(ChatMessageDTO messageDTO, Long writerUserId) {
     try {
       ChatRoom chatRoom = chatRoomRepository.findById(messageDTO.getChatRoomId()).orElseThrow(() -> new RuntimeException("채팅방이 존재하지 않습니다."));
-      WSMember wsMember = wsMemberRepository.findById(messageDTO.getWriter()).orElseThrow(() -> new RuntimeException("사용자가 존재하지 않습니다."));
+
+      WSMember wsMember = wsMemberRepository.findByUserIdAndWorkSpaceId(writerUserId, messageDTO.getWorkspaceId())
+              .orElseThrow(() -> new RuntimeException("워크스페이스에 해당 유저가 존재하지 않습니다."));
+
+      messageDTO.setWriterWsMemberId(wsMember.getId());
 
       // 답글이 있는 경우 처리
       ChatMessage parentMsg = null;
@@ -47,17 +53,18 @@ public class ChatMessageServiceImpl implements ChatMessageService {
               .chatRoom(chatRoom)
               .parentMessage(parentMsg)
               .date(LocalDateTime.now())
+              .isAnnouncement(messageDTO.getIsAnnouncement())
               .build();
       ChatMessage savedMessage = chatMessageRepository.save(chatMessage);
 
       //답글이면 부모 댓글에게 답글 달린 알림 보내기
       if (parentMsg != null) {
-        sendReplyNotificationToUser(savedMessage);
+        sendReplyNotificationToUser(parentMsg);
       }
 
       //멘션 알림
-      if (messageDTO.getMentionedUserIds() != null && !messageDTO.getMentionedUserIds().isEmpty()){
-        for (Long mentionedUserId : messageDTO.getMentionedUserIds()){
+      if (messageDTO.getMentionedUserIds() != null && !messageDTO.getMentionedUserIds().isEmpty()) {
+        for (Long mentionedUserId : messageDTO.getMentionedUserIds()) {
           sendMentionNotificationToUser(wsMember, savedMessage.getChatRoom().getName(), mentionedUserId);
         }
       }
@@ -77,10 +84,10 @@ public class ChatMessageServiceImpl implements ChatMessageService {
   }
 
   //멘션 알림
-  private void sendMentionNotificationToUser(WSMember sendMember,String mentionedChatName, Long mentionedUserId){
+  private void sendMentionNotificationToUser(WSMember sendMember, String mentionedChatName, Long mentionedUserId) {
     String sessionId = customHandShakeInterceptor.getSessionForUser(mentionedUserId);
     String sendUsername = sendMember.getUser().getUsername();
-    String notifyMsg = sendUsername+"이 "+mentionedChatName+"채팅방에서 당신을 멘션하였습니다.";
+    String notifyMsg = sendUsername + "이 " + mentionedChatName + "채팅방에서 당신을 멘션하였습니다.";
     simpMessagingTemplate.convertAndSendToUser(sessionId, "/queue/notifications", notifyMsg);
   }
 
@@ -100,10 +107,41 @@ public class ChatMessageServiceImpl implements ChatMessageService {
                       .date(msg.getDate())
                       .content(msg.getContent())
                       .replyId(replyId)
-                      .writer(msg.getWsMember().getId())
+                      .writerWsMemberId(msg.getWsMember().getId())
+                      .isAnnouncement(msg.getIsAnnouncement())
                       .build();
             })
             .collect(Collectors.toList());
     return dtos;
+  }
+
+  ///메시지 검색 결과
+  @Override
+  public List<ChatMessageDTO> searchMessages(Long chatRoomId, List<String> keywords) {
+    //chatRoomId에 맞는 조건 추가
+    Specification<ChatMessage> spec = Specification.where(ChatMessageSpecification.hasChatRoomId(chatRoomId));
+
+    if (keywords != null && !keywords.isEmpty()){
+      //키워드 검색 조건 추가
+      spec = spec.and(ChatMessageSpecification.contentContainKeywords(keywords));
+    }
+    
+    //조건에 맞는 레코드 검색
+    List<ChatMessage> msgs = chatMessageRepository.findAll(spec);
+
+    return msgs.stream()
+            .map(msg ->{
+              Long replyId = (msg.getParentMessage() != null) ? msg.getParentMessage().getId() : null;
+              return ChatMessageDTO.builder()
+                      .id(msg.getId())
+                      .chatRoomId(msg.getChatRoom().getId())
+                      .date(msg.getDate())
+                      .content(msg.getContent())
+                      .replyId(replyId)
+                      .writerWsMemberId(msg.getWsMember().getId())
+                      .isAnnouncement(msg.getIsAnnouncement())
+                      .build();
+            })
+            .collect(Collectors.toList());
   }
 }

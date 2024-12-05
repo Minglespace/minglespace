@@ -27,26 +27,25 @@ public class ChatMessageController {
                                                  @Payload ChatMessageDTO messageDTO,
                                                  StompHeaderAccessor headerAccessor){
         //이미 핸드셰이크 단계에서 jwt를 검증했기 때문에 accessor를 이용해 websocket세션에서 userId를 가져온다.
-        Long userId = (Long) headerAccessor.getSessionAttributes().get("userId");
+        Long writerUserId = (Long) headerAccessor.getSessionAttributes().get("userId");
 
-        if (userId == null){
+        if (writerUserId == null){
             log.error("user ID not found in websocket session");
             return null;
         }
 
-        log.info("received message : "+messageDTO.getContent()+ " from "+userId);
+        log.info("received message : "+messageDTO.getContent()+ " from "+writerUserId);
 
         try{
             messageDTO.setChatRoomId(chatRoomId);
-            messageDTO.setWriter(userId);
 
-            Long savedId = chatMessageService.saveMessage(messageDTO);
+            Long savedId = chatMessageService.saveMessage(messageDTO, writerUserId);
             messageDTO.setId(savedId);
 
             return messageDTO;
         }catch (Exception e){
             log.error("메시지 저장 중 오류 발생: ",e);
-            String sessionId = customHandShakeInterceptor.getSessionForUser(userId);
+            String sessionId = customHandShakeInterceptor.getSessionForUser(writerUserId);
             //예외 발생 시 클라이언트에게 오류 메시지 발송
             simpMessagingTemplate.convertAndSendToUser(
                     sessionId, "/queue/errors", "Error saving message: "+e.getMessage()
