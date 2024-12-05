@@ -32,9 +32,30 @@ public class MilestoneController {
   @PostMapping("/milestoneGroup")
   public ResponseEntity<MilestoneGroupResponseDTO> addMilestoneGroup(@PathVariable("workspaceId") Long workspaceId,
                                                                      @RequestBody MilestoneGroupRequestDTO milestoneGroupRequestDTO){
-
-//    log.info(workspaceId.toString());
-//    log.info(milestoneGroupRequestDTO);
     return ResponseEntity.ok(milestoneService.addMilestoneGroup(workspaceId, milestoneGroupRequestDTO));
+  }
+
+  @PutMapping("/milestoneGroup/{milestoneGroupId}")
+  public ResponseEntity<MilestoneGroupResponseDTO> putMilestoneGroup(@PathVariable("milestoneGroupId") Long milestoneGroupId,
+                                                                     @RequestBody MilestoneGroupRequestDTO milestoneGroupRequestDTO){
+    return ResponseEntity.ok(milestoneService.putMilestoneGroup(milestoneGroupId, milestoneGroupRequestDTO));
+  }
+
+  @PutMapping("/milestoneItem/{milestoneItemId}")
+  public ResponseEntity<MilestoneItemResponseDTO> putMilestoneItem(@PathVariable("milestoneItemId") Long milestoneItemId,
+                                                                   @RequestBody MilestoneItemRequestDTO milestoneItemRequestDTO){
+    return ResponseEntity.ok(milestoneService.putMilestoneItem(milestoneItemId, milestoneItemRequestDTO));
+  }
+
+  @DeleteMapping("/milestoneGroup/{milestoneGroupId}")
+  public ResponseEntity<String> deleteMilestoneGroup(@PathVariable("milestoneGroupId") Long milestoneGroupId){
+
+    return ResponseEntity.ok(milestoneService.deleteMilestoneGroup(milestoneGroupId));
+  }
+
+  @DeleteMapping("/milestoneItem/{milestoneItemId}")
+  public ResponseEntity<String> deleteMilestoneItem(@PathVariable("milestoneItemId") Long milestoneItemId){
+
+    return ResponseEntity.ok(milestoneService.deleteMilestoneItem(milestoneItemId));
   }
 }

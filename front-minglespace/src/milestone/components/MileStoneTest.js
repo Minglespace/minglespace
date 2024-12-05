@@ -1,10 +1,15 @@
-import Timeline, { TimelineHeaders, DateHeader } from "react-calendar-timeline";
+import Timeline, {
+  TimelineHeaders,
+  DateHeader,
+  SidebarHeader,
+} from "react-calendar-timeline";
 // make sure you include the timeline stylesheet or the timeline will not be styled
 // import "react-calendar-timeline/styles.css";
 import moment from "moment";
 import { useEffect, useRef, useState } from "react";
-import { getList, postAddItem } from "../../api/milestoneApi";
+import MilestoneApi from "../../api/milestoneApi";
 import { useParams } from "react-router-dom";
+import MileStoneModal from "./MileStoneModal";
 
 const initGroup = [{ id: 0, title: "" }];
 
@@ -18,11 +23,19 @@ const initItem = [
   },
 ];
 
-const MileStoneApi = () => {
+const MileStoneTest = () => {
   console.log("API");
   const [groups, setGroups] = useState([...initGroup]);
   const [items, setItems] = useState([...initItem]);
   const { workspaceId } = useParams("workspaceId");
+  const [selectedItem, setSelectedItem] = useState(null);
+  const [selectedGroup, setSelectedGroup] = useState(null);
+  const [modalOpen, setModalOpen] = useState(false);
+  const [newTitle, setNewTitle] = useState("");
+  const [newStartTime, setNewStartTime] = useState("");
+  const [newEndTime, setNewEndTime] = useState("");
+  const [mode, setMode] = useState("default");
+
   console.error = (...args) => {
     if (args[0].includes("React keys must be passed directly to JSX")) {
       return;
@@ -31,7 +44,7 @@ const MileStoneApi = () => {
   };
   console.log("items : ", items);
   useEffect(() => {
-    getList(workspaceId).then((data) => {
+    MilestoneApi.getList(workspaceId).then((data) => {
       console.log("data : ", data);
       const updateGroup = data.map(({ id, title }) => ({
         id: id,
@@ -55,7 +68,7 @@ const MileStoneApi = () => {
   useEffect(() => {
     console.log("group : ", groups);
     console.log("item : ", items);
-  }, [groups, items]);
+  }, [groups, selectedItem]);
 
   const [visibleTimeStart, setVisibleTimeStart] = useState(
     moment().startOf("month").valueOf()
@@ -71,14 +84,6 @@ const MileStoneApi = () => {
     updateScrollCanvas(start, end);
   };
 
-  // const calculateUnit = (start, end) => {
-  //   const duration = end - start; // 시간 간격 (밀리초)
-  //   if (duration > 2678400000) return "month"; // 1달 이상
-  //   if (duration > 86400000) return "day"; // 1일 이상
-  //   if (duration > 3600000) return "hour"; // 1시간 이상
-  //   return "minute"; // 기본
-  // };
-
   //아이템 이동 핸들러
   function handleItemMove(itemId, time) {
     const updatedItems = items.map((item) =>
@@ -93,6 +98,7 @@ const MileStoneApi = () => {
     setItems(updatedItems);
   }
 
+  //아이템 사이즈 조절 핸들러
   function handleItemResize(itemId, time, edge) {
     const updatedItems = items.map((item) =>
       item.id === itemId
@@ -106,17 +112,18 @@ const MileStoneApi = () => {
     setItems(updatedItems);
   }
 
+  //캔버스 클릭 핸들러(아이템 추가)
   function handleCanvasClick(groupId, time) {
     const startOfDay = new Date(new Date(time).setHours(0, 0, 0, 0)).getTime();
     const endOfDay = startOfDay + 86400000;
     const newItem = {
       groupid: groupId,
-      title: `item ${items.length + 1}`,
+      title: "New item",
       start_time: startOfDay,
       end_time: endOfDay,
     };
 
-    postAddItem(workspaceId, groupId, newItem).then(
+    MilestoneApi.postAddItem(workspaceId, groupId, newItem).then(
       ({ id, title, start_time, end_time }) => {
         setItems([
           ...items,
@@ -132,27 +139,98 @@ const MileStoneApi = () => {
     );
   }
 
-  function handleItemDoubleClick(itemId) {
-    const newTitle = prompt("Enter new title:");
-    if (newTitle) {
-      setItems(
-        items.map((item) =>
-          item.id === itemId ? { ...item, title: newTitle } : item
-        )
-      );
-    }
+  function handleGroupAdd() {
+    const newGroup = {
+      title: "New Group",
+    };
+    MilestoneApi.postAddGroup(workspaceId, newGroup).then(({ id, title }) => {
+      setGroups([...groups, { id, title }]);
+    });
   }
 
-  function handleItemKeyDown(itemId, e) {
-    console.log("e.key : " + e.key);
-    console.log("itmeId : " + itemId);
-    if (e.key === "Delete") {
-      handleItemDelete(itemId);
+  //아이템 더블클릭 핸들러(아이템 title 수정)
+  const handleItemDoubleClick = (itemId) => {
+    const item = items.find((i) => i.id === itemId);
+    setSelectedItem(item);
+    setSelectedGroup(null);
+    setNewTitle(item.title);
+    setNewStartTime(moment(item.start_time).format("YYYY-MM-DDTHH:mm"));
+    setNewEndTime(moment(item.end_time).format("YYYY-MM-DDTHH:mm"));
+    setMode("default");
+    setModalOpen(true);
+  };
+
+  const handleGroupDoubleClick = (groupId) => {
+    const group = groups.find((i) => i.id === groupId);
+    setSelectedGroup(group);
+    setSelectedItem(null);
+    setNewTitle(group.title);
+    setMode("titleOnly");
+    setModalOpen(true);
+  };
+
+  const handleModalClose = () => {
+    setModalOpen(false);
+  };
+  const handleModalSave = () => {
+    if (selectedItem) {
+      const updatedItem = {
+        ...selectedItem,
+        title: newTitle,
+        start_time: new Date(newStartTime).getTime(),
+        end_time: new Date(newEndTime).getTime(),
+      };
+
+      MilestoneApi.modifyItem(workspaceId, selectedItem.id, updatedItem).then(
+        ({ id, title, start_time, end_time }) => {
+          setItems(
+            items.map((item) =>
+              item.id === id
+                ? {
+                    ...item,
+                    title,
+                    start_time,
+                    end_time,
+                    selected: false,
+                  }
+                : item
+            )
+          );
+          console.log("선택된 아이템 제목 : ", updatedItem.title);
+          setModalOpen(false);
+        }
+      );
+    } else if (selectedGroup) {
+      const updatedGroup = {
+        ...selectedGroup,
+        title: newTitle,
+      };
+      MilestoneApi.modifyGroup(
+        workspaceId,
+        selectedGroup.id,
+        updatedGroup
+      ).then(({ id, title }) => {
+        setGroups(
+          groups.map((group) => (group.id === id ? { ...group, title } : group))
+        );
+        setModalOpen(false);
+      });
     }
-  }
-  function handleItemDelete(itemId) {
-    setItems(items.filter((item) => item.id !== itemId));
-  }
+  };
+
+  const handleModalDelete = () => {
+    if (selectedItem) {
+      MilestoneApi.deleteItem(workspaceId, selectedItem.id).then(() => {
+        setItems(items.filter((item) => item.id !== selectedItem.id));
+        setModalOpen(false);
+      });
+    } else if (selectedGroup) {
+      MilestoneApi.deleteGroup(workspaceId, selectedGroup.id).then(() => {
+        setItems(groups.filter((group) => group.id !== selectedGroup.id));
+        setModalOpen(false);
+      });
+    }
+  };
 
   return (
     <div
@@ -162,6 +240,7 @@ const MileStoneApi = () => {
         height: "500px",
       }}
     >
+      <button onClick={handleGroupAdd}>그룹 추가하기</button>
       <Timeline
         groups={groups}
         items={items}
@@ -170,30 +249,35 @@ const MileStoneApi = () => {
         onTimeChange={handleTimeChange}
         onItemMove={handleItemMove}
         onItemResize={handleItemResize}
+        groupRenderer={({ group }) => (
+          <div
+            onDoubleClick={() => handleGroupDoubleClick(group.id)}
+            style={{ cursor: "pointer", textAlign: "center" }}
+          >
+            {group.title}
+          </div>
+        )}
         itemRenderer={({ item, itemContext, getItemProps, getResizeProps }) => {
           const { left: leftResizeProps, right: rightResizeProps } =
             getResizeProps();
           return (
             <div
               tabIndex={0}
-              style={{ outline: "none" }}
+              style={{ outline: "none", overflow: "hidden" }}
               className={`timeline-item ${
                 itemContext.selected ? "timeline-item-selected" : ""
               }`}
               {...getItemProps({
                 onMouseDown: () => console.log("onMouseDown", item),
                 onDoubleClick: () => handleItemDoubleClick(item.id),
-                onKeyDown: (e) => handleItemKeyDown(item.id, e),
               })}
             >
-              {" "}
-              {itemContext.title}{" "}
+              {itemContext.title}
               {itemContext.useResizeHandle ? (
                 <div>
-                  {" "}
                   <div {...leftResizeProps} /> <div {...rightResizeProps} />{" "}
                 </div>
-              ) : null}{" "}
+              ) : null}
             </div>
           );
         }}
@@ -204,8 +288,22 @@ const MileStoneApi = () => {
           <DateHeader />
         </TimelineHeaders>
       </Timeline>
+
+      <MileStoneModal
+        open={modalOpen}
+        onClose={handleModalClose}
+        title={newTitle}
+        startTime={newStartTime}
+        endTime={newEndTime}
+        onTitleChange={setNewTitle}
+        onStartTimeChange={setNewStartTime}
+        onEndTimeChange={setNewEndTime}
+        onSave={handleModalSave}
+        onDelete={handleModalDelete}
+        mode={mode}
+      />
     </div>
   );
 };
 
-export default MileStoneApi;
+export default MileStoneTest;

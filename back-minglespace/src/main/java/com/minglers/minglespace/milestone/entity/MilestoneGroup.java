@@ -33,4 +33,8 @@ public class MilestoneGroup {
   public void changeWorkspace(WorkSpace workspace) {
     this.workspace = workspace;
   }
+
+  public void changeTitle(String title) {
+    this.title = title;
+  }
 }

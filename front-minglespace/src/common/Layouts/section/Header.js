@@ -1,8 +1,7 @@
 import React, { useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { logout } from "../../../api/workspaceApi";
 import Repo from "../../../auth/Repo";
-
+import AuthApi from "../../../api/AuthApi";
 import "./Header.css";
 
 const Header = ({ workspaceData }) => {
@@ -17,7 +16,7 @@ const Header = ({ workspaceData }) => {
   }, []);
 
   const handleClickLogout = () => {
-    logout().then((data) => {
+    AuthApi.logout().then((data) => {
       if (data.code === 200) {
         navigate("/auth/login");
       } else {

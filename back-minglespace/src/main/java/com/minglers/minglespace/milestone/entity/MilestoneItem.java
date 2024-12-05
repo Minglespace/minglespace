@@ -26,4 +26,16 @@ public class MilestoneItem {
   public void changeMilestoneGroup(MilestoneGroup milestoneGroup) {
     this.milestoneGroup = milestoneGroup;
   }
+
+  public void changeTitle(String title) {
+    this.title = title;
+  }
+
+  public void changeStart_time(Long start_time) {
+    this.start_time = start_time;
+  }
+
+  public void changeEnd_time(Long end_time) {
+    this.end_time = end_time;
+  }
 }

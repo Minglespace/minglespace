@@ -1,0 +1,52 @@
+.milestone_modal_container {
+  width: auto;
+  height: 100%;
+  p {
+    width: 100px;
+    display: inline-block;
+  }
+  .milestone_modal_title {
+    margin: 10px;
+    text-align: center;
+  }
+  .milestone_modal_modify_title {
+    margin: 10px;
+    margin-top: 30px;
+    input {
+      border: solid 1px #ccc;
+      border-radius: 5px;
+      padding: 5px;
+      width: 249px;
+    }
+  }
+  .milestone_modal_modify_starttime {
+    margin: 10px;
+    input {
+      border: solid 1px #ccc;
+      border-radius: 5px;
+      padding: 5px;
+    }
+  }
+  .milestone_modal_modify_endtime {
+    margin: 10px;
+    input {
+      border: solid 1px #ccc;
+      border-radius: 5px;
+      padding: 5px;
+    }
+  }
+  .milestone_modal_modify_button {
+    display: flex;
+    justify-content: space-between;
+    margin: 0 auto;
+    :first-child {
+      background-color: rgb(92, 173, 240);
+    }
+    :nth-child(2) {
+      background-color: rgb(253, 113, 113);
+    }
+    :last-child {
+      background-color: gray;
+    }
+  }
+}
