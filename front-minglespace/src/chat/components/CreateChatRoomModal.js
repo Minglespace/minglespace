@@ -12,12 +12,12 @@ const initCreateChatRoomRequest = {
 const CreateChatRoomModal = ({ isOpen, onClose, onCreate, wsMembers }) => {
   const [newChatRoomData, setNewChatRoomData] = useState(initCreateChatRoomRequest);
   const [selectedImage, setSelectedImage] = useState(null); // 선택된 이미지 파일 선택
-
+  const [errorMsg, setErrorMsg] = useState(null);
   const fileInputRef = useRef(null);
 
-  useEffect(() => {
-    console.log("selectedFriends updated: ", newChatRoomData.participantIds);
-  }, [newChatRoomData.participantIds]);
+  // useEffect(() => {
+  //   console.log("selectedFriends updated: ", newChatRoomData.participantIds);
+  // }, [newChatRoomData.participantIds]);
 
 
   //폼에서 채팅방 이름을 변경하는 함수
@@ -51,15 +51,40 @@ const CreateChatRoomModal = ({ isOpen, onClose, onCreate, wsMembers }) => {
     }
   };
 
-  // 모달 닫기 버튼
-  const handleClose = () => {
-    onClose(); // 부모 컴포넌트에게 모달을 닫을 것을 알림
+  const validateForm = () => {
+    if (!newChatRoomData.name.trim()) {
+      setErrorMsg("채팅방 이름을 입력해주세요.");
+      return false;
+    }
+    if (newChatRoomData.participantIds.length < 1) {
+      setErrorMsg("최소 1명 이상의 참여자를 선택해주세요.");
+      return false;
+    }
+    setErrorMsg(""); // 유효성 검사 통과 시 에러 메시지 초기화
+    return true;
   };
 
   //채팅방 생성 버튼 클릭시
-  const handleCreate = () => {
-    onCreate(newChatRoomData, newChatRoomData.image);
-    onClose(); // 채팅방 생성 후 모달 닫기
+  const handleCreate = async () => {
+    if(!validateForm()) return;
+    try{
+      await onCreate(newChatRoomData, newChatRoomData.image);
+
+      //초기화
+      setNewChatRoomData(initCreateChatRoomRequest);
+      setSelectedImage(null);
+      onClose();
+    }catch(error){
+      setErrorMsg("채팅방 생성 중 오류가 발생했습니다. 다시 시도해주세요");
+      console.error(error);
+    }
+    
+  };
+
+  // 모달 닫기 버튼
+  const handleClose = () => {
+    setErrorMsg(null);
+    onClose(); // 부모 컴포넌트에게 모달을 닫을 것을 알림
   };
 
   if (!isOpen) return null;
@@ -128,7 +153,7 @@ const CreateChatRoomModal = ({ isOpen, onClose, onCreate, wsMembers }) => {
             </ul>
           </div>
 
-          {/* 버튼들  */}
+          {errorMsg && <p style={{color:"#e52500", fontSize:"14px", marginTop:"10px", textAlign:"center"}}>{errorMsg}</p>}
           <button onClick={handleCreate}>생성</button>
           <button onClick={handleClose}>닫기</button>
         </div>

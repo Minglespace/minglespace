@@ -6,9 +6,11 @@ import WorkspaceApi from "../api/workspaceApi";
 
 import WorkspaceAdd from "./components/WorkspaceAdd";
 import { FaPlus } from "react-icons/fa6";
+import Repo from "../auth/Repo";
 
 const Workspace = () => {
-  const userId = "1"; // 로그인 정보 검증을 위한 initData
+  // const userId = "1"; // 로그인 정보 검증을 위한 initData
+  const userId = Repo.getUserId(); // 로그인 정보 검증을 위한 initData
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [workspaceData, setWorkspaceData] = useState([]);
   const [editingWorkspace, setEditingWorkspace] = useState(null);

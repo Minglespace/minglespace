@@ -17,6 +17,7 @@ const ChatRoomModal = ({
 
   console.log(`Rendering modal: ${modalType}`);
   console.log("ChatRoomModal_isRoomOwner: ", isRoomOwner);
+  console.log("InviteFriendModal_ props:", inviteUsers);
 
   const renderModal = () => {
     switch (modalType) {
@@ -29,12 +30,13 @@ const ChatRoomModal = ({
           />
         );
       case "invite":
-        console.log("InviteFriendModal props:", inviteUsers);
+        console.log("InviteFriendModal props:", roomMembers);
         return (
           <InviteFriendModal
             isOpen={isOpen}
             onClose={onClose}
             inviteUsers={inviteUsers}
+            participants={roomMembers}
             onInvite={onInvite}
             onTransfer={onTransfer}
           />
@@ -45,7 +47,7 @@ const ChatRoomModal = ({
           <DelegateModal
             isOpen={isOpen}
             onClose={onClose}
-            roomMembers={roomMembers}
+            participants={roomMembers}
             onTransfer={onTransfer}
           />
         );
