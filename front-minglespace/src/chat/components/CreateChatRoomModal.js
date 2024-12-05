@@ -10,53 +10,11 @@ const initCreateChatRoomRequest = {
 };
 
 const CreateChatRoomModal = ({ isOpen, onClose, onCreate, wsMembers }) => {
-  //채팅방 생성 > 워크스페이스 멤버 목록과 채팅방에 초대할 멤버들, 채팅방 제목, 이미지..
-  // 모달이 열렸을 때 폼에서 입력하는 값을 관리하는 상태
   const [newChatRoomData, setNewChatRoomData] = useState(initCreateChatRoomRequest);
   const [selectedImage, setSelectedImage] = useState(null); // 선택된 이미지 파일 선택
 
   const fileInputRef = useRef(null);
 
-  // 친구 목록 더미 데이터
-  // const friendsList = [
-  //   {
-  //     id: 1,
-  //     name: "친구1",
-  //     role: "멤버",
-  //     email: "friend1@example.com",
-  //     src: "path_to_image1",
-  //   },
-  //   {
-  //     id: 2,
-  //     name: "친구2",
-  //     role: "멤버",
-  //     email: "friend2@example.com",
-  //     src: "path_to_image2",
-  //   },
-  //   {
-  //     id: 3,
-  //     name: "친구3",
-  //     role: "방장",
-  //     email: "friend3@example.com",
-  //     src: "path_to_image3",
-  //   },
-  //   {
-  //     id: 4,
-  //     name: "친구4",
-  //     role: "멤버",
-  //     email: "friend4@example.com",
-  //     src: "path_to_image4",
-  //   },
-  //   {
-  //     id: 5,
-  //     name: "친구5",
-  //     role: "멤버",
-  //     email: "friend5@example.com",
-  //     src: "path_to_image5",
-  //   },
-  // ];
-
-  // selectedFriends가 변경될 때마다 로그를 찍는 useEffect
   useEffect(() => {
     console.log("selectedFriends updated: ", newChatRoomData.participantIds);
   }, [newChatRoomData.participantIds]);
@@ -69,7 +27,6 @@ const CreateChatRoomModal = ({ isOpen, onClose, onCreate, wsMembers }) => {
     }));
   };
 
-  // 친구 선택 변경 함수
   const handleMemberSelect = (e, memberId) => {
     setNewChatRoomData((prev) => {
       const updatedParticipantIds = e.target.checked
