@@ -3,7 +3,7 @@ import ChatListItem from "./ChatListItem";
 import CreateChatRoomModal from "./CreateChatRoomModal";
 import { useParams } from "react-router-dom";
 import Repo from "../../auth/Repo";
-import ChatApi from "../../api/ChatApi";
+import ChatApi from "../../api/chatApi";
 
 const initRooms = [{
   chatRoomId: 0,
@@ -33,10 +33,6 @@ const ChatList = ( isFold, onCreateRoom) => {
 
   const { workspaceId } = useParams(); //url에서 워크스페이스 아이디 가져오기
 
-  // 모달을 닫는 함수
-  const closeModal = () => {
-    setIsModalOpen(false);
-  };
 
   // 채팅방 목록이 변경될 때마다 자동 스크롤
   useEffect(() => {
