@@ -43,6 +43,7 @@ const ChatList = () => {
 
   //마운트 시, 채팅방 목록 가져오기
   useEffect(() => {
+    console.log("userId _ ", Repo.getUserId);
     const fetchChatRooms = async () => {
       try {
         const roomsData = await getChatList(workspaceId);
