@@ -1,8 +1,6 @@
 package com.minglers.minglespace.chat.service;
 
-import com.minglers.minglespace.chat.dto.ChatMessageDTO;
-import com.minglers.minglespace.chat.dto.ChatRoomDTO;
-import com.minglers.minglespace.chat.dto.ChatRoomMemberDTO;
+import com.minglers.minglespace.chat.dto.*;
 import com.minglers.minglespace.chat.entity.ChatMessage;
 import com.minglers.minglespace.chat.entity.ChatRoom;
 import com.minglers.minglespace.chat.entity.ChatRoomMember;
@@ -40,7 +38,7 @@ public class ChatRoomServiceImpl implements ChatRoomService {
   private final ChatRoomMemberService chatRoomMemberService;
 
   @Override
-  public List<ChatRoomDTO.ListResponse> getRoomsByWsMember(Long workspaceId, Long wsMemberId) {
+  public List<ChatListResponseDTO> getRoomsByWsMember(Long workspaceId, Long wsMemberId) {
     // 채팅방 목록을 얻기 위한
     List<ChatRoomMember> chatRoomMembers = chatRoomMemberRepository.findByChatRoom_WorkSpace_IdAndWsMember_Id(workspaceId, wsMemberId);
 
@@ -56,7 +54,7 @@ public class ChatRoomServiceImpl implements ChatRoomService {
 
               // 참여 인원수
               int participantCount = chatRoomMemberRepository.findByChatRoomIdAndIsLeftFalse(chatRoom.getId()).size();
-              return ChatRoomDTO.ListResponse.builder()
+              return ChatListResponseDTO.builder()
                       .chatRoomId(chatRoom.getId())
                       .name(chatRoom.getName())
                       .imageUriPath(imageUriPath)
@@ -75,7 +73,7 @@ public class ChatRoomServiceImpl implements ChatRoomService {
 
   @Override
   @Transactional
-  public ChatRoomDTO.ListResponse createRoom(ChatRoomDTO.CreateRequest requestDTO, WSMember createMember, Image saveFile) {
+  public ChatListResponseDTO createRoom(CreateChatRoomRequestDTO requestDTO, WSMember createMember, Image saveFile) {
     WorkSpace wspace = workspaceRepository.findById(requestDTO.getWorkspaceId()).orElse(null);
 
     // 사진 처리 필요
@@ -116,7 +114,7 @@ public class ChatRoomServiceImpl implements ChatRoomService {
 
     String imageUriPath = (chatRoom.getImage() != null && chatRoom.getImage().getUripath() != null) ? chatRoom.getImage().getUripath() : "";
 
-    return ChatRoomDTO.ListResponse.builder()
+    return ChatListResponseDTO.builder()
             .chatRoomId(chatRoom.getId())
             .name(chatRoom.getName())
             .imageUriPath(imageUriPath)
@@ -137,7 +135,7 @@ public class ChatRoomServiceImpl implements ChatRoomService {
 
   //특정방 정보
   @Override
-  public ChatRoomDTO.RoomResponse getChatRoomWithMsgAndParticipants(Long chatRoomId, Long workspaceId, Long userId) {
+  public ChatRoomResponseDTO getChatRoomWithMsgAndParticipants(Long chatRoomId, Long workspaceId, Long userId) {
     ChatRoom chatRoom = findRoomById(chatRoomId);
     if (chatRoom == null){
       throw new RuntimeException("채팅방이 존재하지 않습니다.");
@@ -149,7 +147,7 @@ public class ChatRoomServiceImpl implements ChatRoomService {
 
     String imageUriPath = (chatRoom.getImage() != null && chatRoom.getImage().getUripath() != null) ? chatRoom.getImage().getUripath() : "";
 
-    ChatRoomDTO.RoomResponse roomdtos = ChatRoomDTO.RoomResponse.builder()
+    ChatRoomResponseDTO roomdtos = ChatRoomResponseDTO.builder()
             .chatRoomId(chatRoomId)
             .name(chatRoom.getName())
             .participants(participants)

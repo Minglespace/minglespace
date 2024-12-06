@@ -19,9 +19,9 @@ public class ChatMessageDTO {
   private Long chatRoomId;
   private Long replyId;
   private LocalDateTime date;
-  private Long workspaceId; //request
-  private List<Long> mentionedUserIds; //request
   private Boolean isAnnouncement;
+  private Long workspaceId; //request_url에 포함하도록 수정?
+  private List<Long> mentionedUserIds; //request
   //파일
 
 }

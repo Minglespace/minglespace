@@ -52,14 +52,14 @@ public class ChatRoomController {
       }});
     }
 
-    List<ChatRoomDTO.ListResponse> chatRooms = chatRoomService.getRoomsByWsMember(workspaceId, wsMember.getId());
+    List<ChatListResponseDTO> chatRooms = chatRoomService.getRoomsByWsMember(workspaceId, wsMember.getId());
     return ResponseEntity.ok(chatRooms);
   }
 
   //방 생성
   @PostMapping("")
-  public ResponseEntity<ChatRoomDTO.ListResponse> createRoom(@PathVariable Long workspaceId,
-                                                             @RequestPart("requestDTO") ChatRoomDTO.CreateRequest requestDTO,
+  public ResponseEntity<ChatListResponseDTO> createRoom(@PathVariable Long workspaceId,
+                                                             @RequestPart("requestDTO") CreateChatRoomRequestDTO requestDTO,
                                                              @RequestPart(value = "image", required = false) MultipartFile image,
                                                              @RequestHeader("Authorization") String authorizationHeader) {
     String token = authorizationHeader.replace("Bearer ", "");
@@ -81,7 +81,7 @@ public class ChatRoomController {
     }
 
 //    requestDTO.setImage(image);
-    ChatRoomDTO.ListResponse chatRoomdto = chatRoomService.createRoom(requestDTO, createMember, saveFile);
+    ChatListResponseDTO chatRoomdto = chatRoomService.createRoom(requestDTO, createMember, saveFile);
     return ResponseEntity.ok(chatRoomdto);
   }
 
@@ -97,7 +97,7 @@ public class ChatRoomController {
     log.info("chatRoom _ getChatRoomWithMsg - requestUserId : " + userId);
 
     try{
-      ChatRoomDTO.RoomResponse chatRoomResponseDTO = chatRoomService.getChatRoomWithMsgAndParticipants(chatRoomId, workspaceId, userId);
+      ChatRoomResponseDTO chatRoomResponseDTO = chatRoomService.getChatRoomWithMsgAndParticipants(chatRoomId, workspaceId, userId);
       return ResponseEntity.ok(chatRoomResponseDTO);
     }catch (RuntimeException e){
       return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
