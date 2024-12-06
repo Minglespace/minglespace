@@ -3,6 +3,7 @@ package com.minglers.minglespace.workspace.service;
 import com.minglers.minglespace.auth.entity.User;
 import com.minglers.minglespace.auth.repository.UserRepository;
 import com.minglers.minglespace.chat.dto.ChatRoomMemberDTO;
+import com.minglers.minglespace.workspace.dto.MemberWithUserInfoDTO;
 import com.minglers.minglespace.workspace.dto.WorkspaceDTO;
 import com.minglers.minglespace.workspace.entity.WSMember;
 import com.minglers.minglespace.workspace.entity.WorkSpace;
@@ -24,7 +25,7 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 @Slf4j
-public class WorkspaceServiceImpl implements WorkspaceService{
+public class WorkspaceServiceImpl implements WorkspaceService {
 
   private final ModelMapper modelMapper;
 
@@ -37,30 +38,30 @@ public class WorkspaceServiceImpl implements WorkspaceService{
 
   //공통 메서드////////////////
   //유저 정보 가져오기
-  private User findUserById(Long userId){
+  private User findUserById(Long userId) {
     return userRepository.findById(userId)
             .orElseThrow(() -> new IllegalArgumentException("유저정보를 찾을수 없습니다."));
   }
 
   //워크스페이스 가져오기
-  private WorkSpace findWorkSpaceById(Long workSpaceId){
+  private WorkSpace findWorkSpaceById(Long workSpaceId) {
     return workspaceRepository.findById(workSpaceId)
             .orElseThrow(() -> new WorkspaceException(HttpStatus.NOT_FOUND.value(), "워크스페이스 정보를 찾을수 없습니다."));
   }
 
   //워크스페이스 삭제여부체크
-  private void checkDelflag(WorkSpace workSpace){
-    if(workSpace.isDelflag())
-      throw new WorkspaceException(HttpStatus.BAD_REQUEST.value(),"이미 삭제 된 워크스페이스입니다.");
+  private void checkDelflag(WorkSpace workSpace) {
+    if (workSpace.isDelflag())
+      throw new WorkspaceException(HttpStatus.BAD_REQUEST.value(), "이미 삭제 된 워크스페이스입니다.");
   }
 
   //워크스페이스 엔티티를 DTO 로 변환
-  private WorkspaceDTO.Response workspaceDtoFromEntity(WorkSpace workSpace){
+  private WorkspaceDTO.Response workspaceDtoFromEntity(WorkSpace workSpace) {
     return modelMapper.map(workSpace, WorkspaceDTO.Response.class);
   }
 
   //워크스페이스 DTO를 entity로 변환
-  private WorkSpace workspaceEntityFromRequest(WorkspaceDTO.Request request){
+  private WorkSpace workspaceEntityFromRequest(WorkspaceDTO.Request request) {
     return modelMapper.map(request, WorkSpace.class);
   }
 
@@ -83,7 +84,7 @@ public class WorkspaceServiceImpl implements WorkspaceService{
   //workspace 추가
   @Override
   @Transactional
-  public WorkspaceDTO.Response resister(Long userId,WorkspaceDTO.Request workspaceDTO) {
+  public WorkspaceDTO.Response resister(Long userId, WorkspaceDTO.Request workspaceDTO) {
     User user = findUserById(userId);
 
     WorkSpace targetWorkSpace = workspaceEntityFromRequest(workspaceDTO);
@@ -152,19 +153,20 @@ public class WorkspaceServiceImpl implements WorkspaceService{
   }
 
   @Override
-  public List<ChatRoomMemberDTO> getWsMemberWithUserInfo(Long workspaceId, List<WSMember> wsMembers){
-    List<ChatRoomMemberDTO> wsMemberList = new ArrayList<>();
+  public List<MemberWithUserInfoDTO> getWsMemberWithUserInfo(Long workspaceId) {
+    List<WSMember> wsMembers = wsMemberRepository.findByWorkSpaceId(workspaceId);
 
-    for(WSMember member : wsMembers){
-      User user = userRepository.findById(member.getUser().getId())
-              .orElseThrow(()-> new RuntimeException("찾는 유저가 없습니다."));
+    List<MemberWithUserInfoDTO> wsMemberList = new ArrayList<>();
+
+    for (WSMember member : wsMembers) {
+      User user = member.getUser();
 
       String imageUriPath = (user.getImage() != null && user.getImage().getUripath() != null) ? user.getImage().getUripath() : "";
 
-      ChatRoomMemberDTO dto = ChatRoomMemberDTO.builder()
-              .email(user.getEmail())
+      MemberWithUserInfoDTO dto = MemberWithUserInfoDTO.builder()
               .wsMemberId(member.getId())
               .userId(user.getId())
+              .email(user.getEmail())
               .name(user.getName())
               .imageUriPath(imageUriPath)
               .position(user.getPosition())
