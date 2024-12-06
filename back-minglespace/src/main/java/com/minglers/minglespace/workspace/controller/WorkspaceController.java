@@ -5,8 +5,6 @@ import com.minglers.minglespace.workspace.dto.MemberWithUserInfoDTO;
 import com.minglers.minglespace.workspace.dto.WSMemberResponseDTO;
 import com.minglers.minglespace.workspace.dto.WorkSpaceResponseDTO;
 import com.minglers.minglespace.workspace.dto.WorkspaceRequestDTO;
-import com.minglers.minglespace.chat.dto.ChatRoomMemberDTO;
-import com.minglers.minglespace.workspace.entity.WSMember;
 import com.minglers.minglespace.workspace.service.WSMemberService;
 import com.minglers.minglespace.workspace.service.WorkspaceService;
 import lombok.RequiredArgsConstructor;
