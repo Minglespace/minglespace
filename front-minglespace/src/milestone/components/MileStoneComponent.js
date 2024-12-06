@@ -1,12 +1,8 @@
-import Timeline, {
-  TimelineHeaders,
-  DateHeader,
-  SidebarHeader,
-} from "react-calendar-timeline";
+import Timeline, { TimelineHeaders, DateHeader } from "react-calendar-timeline";
 // make sure you include the timeline stylesheet or the timeline will not be styled
 // import "react-calendar-timeline/styles.css";
 import moment from "moment";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import MilestoneApi from "../../api/milestoneApi";
 import { useParams } from "react-router-dom";
 import MileStoneModal from "./MileStoneModal";
@@ -234,7 +230,9 @@ const MileStoneTest = ({ key, refresh }) => {
         height: "500px",
       }}
     >
-      <button onClick={handleGroupAdd}>그룹 추가하기</button>
+      <div className="milestone_group_add_button">
+        <button onClick={handleGroupAdd}>그룹 추가하기</button>
+      </div>
       <Timeline
         groups={groups}
         items={items}

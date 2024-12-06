@@ -3,14 +3,17 @@ package com.minglers.minglespace.milestone.service;
 import com.minglers.minglespace.milestone.dto.*;
 import com.minglers.minglespace.milestone.entity.MilestoneGroup;
 import com.minglers.minglespace.milestone.entity.MilestoneItem;
+import com.minglers.minglespace.milestone.exception.MilestoneException;
 import com.minglers.minglespace.milestone.repository.MilestoneGroupRepository;
 import com.minglers.minglespace.milestone.repository.MilestoneItemRepository;
 import com.minglers.minglespace.workspace.entity.WorkSpace;
+import com.minglers.minglespace.workspace.exception.WorkspaceException;
 import com.minglers.minglespace.workspace.repository.WorkspaceRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.hibernate.jdbc.Work;
 import org.modelmapper.ModelMapper;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -30,7 +33,7 @@ public class MilestoneServiceImpl implements MilestoneService{
   @Transactional(readOnly = true)
   public List<MilestoneResponseDTO> getMilestone(Long workspaceId) {
     WorkSpace workSpace = workspaceRepository.findById(workspaceId)
-            .orElseThrow(()-> new IllegalArgumentException("1323"));
+            .orElseThrow(()-> new WorkspaceException(HttpStatus.NOT_FOUND.value(), "워크스페이스를 찾을수 없습니다."));
 
     return workSpace.getMilestoneGroupList().stream().map((msg)->{
       MilestoneResponseDTO milestoneResponseDTO = modelMapper.map(msg, MilestoneResponseDTO.class);
@@ -46,7 +49,8 @@ public class MilestoneServiceImpl implements MilestoneService{
   @Override
   @Transactional
   public MilestoneGroupResponseDTO addMilestoneGroup(Long workspaceId, MilestoneGroupRequestDTO milestoneGroupRequestDTO) {
-    WorkSpace workspace = workspaceRepository.findById(workspaceId).orElseThrow(() -> new IllegalArgumentException("잘못된 워크스페이스 ID"));
+    WorkSpace workspace = workspaceRepository.findById(workspaceId)
+            .orElseThrow(() -> new WorkspaceException(HttpStatus.NOT_FOUND.value(), "워크스페이스를 찾을수 없습니다."));
     MilestoneGroup milestoneGroup = modelMapper.map(milestoneGroupRequestDTO, MilestoneGroup.class);
     milestoneGroup.changeWorkspace(workspace);
 
@@ -58,7 +62,8 @@ public class MilestoneServiceImpl implements MilestoneService{
   @Override
   @Transactional
   public MilestoneItemResponseDTO addMilestoneItem(Long milestoneGroupId, MilestoneItemRequestDTO milestoneItemRequestDTO) {
-    MilestoneGroup milestoneGroup = milestoneGroupRepository.findById(milestoneGroupId).orElseThrow(()-> new IllegalArgumentException("오류"));
+    MilestoneGroup milestoneGroup = milestoneGroupRepository.findById(milestoneGroupId)
+            .orElseThrow(()-> new MilestoneException(HttpStatus.NOT_FOUND.value(), "마일스톤 그룹이 존재하지 않습니다."));
     // 1. 그룹 아이디를 조회
     // 2. Request를 DB에 저장해야하므로
     // 3. Entity로 변환해야한다.
@@ -82,7 +87,7 @@ public class MilestoneServiceImpl implements MilestoneService{
     // 4. 저장하면서 발생한 Return을 DTO로 변환
     // 5. 변환된 DTO를 다시 return하여 컨트롤러로 보냄
     MilestoneGroup milestoneGroup = milestoneGroupRepository.findById(milestoneGroupId)
-            .orElseThrow(()-> new IllegalArgumentException("잘못된 워크스페이스 ID"));
+            .orElseThrow(()-> new MilestoneException(HttpStatus.NOT_FOUND.value(), "마일스톤 그룹이 존재하지 않습니다."));
     milestoneGroup.changeTitle(milestoneGroupRequestDTO.getTitle());
 
     MilestoneGroup resultMilestoneGroup = milestoneGroupRepository.save(milestoneGroup);
@@ -92,11 +97,8 @@ public class MilestoneServiceImpl implements MilestoneService{
   @Override
   @Transactional
   public MilestoneItemResponseDTO putMilestoneItem(Long milestoneItemId, MilestoneItemRequestDTO milestoneItemRequestDTO) {
-    // 1. Milestone Entity에 Repository를 이용해 수정하고자 하는 id가 존재하는지 findById
-    // 2. setter(change) 메서드들을 이용하여 milestoneItem Entity에 title, start_time, end_time 변경
-    // 3. 해당 결과를 Repository를 이용해 save 하고 resultMilestoneItem에 반환받음
-    // 4. modelMapper를 활용하여 결과값을 DTO로 변환 후 반환
-    MilestoneItem milestoneItem = milestoneItemRepository.findById(milestoneItemId).orElseThrow(() -> new IllegalArgumentException("잘못된 아이템 ID입니다."));
+    MilestoneItem milestoneItem = milestoneItemRepository.findById(milestoneItemId)
+            .orElseThrow(() -> new MilestoneException(HttpStatus.NOT_FOUND.value(), "마일스톤 아이템이 존재하지 않습니다."));
     milestoneItem.changeTitle(milestoneItemRequestDTO.getTitle());
     milestoneItem.changeStart_time(milestoneItemRequestDTO.getStart_time());
     milestoneItem.changeEnd_time(milestoneItemRequestDTO.getEnd_time());
@@ -108,19 +110,19 @@ public class MilestoneServiceImpl implements MilestoneService{
   @Override
   @Transactional
   public String deleteMilestoneGroup(Long milestoneGroupId) {
-    if(!milestoneGroupRepository.existsById(milestoneGroupId))
-      return "DELETE FAIL : NOT Found Group";
-    milestoneGroupRepository.deleteById(milestoneGroupId);
-    if(milestoneGroupRepository.existsById(milestoneGroupId))
-      return "DELETE FAIL : Can't Delete";
+    MilestoneGroup milestoneGroup = milestoneGroupRepository.findById(milestoneGroupId)
+            .orElseThrow(() -> new MilestoneException(HttpStatus.NOT_FOUND.value(), "마일스톤 그룹이 존재하지 않습니다."));
+
+    milestoneGroupRepository.deleteById(milestoneGroup.getId());
+
     return "GROUP DELETE SUCCESS";
   }
 
   @Override
   public String deleteMilestoneItem(Long milestoneItemId) {
-    if(!milestoneItemRepository.existsById(milestoneItemId))
-      return "DELETE FAIL : Not Found Item";
-    milestoneItemRepository.deleteById(milestoneItemId);
+    MilestoneItem milestoneItem = milestoneItemRepository.findById(milestoneItemId)
+            .orElseThrow(() -> new MilestoneException(HttpStatus.NOT_FOUND.value(), "마일스톤 아이템이 존재하지 않습니다."));
+    milestoneItemRepository.deleteById(milestoneItem.getId());
 
     return "ITEM DELETE SUCCESS";
   }

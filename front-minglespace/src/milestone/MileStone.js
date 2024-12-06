@@ -10,8 +10,7 @@ const MileStone = () => {
 
   useEffect(() => {}, [refreshKey]);
   return (
-    <div>
-      <h1> 마일스톤 페이지</h1>
+    <div className="milestone_main">
       <MileStoneTest key={refreshKey} refresh={handleRefresh} />
     </div>
   );
