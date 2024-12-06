@@ -13,5 +13,4 @@ public interface WorkspaceService {
   WorkspaceDTO.Response modify(Long workSpaceId, WorkspaceDTO.Request workspaceDTO);
   String remove(Long workSpaceId, Long userId);
   WorkspaceDTO.Response getOne(Long workSpaceId);
-  List<MemberWithUserInfoDTO> getWsMemberWithUserInfo(Long workspaceId);
 }
