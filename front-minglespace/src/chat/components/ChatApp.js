@@ -22,7 +22,6 @@ const initMembers = [{
   name: "",
   imageUriPath: "",
   position: "",
-  chatRole: ""
 }];
 
 const ChatApp = () => {
@@ -40,6 +39,7 @@ const ChatApp = () => {
       // 스크롤을 맨 아래로 이동
       chatListRef.current.scrollTop = chatListRef.current.scrollHeight;
     }
+
   }, [rooms]); // rooms 배열이 변경될 때마다 실행
 
   //마운트 시, 채팅방 목록 가져오기
@@ -48,7 +48,7 @@ const ChatApp = () => {
       try {
         const roomsData = await ChatApi.getChatList(workspaceId);
         setRooms(roomsData);
-        console.log("chatrooms: ", roomsData);
+        // console.log("chatrooms: ", roomsData);
       } catch (error) {
         console.error("Error fetching chat rooms:", error);
         setError("채팅방 데이터를 가져오는 데 문제가 발생했습니다.");
@@ -93,6 +93,22 @@ const ChatApp = () => {
     setFold((prevFold) => !prevFold);
   };
 
+  const updateRoomParticipantCount = (chatRoomId, change) => {
+    // console.log("updateRoomParicipantCount: ", chatRoomId, "- ", change);
+    setRooms((prevRooms) => {
+      const updatedRooms = prevRooms.map((room) =>
+        Number(room.chatRoomId) === Number(chatRoomId)
+          ? { ...room, participantCount: Number(room.participantCount) + Number(change) }
+          : room
+      );
+      return updatedRooms;
+    });
+  };
+
+  // 채팅방 나가기 시 방 제거
+  const removeRoom = (chatRoomId) => {
+    setRooms((prevRooms) => prevRooms.filter(room => Number(room.chatRoomId) !== Number(chatRoomId)));
+  };
 
   return (
     <div className={`chat_app ${isFold ? "folded" : ""}`}>
@@ -101,9 +117,19 @@ const ChatApp = () => {
         <FiChevronsLeft />
       </button>
       {/* ChatList 컴포넌트에 isFold 상태와 rooms 데이터를 전달 */}
-      <ChatList isFold={isFold} rooms={rooms} onCreateRoom={handleCreateRoom} wsmembers={wsmembers} />
+      <ChatList
+        isFold={isFold}
+        rooms={rooms}
+        onCreateRoom={handleCreateRoom}
+        wsmembers={wsmembers} />
 
-      <ChatRoom isFold={isFold} wsMembers={wsmembers} workSpaceId={workspaceId} />
+      <ChatRoom
+        isFold={isFold}
+        wsMembers={wsmembers}
+        workSpaceId={workspaceId}
+        updateRoomParticipantCount={updateRoomParticipantCount}
+        removeRoom={removeRoom}
+      />
     </div>
   );
 };

@@ -1,8 +1,8 @@
-﻿import React, {  useState } from "react";
+﻿import React, { useState } from "react";
 import ChatListItem from "./ChatListItem";
 import CreateChatRoomModal from "./CreateChatRoomModal";
 
-const ChatList = ( {isFold, rooms, onCreateRoom, wsmembers}) => {
+const ChatList = ({ isFold, rooms, onCreateRoom, wsmembers }) => {
   const [isModalOpen, setIsModalOpen] = useState(false); //모달 열림/닫힘 상태
 
   //모달을 여는 함수

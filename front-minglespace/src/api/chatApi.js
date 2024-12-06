@@ -54,30 +54,56 @@ class ChatApi {
     };
 
     ////ChatRoom 관련 API//////
+    ////에러 발생 케이스 확인하기//////
     static getChatRoom = async (workspaceId, chatRoomId) => {
-        const res = await api.axiosIns.get(`${prefix}/${workspaceId}/chatRooms/${chatRoomId}`);
+        try {
+            const res = await api.axiosIns.get(`${prefix}/${workspaceId}/chatRooms/${chatRoomId}`);
+            return res.data;
+        } catch (error) {
+            console.error("채팅방 정보 겟 실패:", error);
+            // throw error;  // 에러 처리
+        }
 
-        return res.data;
     };
 
     static addMemberToRoom = async (workspaceId, chatRoomId, addMemberId) => {
-        const res = await api.axiosIns.post(`${prefix}/${workspaceId}/chatRooms/${chatRoomId}/members/${addMemberId}`);
-        return res.data;
+        try {
+            const res = await api.axiosIns.post(`${prefix}/${workspaceId}/chatRooms/${chatRoomId}/members/${addMemberId}`);
+            return res.data;
+        } catch (error) {
+            console.error("채팅방 멤버 추가 실패:", error);
+            // throw error;  // 에러 처리
+        }
     };
 
     static kickMemberFromRoom = async (workspaceId, chatRoomId, kickMemberId) => {
-        const res = await api.axiosIns.delete(`${prefix}/${workspaceId}/chatRooms/${chatRoomId}/members/${kickMemberId}/kick`);
-        return res.data;
+        try {
+            const res = await api.axiosIns.delete(`${prefix}/${workspaceId}/chatRooms/${chatRoomId}/members/${kickMemberId}/kick`);
+            return res.data;
+        } catch (error) {
+            console.error("채팅방 멤버 강퇴 실패:", error);
+            // throw error;  // 에러 처리
+        }
     };
 
     static leaveFromChat = async (workspaceId, chatRoomId) => {
-        const res = await api.axiosIns.delete(`${prefix}/${workspaceId}/chatRooms/${chatRoomId}/leave`);
-        return res.data;
+        try {
+            const res = await api.axiosIns.delete(`${prefix}/${workspaceId}/chatRooms/${chatRoomId}/leave`);
+            return res.data;
+        } catch (error) {
+            console.error("채팅방 나가기 실패:", error);
+            // throw error;  // 에러 처리
+        }
     };
 
     static delegateLeader = async (workspaceId, chatRoomId, newLeaderId) => {
-        const res = await api.axiosIns.delete(`${prefix}/${workspaceId}/chatRooms/${chatRoomId}/leader/${newLeaderId}`);
-        return res.data;
+        try {
+            const res = await api.axiosIns.put(`${prefix}/${workspaceId}/chatRooms/${chatRoomId}/leader/${newLeaderId}`);
+            return res.data;
+        } catch (error) {
+            console.error("채팅방 방장 위임 실패:", error);
+            // throw error;  // 에러 처리
+        }
     };
 
 }

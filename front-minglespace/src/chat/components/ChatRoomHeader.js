@@ -2,36 +2,22 @@ import { useState } from "react";
 import ChatRoomModal from "./ChatRoomModal";
 import { FcExport } from "react-icons/fc";
 import { PiUserCirclePlusFill } from "react-icons/pi";
-import Repo from "../../auth/Repo";
 
-const ChatRoomHeader = ({ chatRoomInfo, inviteMembers }) => {
-  const [isModalOpen, setIsModelOpen] = useState(false);
+const ChatRoomHeader = ({ chatRoomInfo, inviteMembers, isRoomOwner, isModalOpen, setIsModalOpen, handleInvite, handleKick, handleDelegate, handleExit }) => {
   const [modalType, setModalType] = useState("");
-  const [isRoomOwner, setIsRoomOwner] = useState(); //작업 필요
 
   const openModal = (type) => {
-    console.log(`opening modal: ${type}`);
+    // console.log(`opening modal: ${type}`);
     setModalType(type);
-    setIsModelOpen(true);
+    setIsModalOpen(true);
   };
 
   const closeModal = (newModalType) => {
     if (newModalType) {
       setModalType(newModalType);
     } else {
-      setIsModelOpen(false);
+      setIsModalOpen(false);
     }
-  };
-
-  //작업 필요
-  const handleTransfer = (newOwner) => {
-    // 새로운 방장으로 변경하는 로직
-    console.log("새 방장:", newOwner.name);
-    setIsRoomOwner(false); // 방장이 아니라면 false로 설정
-  };
-
-  const handleInvite = (newUser) => {
-    console.log("초대된 사용자:", newUser.name); // 초대 완료 메시지
   };
 
   return (
@@ -43,9 +29,11 @@ const ChatRoomHeader = ({ chatRoomInfo, inviteMembers }) => {
         <FcExport className="icon" />
       </button>
 
-      <button onClick={() => openModal("invite")} className="invite-btn">
-        <PiUserCirclePlusFill className="icon" />
-      </button>
+      {isRoomOwner && (
+        <button onClick={() => openModal("invite")} className="invite-btn">
+          <PiUserCirclePlusFill className="icon" />
+        </button>
+      )}
 
       <ChatRoomModal
         modalType={modalType}
@@ -55,7 +43,9 @@ const ChatRoomHeader = ({ chatRoomInfo, inviteMembers }) => {
         isRoomOwner={isRoomOwner}
         inviteUsers={inviteMembers} //초대할 사용자 목록
         onInvite={handleInvite} //초대 함수
-        onTransfer={handleTransfer}
+        onDelegate={handleDelegate}
+        onExit={handleExit}
+        onKick={handleKick}
       />
     </div>
   );

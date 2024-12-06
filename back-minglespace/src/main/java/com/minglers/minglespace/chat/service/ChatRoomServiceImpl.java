@@ -139,7 +139,7 @@ public class ChatRoomServiceImpl implements ChatRoomService {
   @Override
   public ChatRoomDTO.RoomResponse getChatRoomWithMsgAndParticipants(Long chatRoomId, Long workspaceId, Long userId) {
     ChatRoom chatRoom = findRoomById(chatRoomId);
-    if (chatRoom != null){
+    if (chatRoom == null){
       throw new RuntimeException("채팅방이 존재하지 않습니다.");
     }
 

@@ -170,7 +170,7 @@ public class ChatRoomController {
   }
 
   //방장 위임
-  @PatchMapping("/{chatRoomId}/leader/{newLeaderId}")
+  @PutMapping("/{chatRoomId}/leader/{newLeaderId}")
   public ResponseEntity<String> delegateLeader(@PathVariable Long workspaceId,
                                                @PathVariable Long chatRoomId,
                                                @PathVariable Long newLeaderId,

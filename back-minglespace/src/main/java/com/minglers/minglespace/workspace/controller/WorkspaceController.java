@@ -1,4 +1,4 @@
-﻿package com.minglers.minglespace.workspace.controller;
+package com.minglers.minglespace.workspace.controller;
 
 import com.minglers.minglespace.auth.security.JWTUtils;
 import com.minglers.minglespace.workspace.dto.MemberWithUserInfoDTO;

@@ -1,32 +1,26 @@
 import React, { useState } from "react";
+import Repo from "../../auth/Repo";
 
-const DelegateModal = ({ isOpen, onClose, onTransfer }) => {
-  const [selectedUser, setSelectedUser] = useState(null);
+const DelegateModal = ({ isOpen, onClose, onDelegate, participants }) => {
+  const [selectedUser, setSelectedUser] = useState(null); // 선택된 멤버 상태
 
-  // 더미 데이터 (채팅방 멤버 목록)
-  const roomMembers = [
-    { id: 1, name: "User 1" },
-    { id: 2, name: "User 2" },
-    { id: 3, name: "User 3" },
-    { id: 4, name: "User 4" },
-  ];
-  if (!isOpen) return null;
-
-  const handleUserSelect = (user) => {
-    setSelectedUser(user);
-    console.log(`사용자 ${user.name} 선택됨`);
+  const handleUserSelect = (newLeader) => {
+    setSelectedUser(newLeader);
+    console.log(`사용자 ${newLeader.name} 선택됨`);
   };
 
-  const handleTransfer = () => {
-    console.log("selectedUser 값: ", selectedUser);
+  const handleDelegateAndExit = async () => {
     if (selectedUser) {
-      onTransfer(selectedUser); // 새 방장으로 위임
+      await onDelegate(selectedUser); // 새 방장으로 위임
       alert(`${selectedUser.name}님이 방장으로 위임되었습니다.`);
+      setSelectedUser(null);
       onClose(); // 모달 닫기
     } else {
-      alert("사용자를 선택해주세요.");
+      alert("위임할 멤버를 선택해주세요.");
     }
   };
+
+  if (!isOpen) return null;
 
   return (
     <div>
@@ -34,14 +28,20 @@ const DelegateModal = ({ isOpen, onClose, onTransfer }) => {
         <h2>방장 위임하기</h2>
         <p>방장으로 위임할 사용자를 선택하세요</p>
         <ul>
-          {roomMembers.map((member) => (
-            <li key={member.id}>
-              {member.name}
-              <button onClick={() => handleUserSelect(member)}>위임</button>
-            </li>
-          ))}
+          {participants
+            .filter((member) => member.userId !== Number(Repo.getUserId()))
+            .map((member) => (
+              <li
+                key={member.userId}
+                style={{
+                  backgroundColor: selectedUser?.wsMemberId === member.wsMemberId ? "#d3f4f8" : "transparent"
+                }}>
+                {member.email}
+                <button onClick={() => handleUserSelect(member)}>위임</button>
+              </li>
+            ))}
         </ul>
-        <button onClick={handleTransfer}>확인 </button>
+        <button onClick={handleDelegateAndExit} disabled={!selectedUser}> 위임 및 나가기 </button>
         <button onClick={onClose}>닫기</button>
       </div>
     </div>

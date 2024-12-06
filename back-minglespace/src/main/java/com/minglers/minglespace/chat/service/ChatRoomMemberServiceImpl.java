@@ -87,11 +87,11 @@ public class ChatRoomMemberServiceImpl implements ChatRoomMemberService {
 
     @Override
     public List<ChatRoomMemberDTO> getParticipantsByChatRoomId(Long chatRoomId) {
-        List<ChatRoomMember> chatRoomMembers = chatRoomMemberRepository.findByChatRoomId(chatRoomId);
+        List<ChatRoomMember> chatRoomMembers = chatRoomMemberRepository.findByChatRoomIdAndIsLeftFalse(chatRoomId);
 
         return chatRoomMembers.stream()
                 .map(member -> {
-                    User user = userRepository.findById(member.getWsMember().getUser().getId()).orElseThrow(()-> new RuntimeException("유저 정보가 없습니다"));
+                    User user = member.getWsMember().getUser();
                     String uriPath = user.getImage() != null ? user.getImage().getUripath() : "";
                     ChatRoomMemberDTO dto = ChatRoomMemberDTO.builder()
                             .wsMemberId(member.getWsMember().getId())
