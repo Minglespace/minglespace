@@ -8,10 +8,10 @@ const ChatRoomModal = ({
   isOpen,
   onClose,
   roomMembers,
-  onTransfer, // 방장 위임 함수
-  inviteUsers,
   isRoomOwner,
+  inviteUsers,
   onInvite,
+  onTransfer // 방장 위임 함수
 }) => {
   if (!isOpen) return null;
 

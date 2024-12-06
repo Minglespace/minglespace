@@ -32,7 +32,7 @@ const ChatApp = () => {
   const chatListRef = useRef(null); // 채팅방 목록을 참조하기 위한 ref
   const [error, setError] = useState(null); //오류 상태
 
-  const {workspaceId} = useParams();
+  const { workspaceId } = useParams();
 
   // 채팅방 목록이 변경될 때마다 자동 스크롤
   useEffect(() => {
@@ -58,10 +58,11 @@ const ChatApp = () => {
     //워크스페이스 멤버 목록
     const fetchWsMembers = async () => {
       try {
-        const wsmembers = await ChatApi.getwsMembers(workspaceId);
+        const wsmembersData = await ChatApi.getwsMembers(workspaceId);
         //현재 유저 제외한 목록 만들기
-        setWsMembers(wsmembers.filter((member) => member.userId !== Number(Repo.getUserId())));
-        console.log("wsmembers: ", wsmembers);
+        setWsMembers(wsmembersData.filter((member) => member.userId !== Number(Repo.getUserId())));
+        // console.log("wsmembersData: ", wsmembersData);
+
       } catch (error) {
         console.error("Error fetching ws members:", error);
         setError("워크스페이스 멤버 목록을 가져오는 데 문제가 발생했습니다.");
@@ -100,9 +101,9 @@ const ChatApp = () => {
         <FiChevronsLeft />
       </button>
       {/* ChatList 컴포넌트에 isFold 상태와 rooms 데이터를 전달 */}
-      <ChatList isFold={isFold} rooms={rooms} onCreateRoom={handleCreateRoom} wsmembers={wsmembers}/>
+      <ChatList isFold={isFold} rooms={rooms} onCreateRoom={handleCreateRoom} wsmembers={wsmembers} />
 
-      <ChatRoom isFold={isFold} wsmembers={wsmembers} workSpaceId={workspaceId}/>
+      <ChatRoom isFold={isFold} wsMembers={wsmembers} workSpaceId={workspaceId} />
     </div>
   );
 };

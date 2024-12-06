@@ -4,10 +4,10 @@ import { FcExport } from "react-icons/fc";
 import { PiUserCirclePlusFill } from "react-icons/pi";
 import Repo from "../../auth/Repo";
 
-const ChatRoomHeader = ({chatRoomInfo, inviteMembers}) => {
+const ChatRoomHeader = ({ chatRoomInfo, inviteMembers }) => {
   const [isModalOpen, setIsModelOpen] = useState(false);
   const [modalType, setModalType] = useState("");
-  const [isRoomOwner, setIsRoomOwner] = useState();
+  const [isRoomOwner, setIsRoomOwner] = useState(); //작업 필요
 
   const openModal = (type) => {
     console.log(`opening modal: ${type}`);
@@ -23,6 +23,7 @@ const ChatRoomHeader = ({chatRoomInfo, inviteMembers}) => {
     }
   };
 
+  //작업 필요
   const handleTransfer = (newOwner) => {
     // 새로운 방장으로 변경하는 로직
     console.log("새 방장:", newOwner.name);

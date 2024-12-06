@@ -169,7 +169,6 @@ public class WorkspaceServiceImpl implements WorkspaceService{
               .imageUriPath(imageUriPath)
               .position(user.getPosition())
               .build();
-
       wsMemberList.add(dto);
     }
 

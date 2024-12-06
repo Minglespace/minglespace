@@ -9,42 +9,52 @@ import { useLocation } from "react-router-dom";
 // private List<ChatRoomMemberDTO> participants;
 
 const initChatRoomInfo = {
-  chatRoomId:0,
-  name:"",
-  imageUriPath:"",
-  workSpaceId:0,
-  messages:[],
-  participants:[]
+  chatRoomId: 0,
+  name: "",
+  imageUriPath: "",
+  workSpaceId: 0,
+  messages: [],
+  participants: []
 };
-const ChatRoom = ({ isFold, wsmembers, workSpaceId }) => {
+const ChatRoom = ({ isFold, wsMembers, workSpaceId }) => {
   const [chatRoomInfo, setChatRoomInfo] = useState(initChatRoomInfo);
   const [inviteMembers, setInviteMembers] = useState([]);
   const chatRoomId = new URLSearchParams(useLocation().search).get("chatRoomId");
 
-  useEffect(()=>{
+  console.log("useEffect_wsmembers: ", wsMembers);
+
+  useEffect(() => {
+    if (!chatRoomId) {
+      console.log("No chatRoomId provided, skipping server request.");
+      return;
+    }
+
     const fetchRoomInfo = async () => {
-      try{
+      try {
         const roomInfo = await ChatApi.getChatRoom(workSpaceId, chatRoomId);
         console.log("chatRoom_ get info: ", roomInfo);
         setChatRoomInfo(roomInfo);
-        
-        const participantsIds = roomInfo.participants.map(participant => participant.userId);
 
-        const nonParticipants = wsmembers.filter(member => !participantsIds.includes(member.userId));
+        const participantsIds = roomInfo.participants.map(participant => Number(participant.userId));
+        console.log("participantsId: ", participantsIds);
+
+        const nonParticipants = wsMembers.filter(member => !participantsIds.includes(Number(member.userId)));
+        console.log("wsmembers: ", wsMembers);
+        console.log("nonparticipants: ", nonParticipants);
 
         setInviteMembers(nonParticipants);
 
-      }catch(error){
-        console.error("error fetching get chatroominfo: ",error);
+      } catch (error) {
+        console.error("error fetching get chatroominfo: ", error);
       }
     };
 
     fetchRoomInfo();
-  },[workSpaceId, chatRoomId]);
+  }, [workSpaceId, chatRoomId]);
 
   return (
     <div className={`chatroom_container ${isFold ? "folded" : ""}`}>
-      <ChatRoomHeader chatRoomInfo={chatRoomInfo} inviteMembers={inviteMembers}/>
+      <ChatRoomHeader chatRoomInfo={chatRoomInfo} inviteMembers={inviteMembers} />
       <div className="chat_messages">
         {/* 여기에 채팅 메시지들이 들어갑니다 */}
 

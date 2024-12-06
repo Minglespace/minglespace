@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import Repo from "../../auth/Repo";
 
 const InviteFriendModal = ({ isOpen, onClose, inviteUsers, participants, onInvite, onTransfer }) => {
   const [selectedUser, setSelectedUser] = useState(null); //선택된 사용자
@@ -34,6 +35,15 @@ const InviteFriendModal = ({ isOpen, onClose, inviteUsers, participants, onInvit
             </li>
           ))
         )}
+        {participants
+          .filter((member) => member.userId !== Number(Repo.getUserId()))
+          .map((member) => (
+            <li key={member.wsMemberId}>
+              {member.email}
+              <button onClick={() => handleUserSelect(member)}>강퇴</button>
+            </li>
+          ))
+        }
       </ul>
       <button onClick={handleInvite}>확인 </button>
       <button onClick={onClose}>닫기</button>
