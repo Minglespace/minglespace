@@ -16,10 +16,11 @@ const initItem = [
     title: "",
     start_time: 0,
     end_time: 1,
+    taskStatus: "NOT_START",
   },
 ];
 
-const MileStoneComponent = ({ refresh }) => {
+const MileStoneComponent = () => {
   const [groups, setGroups] = useState([...initGroup]);
   const [items, setItems] = useState([...initItem]);
   const { workspaceId } = useParams("workspaceId");
@@ -30,6 +31,8 @@ const MileStoneComponent = ({ refresh }) => {
   const [newStartTime, setNewStartTime] = useState("");
   const [newEndTime, setNewEndTime] = useState("");
   const [mode, setMode] = useState("default");
+  const [newTaskStatus, setNewTaskStatus] = useState("");
+  const [status, setStatus] = useState("");
 
   console.error = (...args) => {
     if (args[0].includes("React keys must be passed directly to JSX")) {
@@ -52,9 +55,11 @@ const MileStoneComponent = ({ refresh }) => {
           title: items.title,
           start_time: items.start_time,
           end_time: items.end_time,
+          taskStatus: items.taskStatus,
         }))
       );
       setItems(updateItem);
+      console.log("task:", updateItem);
     });
   }, [workspaceId]);
 
@@ -83,7 +88,29 @@ const MileStoneComponent = ({ refresh }) => {
           }
         : item
     );
-    setItems(updatedItems);
+
+    // 아이템 이동 후 서버에 업데이트 요청
+    const movedItem = updatedItems.find((item) => item.id === itemId);
+    if (movedItem) {
+      MilestoneApi.modifyItem(workspaceId, movedItem.id, movedItem).then(
+        ({ id, title, start_time, end_time }) => {
+          // 서버 응답으로 업데이트된 아이템을 상태에 반영
+          setItems(
+            updatedItems.map((item) =>
+              item.id === id
+                ? {
+                    ...item,
+                    title,
+                    start_time,
+                    end_time,
+                  }
+                : item
+            )
+          );
+        }
+      );
+    }
+    setItems(updatedItems); // 로컬 상태에서 아이템 위치 업데이트
   };
 
   //아이템 사이즈 조절 핸들러
@@ -97,22 +124,113 @@ const MileStoneComponent = ({ refresh }) => {
           }
         : item
     );
-    setItems(updatedItems);
+
+    // 크기 조정 후 서버에 업데이트 요청
+    const resizedItem = updatedItems.find((item) => item.id === itemId);
+    if (resizedItem) {
+      MilestoneApi.modifyItem(workspaceId, resizedItem.id, resizedItem).then(
+        ({ id, title, start_time, end_time }) => {
+          // 서버 응답으로 업데이트된 아이템을 상태에 반영
+          setItems(
+            updatedItems.map((item) =>
+              item.id === id
+                ? {
+                    ...item,
+                    title,
+                    start_time,
+                    end_time,
+                  }
+                : item
+            )
+          );
+        }
+      );
+    }
+
+    setItems(updatedItems); // 로컬 상태에서 아이템 크기 업데이트
+  };
+
+  //단위 시간 계산
+  const calculateUnit = () => {
+    const duration = visibleTimeEnd - visibleTimeStart; // 시간 간격 (밀리초)
+    if (duration > 2678400000) return "month"; // 1달 이상
+    if (duration > 86400000) return "day"; // 1일 이상
+    return "hour"; // 1시간 이상
+  };
+
+  //단위시간별 시작,마감시간 계산
+  const calStartAndEndTime = (unitTime, time) => {
+    const dates = new Date(time);
+    console.log(dates);
+    const unitStartAndEndTime = {
+      startTime: 0,
+      endTime: 0,
+    };
+    switch (unitTime) {
+      case "month": {
+        const date = new Date(time);
+        unitStartAndEndTime.startTime = new Date(
+          date.getFullYear(),
+          date.getMonth(),
+          1,
+          0,
+          0,
+          0,
+          0
+        ).getTime();
+        unitStartAndEndTime.endTime =
+          new Date(
+            date.getFullYear(),
+            date.getMonth() + 1,
+            1,
+            0,
+            0,
+            0,
+            0
+          ).getTime() - 1;
+        break;
+      }
+      case "day": {
+        unitStartAndEndTime.startTime = new Date(
+          new Date(time).setHours(0, 0, 0, 0)
+        ).getTime();
+        unitStartAndEndTime.endTime = unitStartAndEndTime.startTime + 86400000;
+        break;
+      }
+      case "hour": {
+        unitStartAndEndTime.startTime = new Date(
+          new Date(time).setMinutes(0, 0, 0)
+        ).getTime();
+        unitStartAndEndTime.endTime = unitStartAndEndTime.startTime + 3600000;
+        break;
+      }
+      default: {
+        unitStartAndEndTime.startTime = time;
+        unitStartAndEndTime.endTime = time;
+        break;
+      }
+    }
+    return unitStartAndEndTime;
   };
 
   //캔버스 클릭 핸들러(아이템 추가)
   const handleCanvasClick = (groupId, time) => {
-    const startOfDay = new Date(new Date(time).setHours(0, 0, 0, 0)).getTime();
-    const endOfDay = startOfDay + 86400000;
+    const unitTime = calculateUnit();
+    const startAndEndTime = calStartAndEndTime(unitTime, time);
+
+    const startOfTime = startAndEndTime.startTime;
+    const endOfTime = startAndEndTime.endTime;
     const newItem = {
       groupid: groupId,
       title: "New item",
-      start_time: startOfDay,
-      end_time: endOfDay,
+      start_time: startOfTime,
+      end_time: endOfTime,
+      taskStatus: "NOT_START",
     };
 
     MilestoneApi.postAddItem(workspaceId, groupId, newItem).then(
-      ({ id, title, start_time, end_time }) => {
+      ({ id, title, start_time, end_time, taskStatus }) => {
+        console.log(newItem.taskStatus);
         setItems([
           ...items,
           {
@@ -121,10 +239,12 @@ const MileStoneComponent = ({ refresh }) => {
             title,
             start_time,
             end_time,
+            taskStatus,
           },
         ]);
       }
     );
+    console.log("add : ", items);
   };
 
   const handleGroupAdd = () => {
@@ -144,10 +264,10 @@ const MileStoneComponent = ({ refresh }) => {
     setNewTitle(item.title);
     setNewStartTime(moment(item.start_time).format("YYYY-MM-DDTHH:mm"));
     setNewEndTime(moment(item.end_time).format("YYYY-MM-DDTHH:mm"));
+    setNewTaskStatus(item.taskStatus);
     setMode("default");
     setModalOpen(true);
   };
-
   const handleGroupDoubleClick = (groupId) => {
     const group = groups.find((i) => i.id === groupId);
     setSelectedGroup(group);
@@ -167,10 +287,11 @@ const MileStoneComponent = ({ refresh }) => {
         title: newTitle,
         start_time: new Date(newStartTime).getTime(),
         end_time: new Date(newEndTime).getTime(),
+        taskStatus: status,
       };
 
       MilestoneApi.modifyItem(workspaceId, selectedItem.id, updatedItem).then(
-        ({ id, title, start_time, end_time }) => {
+        ({ id, title, start_time, end_time, taskStatus }) => {
           setItems(
             items.map((item) =>
               item.id === id
@@ -179,13 +300,14 @@ const MileStoneComponent = ({ refresh }) => {
                     title,
                     start_time,
                     end_time,
-                    selected: false,
+                    taskStatus,
                   }
                 : item
             )
           );
-          refresh();
+          console.log(taskStatus);
           setModalOpen(false);
+          handleClick();
         }
       );
     } else if (selectedGroup) {
@@ -201,7 +323,7 @@ const MileStoneComponent = ({ refresh }) => {
         setGroups(
           groups.map((group) => (group.id === id ? { ...group, title } : group))
         );
-        refresh();
+        handleClick();
         setModalOpen(false);
       });
     }
@@ -211,16 +333,41 @@ const MileStoneComponent = ({ refresh }) => {
     if (selectedItem) {
       MilestoneApi.deleteItem(workspaceId, selectedItem.id).then(() => {
         setItems(items.filter((item) => item.id !== selectedItem.id));
-        refresh();
+        handleClick();
         setModalOpen(false);
       });
     } else if (selectedGroup) {
       MilestoneApi.deleteGroup(workspaceId, selectedGroup.id).then(() => {
         setItems(groups.filter((group) => group.id !== selectedGroup.id));
-        refresh();
+        handleClick();
         setModalOpen(false);
       });
     }
+  };
+
+  const handleOneClick = () => {
+    MilestoneApi.getList(workspaceId).then((data) => {
+      const updateGroup = data.map(({ id, title }) => ({
+        id: id,
+        title: title,
+      }));
+      setGroups(updateGroup);
+
+      const updateItem = data.flatMap((groups) =>
+        groups.milestoneItemDTOList.map((items) => ({
+          id: items.id,
+          group: groups.id,
+          title: items.title,
+          start_time: items.start_time,
+          end_time: items.end_time,
+        }))
+      );
+      setItems(updateItem);
+    });
+  };
+
+  const handleClick = () => {
+    handleOneClick();
   };
   return (
     <div
@@ -234,13 +381,18 @@ const MileStoneComponent = ({ refresh }) => {
         <button onClick={handleGroupAdd}>그룹 추가하기</button>
       </div>
       <Timeline
+        minZoom={36000000}
         groups={groups}
         items={items}
+        lineHeight={100}
+        canChangeGroup={false}
+        itemHeightRatio={0.6}
         defaultTimeStart={moment().add(0, "day")}
         defaultTimeEnd={moment().add(31, "day")}
         onTimeChange={handleTimeChange}
         onItemMove={handleItemMove}
         onItemResize={handleItemResize}
+        stackItems
         groupRenderer={({ group }) => (
           <div
             onDoubleClick={() => handleGroupDoubleClick(group.id)}
@@ -250,19 +402,26 @@ const MileStoneComponent = ({ refresh }) => {
           </div>
         )}
         itemRenderer={({ item, itemContext, getItemProps, getResizeProps }) => {
+          let styles = "#ffffff";
+          if (item.taskStatus === "IN_PROGRESS") {
+            styles = "#ccc";
+          } else if (item.taskStatus === "IN_PROGRESS") {
+            styles = "#ff0000";
+          } else if (item.taskStatus === "COMPLETED") {
+            styles = "#00ff00";
+          } else {
+            styles = "#0000ff";
+          }
           const { left: leftResizeProps, right: rightResizeProps } =
             getResizeProps();
           return (
             <div
               tabIndex={0}
               style={{ outline: "none", overflow: "hidden" }}
-              className={`timeline-item ${
-                itemContext.selected ? "timeline-item-selected" : ""
-              }`}
               {...getItemProps({
                 style: {
-                  backgroundColor: itemContext.selected ? "#ff88ff" : "#66b2f0",
-                  borderColor: itemContext.selected ? "#ff0000" : "#66b2f0",
+                  backgroundColor: itemContext.selected ? "#c692d6" : styles,
+                  borderColor: itemContext.selected ? "#a5aca5" : "#66b2f0",
                 },
                 onDoubleClick: () => handleItemDoubleClick(item.id),
               })}
@@ -276,9 +435,9 @@ const MileStoneComponent = ({ refresh }) => {
             </div>
           );
         }}
-        onCanvasClick={handleCanvasClick}
+        onCanvasDoubleClick={handleCanvasClick}
       >
-        <TimelineHeaders>
+        <TimelineHeaders minZoom={36000000}>
           <DateHeader unit="primaryHeader" />
           <DateHeader />
         </TimelineHeaders>
@@ -290,6 +449,8 @@ const MileStoneComponent = ({ refresh }) => {
         title={newTitle}
         startTime={newStartTime}
         endTime={newEndTime}
+        taskStatus={newTaskStatus}
+        onTaskStatusChange={setNewTaskStatus}
         onTitleChange={setNewTitle}
         onStartTimeChange={setNewStartTime}
         onEndTimeChange={setNewEndTime}

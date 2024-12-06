@@ -1,5 +1,6 @@
 package com.minglers.minglespace.milestone.dto;
 
+import com.minglers.minglespace.milestone.type.TaskStatus;
 import lombok.*;
 
 @NoArgsConstructor
@@ -11,4 +12,5 @@ public class MilestoneItemResponseDTO {
   private String title;
   private Long start_time;
   private Long end_time;
+  private TaskStatus taskStatus;
 }

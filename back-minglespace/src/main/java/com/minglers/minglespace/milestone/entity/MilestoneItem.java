@@ -1,7 +1,9 @@
 package com.minglers.minglespace.milestone.entity;
 
+import com.minglers.minglespace.milestone.type.TaskStatus;
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.ColumnDefault;
 
 @Entity
 @Table(name = "milestoneitem")
@@ -18,6 +20,14 @@ public class MilestoneItem {
   private String title;
   private Long start_time;
   private Long end_time;
+
+  public void changeTaskStatus(TaskStatus taskStatus) {
+    this.taskStatus = taskStatus;
+  }
+
+  @Enumerated(EnumType.STRING)
+  @ColumnDefault("'NOT_START'")
+  private TaskStatus taskStatus;
 
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "milestonegroup_id" )

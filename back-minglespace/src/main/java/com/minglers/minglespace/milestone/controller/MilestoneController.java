@@ -25,7 +25,7 @@ public class MilestoneController {
   @PostMapping("/milestoneGroup/{milestoneGroupId}")
   public ResponseEntity<MilestoneItemResponseDTO> addMilestoneItem(@PathVariable("milestoneGroupId") Long milestoneGroupId,
                                                                    @RequestBody MilestoneItemRequestDTO milestoneItemRequestDTO){
-    log.info(milestoneItemRequestDTO.toString());
+
     return ResponseEntity.ok(milestoneService.addMilestoneItem(milestoneGroupId, milestoneItemRequestDTO));
   }
 
@@ -44,6 +44,7 @@ public class MilestoneController {
   @PutMapping("/milestoneItem/{milestoneItemId}")
   public ResponseEntity<MilestoneItemResponseDTO> putMilestoneItem(@PathVariable("milestoneItemId") Long milestoneItemId,
                                                                    @RequestBody MilestoneItemRequestDTO milestoneItemRequestDTO){
+    log.info(milestoneItemRequestDTO.toString());
     return ResponseEntity.ok(milestoneService.putMilestoneItem(milestoneItemId, milestoneItemRequestDTO));
   }
 

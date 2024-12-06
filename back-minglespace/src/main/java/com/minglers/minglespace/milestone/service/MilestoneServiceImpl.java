@@ -6,6 +6,7 @@ import com.minglers.minglespace.milestone.entity.MilestoneItem;
 import com.minglers.minglespace.milestone.exception.MilestoneException;
 import com.minglers.minglespace.milestone.repository.MilestoneGroupRepository;
 import com.minglers.minglespace.milestone.repository.MilestoneItemRepository;
+import com.minglers.minglespace.milestone.type.TaskStatus;
 import com.minglers.minglespace.workspace.entity.WorkSpace;
 import com.minglers.minglespace.workspace.exception.WorkspaceException;
 import com.minglers.minglespace.workspace.repository.WorkspaceRepository;
@@ -71,6 +72,7 @@ public class MilestoneServiceImpl implements MilestoneService{
     // 5. 리턴된 값을 컨트롤러로 반환한다.
 
     MilestoneItem milestoneItem = modelMapper.map(milestoneItemRequestDTO, MilestoneItem.class);
+    log.info(milestoneItem.toString());
     milestoneItem.changeMilestoneGroup(milestoneGroup);
 
     MilestoneItem resultMilestoneItem = milestoneItemRepository.save(milestoneItem);
@@ -102,6 +104,7 @@ public class MilestoneServiceImpl implements MilestoneService{
     milestoneItem.changeTitle(milestoneItemRequestDTO.getTitle());
     milestoneItem.changeStart_time(milestoneItemRequestDTO.getStart_time());
     milestoneItem.changeEnd_time(milestoneItemRequestDTO.getEnd_time());
+    milestoneItem.changeTaskStatus(milestoneItemRequestDTO.getTaskStatus());
 
     MilestoneItem resultMilestoneItem = milestoneItemRepository.save(milestoneItem);
     return modelMapper.map(resultMilestoneItem, MilestoneItemResponseDTO.class);
