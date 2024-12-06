@@ -1,13 +1,11 @@
-import React from "react";
-import ChatRoom from "./components/ChatRoom";
-import ChatList from "./components/ChatList";
+﻿import React from "react";
+
+import ChatApp from "./components/ChatApp";
 const Chat = () => {
-  const me = "user1";
   return (
     <section className="chat">
       <div className="chat_container">
-        <ChatList me={me} />
-        <ChatRoom />
+        <ChatApp />
       </div>
     </section>
   );

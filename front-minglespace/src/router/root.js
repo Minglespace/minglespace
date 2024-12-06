@@ -61,7 +61,7 @@ const root = createBrowserRouter([
     ),
   },
   {
-    path: "/workspace/chat",
+    path: "/workspace/:workspaceId/chat",
     element: (
       <Suspense fallback={Loading}>
         <Chat />

@@ -7,7 +7,28 @@
 }
 .chat_container {
   flex: 1;
-  display: flex;
+}
+
+//ChatApp.js
+.chat_app {
+  position: relative;
+
+  &.folded {
+    .chat_toggle {
+      top: 8px;
+      left: 0px;
+    }
+  }
+}
+.chat_toggle {
+  font-size: 30px;
+  background-color: #f9f5f6;
+  position: absolute;
+  top: 22px;
+  left: 20px;
+  padding: 5px;
+  padding-bottom: 0px;
+  z-index: 10;
 }
 
 //ChatList.js
@@ -15,13 +36,19 @@
 .chat_list_container {
   position: relative;
   background-color: #f9f5f6;
-  flex-basis: 80%;
+  flex-basis: 30%;
   margin: 15px;
   border: solid 1px;
   width: 500px;
   height: 700px;
   border-radius: 10px;
   overflow-y: auto;
+  transition: width 0.3s ease, visibility 0.3s ease;
+
+  &.collapsed {
+    width: 0;
+    visibility: hidden;
+  }
 }
 
 .chat_list_container h1 {
@@ -53,16 +80,6 @@
 
 .create_button:hover {
   background-color: pink;
-}
-
-.chat_toggle {
-  font-size: 30px;
-  background-color: #f9f5f6;
-  position: absolute;
-  top: 18px;
-  right: 10px;
-  padding: 5px;
-  padding-bottom: 0px;
 }
 
 // ChatListItem.js
@@ -142,7 +159,6 @@
 
 .modal_wrapper {
   position: absolute;
-  // transform: translate(0%, -69%);
   top: 72px;
   width: 100%;
   height: auto;
@@ -271,13 +287,13 @@ button:hover {
   cursor: pointer; /* 클릭 가능하게 커서 변경 */
 }
 
-// ChatRomm.js
+// ChatApp.js
+.chat_app {
+  display: flex;
+  transition: all 0.3s ease;
+}
 
-.chatroom_container {
-  background-color: #f9f5f6;
-  border: solid 1px;
-  margin: 15px;
-  margin-left: 3px;
-  border-radius: 10px;
-  width: 1100px;
+.chat_list_container.collapsed {
+  width: 0;
+  visibility: hidden;
 }

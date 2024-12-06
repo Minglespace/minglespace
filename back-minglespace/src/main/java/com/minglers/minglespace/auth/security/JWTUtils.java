@@ -68,6 +68,7 @@ public class JWTUtils {
 
     public Long extractUserId(String token) { return extractClaims(token, claims -> claims.get("userId", Long.class));}
 
+
     private <T> T extractClaims(String token, Function<Claims, T> claimsTFunction) {
         return claimsTFunction.apply(Jwts.parser().verifyWith(Key).build().parseSignedClaims(token).getPayload());
     }

@@ -1,8 +1,10 @@
-package com.minglers.minglespace.workspace.service;
+﻿package com.minglers.minglespace.workspace.service;
 
+import com.minglers.minglespace.workspace.dto.MemberWithUserInfoDTO;
 import com.minglers.minglespace.workspace.dto.WSMemberResponseDTO;
 import com.minglers.minglespace.workspace.dto.WorkSpaceResponseDTO;
 import com.minglers.minglespace.workspace.dto.WorkspaceRequestDTO;
+import com.minglers.minglespace.chat.dto.ChatRoomMemberDTO;
 
 import java.util.List;
 
@@ -14,4 +16,5 @@ public interface WorkspaceService {
   WorkSpaceResponseDTO getOne(Long workSpaceId);
   void checkLeader(Long userId, Long workSpaceId);
   WSMemberResponseDTO getWorkSpaceRole(Long userId, Long workSpaceId);
+  List<MemberWithUserInfoDTO> getWsMemberWithUserInfo(Long workspaceId);
 }

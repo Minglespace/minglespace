@@ -5,13 +5,12 @@ import org.springframework.core.io.UrlResource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
+import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URLConnection;
+import java.net.URLDecoder;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
@@ -21,12 +20,15 @@ public class ImageController {
 
     //클라이언트에서 통하는 이미지 경로.
     //고민 > chatRoom, user, message에 활용되는 메시지를 구분하려면 service에서 저장할 때 uripath 처리를 수정해야함
+    @CrossOrigin(origins = "http://localhost:3000")
     @GetMapping("/{imageName}")
     public ResponseEntity<Resource> getImage(@PathVariable String imageName) {
-        // 파일이 저장된 경로
-        Path path = Paths.get("upload/" + imageName);
-
         try {
+            //url 디코딩 처리
+            String decodedImageName = URLDecoder.decode(imageName, "UTF-8");
+
+            // 파일이 저장된 경로
+            Path path = Paths.get("upload/" + decodedImageName);
             // 이미지 파일 로드
             Resource resource = new UrlResource(path.toUri());
 
@@ -45,7 +47,7 @@ public class ImageController {
             } else {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
             }
-        } catch (MalformedURLException e) {
+        } catch (MalformedURLException | UnsupportedEncodingException e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }

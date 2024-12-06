@@ -1,10 +1,12 @@
-package com.minglers.minglespace.workspace.service;
+﻿package com.minglers.minglespace.workspace.service;
 
 import com.minglers.minglespace.auth.entity.User;
 import com.minglers.minglespace.auth.repository.UserRepository;
+import com.minglers.minglespace.workspace.dto.MemberWithUserInfoDTO;
 import com.minglers.minglespace.workspace.dto.WSMemberResponseDTO;
 import com.minglers.minglespace.workspace.dto.WorkSpaceResponseDTO;
 import com.minglers.minglespace.workspace.dto.WorkspaceRequestDTO;
+import com.minglers.minglespace.chat.dto.ChatRoomMemberDTO;
 import com.minglers.minglespace.workspace.entity.WSMember;
 import com.minglers.minglespace.workspace.entity.WorkSpace;
 import com.minglers.minglespace.workspace.exception.WorkspaceException;
@@ -19,12 +21,13 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
 @RequiredArgsConstructor
 @Slf4j
-public class WorkspaceServiceImpl implements WorkspaceService{
+public class WorkspaceServiceImpl implements WorkspaceService {
 
   private final ModelMapper modelMapper;
 
@@ -34,15 +37,16 @@ public class WorkspaceServiceImpl implements WorkspaceService{
 
   private final WSMemberRepository wsMemberRepository;
 
+
   //공통 메서드////////////////
   //유저 정보 가져오기
-  private User findUserById(Long userId){
+  private User findUserById(Long userId) {
     return userRepository.findById(userId)
             .orElseThrow(() -> new IllegalArgumentException("유저정보를 찾을수 없습니다."));
   }
 
   //워크스페이스 가져오기
-  private WorkSpace findWorkSpaceById(Long workSpaceId){
+  private WorkSpace findWorkSpaceById(Long workSpaceId) {
     return workspaceRepository.findById(workSpaceId)
             .orElseThrow(() -> new WorkspaceException(HttpStatus.NOT_FOUND.value(), "워크스페이스 정보를 찾을수 없습니다."));
   }
@@ -54,9 +58,9 @@ public class WorkspaceServiceImpl implements WorkspaceService{
   }
 
   //워크스페이스 삭제여부체크
-  private void checkDelflag(WorkSpace workSpace){
-    if(workSpace.isDelflag())
-      throw new WorkspaceException(HttpStatus.BAD_REQUEST.value(),"이미 삭제 된 워크스페이스입니다.");
+  private void checkDelflag(WorkSpace workSpace) {
+    if (workSpace.isDelflag())
+      throw new WorkspaceException(HttpStatus.BAD_REQUEST.value(), "이미 삭제 된 워크스페이스입니다.");
   }
 
   //워크스페이스 엔티티를 DTO 로 변환
@@ -176,6 +180,32 @@ public class WorkspaceServiceImpl implements WorkspaceService{
             .memberId(wsMember.getId())
             .role(wsMember.getRole().name())
             .build();
+  }
+
+  @Override
+  public List<MemberWithUserInfoDTO> getWsMemberWithUserInfo(Long workspaceId) {
+    List<WSMember> wsMembers = wsMemberRepository.findByWorkSpaceId(workspaceId);
+
+    List<MemberWithUserInfoDTO> wsMemberList = new ArrayList<>();
+
+    for (WSMember member : wsMembers) {
+      User user = member.getUser();
+
+      String imageUriPath = (user.getImage() != null && user.getImage().getUripath() != null) ? user.getImage().getUripath() : "";
+
+      MemberWithUserInfoDTO dto = MemberWithUserInfoDTO.builder()
+              .wsMemberId(member.getId())
+              .userId(user.getId())
+              .email(user.getEmail())
+              .name(user.getName())
+              .imageUriPath(imageUriPath)
+              .position(user.getPosition())
+              .build();
+
+      wsMemberList.add(dto);
+    }
+
+    return wsMemberList;
   }
 }
 

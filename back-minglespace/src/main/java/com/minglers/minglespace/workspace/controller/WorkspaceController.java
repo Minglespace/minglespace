@@ -1,9 +1,13 @@
 package com.minglers.minglespace.workspace.controller;
 
 import com.minglers.minglespace.auth.security.JWTUtils;
+import com.minglers.minglespace.workspace.dto.MemberWithUserInfoDTO;
 import com.minglers.minglespace.workspace.dto.WSMemberResponseDTO;
 import com.minglers.minglespace.workspace.dto.WorkSpaceResponseDTO;
 import com.minglers.minglespace.workspace.dto.WorkspaceRequestDTO;
+import com.minglers.minglespace.chat.dto.ChatRoomMemberDTO;
+import com.minglers.minglespace.workspace.entity.WSMember;
+import com.minglers.minglespace.workspace.service.WSMemberService;
 import com.minglers.minglespace.workspace.service.WorkspaceService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -17,8 +21,9 @@ import java.util.List;
 @RequiredArgsConstructor
 @RequestMapping("/workspace")
 public class WorkspaceController {
-//할일 1. 유저 예외처리하기
+
   private final WorkspaceService workspaceService;
+  private final WSMemberService wsMemberService;
 
   private final JWTUtils jwtUtils;
 
@@ -32,7 +37,7 @@ public class WorkspaceController {
   //workspace 추가
   @PostMapping("")
   public ResponseEntity<WorkSpaceResponseDTO> register(@RequestHeader("Authorization") String token,
-                                                                 @RequestBody WorkspaceRequestDTO workSpaceDTO){
+                                                       @RequestBody WorkspaceRequestDTO workSpaceDTO){
     Long userId = jwtUtils.extractUserId(token.substring(7));
     return ResponseEntity.ok(workspaceService.resister(userId,workSpaceDTO));
   }
@@ -71,8 +76,16 @@ public class WorkspaceController {
   }
 
   //수정삭제시 리더인지 확인체크
-  public void checkLeader(Long userId, Long workSpaceId){
+  public void checkLeader(Long userId, Long workSpaceId) {
     workspaceService.checkLeader(userId, workSpaceId);
+  }
+
+  //워크스페이스 참여 멤버 가져오기
+  @GetMapping("/{workspaceId}/members")
+  public ResponseEntity<List<MemberWithUserInfoDTO>> getWsMemberWithUserInfo(@PathVariable Long workspaceId,
+                                                                             @RequestHeader("Authorization") String authorizationHeader){
+    List<MemberWithUserInfoDTO> dtos = workspaceService.getWsMemberWithUserInfo(workspaceId);
+    return ResponseEntity.ok(dtos);
   }
 
 }
