@@ -10,7 +10,6 @@ const initState = {
   name: "",
   wsdesc: "",
 };
-const userId = "1";
 
 const WorkspaceAdd = ({
   open,
@@ -38,7 +37,7 @@ const WorkspaceAdd = ({
     if (editingWorkspace) {
       onUpdateWorkspace(newWorkspace);
     } else {
-      WorkspaceApi.postAdd(userId, newWorkspace).then((result) => {
+      WorkspaceApi.postAdd(newWorkspace).then((result) => {
         setNewWorkspace({ ...initState });
         onAddWorkspace(result);
         onClose();

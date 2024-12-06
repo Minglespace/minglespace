@@ -1,8 +1,6 @@
 package com.minglers.minglespace.chat.controller;
 
-import com.minglers.minglespace.auth.entity.User;
 import com.minglers.minglespace.auth.security.JWTUtils;
-import com.minglers.minglespace.auth.service.UserService;
 import com.minglers.minglespace.chat.dto.*;
 import com.minglers.minglespace.chat.entity.ChatRoom;
 import com.minglers.minglespace.chat.service.ChatMessageService;
@@ -12,7 +10,6 @@ import com.minglers.minglespace.common.entity.Image;
 import com.minglers.minglespace.common.service.ImageService;
 import com.minglers.minglespace.workspace.entity.WSMember;
 import com.minglers.minglespace.workspace.service.WSMemberService;
-import com.minglers.minglespace.workspace.service.WorkspaceService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.http.HttpStatus;
@@ -21,10 +18,8 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 @RestController
 @RequiredArgsConstructor
