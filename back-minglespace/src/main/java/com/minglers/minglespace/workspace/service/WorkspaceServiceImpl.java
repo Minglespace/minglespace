@@ -182,31 +182,6 @@ public class WorkspaceServiceImpl implements WorkspaceService {
             .build();
   }
 
-  @Override
-  public List<MemberWithUserInfoDTO> getWsMemberWithUserInfo(Long workspaceId) {
-    List<WSMember> wsMembers = wsMemberRepository.findByWorkSpaceId(workspaceId);
-
-    List<MemberWithUserInfoDTO> wsMemberList = new ArrayList<>();
-
-    for (WSMember member : wsMembers) {
-      User user = member.getUser();
-
-      String imageUriPath = (user.getImage() != null && user.getImage().getUripath() != null) ? user.getImage().getUripath() : "";
-
-      MemberWithUserInfoDTO dto = MemberWithUserInfoDTO.builder()
-              .wsMemberId(member.getId())
-              .userId(user.getId())
-              .email(user.getEmail())
-              .name(user.getName())
-              .imageUriPath(imageUriPath)
-              .position(user.getPosition())
-              .build();
-
-      wsMemberList.add(dto);
-    }
-
-    return wsMemberList;
-  }
 }
 
 
