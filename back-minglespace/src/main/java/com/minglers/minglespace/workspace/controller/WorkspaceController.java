@@ -82,7 +82,7 @@ public class WorkspaceController {
   @GetMapping("/{workspaceId}/members")
   public ResponseEntity<List<MemberWithUserInfoDTO>> getWsMemberWithUserInfo(@PathVariable Long workspaceId,
                                                                              @RequestHeader("Authorization") String authorizationHeader){
-    List<MemberWithUserInfoDTO> dtos = workspaceService.getWsMemberWithUserInfo(workspaceId);
+    List<MemberWithUserInfoDTO> dtos = wsMemberService.getWsMemberWithUserInfo(workspaceId);
     return ResponseEntity.ok(dtos);
   }
 
