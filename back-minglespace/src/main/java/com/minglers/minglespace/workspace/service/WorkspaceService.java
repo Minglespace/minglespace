@@ -16,5 +16,4 @@ public interface WorkspaceService {
   WorkSpaceResponseDTO getOne(Long workSpaceId);
   void checkLeader(Long userId, Long workSpaceId);
   WSMemberResponseDTO getWorkSpaceRole(Long userId, Long workSpaceId);
-  List<MemberWithUserInfoDTO> getWsMemberWithUserInfo(Long workspaceId);
 }
