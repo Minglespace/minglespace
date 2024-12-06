@@ -1,4 +1,4 @@
-package com.minglers.minglespace.workspace.service;
+﻿package com.minglers.minglespace.workspace.service;
 
 import com.minglers.minglespace.auth.entity.User;
 import com.minglers.minglespace.auth.repository.UserRepository;
@@ -164,7 +164,6 @@ public class WorkspaceServiceImpl implements WorkspaceService {
   @Transactional(readOnly = true)
   public void checkLeader(Long userId, Long workSpaceId) {
 
-    WSMember wsMember = findWSMemberBy(userId,workSpaceId);
 
     if(WSMemberRole.LEADER !=wsMember.getRole())//리더가 아니라면
       throw new WorkspaceException(HttpStatus.UNAUTHORIZED.value(),"워크스페이스 리더가 아닙니다");
@@ -174,7 +173,6 @@ public class WorkspaceServiceImpl implements WorkspaceService {
   @Transactional(readOnly = true)
   public WSMemberResponseDTO getWorkSpaceRole(Long userId, Long workSpaceId) {
 
-    WSMember wsMember = findWSMemberBy(userId,workSpaceId);
 
     return WSMemberResponseDTO.builder()
             .memberId(wsMember.getId())

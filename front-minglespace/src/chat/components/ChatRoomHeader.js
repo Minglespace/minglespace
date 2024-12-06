@@ -2,22 +2,12 @@ import { useState } from "react";
 import ChatRoomModal from "./ChatRoomModal";
 import { FcExport } from "react-icons/fc";
 import { PiUserCirclePlusFill } from "react-icons/pi";
+import Repo from "../../auth/Repo";
 
-const ChatRoomHeader = () => {
+const ChatRoomHeader = ({ chatRoomInfo, inviteMembers }) => {
   const [isModalOpen, setIsModelOpen] = useState(false);
   const [modalType, setModalType] = useState("");
-  const [isRoomOwner, setIsRoomOwner] = useState(true);
-  const members = [
-    { id: 1, name: "친구1" },
-    { id: 2, name: "친구2" },
-    { id: 3, name: "친구3" },
-  ];
-
-  const dummyUsers = [
-    { id: 1, name: "사용자1" },
-    { id: 2, name: "사용자2" },
-    { id: 3, name: "사용자3" },
-  ];
+  const [isRoomOwner, setIsRoomOwner] = useState(); //작업 필요
 
   const openModal = (type) => {
     console.log(`opening modal: ${type}`);
@@ -33,6 +23,7 @@ const ChatRoomHeader = () => {
     }
   };
 
+  //작업 필요
   const handleTransfer = (newOwner) => {
     // 새로운 방장으로 변경하는 로직
     console.log("새 방장:", newOwner.name);
@@ -60,9 +51,9 @@ const ChatRoomHeader = () => {
         modalType={modalType}
         isOpen={isModalOpen}
         onClose={closeModal}
-        friends={members}
+        roomMembers={chatRoomInfo.participants}
         isRoomOwner={isRoomOwner}
-        inviteUsers={dummyUsers} //초대할 사용자 목록
+        inviteUsers={inviteMembers} //초대할 사용자 목록
         onInvite={handleInvite} //초대 함수
         onTransfer={handleTransfer}
       />

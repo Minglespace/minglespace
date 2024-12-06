@@ -1,4 +1,4 @@
-package com.minglers.minglespace.workspace.controller;
+﻿package com.minglers.minglespace.workspace.controller;
 
 import com.minglers.minglespace.auth.security.JWTUtils;
 import com.minglers.minglespace.workspace.dto.MemberWithUserInfoDTO;
@@ -72,12 +72,10 @@ public class WorkspaceController {
     Long userId = jwtUtils.extractUserId(token.substring(7));
     return ResponseEntity.ok(workspaceService.getWorkSpaceRole(userId,workspaceId));
   }
-
   //수정삭제시 리더인지 확인체크
   public void checkLeader(Long userId, Long workSpaceId) {
     workspaceService.checkLeader(userId, workSpaceId);
   }
-
   //워크스페이스 참여 멤버 가져오기
   @GetMapping("/{workspaceId}/members")
   public ResponseEntity<List<MemberWithUserInfoDTO>> getWsMemberWithUserInfo(@PathVariable Long workspaceId,
