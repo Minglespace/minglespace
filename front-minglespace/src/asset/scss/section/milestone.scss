@@ -84,20 +84,19 @@
 /* 기본 아이템 스타일 */
 .react-calendar-timeline .rct-item {
   overflow: hidden !important;
-  background-color: #66b2f0 !important; /* 기본 배경색 */
-  border: none !important;
+  // border: none !important;
   border-radius: 10px !important;
   text-align: center !important;
 }
 
-/* 선택된 아이템 스타일 */
-.react-calendar-timeline .rct-item.react-item--selected {
-  background-color: red !important; /* 선택된 아이템의 배경색 */
-  color: white !important; /* 선택된 아이템의 텍스트 색상 */
-  border: none !important;
-  border-radius: 10px !important;
-  text-align: center !important;
-}
+// /* 선택된 아이템 스타일 */
+// .react-calendar-timeline .rct-item .react-item--selected {
+//   background-color: red !important; /* 선택된 아이템의 배경색 */
+//   color: white !important; /* 선택된 아이템의 텍스트 색상 */
+//   border: none !important;
+//   border-radius: 10px !important;
+//   text-align: center !important;
+// }
 
 .react-calendar-timeline .rct-item:hover {
   z-index: 88;
@@ -191,7 +190,9 @@
   background-color: initial;
   border-left: 1px solid #bbb;
   border-right: 1px solid #bbb;
-  color: #fff;
+  color: #000 !important;
+  font-weight: bold !important;
+  font-size: 16px !important;
 }
 .react-calendar-timeline .rct-header-root {
   background: white !important;

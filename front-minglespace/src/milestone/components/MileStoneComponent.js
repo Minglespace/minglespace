@@ -19,7 +19,7 @@ const initItem = [
   },
 ];
 
-const MileStoneTest = ({ key, refresh }) => {
+const MileStoneComponent = ({ refresh }) => {
   const [groups, setGroups] = useState([...initGroup]);
   const [items, setItems] = useState([...initItem]);
   const { workspaceId } = useParams("workspaceId");
@@ -260,6 +260,10 @@ const MileStoneTest = ({ key, refresh }) => {
                 itemContext.selected ? "timeline-item-selected" : ""
               }`}
               {...getItemProps({
+                style: {
+                  backgroundColor: itemContext.selected ? "#ff88ff" : "#66b2f0",
+                  borderColor: itemContext.selected ? "#ff0000" : "#66b2f0",
+                },
                 onDoubleClick: () => handleItemDoubleClick(item.id),
               })}
             >
@@ -297,4 +301,4 @@ const MileStoneTest = ({ key, refresh }) => {
   );
 };
 
-export default MileStoneTest;
+export default MileStoneComponent;

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useRef } from "react";
 import Modal from "../../common/Layouts/components/Modal";
 const MileStoneModal = ({
   open,
@@ -13,6 +13,17 @@ const MileStoneModal = ({
   onDelete,
   mode,
 }) => {
+  const inputFocus = useRef(null);
+
+  const handleSave = () => {
+    if (!title.trim()) {
+      alert("내용을 입력해 주세요");
+      inputFocus.current.focus();
+      return;
+    }
+    onSave();
+  };
+
   return (
     <Modal open={open} onClose={onClose}>
       <div className="milestone_modal_container">
@@ -20,9 +31,12 @@ const MileStoneModal = ({
         <div className="milestone_modal_modify_title">
           <p>Title :</p>
           <input
+            ref={inputFocus}
             type="text"
             value={title}
             onChange={(e) => onTitleChange(e.target.value)}
+            required
+            maxLength={30}
           />
         </div>
         {mode != "titleOnly" && (
@@ -46,7 +60,7 @@ const MileStoneModal = ({
           </>
         )}
         <div className="milestone_modal_modify_button">
-          <button onClick={onSave}>Save</button>
+          <button onClick={handleSave}>Save</button>
           <button onClick={onDelete}>Delete</button>
           <button onClick={onClose}>Cancel</button>
         </div>
