@@ -1,4 +1,4 @@
-﻿﻿package com.minglers.minglespace.workspace.service;
+﻿package com.minglers.minglespace.workspace.service;
 
 import com.minglers.minglespace.auth.entity.User;
 import com.minglers.minglespace.auth.repository.UserRepository;
