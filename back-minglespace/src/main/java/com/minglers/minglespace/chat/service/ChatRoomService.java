@@ -17,4 +17,6 @@ public interface ChatRoomService {
 
     void deleteChatRoomData(Long chatRoomId);
 
+    ChatRoomDTO.RoomResponse getChatRoomWithMsgAndParticipants(Long chatRoomId, Long workspaceId, Long userId);
+
 }

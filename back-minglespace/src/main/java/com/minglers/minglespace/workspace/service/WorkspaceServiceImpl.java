@@ -3,6 +3,7 @@ package com.minglers.minglespace.workspace.service;
 import com.minglers.minglespace.auth.entity.User;
 import com.minglers.minglespace.auth.repository.UserRepository;
 import com.minglers.minglespace.chat.dto.ChatRoomMemberDTO;
+import com.minglers.minglespace.workspace.dto.MemberWithUserInfoDTO;
 import com.minglers.minglespace.workspace.dto.WorkspaceDTO;
 import com.minglers.minglespace.workspace.entity.WSMember;
 import com.minglers.minglespace.workspace.entity.WorkSpace;
@@ -152,23 +153,25 @@ public class WorkspaceServiceImpl implements WorkspaceService{
   }
 
   @Override
-  public List<ChatRoomMemberDTO> getWsMemberWithUserInfo(Long workspaceId, List<WSMember> wsMembers){
-    List<ChatRoomMemberDTO> wsMemberList = new ArrayList<>();
+  public List<MemberWithUserInfoDTO> getWsMemberWithUserInfo(Long workspaceId) {
+    List<WSMember> wsMembers = wsMemberRepository.findByWorkSpaceId(workspaceId);
 
-    for(WSMember member : wsMembers){
-      User user = userRepository.findById(member.getUser().getId())
-              .orElseThrow(()-> new RuntimeException("찾는 유저가 없습니다."));
+    List<MemberWithUserInfoDTO> wsMemberList = new ArrayList<>();
+
+    for (WSMember member : wsMembers) {
+      User user = member.getUser();
 
       String imageUriPath = (user.getImage() != null && user.getImage().getUripath() != null) ? user.getImage().getUripath() : "";
 
-      ChatRoomMemberDTO dto = ChatRoomMemberDTO.builder()
-              .email(user.getEmail())
+      MemberWithUserInfoDTO dto = MemberWithUserInfoDTO.builder()
               .wsMemberId(member.getId())
               .userId(user.getId())
+              .email(user.getEmail())
               .name(user.getName())
               .imageUriPath(imageUriPath)
               .position(user.getPosition())
               .build();
+
       wsMemberList.add(dto);
     }
 

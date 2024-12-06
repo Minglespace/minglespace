@@ -17,6 +17,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.parameters.P;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -100,34 +101,12 @@ public class ChatRoomController {
     Long userId = jwtUtils.extractUserId(token);
     log.info("chatRoom _ getChatRoomWithMsg - requestUserId : " + userId);
 
-    Long wsMemberId = wsMemberService.findByUserIdAndWsId(userId, workspaceId).getId();
-
-    if (!chatRoomMemberService.existsByChatRoomIdAndWsMemberIdAndIsLeftFalse(chatRoomId, wsMemberId)) {
-      return ResponseEntity.status(HttpStatus.FORBIDDEN).body("채팅방 참여 멤버가 아닙니다.");
+    try{
+      ChatRoomDTO.RoomResponse chatRoomResponseDTO = chatRoomService.getChatRoomWithMsgAndParticipants(chatRoomId, workspaceId, userId);
+      return ResponseEntity.ok(chatRoomResponseDTO);
+    }catch (RuntimeException e){
+      return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
     }
-
-    ChatRoom chatRoom = chatRoomService.findRoomById(chatRoomId);
-    if (chatRoom == null) {
-      return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("채팅방이 존재하지 않습니다.");
-    }
-
-    //메시지 목록
-    List<ChatMessageDTO> messages = chatMessageService.getMessagesByChatRoom(chatRoom);
-    //참여자 목록
-    List<ChatRoomMemberDTO> participants = chatRoomMemberService.getParticipantsByChatRoomId(chatRoomId);
-
-    String imageUriPath = (chatRoom.getImage() != null && chatRoom.getImage().getUripath() != null) ? chatRoom.getImage().getUripath() : "";
-
-
-    ChatRoomDTO.RoomResponse chatRoomResponseDTO = ChatRoomDTO.RoomResponse.builder()
-            .chatRoomId(chatRoomId)
-            .name(chatRoom.getName())
-            .participants(participants)
-            .messages(messages)
-            .workSpaceId(chatRoom.getWorkSpace().getId())
-            .imageUriPath(imageUriPath)
-            .build();
-    return ResponseEntity.ok(chatRoomResponseDTO);
   }
 
 
