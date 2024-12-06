@@ -4,17 +4,28 @@ import MessageList from "./MessageList";
 import MessageInput from "./MessageInput";
 
 const ChatRoom = ({ isFold }) => {
-  const [message, setMessages] = useState([]);
+  const [messages, setMessages] = useState([
+    { sender: "Alice", text: "Hello!", isCurrentUser: false },
+    { sender: "Bob", text: "Hi!", isCurrentUser: false },
+  ]);
 
-  const handleSendMessage = (message) => {
-    setMessages((prevMessages) => [...prevMessages, message]);
+  const [newMessage, setNewMessage] = useState("");
+
+  // 메시지 전송 처리 함수
+  const handleSendMessage = (newMessage) => {
+    // 새로운 메시지 객체를 추가
+    setMessages((prevMessages) => [
+      ...prevMessages,
+      { sender: "User", text: newMessage, isCurrentUser: true },
+    ]);
   };
+
   return (
     <div className={`chatroom_container ${isFold ? "folded" : ""}`}>
       <ChatRoomHeader />
       <div className="chat_messages">
         {/* 여기에 채팅 메시지들이 들어갑니다 */}
-        <MessageList messages={message} /> {/* 전송된 메시지 목록 표시 */}
+        <MessageList messages={messages} /> {/* 전송된 메시지 목록 표시 */}
         <MessageInput onSendMessage={handleSendMessage} />
         {/* 메시지 전송 처리 */}
       </div>

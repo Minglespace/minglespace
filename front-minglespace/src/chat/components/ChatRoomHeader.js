@@ -45,9 +45,6 @@ const ChatRoomHeader = () => {
 
   return (
     <div className="chatroom_header">
-      {/* <PiUserCirclePlusFill className="chatroom_plus" />
-      <FcExport className="chatroom_export" /> */}
-
       <button onClick={() => openModal("exit")} className="exit-btn">
         <FcExport className="icon" />
       </button>

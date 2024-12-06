@@ -24,11 +24,10 @@ const MessageInput = ({ onSendMessage }) => {
       setMessage("");
     }
   };
-
   const handleKeyDown = (e) => {
     if (e.key === "Enter" && !e.shiftKey && message.trim()) {
-      onSendMessage({ text: message, sender: "user" });
-      setMessage("");
+      onSendMessage(message);
+      setMessage(""); // 메시지 전송 후 입력란 초기화
     }
   };
 

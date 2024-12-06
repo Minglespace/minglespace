@@ -15,8 +15,8 @@
 
   &.folded {
     .chat_toggle {
-      top: 8px;
-      left: 0px;
+      top: 20px;
+      left: 11px;
     }
   }
 }
@@ -24,11 +24,12 @@
   font-size: 30px;
   background-color: #f9f5f6;
   position: absolute;
-  top: 22px;
-  left: 20px;
+  top: 25px;
+  left: 25px;
   padding: 5px;
   padding-bottom: 0px;
   z-index: 10;
+  border-radius: 5px;
 }
 
 //ChatList.js
@@ -186,7 +187,8 @@
   font-weight: bold;
 }
 
-button {
+.create_btn,
+.close_btn {
   padding: 10px 18px;
   margin: 15px 10px 0;
   background-color: #e1acac;
@@ -195,9 +197,9 @@ button {
   cursor: pointer;
 }
 
-button:hover {
-  background-color: #ca8787;
-}
+// button:hover {
+//   background-color: #ca8787;
+// }
 
 .modal_img {
   width: 100px;
