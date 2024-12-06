@@ -2,8 +2,12 @@ import React from "react";
 import { BsPeopleFill } from "react-icons/bs";
 import default_img from "../../asset/imgs/profile1.png";
 import { HOST_URL } from "../../api/Api";
+import { useNavigate, useParams } from "react-router-dom";
 
 const ChatListItem = ({ chat }) => {
+  const navigate = useNavigate();
+  const {workspaceId} = useParams();
+
   // unread_count가 이미 더미 데이터에 포함되어 있으므로, 그것을 사용합니다.
   const unreadCount = chat.unreadCount || 0; // chat.unread_count 사용
 
@@ -11,8 +15,12 @@ const ChatListItem = ({ chat }) => {
   //   (msg) => !msg.read && msg.receiver !== me // 안 읽은 메시지 수
   // ).length;
 
+  const handleClick = () => {
+    navigate(`/workspace/${workspaceId}/chat?chatRoomId=${chat.chatRoomId}`)
+  }
+
   return (
-    <div className="chat_list_item">
+    <div className="chat_list_item" onClick={handleClick}>
       <div className="chat_img">
         <img
           src={chat.imageUriPath ? `${HOST_URL}${chat.imageUriPath}` : default_img}

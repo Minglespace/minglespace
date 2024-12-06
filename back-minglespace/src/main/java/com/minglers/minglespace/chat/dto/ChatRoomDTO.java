@@ -31,6 +31,7 @@ public class ChatRoomDTO {
     private Long workSpaceId;
     private List<ChatMessageDTO> messages;
     private List<ChatRoomMemberDTO> participants;
+    private Long LeaderWsMemberId;
   }
 
   @Data

@@ -14,6 +14,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.parameters.P;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -37,16 +38,16 @@ public class ChatRoomController {
   //채팅방 목록 조회
   @GetMapping("/members")
   public ResponseEntity<?> getRoomsByMember(@PathVariable Long workspaceId,
-                                                                    @RequestHeader("Authorization") String authorizationHeader) {
+                                            @RequestHeader("Authorization") String authorizationHeader) {
     String token = authorizationHeader.replace("Bearer ", "");
 
     Long userId = jwtUtils.extractUserId(token);
-    log.info("chatRoom_getRoomByMember - requestUserId : "+ userId);
+    log.info("chatRoom_getRoomByMember - requestUserId : " + userId);
 
     WSMember wsMember = wsMemberService.findByUserIdAndWsId(userId, workspaceId);
-    if (wsMember == null){
+    if (wsMember == null) {
       log.info("getRoom_ requestUser_ not participant");
-      return ResponseEntity.status(HttpStatus.FORBIDDEN).body(new HashMap<String, String>(){{
+      return ResponseEntity.status(HttpStatus.FORBIDDEN).body(new HashMap<String, String>() {{
         put("error", "워크스페이스에 참여하는 유저가 아닙니다.");
       }});
     }
@@ -58,23 +59,25 @@ public class ChatRoomController {
   //방 생성
   @PostMapping("")
   public ResponseEntity<ChatRoomDTO.ListResponse> createRoom(@PathVariable Long workspaceId,
-                                                        @RequestPart("requestDTO") ChatRoomDTO.CreateRequest requestDTO,
-                                                        @RequestPart("image") MultipartFile image,
-                                                        @RequestHeader("Authorization") String authorizationHeader) {
+                                                             @RequestPart("requestDTO") ChatRoomDTO.CreateRequest requestDTO,
+                                                             @RequestPart(value = "image", required = false) MultipartFile image,
+                                                             @RequestHeader("Authorization") String authorizationHeader) {
     String token = authorizationHeader.replace("Bearer ", "");
 
     Long userId = jwtUtils.extractUserId(token);
-    log.info("chatRoom_createRoom - requestUserId : "+ userId);
+    log.info("chatRoom_createRoom - requestUserId : " + userId);
 
     WSMember createMember = wsMemberService.findByUserIdAndWsId(userId, workspaceId);
 
     requestDTO.setWorkspaceId(workspaceId);
     Image saveFile = null;
-    try{
-      saveFile = imageService.uploadImage(image);
-    }catch (RuntimeException | IOException e) {
-      log.error("Image upload failed: " + e.getMessage(), e);
-      throw new RuntimeException("채팅방 이미지 업로드 실패 : ", e);  // 업로드 실패 시 처리
+    if (image != null) {
+      try {
+        saveFile = imageService.uploadImage(image);
+      } catch (RuntimeException | IOException e) {
+        log.error("Image upload failed: " + e.getMessage(), e);
+        throw new RuntimeException("채팅방 이미지 업로드 실패 : ", e);  // 업로드 실패 시 처리
+      }
     }
 
 //    requestDTO.setImage(image);
@@ -91,36 +94,14 @@ public class ChatRoomController {
     String token = authorizationHeader.replace("Bearer ", "");
 
     Long userId = jwtUtils.extractUserId(token);
-    log.info("chatRoom _ getChatRoomWithMsg - requestUserId : "+ userId);
+    log.info("chatRoom _ getChatRoomWithMsg - requestUserId : " + userId);
 
-    Long wsMemberId = wsMemberService.findByUserIdAndWsId(userId, workspaceId).getId();
-
-    if (!chatRoomMemberService.existsByChatRoomIdAndWsMemberIdAndIsLeftFalse(chatRoomId, wsMemberId)) {
-      return ResponseEntity.status(HttpStatus.FORBIDDEN).body("채팅방 참여 멤버가 아닙니다.");
+    try{
+      ChatRoomDTO.RoomResponse chatRoomResponseDTO = chatRoomService.getChatRoomWithMsgAndParticipants(chatRoomId, workspaceId, userId);
+      return ResponseEntity.ok(chatRoomResponseDTO);
+    }catch (RuntimeException e){
+      return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
     }
-
-    ChatRoom chatRoom = chatRoomService.findRoomById(chatRoomId);
-    if (chatRoom == null) {
-      return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("채팅방이 존재하지 않습니다.");
-    }
-
-    //메시지 목록
-    List<ChatMessageDTO> messages = chatMessageService.getMessagesByChatRoom(chatRoom);
-    //참여자 목록
-    List<ChatRoomMemberDTO> participants = chatRoomMemberService.getParticipantsByChatRoomId(chatRoomId);
-
-    String imageUriPath = (chatRoom.getImage() != null && chatRoom.getImage().getUripath() != null) ? chatRoom.getImage().getUripath() : "";
-
-
-    ChatRoomDTO.RoomResponse chatRoomResponseDTO = ChatRoomDTO.RoomResponse.builder()
-            .chatRoomId(chatRoomId)
-            .name(chatRoom.getName())
-            .participants(participants)
-            .messages(messages)
-            .workSpaceId(chatRoom.getWorkSpace().getId())
-            .imageUriPath(imageUriPath)
-            .build();
-    return ResponseEntity.ok(chatRoomResponseDTO);
   }
 
 
@@ -133,7 +114,7 @@ public class ChatRoomController {
     String token = authorizationHeader.replace("Bearer ", "");
 
     Long userId = jwtUtils.extractUserId(token);
-    log.info("chatRoom _ addMemberToRoom - requestUserId : "+ userId);
+    log.info("chatRoom _ addMemberToRoom - requestUserId : " + userId);
 
     Long wsMemberId = wsMemberService.findByUserIdAndWsId(userId, workspaceId).getId();
 
@@ -155,7 +136,7 @@ public class ChatRoomController {
     String token = authorizationHeader.replace("Bearer ", "");
 
     Long userId = jwtUtils.extractUserId(token);
-    log.info("chatRoom _ kickMemberFromRoom - requestUserId : "+ userId);
+    log.info("chatRoom _ kickMemberFromRoom - requestUserId : " + userId);
 
     Long wsMemberId = wsMemberService.findByUserIdAndWsId(userId, workspaceId).getId();
 
@@ -174,7 +155,7 @@ public class ChatRoomController {
     String token = authorizationHeader.replace("Bearer ", "");
 
     Long userId = jwtUtils.extractUserId(token);
-    log.info("chatRoom _ leaveChatRoom - requestUserId : "+ userId);
+    log.info("chatRoom _ leaveChatRoom - requestUserId : " + userId);
 
     Long wsMemberId = wsMemberService.findByUserIdAndWsId(userId, workspaceId).getId();
 
@@ -189,7 +170,7 @@ public class ChatRoomController {
   }
 
   //방장 위임
-  @PatchMapping("/{chatRoomId}/leader/{newLeaderId}")
+  @PutMapping("/{chatRoomId}/leader/{newLeaderId}")
   public ResponseEntity<String> delegateLeader(@PathVariable Long workspaceId,
                                                @PathVariable Long chatRoomId,
                                                @PathVariable Long newLeaderId,
@@ -197,7 +178,7 @@ public class ChatRoomController {
     String token = authorizationHeader.replace("Bearer ", "");
 
     Long userId = jwtUtils.extractUserId(token);
-    log.info("chatRoom _ delegateLeader - requestUserId : "+ userId);
+    log.info("chatRoom _ delegateLeader - requestUserId : " + userId);
 
     Long currentMemberId = wsMemberService.findByUserIdAndWsId(userId, workspaceId).getId();
 

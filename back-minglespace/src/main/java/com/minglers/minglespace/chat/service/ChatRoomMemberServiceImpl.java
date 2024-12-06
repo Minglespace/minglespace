@@ -1,5 +1,7 @@
 package com.minglers.minglespace.chat.service;
 
+import com.minglers.minglespace.auth.entity.User;
+import com.minglers.minglespace.auth.repository.UserRepository;
 import com.minglers.minglespace.chat.config.interceptor.CustomHandShakeInterceptor;
 import com.minglers.minglespace.chat.dto.ChatRoomMemberDTO;
 import com.minglers.minglespace.chat.entity.ChatRoom;
@@ -27,6 +29,7 @@ public class ChatRoomMemberServiceImpl implements ChatRoomMemberService {
     //알림 처리
     private final CustomHandShakeInterceptor customHandShakeInterceptor;
     private final SimpMessagingTemplate simpMessagingTemplate;
+    private final UserRepository userRepository;
 
     @Override
     @Transactional
@@ -84,13 +87,19 @@ public class ChatRoomMemberServiceImpl implements ChatRoomMemberService {
 
     @Override
     public List<ChatRoomMemberDTO> getParticipantsByChatRoomId(Long chatRoomId) {
-        List<ChatRoomMember> chatRoomMembers = chatRoomMemberRepository.findByChatRoomId(chatRoomId);
+        List<ChatRoomMember> chatRoomMembers = chatRoomMemberRepository.findByChatRoomIdAndIsLeftFalse(chatRoomId);
 
         return chatRoomMembers.stream()
                 .map(member -> {
+                    User user = member.getWsMember().getUser();
+                    String uriPath = user.getImage() != null ? user.getImage().getUripath() : "";
                     ChatRoomMemberDTO dto = ChatRoomMemberDTO.builder()
                             .wsMemberId(member.getWsMember().getId())
-                            .email(member.getWsMember().getUser().getEmail())
+                            .userId(user.getId())
+                            .email(user.getEmail())
+                            .name(user.getName())
+                            .imageUriPath(uriPath)
+                            .position(user.getPosition())
                             .build();
                     dto.setChatRole(member.getChatRole());
                     return dto;

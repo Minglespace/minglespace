@@ -1,6 +1,8 @@
 package com.minglers.minglespace.chat.service;
 
+import com.minglers.minglespace.chat.dto.ChatMessageDTO;
 import com.minglers.minglespace.chat.dto.ChatRoomDTO;
+import com.minglers.minglespace.chat.dto.ChatRoomMemberDTO;
 import com.minglers.minglespace.chat.entity.ChatMessage;
 import com.minglers.minglespace.chat.entity.ChatRoom;
 import com.minglers.minglespace.chat.entity.ChatRoomMember;
@@ -34,6 +36,8 @@ public class ChatRoomServiceImpl implements ChatRoomService {
   private final ChatMessageRepository chatMessageRepository;
   private final WorkspaceRepository workspaceRepository;
   private final WSMemberRepository wsMemberRepository;
+  private final ChatMessageService chatMessageService;
+  private final ChatRoomMemberService chatRoomMemberService;
 
   @Override
   public List<ChatRoomDTO.ListResponse> getRoomsByWsMember(Long workspaceId, Long wsMemberId) {
@@ -73,15 +77,6 @@ public class ChatRoomServiceImpl implements ChatRoomService {
   @Transactional
   public ChatRoomDTO.ListResponse createRoom(ChatRoomDTO.CreateRequest requestDTO, WSMember createMember, Image saveFile) {
     WorkSpace wspace = workspaceRepository.findById(requestDTO.getWorkspaceId()).orElse(null);
-
-//        Image saveFile = null;
-//        try{
-//            saveFile = imageService.uploadImage(image);
-//        }catch (RuntimeException | IOException e) {
-//            log.error("Image upload failed: " + e.getMessage(), e);
-//            throw new RuntimeException("채팅방 이미지 업로드 실패 : ", e);  // 업로드 실패 시 처리
-//        }
-
 
     // 사진 처리 필요
     ChatRoom chatRoom = ChatRoom.builder()
@@ -138,5 +133,31 @@ public class ChatRoomServiceImpl implements ChatRoomService {
     chatMessageRepository.deleteByChatRoomId(chatRoomId);
     chatRoomMemberRepository.deleteByChatRoomId(chatRoomId);
     chatRoomRepository.deleteById(chatRoomId);
+  }
+
+  //특정방 정보
+  @Override
+  public ChatRoomDTO.RoomResponse getChatRoomWithMsgAndParticipants(Long chatRoomId, Long workspaceId, Long userId) {
+    ChatRoom chatRoom = findRoomById(chatRoomId);
+    if (chatRoom == null){
+      throw new RuntimeException("채팅방이 존재하지 않습니다.");
+    }
+
+    List<ChatMessageDTO> messages = chatMessageService.getMessagesByChatRoom(chatRoom);
+
+    List<ChatRoomMemberDTO> participants = chatRoomMemberService.getParticipantsByChatRoomId(chatRoomId);
+
+    String imageUriPath = (chatRoom.getImage() != null && chatRoom.getImage().getUripath() != null) ? chatRoom.getImage().getUripath() : "";
+
+    ChatRoomDTO.RoomResponse roomdtos = ChatRoomDTO.RoomResponse.builder()
+            .chatRoomId(chatRoomId)
+            .name(chatRoom.getName())
+            .participants(participants)
+            .messages(messages)
+            .workSpaceId(chatRoom.getWorkSpace().getId())
+            .imageUriPath(imageUriPath)
+//            .LeaderWsMemberId()
+            .build();
+    return roomdtos;
   }
 }

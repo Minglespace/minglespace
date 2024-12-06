@@ -8,15 +8,18 @@ const ChatRoomModal = ({
   isOpen,
   onClose,
   roomMembers,
-  onTransfer, // 방장 위임 함수
-  inviteUsers,
   isRoomOwner,
+  inviteUsers,
   onInvite,
+  onDelegate,
+  onKick,
+  onExit
 }) => {
   if (!isOpen) return null;
 
-  console.log(`Rendering modal: ${modalType}`);
-  console.log("ChatRoomModal_isRoomOwner: ", isRoomOwner);
+  // console.log(`Rendering modal: ${modalType}`);
+  // console.log("ChatRoomModal_isRoomOwner: ", isRoomOwner);
+  // console.log("InviteFriendModal_ props:", inviteUsers);
 
   const renderModal = () => {
     switch (modalType) {
@@ -26,6 +29,7 @@ const ChatRoomModal = ({
             isOpen={isOpen}
             onClose={onClose}
             isRoomOwner={isRoomOwner}
+            onExit={onExit}
           />
         );
       case "invite":
@@ -35,18 +39,19 @@ const ChatRoomModal = ({
             isOpen={isOpen}
             onClose={onClose}
             inviteUsers={inviteUsers}
+            participants={roomMembers}
             onInvite={onInvite}
-            onTransfer={onTransfer}
+            onKick={onKick}
           />
         );
       case "transfer":
-        console.log("delegateModal 렌더링");
+        // console.log("delegateModal 렌더링");
         return (
           <DelegateModal
             isOpen={isOpen}
             onClose={onClose}
-            roomMembers={roomMembers}
-            onTransfer={onTransfer}
+            participants={roomMembers}
+            onDelegate={onDelegate}
           />
         );
       default:

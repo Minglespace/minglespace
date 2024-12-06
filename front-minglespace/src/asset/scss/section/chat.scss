@@ -32,6 +32,9 @@
 }
 
 //ChatList.js
+.chat_list_wrapper{
+  position: absolute;
+}
 
 .chat_list_container {
   position: relative;
@@ -72,8 +75,8 @@
   align-items: center; /* 수직 중앙 정렬 */
   cursor: pointer; /* 커서 스타일 */
 
-  position: absolute; /* 절대 위치 설정 */
-  bottom: 20px;
+  position: absolute; /* wrapper를 기준으로 고정 */
+  bottom: 20px; /* wrapper 하단 기준 */
   right: 20px;
   transition: all 0.3s ease;
 }
