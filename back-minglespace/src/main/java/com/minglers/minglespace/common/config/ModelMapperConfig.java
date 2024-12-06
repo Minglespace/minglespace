@@ -13,6 +13,7 @@ public class ModelMapperConfig {
         modelMapper.getConfiguration()
                 .setFieldMatchingEnabled(true)
                 .setFieldAccessLevel(org.modelmapper.config.Configuration.AccessLevel.PRIVATE)
+                .setSkipNullEnabled(true)
                 .setMatchingStrategy(MatchingStrategies.LOOSE);
         return modelMapper;
     }

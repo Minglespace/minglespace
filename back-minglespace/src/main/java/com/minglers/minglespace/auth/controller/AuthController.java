@@ -4,14 +4,19 @@ import com.minglers.minglespace.auth.dto.*;
 import com.minglers.minglespace.auth.security.JWTUtils;
 import com.minglers.minglespace.auth.service.TokenBlacklistService;
 import com.minglers.minglespace.auth.service.UserService;
+import com.minglers.minglespace.common.service.AuthEmailService;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
+import java.util.UUID;
+
 
 @Slf4j
 @RestController
@@ -21,11 +26,34 @@ class AuthController {
     private final UserService usersManagementService;
     private final TokenBlacklistService tokenBlacklistService;
     private final JWTUtils jwtUtils;
-
+    private final AuthEmailService authEmailService;
 
     @PostMapping("/auth/signup")
-    public ResponseEntity<DefaultResponse> signup(@RequestBody SignupRequest reg) {
-        return ResponseEntity.ok(usersManagementService.signup(reg));
+    public ResponseEntity<DefaultResponse> signup(@RequestBody SignupRequest reg, HttpServletRequest request) {
+
+        String code = UUID.randomUUID().toString();
+
+        reg.setVerificationCode(code);
+
+        DefaultResponse res = usersManagementService.signup(reg);
+
+        if(res.getCode() == HttpStatus.OK.value()){
+            authEmailService.sendEmail(code, reg.getEmail(), request);
+        }
+
+        return ResponseEntity.ok(res);
+    }
+
+    @GetMapping("/auth/confirm")
+    public ResponseEntity<DefaultResponse> confirmEmail(
+            @RequestParam String code,
+            @RequestParam String email) {
+
+        DefaultResponse res = authEmailService.confirm(code, email);
+
+        log.info("success confirmEmail code : {}, email : {}", code, email);
+
+        return ResponseEntity.ok(res);
     }
 
     @PostMapping("/auth/login")

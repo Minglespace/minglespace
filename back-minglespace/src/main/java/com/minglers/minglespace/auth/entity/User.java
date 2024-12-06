@@ -53,6 +53,9 @@ public class User implements UserDetails {
     private boolean deleteFlag;
 
 
+    private String verificationCode;
+
+
 
 
     @Override

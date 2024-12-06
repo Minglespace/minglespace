@@ -63,6 +63,14 @@ class AuthApi{
     }
   };
 
+  static confirm = async (code) => {
+    try{
+      return await api.axiosIns.get(`/auth/confirm?code=${ code }`);
+    }catch(err){
+      throw err;
+    }
+  };
+
 
 
 }
