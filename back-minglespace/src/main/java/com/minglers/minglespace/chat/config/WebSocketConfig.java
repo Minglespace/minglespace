@@ -1,5 +1,6 @@
 package com.minglers.minglespace.chat.config;
 
+import com.minglers.minglespace.chat.config.interceptor.CustomHandShakeInterceptor;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.messaging.simp.config.MessageBrokerRegistry;
@@ -11,7 +12,7 @@ import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerCo
 @EnableWebSocketMessageBroker
 @RequiredArgsConstructor
 public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
-//    private final CustomHandShakeInterceptor customHandShakeInterceptor;
+    private final CustomHandShakeInterceptor customHandShakeInterceptor;
 
     @Override
     public void configureMessageBroker(MessageBrokerRegistry config) {
@@ -23,7 +24,7 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
     public void registerStompEndpoints(StompEndpointRegistry registry) {
         registry.addEndpoint("/ws") // WebSocket 연결 엔드포인트
                 .setAllowedOriginPatterns("*") // CORS 설정. 이건 모든 도메인 허용
-//                .addInterceptors(customHandShakeInterceptor) //핸드셰이크 요청 시 우선 검증
+                .addInterceptors(customHandShakeInterceptor) //핸드셰이크 요청 시 우선 검증
                 .withSockJS(); // SockJS 사용>websocket 지원 안하는 브라우저도 fallback기능 제공
     }
 

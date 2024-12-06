@@ -1,4 +1,4 @@
-@charset "UTF-8";
+﻿@charset "UTF-8";
 
 //setting
 @use "setting/fonts";
@@ -17,4 +17,5 @@
 @use "section/calendar.scss";
 @use "section/test.scss";
 @use "section/chat.scss";
+@use "section/chatroom.scss";
 @use "section/milestone.scss";

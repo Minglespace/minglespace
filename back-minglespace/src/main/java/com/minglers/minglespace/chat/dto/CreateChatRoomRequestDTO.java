@@ -12,7 +12,7 @@ import java.util.List;
 @Builder
 public class CreateChatRoomRequestDTO {
     private String name;
-    private MultipartFile image;
+//    private MultipartFile image;
     private Long workspaceId;
     private List<Long> participantIds;
 }

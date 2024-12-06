@@ -35,4 +35,6 @@ public class ChatMessage {
     @Convert(converter = LocalDateTimeAttributeConverter.class)
     private LocalDateTime date;
 
+    @Builder.Default
+    private Boolean isAnnouncement = false;
 }
