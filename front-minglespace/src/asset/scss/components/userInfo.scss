@@ -1,0 +1,32 @@
+//유저 리스트 아이템
+.userInfo_container{
+  margin: 20px;
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  gap: 20px;
+}
+
+.userInfo_context{
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+
+  >div{
+    display: flex;
+    justify-content: flex-start;
+    align-items:baseline ;
+    >h2{
+      font-weight: bold;
+      letter-spacing: 4px;
+    }
+    >p{
+      font-weight: bold;
+      color: #6b7280;
+    }
+  }
+  >p{
+    color: #6b7280;
+  }
+}
