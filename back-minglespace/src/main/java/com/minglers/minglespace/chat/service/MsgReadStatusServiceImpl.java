@@ -24,7 +24,7 @@ public class MsgReadStatusServiceImpl implements MsgReadStatusService{
   @Transactional
   public void createMsgForMembers(ChatMessage saveMsg) {
     try{
-      List<ChatRoomMember> members = chatRoomMemberRepository.findByChatRoomId(saveMsg.getChatRoom().getId());
+      List<ChatRoomMember> members = chatRoomMemberRepository.findByChatRoomIdAndIsLeftFalse(saveMsg.getChatRoom().getId());
 
       if (members.isEmpty()){
         throw new RuntimeException("메시지 저장하는 채팅방에 멤버가 없습니다.");
