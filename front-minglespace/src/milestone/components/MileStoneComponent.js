@@ -247,6 +247,7 @@ const MileStoneComponent = () => {
     console.log("add : ", items);
   };
 
+  //그룹 추가 핸들러
   const handleGroupAdd = () => {
     const newGroup = {
       title: "New Group",
@@ -268,6 +269,8 @@ const MileStoneComponent = () => {
     setMode("default");
     setModalOpen(true);
   };
+
+  //그룹 수정을 위한 더블클릭 이벤트 처리
   const handleGroupDoubleClick = (groupId) => {
     const group = groups.find((i) => i.id === groupId);
     setSelectedGroup(group);
@@ -277,9 +280,12 @@ const MileStoneComponent = () => {
     setModalOpen(true);
   };
 
+  //모달창 닫는 함수
   const handleModalClose = () => {
     setModalOpen(false);
   };
+
+  //모달 Save 클릭 시 수정사항 저장
   const handleModalSave = () => {
     if (selectedItem) {
       const updatedItem = {
@@ -329,6 +335,7 @@ const MileStoneComponent = () => {
     }
   };
 
+  //모달 Delete클릭 실행 함수
   const handleModalDelete = () => {
     if (selectedItem) {
       MilestoneApi.deleteItem(workspaceId, selectedItem.id).then(() => {
@@ -344,7 +351,18 @@ const MileStoneComponent = () => {
       });
     }
   };
+  
+  //그룹별 아이템 완료상태에 따른 진행률 계산
+  const getGroupCompletionRate = (groupId) => {
+    const groupItems = items.filter((item) => item.group === groupId);
+    const completedItems = groupItems.filter((item) => item.taskStatus === "COMPLETED");
+    const completionRate = groupItems.length > 0 
+      ? (completedItems.length / groupItems.length) * 100 
+      : 0;
+    return Math.round(completionRate);
+  };
 
+  //수정 후 렌더링을 위한 클릭 핸들러
   const handleOneClick = () => {
     MilestoneApi.getList(workspaceId).then((data) => {
       const updateGroup = data.map(({ id, title }) => ({
@@ -366,7 +384,7 @@ const MileStoneComponent = () => {
       setItems(updateItem);
     });
   };
-
+  //handleOneClick 실행을 위한 트리거
   const handleClick = () => {
     handleOneClick();
   };
@@ -385,44 +403,44 @@ const MileStoneComponent = () => {
         minZoom={36000000}
         groups={groups}
         items={items}
-        lineHeight={100}
         canChangeGroup={false}
-        itemHeightRatio={0.6}
         defaultTimeStart={moment().add(0, "day")}
         defaultTimeEnd={moment().add(31, "day")}
         onTimeChange={handleTimeChange}
         onItemMove={handleItemMove}
         onItemResize={handleItemResize}
         stackItems
-        groupRenderer={({ group }) => (
-          <div
-            onDoubleClick={() => handleGroupDoubleClick(group.id)}
-            style={{ cursor: "pointer", textAlign: "center" }}
-          >
-            {group.title}
-          </div>
-        )}
+        groupRenderer={({ group }) => {
+          const completionRate = getGroupCompletionRate(group.id); // 진행률 계산
+          return (
+            <div
+              onDoubleClick={() => handleGroupDoubleClick(group.id)}
+              style={{ cursor: "pointer", textAlign: "center" }}
+            >
+              {group.title} ({completionRate}%)
+            </div>
+          );
+        }}
         itemRenderer={({ item, itemContext, getItemProps, getResizeProps }) => {
           let styles = "#ffffff";
-          if (item.taskStatus === "IN_PROGRESS") {
-            styles = "#ccc";
+          if (item.taskStatus === "NOT_START") {
+            styles = "#C8C8C8";
           } else if (item.taskStatus === "IN_PROGRESS") {
-            styles = "#ff0000";
+            styles = "#2EEB3A";
           } else if (item.taskStatus === "COMPLETED") {
-            styles = "#00ff00";
+            styles = "#3E63EB";
           } else {
-            styles = "#0000ff";
+            styles = "#EA7436";
           }
           const { left: leftResizeProps, right: rightResizeProps } =
             getResizeProps();
           return (
             <div
               tabIndex={0}
-              style={{ outline: "none", overflow: "hidden" }}
               {...getItemProps({
                 style: {
-                  backgroundColor: itemContext.selected ? "#c692d6" : styles,
-                  borderColor: itemContext.selected ? "#a5aca5" : "#66b2f0",
+                  backgroundColor: itemContext.selected ? "none" : styles,
+                  borderColor: itemContext.selected ? "red" : "#66b2f0",
                 },
                 onDoubleClick: () => handleItemDoubleClick(item.id),
               })}

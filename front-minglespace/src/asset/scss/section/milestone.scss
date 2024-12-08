@@ -95,8 +95,6 @@
 /* 기본 아이템 스타일 */
 .react-calendar-timeline .rct-item {
   overflow: hidden !important;
-  // background-color: blue !important;
-  // border: none !important;
   border-radius: 10px !important;
   text-align: center !important;
   font-size: 16px !important;
@@ -139,11 +137,13 @@
   margin: 0;
   border-bottom: 1px solid #bbb;
 }
-.react-calendar-timeline .rct-sidebar .rct-sidebar-row.rct-sidebar-row-odd {
-  background: #0000000d;
+.react-calendar-timeline .rct-sidebar .rct-sidebar-row.rct-sidebar-row-odd {  //홀수줄 그룹 배경 색상
+  background: #eee !important;
+  border-left: 1px solid #bbb  !important;
 }
-.react-calendar-timeline .rct-sidebar .rct-sidebar-row.rct-sidebar-row-even {
-  background: transparent;
+.react-calendar-timeline .rct-sidebar .rct-sidebar-row.rct-sidebar-row-even {  //짝수줄 그룹 배경 색상
+  background: #fff !important;
+  border-left: 1px solid #bbb  !important;
 }
 .react-calendar-timeline .rct-vertical-lines .rct-vl {
   position: absolute;
@@ -155,7 +155,7 @@
 }
 .react-calendar-timeline .rct-vertical-lines .rct-vl.rct-day-6,
 .react-calendar-timeline .rct-vertical-lines .rct-vl.rct-day-0 {
-  background: #faf6e180;
+  background: #faf6e180;  //주말 색상
 }
 .react-calendar-timeline .rct-horizontal-lines {
   -webkit-user-select: none;
@@ -169,11 +169,11 @@
   box-sizing: border-box;
   z-index: 40;
 }
-.react-calendar-timeline .rct-horizontal-lines .rct-hl-odd {
-  background: #0000000d;
+.react-calendar-timeline .rct-horizontal-lines .rct-hl-odd { //데이터 들어가는 홀수줄 색상
+  background: #eee !important;
 }
-.react-calendar-timeline .rct-horizontal-lines .rct-hl-even {
-  background: transparent;
+.react-calendar-timeline .rct-horizontal-lines .rct-hl-even { //데이터 들어가는 짝수줄 색상
+  background: #ffffff !important;
 }
 .react-calendar-timeline .rct-cursor-line {
   position: absolute;
@@ -203,7 +203,8 @@
 .react-calendar-timeline .rct-header-root {
   background: white !important;
   border-bottom: 1px solid #bbb;
-  border-radius: 5px !important;
+  border-left: 1px solid #bbb  !important;
+  
 }
 .react-calendar-timeline .rct-calendar-header {
   border: 1px solid #bbb;
