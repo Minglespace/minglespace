@@ -18,12 +18,13 @@ const ChatRoom = ({ isFold }) => {
       ...prevMessages,
       { sender: "User", text: newMessage, isCurrentUser: true },
     ]);
+    console.log(messages);
   };
 
   return (
-    <div className={`chatroom_container ${isFold ? "folded" : ""}`}>
+    <div className={`chatroom-container ${isFold ? "folded" : ""}`}>
       <ChatRoomHeader />
-      <div className="chat_messages">
+      <div className="chat-messages">
         {/* 여기에 채팅 메시지들이 들어갑니다 */}
         <MessageList messages={messages} /> {/* 전송된 메시지 목록 표시 */}
         <MessageInput onSendMessage={handleSendMessage} />

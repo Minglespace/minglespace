@@ -54,9 +54,9 @@ const ChatRoomModal = ({
     }
   };
   return (
-    <div className="chatroom_modal_wrapper" onClick={onClose}>
+    <div className="chatroom-modal-wrapper" onClick={onClose}>
       <div
-        className="chatroom_modal_content"
+        className="chatroom-modal-content"
         onClick={(e) => e.stopPropagation()}
       >
         {renderModal()}

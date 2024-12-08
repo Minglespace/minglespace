@@ -41,8 +41,12 @@ const DelegateModal = ({ isOpen, onClose, onTransfer }) => {
             </li>
           ))}
         </ul>
-        <button onClick={handleTransfer}>확인 </button>
-        <button onClick={onClose}>닫기</button>
+        <button className="create_btn" onClick={handleTransfer}>
+          확인{" "}
+        </button>
+        <button className="close_btn" onClick={onClose}>
+          닫기
+        </button>
       </div>
     </div>
   );

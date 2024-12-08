@@ -4,7 +4,7 @@ import { FaLock, FaLockOpen } from "react-icons/fa";
 const MessageInput = ({ onSendMessage }) => {
   // 메시지 입력을 잠그는 상태 변수
   const [isLocked, setIsLocked] = useState(false);
-  const [message, setMessage] = useState("");
+  const [messages, setMessages] = useState("");
 
   // 메시지 잠금 상태 변경 함수
   const toggleLock = () => {
@@ -14,20 +14,28 @@ const MessageInput = ({ onSendMessage }) => {
   // 메시지 입력
   const handleMessageChange = (e) => {
     if (!isLocked) {
-      setMessage(e.target.value);
+      setMessages(e.target.value);
     }
   };
 
-  const handleSendMessage = () => {
-    if (message.trim() !== "") {
-      onSendMessage(message);
-      setMessage("");
-    }
+  // const handleSendMessage = () => {
+  //   if (message.trim() !== "") {
+  //     onSendMessage(message);
+  //     setMessage("");
+  //   }
+  // };
+
+  // 메시지 전송 처리 함수
+  const handleSendMessage = (newMessage) => {
+    setMessages((prevMessages) => [
+      ...prevMessages,
+      { sender: "User", text: newMessage, isCurrentUser: true },
+    ]);
   };
   const handleKeyDown = (e) => {
-    if (e.key === "Enter" && !e.shiftKey && message.trim()) {
-      onSendMessage(message);
-      setMessage(""); // 메시지 전송 후 입력란 초기화
+    if (e.key === "Enter" && !e.shiftKey && messages.trim()) {
+      onSendMessage(messages);
+      setMessages(""); // 메시지 전송 후 입력란 초기화
     }
   };
 
@@ -36,7 +44,7 @@ const MessageInput = ({ onSendMessage }) => {
       <div className="message-input-wrapper">
         <input
           type="text"
-          value={message}
+          value={messages}
           onChange={handleMessageChange}
           onKeyDown={handleKeyDown} // Enter 키 입력 감지
           disabled={isLocked} // 잠금 상태에서 입력을 못 하게 함
@@ -47,9 +55,9 @@ const MessageInput = ({ onSendMessage }) => {
         />
 
         <button
-          className="input_btn"
+          className="send-btn"
           onClick={handleSendMessage}
-          disabled={isLocked || !message.trim()}
+          disabled={isLocked || !messages.trim()}
         >
           전송
         </button>

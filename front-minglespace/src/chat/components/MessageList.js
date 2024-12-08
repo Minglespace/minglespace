@@ -7,12 +7,16 @@ const MessageList = ({ messages }) => {
         <div
           key={index}
           className={`message-item ${
-            message.isCurrentUser ? "current-user" : "other-user"
+            message.isCurrentUser ? "sender" : "received"
           }`}
         >
+          {console.log(
+            `Message ${index}:`,
+            message,
+            message.isCurrentUser ? "sent" : "received"
+          )}
           <span className="message-sender">{message.sender}: </span>
-
-          {message.text}
+          <span className="message-text">{message.text}</span>
         </div>
       ))}
     </div>
