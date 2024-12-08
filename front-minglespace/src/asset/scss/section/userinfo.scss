@@ -1,0 +1,33 @@
+
+.userinfo_container{
+    display: flex;
+    width: 300px;
+    align-items: center;
+    padding: 10px;
+    border: solid 1px #ddd;
+    .userinfo_imgbox{
+        margin-right: 10px;
+        border: solid 1px #ccc;
+        border-radius: 100%;
+        width: 80px;
+        height: 80px;
+    }
+
+    .userinfo_profile_container{
+        .userinfo_username{
+            font-size: 23px;
+            font-weight: bold;
+            display: inline;
+            margin-right: 10px;
+            
+        }
+        .userinfo_userrole{
+            display: inline;
+            color: #888;
+        }
+        .userinfo_useremail{
+            display: block;
+        }
+    }
+
+}

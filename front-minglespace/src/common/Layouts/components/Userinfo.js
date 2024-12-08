@@ -1,15 +1,18 @@
 import React from 'react'
 import ProfileImage from './ProfileImage'
-import Button from './Button'
 
-const Userinfo = ({ name, role, email, src, title, btnStyle }) => {
+const Userinfo = ({ name, role, email, src }) => {
   return (
-    <>
-      <ProfileImage size="50px" src={src} />
-      <h3>{name}</h3>
-      <h4>{role}</h4>
-      <h4>{email}</h4>
-    </>
+    <div className='userinfo_container'>
+      <div className='userinfo_imgbox'>
+        <ProfileImage size="80px" src={src} />
+      </div>
+      <div className='userinfo_profile_container'>
+        <p className='userinfo_username'>{name}</p>
+        <p className='userinfo_userrole'>{role}</p>
+        <p className='userinfo_useremail'>{email}</p>
+      </div>
+    </div>
   )
 }
 
