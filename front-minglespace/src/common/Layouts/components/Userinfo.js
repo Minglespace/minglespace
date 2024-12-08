@@ -4,7 +4,7 @@ import Button from './Button'
 
 const Userinfo = ({name, role, email, src, title, btnStyle}) => {
     return (
-        <div className="userInfo_container">
+        <div className="userInfo_box">
             <ProfileImage src={src}/>
             <div className="userInfo_context">
                 <div>

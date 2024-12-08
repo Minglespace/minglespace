@@ -1,10 +1,12 @@
 import React from 'react';
 import { IoSearchOutline } from "react-icons/io5";
 
-const Search = ({placeholder}) => {
+const Search = ({placeholder, onSearch, onKeyDown}) => {
     return (
         <div className="search_box">
-         <input type="text" maxLength='30' placeholder={placeholder}/>
+         <input type="text" maxLength='30' placeholder={placeholder}
+                onChange={onSearch}
+                onKeyDown={onKeyDown}/>
          <IoSearchOutline />
         </div>
     );

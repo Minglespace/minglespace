@@ -8,4 +8,11 @@
 
 .myFriends_container_item{
   flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.myFriends_userInfo_container{
+  flex: 1;
+  overflow-y : auto;
 }

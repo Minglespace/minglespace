@@ -1,69 +1,77 @@
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import Userinfo from "../../common/Layouts/components/Userinfo";
 import Search from "../../common/Layouts/components/Search";
+import myFriendsApi from "../../api/myFriendsApi";
 
 const userInitData = [
     {
-        id : 1,
-        email : "abc@abc.abc",
-        name : "홍길동",
-        phone : "123-123-123",
-        introduction : "소개",
-        position : "사장",
-        img : "",
-    },
-    {
-        id : 2,
-        email : "2abc@abc.abc",
-        name : "2홍길동",
-        phone : "2123-123-123",
-        introduction : "소개",
-        position : "2사장",
-        img : "",
-    },
-    {
-        id : 3,
-        email : "3abc@abc.abc",
-        name : "3홍길동",
-        phone : "3123-123-123",
-        introduction : "소개",
-        position : "사장",
-        img : "",
-    },
-    {
-        id : 4,
-        email : "4abc@abc.abc",
-        name : "4홍길동",
-        phone : "4123-123-123",
-        introduction : "소개",
-        position : "사장",
-        img : "",
-    },
-    {
-        id : 5,
-        email : "5abc@abc.abc",
-        name : "5홍길동",
-        phone : "5123-123-123",
-        introduction : "소개",
-        position : "사장",
-        img : "",
-    },
-    {
-        id : 6,
-        email : "6abc@abc.abc",
-        name : "6홍길동",
-        phone : "6123-123-123",
-        introduction : "소개",
-        position : "사장",
+        id : 0,
+        email : "",
+        name : "",
+        phone : "",
+        introduction : "",
+        position : "",
         img : "",
     },
 ]
 const MyFriendsList = () => {
     const [user, setUser] = useState([...userInitData]);
+    const [searchKeyword , setSearchKeyword] = useState("");
+
+    const getList = () => {
+        myFriendsApi.getList(searchKeyword).then(
+            (data) =>{
+                setUser(data);
+            }
+        );
+    }
+
+    useEffect(()=>{
+        getList();
+    },[])
+
+    useEffect(() => {
+        if(isValidKoreanCharacter(searchKeyword) || searchKeyword ==="") {
+            const timer = setTimeout(() => {
+                getList(searchKeyword);
+            }, 1000);
+            return () => clearTimeout(timer);
+        }
+    }, [searchKeyword]);
+
+    //검색 핸들러
+    const handleSearch = (event) => {
+        setSearchKeyword(event.target.value);
+    };
+
+    // 엔터 키 핸들러
+    const handleKeyDown = (event) =>{
+       if (event.key === 'Enter') {
+           event.preventDefault();
+              getList(searchKeyword);
+          }
+     }
+
+    //자음체크
+    const isValidKoreanCharacter = (char) => {
+        const validCharRegex = /^[가-힣a-zA-Z]+$/;
+     return validCharRegex.test(char);
+    };
+    const isCompleteKoreanString = (str) => {
+        for (let char of str){
+         if (!isValidKoreanCharacter(char))
+            return false;
+        }
+        return true;
+    };
+
     return (
         <div className="section_container myFriends_container_item">
             <h1 className="section_container_title">My Friends</h1>
-            <Search placeholder={"이름을 검색하세요"}/>
+            <Search placeholder={"이름을 검색하세요"}
+                    onSearch={handleSearch}
+                    onKeyDown={handleKeyDown}/>
+            <div className="myFriends_userInfo_container">
             {
                 user.map((userInfo) => (
                     <Userinfo
@@ -74,6 +82,7 @@ const MyFriendsList = () => {
                         src={userInfo.img}/>
                 ))
             }
+            </div>
         </div>
     );
 };
