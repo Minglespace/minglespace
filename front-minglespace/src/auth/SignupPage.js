@@ -10,6 +10,7 @@ import Repo from "./Repo";
 import { useNavigate } from "react-router-dom";
 
 import "./SignupPage.css"
+import Modal from "../common/Layouts/components/Modal";
 
 const SignupPage = () => {
   // const [isOpen, setIsOpen] = useState(true);
@@ -32,7 +33,7 @@ const SignupPage = () => {
 
   const navigate = useNavigate();
 
-
+  const [isOpenPopup, setIsopenPopup] = useState(false);
 
   // ===============================================================
   // ===============================================================
@@ -74,14 +75,19 @@ const SignupPage = () => {
       await AuthApi.signup(formData).then((data) => {
         console.log(data);
         if(data.code === 200){
-          Repo.setItem(data);
-          navigate("/auth/login");
+          // Repo.setItem(data);
+          setIsopenPopup(true);
         }else{
           // 뭘할까?
         }        
       });
     }
   };
+
+  const handlePopupClose = ()=>{
+    navigate("/auth/login");  
+  }
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({
@@ -129,6 +135,14 @@ const SignupPage = () => {
         zIndex: 1000,
       }}
     >
+          <Modal open={isOpenPopup} onClose={handlePopupClose}>
+            <div className="modal-overlay">
+              <div className="modal-container">
+                <h4 className="form-title">이메일 인증하기<br />이메일 인증하면 회원등록이 완료됩니다.</h4>
+                <button type="submit" className="submit-button" onClick={handlePopupClose}>확인</button>
+              </div>
+            </div>
+          </Modal>      
       <div
         style={{
           backgroundColor: "white",

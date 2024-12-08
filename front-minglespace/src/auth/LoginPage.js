@@ -1,13 +1,14 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 
 
 import { X, Eye, EyeOff } from "lucide-react";
 
 import "./LoginPage.css"; 
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 
 import Repo from "./Repo";
 import AuthApi from "../api/AuthApi";
+import Modal from "../common/Layouts/components/Modal";
 
 const LoginPage = () => {
   // const [isOpen, setIsOpen] = useState(true);
@@ -21,9 +22,37 @@ const LoginPage = () => {
   
   const navigate = useNavigate();
 
+  const [isOpenPopup, setIsOpenPopup] = useState(false);
+  const [isOpenPopupCheck, setIsOpenPopupCheck] = useState(false);
+  const {code, encodedEmail} = useParams();
+
   // ===============================================================
   // ===============================================================
 
+  useEffect(()=>{
+
+    if(code && encodedEmail){
+
+      console.log("code : ", code);
+      console.log("encodedEmail : ", encodedEmail);
+
+      // 
+      setTimeout(()=>{
+        AuthApi.verify(code, encodedEmail).then((response) => {
+           if (response.data.code === 200) {
+            setIsOpenPopup(true);
+          } else{
+            console.log("AuthApi.verify error");
+            setIsOpenPopup(false);
+          }
+        });  
+      }, 1000);
+    }else{
+      // 정상
+      setIsOpenPopup(false);
+      console.log("nomail login");
+    }
+  }, []);
 
   const validate = () => {
     const newErrors = {};
@@ -47,21 +76,13 @@ const LoginPage = () => {
 
       const {email, password} = formData;
 
-      // login(email, password).then((data) => {
-      //   console.log(data);
-      //   if(data.code === 200){
-      //     navigate("/main");
-      //   }else{
-      //     // 뭘할까?
-      //   }        
-      // });    
-
-
       const data = await AuthApi.login(email, password);
-      console.log(data);
+      console.log("AuthApi.login : {}", data);
       if(data.code === 200){
         navigate("/main");
-      }else{
+      } else if(data.code === 425){
+        setIsOpenPopupCheck(true);
+      } else{
         // 뭘할까?
       }   
     }
@@ -80,6 +101,11 @@ const LoginPage = () => {
       }));
     }
   };
+
+  const handleClickPopup = () =>{
+
+    setIsOpenPopup(false);
+  }
 
   // for test
   const handleClickAbuser = async()=>{
@@ -112,6 +138,24 @@ const LoginPage = () => {
             className="modal-image"
           />
         </div>
+
+        <Modal open={isOpenPopup} onClose={handleClickPopup}>
+          <div className="modal-overlay">
+            <div className="modal-container">
+              <h4 className="form-title">이메일 인증완료<br />회원가입이 완료 되었습니다.</h4>
+              <button type="submit" className="submit-button" onClick={handleClickPopup}>확인</button>
+            </div>
+          </div>
+        </Modal>  
+        <Modal open={isOpenPopupCheck} >
+          <div className="modal-overlay">
+            <div className="modal-container">
+              <h4 className="form-title">이메일 인증<br />이메일 인증해야 회원가입이 완료 됩니다.</h4>
+              <button type="submit" className="submit-button" onClick={()=>{setIsOpenPopupCheck(false)}}>확인</button>
+            </div>
+          </div>
+        </Modal>  
+        
 
         <div className="form-container">
           <div className="form-wrapper">

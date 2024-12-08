@@ -5,7 +5,6 @@ import SuspenseWithPrivateRoute from "./SuspenseWithPrivateRoute";
 const Loading = <div>Loading....</div>;
 const Login = lazy(() => import("../auth/LoginPage"));
 const Signup = lazy(() => import("../auth/SignupPage"));
-const EmailConfirmPage = lazy(() => import("../auth/EmailConfirmPage"));
 
 const Main = lazy(() => import("../page/MainPage"));
 const Chat = lazy(() => import("../page/ChatPage"));
@@ -46,14 +45,13 @@ const root = createBrowserRouter([
     element: (<Suspense fallback={Loading}><Login /></Suspense>)
   },
   {
+    path: "/auth/login/:code/:encodedEmail",
+    element: (<Suspense fallback={Loading}><Login /></Suspense>)
+  },
+  {
     path: "/auth/signup",
     element: (<Suspense fallback={Loading}><Signup /></Suspense>)
   },
-  {
-    path: "/auth/confirm",
-    element: (<Suspense fallback={Loading}><EmailConfirmPage /></Suspense>)
-  },
-
 
 ]);
 export default root;

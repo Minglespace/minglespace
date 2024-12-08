@@ -63,9 +63,9 @@ class AuthApi{
     }
   };
 
-  static confirm = async (code) => {
+  static verify = async (code, encodedEmail) => {
     try{
-      return await api.axiosIns.get(`/auth/confirm?code=${ code }`);
+      return await api.axiosIns.get(`/auth/verify/${ code }/${encodedEmail}`);
     }catch(err){
       throw err;
     }
