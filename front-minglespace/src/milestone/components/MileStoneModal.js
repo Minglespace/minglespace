@@ -39,7 +39,6 @@ const MileStoneModal = ({
   };
 
   const handleTaskStatusChange = (e) => {
-    console.log("nochange : ", newTaskStatus);
     const newTaskStatus = e.target.value;
     console.log("change : ", newTaskStatus);
     onTaskStatusChange(newTaskStatus);

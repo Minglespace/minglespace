@@ -287,7 +287,7 @@ const MileStoneComponent = () => {
         title: newTitle,
         start_time: new Date(newStartTime).getTime(),
         end_time: new Date(newEndTime).getTime(),
-        taskStatus: status,
+        taskStatus: newTaskStatus,
       };
 
       MilestoneApi.modifyItem(workspaceId, selectedItem.id, updatedItem).then(
@@ -360,6 +360,7 @@ const MileStoneComponent = () => {
           title: items.title,
           start_time: items.start_time,
           end_time: items.end_time,
+          taskStatus : items.taskStatus
         }))
       );
       setItems(updateItem);
