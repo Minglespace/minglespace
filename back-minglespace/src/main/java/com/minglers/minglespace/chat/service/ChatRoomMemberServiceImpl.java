@@ -29,13 +29,12 @@ public class ChatRoomMemberServiceImpl implements ChatRoomMemberService {
     //알림 처리
     private final CustomHandShakeInterceptor customHandShakeInterceptor;
     private final SimpMessagingTemplate simpMessagingTemplate;
-    private final UserRepository userRepository;
 
     @Override
     @Transactional
     public void updateIsLeftFromLeave(Long chatRoomId, Long wsMemberId) {
-        ChatRoom chatRoom = chatRoomRepository.findById(chatRoomId).orElseThrow(() -> new RuntimeException("해당하는 채팅방이 없습니다.."));
-        WSMember member = wsMemberRepository.findById(wsMemberId).orElseThrow(() -> new RuntimeException("해당하는 멤버가 없습니다. "));
+//        ChatRoom chatRoom = chatRoomRepository.findById(chatRoomId).orElseThrow(() -> new RuntimeException("해당하는 채팅방이 없습니다.."));
+//        WSMember member = wsMemberRepository.findById(wsMemberId).orElseThrow(() -> new RuntimeException("해당하는 멤버가 없습니다. "));
 
         if (!chatRoomMemberRepository.existsByChatRoomIdAndWsMemberIdAndIsLeftFalse(chatRoomId, wsMemberId)) {
             throw new IllegalArgumentException("채팅방에 참여하지 않은 유저입니다.");
@@ -45,6 +44,7 @@ public class ChatRoomMemberServiceImpl implements ChatRoomMemberService {
         if (updateResult == 0) {
             throw new IllegalArgumentException("Failed to mark user as left. User not found in the chat room.");
         }
+
     }
 
     @Override
@@ -90,20 +90,8 @@ public class ChatRoomMemberServiceImpl implements ChatRoomMemberService {
         List<ChatRoomMember> chatRoomMembers = chatRoomMemberRepository.findByChatRoomIdAndIsLeftFalse(chatRoomId);
 
         return chatRoomMembers.stream()
-                .map(member -> {
-                    User user = member.getWsMember().getUser();
-                    String uriPath = user.getImage() != null ? user.getImage().getUripath() : "";
-                    ChatRoomMemberDTO dto = ChatRoomMemberDTO.builder()
-                            .wsMemberId(member.getWsMember().getId())
-                            .userId(user.getId())
-                            .email(user.getEmail())
-                            .name(user.getName())
-                            .imageUriPath(uriPath)
-                            .position(user.getPosition())
-                            .build();
-                    dto.setChatRole(member.getChatRole());
-                    return dto;
-                }).collect(Collectors.toList());
+                .map(ChatRoomMember::toDTO)
+                .collect(Collectors.toList());
     }
 
     @Override

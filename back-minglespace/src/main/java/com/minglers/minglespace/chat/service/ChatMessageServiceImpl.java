@@ -48,14 +48,8 @@ public class ChatMessageServiceImpl implements ChatMessageService {
         parentMsg = chatMessageRepository.findById(messageDTO.getReplyId())
                 .orElseThrow(() -> new RuntimeException("답글단 댓글 메시지가 존재하지 않습니다."));
       }
-      ChatMessage chatMessage = ChatMessage.builder()
-              .content(messageDTO.getContent())
-              .wsMember(wsMember)
-              .chatRoom(chatRoom)
-              .parentMessage(parentMsg)
-              .date(LocalDateTime.now())
-              .isAnnouncement(messageDTO.getIsAnnouncement())
-              .build();
+
+      ChatMessage chatMessage = messageDTO.toEntity(chatRoom, wsMember, parentMsg);
       ChatMessage savedMessage = chatMessageRepository.save(chatMessage);
 
       //답글이면 부모 댓글에게 답글 달린 알림 보내기
@@ -100,18 +94,7 @@ public class ChatMessageServiceImpl implements ChatMessageService {
     log.info("getMessagesByChatRoom_ msg : " + messages);
 
     List<ChatMessageDTO> dtos = messages.stream()
-            .map(msg -> {
-              Long replyId = (msg.getParentMessage() != null) ? msg.getParentMessage().getId() : null;
-              return ChatMessageDTO.builder()
-                      .id(msg.getId())
-                      .chatRoomId(msg.getChatRoom().getId())
-                      .date(msg.getDate())
-                      .content(msg.getContent())
-                      .replyId(replyId)
-                      .writerWsMemberId(msg.getWsMember().getId())
-                      .isAnnouncement(msg.getIsAnnouncement())
-                      .build();
-            })
+            .map(ChatMessage::toDTO)
             .collect(Collectors.toList());
     return dtos;
   }

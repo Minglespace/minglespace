@@ -36,6 +36,7 @@ public class WSMember {
     private User user;
 
     @OneToMany(mappedBy = "wsMember", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Builder.Default
     private List<ChatRoomMember> chatRoomMembers = new ArrayList<>();
 
     public void addChatRoomMember(ChatRoomMember chatRoomMember){

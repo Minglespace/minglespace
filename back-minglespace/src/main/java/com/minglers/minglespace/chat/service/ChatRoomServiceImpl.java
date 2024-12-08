@@ -154,15 +154,13 @@ public class ChatRoomServiceImpl implements ChatRoomService {
 
     String imageUriPath = (chatRoom.getImage() != null && chatRoom.getImage().getUripath() != null) ? chatRoom.getImage().getUripath() : "";
 
-    ChatRoomResponseDTO roomdtos = ChatRoomResponseDTO.builder()
+    return ChatRoomResponseDTO.builder()
             .chatRoomId(chatRoomId)
             .name(chatRoom.getName())
             .participants(participants)
             .messages(messages)
             .workSpaceId(chatRoom.getWorkSpace().getId())
             .imageUriPath(imageUriPath)
-//            .LeaderWsMemberId()
             .build();
-    return roomdtos;
   }
 }

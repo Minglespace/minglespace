@@ -6,11 +6,19 @@ import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.UrlResource;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URLConnection;
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -102,5 +110,18 @@ public class ImageServiceImpl implements ImageService{
             }
             imageRepository.delete(image);
         }
+    }
+
+    @Override
+    public Resource getImage(String imageName) throws IOException {
+        String decodedImageName = URLDecoder.decode(imageName, StandardCharsets.UTF_8);
+
+        Path path = Paths.get(uploadPath + File.separator + decodedImageName);
+        return new UrlResource(path.toUri());
+    }
+
+    @Override
+    public String getMimeType(String imageName) {
+        return URLConnection.guessContentTypeFromName(imageName) != null ? URLConnection.guessContentTypeFromName(imageName) : "application/octet-stream";
     }
 }

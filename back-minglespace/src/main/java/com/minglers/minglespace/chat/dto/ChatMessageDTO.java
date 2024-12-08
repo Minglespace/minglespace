@@ -1,5 +1,8 @@
 package com.minglers.minglespace.chat.dto;
 
+import com.minglers.minglespace.chat.entity.ChatMessage;
+import com.minglers.minglespace.chat.entity.ChatRoom;
+import com.minglers.minglespace.workspace.entity.WSMember;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -24,4 +27,14 @@ public class ChatMessageDTO {
   private List<Long> mentionedUserIds; //request
   //파일
 
+  public ChatMessage toEntity(ChatRoom chatRoom, WSMember wsMember, ChatMessage parentMsg){
+    return ChatMessage.builder()
+            .content(this.getContent())
+            .wsMember(wsMember)
+            .chatRoom(chatRoom)
+            .parentMessage(parentMsg)
+            .date(LocalDateTime.now())
+            .isAnnouncement(this.getIsAnnouncement())
+            .build();
+  }
 }
