@@ -29,7 +29,9 @@ public class MsgReadStatusServiceImpl implements MsgReadStatusService{
       if (members.isEmpty()){
         throw new RuntimeException("메시지 저장하는 채팅방에 멤버가 없습니다.");
       }
+
       List<MsgReadStatus> list = members.stream()
+              .filter(member -> !member.getWsMember().getId().equals(saveMsg.getWsMember().getId()))
               .map(member -> MsgReadStatus.builder()
                       .message(saveMsg)
                       .wsMember(member.getWsMember())
@@ -43,4 +45,23 @@ public class MsgReadStatusServiceImpl implements MsgReadStatusService{
     }
 
   }
+
+  @Override
+  @Transactional
+  public void deleteMsgReadStatus(Long chatRoomId, Long wsMemberId) {
+    try {
+      long deletedCount = msgReadStatusRepository.deleteByMessage_ChatRoom_IdAndWsMemberId(chatRoomId, wsMemberId);
+
+      if (deletedCount == 0) {
+        throw new RuntimeException("읽음 처리할 메시지가 없습니다. 채팅방 ID: " + chatRoomId + ", 유저 ID: " + wsMemberId);
+      }
+
+      log.info("Messages marked as read and deleted for chat room ID: " + chatRoomId + " and user ID: " + wsMemberId);
+
+    } catch (Exception e) {
+      log.error("Error occurred while deleting message read status: ", e);
+      throw new RuntimeException("메시지 읽음 처리 삭제 중 오류 발생", e);  // 예외를 던짐
+    }
+  }
+
 }

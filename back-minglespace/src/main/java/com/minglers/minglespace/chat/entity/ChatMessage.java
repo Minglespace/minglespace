@@ -25,6 +25,7 @@ public class ChatMessage {
     private WSMember wsMember;
 
     @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "chatroom_id")
     private ChatRoom chatRoom;
 
     @ManyToOne(fetch = FetchType.LAZY)

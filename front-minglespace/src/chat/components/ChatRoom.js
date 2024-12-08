@@ -152,7 +152,6 @@ const ChatRoom = ({ isFold, wsMembers, workSpaceId, updateRoomParticipantCount, 
       });
 
       handleExit();
-      // alert(`새로운 방장으로 ${newLeader.name}님이 설정되었습니다.`);
 
     } catch (error) {
       console.error("error fetching delegateChatLeader: ", error);

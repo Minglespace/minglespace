@@ -7,9 +7,9 @@ import com.minglers.minglespace.chat.entity.ChatRoomMember;
 import com.minglers.minglespace.chat.repository.ChatMessageRepository;
 import com.minglers.minglespace.chat.repository.ChatRoomMemberRepository;
 import com.minglers.minglespace.chat.repository.ChatRoomRepository;
+import com.minglers.minglespace.chat.repository.MsgReadStatusRepository;
 import com.minglers.minglespace.chat.role.ChatRole;
 import com.minglers.minglespace.common.entity.Image;
-import com.minglers.minglespace.common.service.ImageService;
 import com.minglers.minglespace.workspace.entity.WSMember;
 import com.minglers.minglespace.workspace.entity.WorkSpace;
 import com.minglers.minglespace.workspace.repository.WSMemberRepository;
@@ -34,15 +34,17 @@ public class ChatRoomServiceImpl implements ChatRoomService {
   private final ChatMessageRepository chatMessageRepository;
   private final WorkspaceRepository workspaceRepository;
   private final WSMemberRepository wsMemberRepository;
+  private final MsgReadStatusRepository msgReadStatusRepository;
+
   private final ChatMessageService chatMessageService;
   private final ChatRoomMemberService chatRoomMemberService;
 
   @Override
   public List<ChatListResponseDTO> getRoomsByWsMember(Long workspaceId, Long wsMemberId) {
     // 채팅방 목록을 얻기 위한
-    List<ChatRoomMember> chatRoomMembers = chatRoomMemberRepository.findByChatRoom_WorkSpace_IdAndWsMember_Id(workspaceId, wsMemberId);
+    List<ChatRoomMember> chatRooms = chatRoomMemberRepository.findByChatRoom_WorkSpace_IdAndWsMember_Id(workspaceId, wsMemberId);
 
-    return chatRoomMembers.stream()
+    return chatRooms.stream()
             .map(chatRoomMember -> {
               ChatRoom chatRoom = chatRoomMember.getChatRoom();
               String imageUriPath = (chatRoom.getImage() != null && chatRoom.getImage().getUripath() != null) ? chatRoom.getImage().getUripath() : "";
@@ -54,6 +56,10 @@ public class ChatRoomServiceImpl implements ChatRoomService {
 
               // 참여 인원수
               int participantCount = chatRoomMemberRepository.findByChatRoomIdAndIsLeftFalse(chatRoom.getId()).size();
+
+              //안읽은 메시지
+              long notReadMsgCount = msgReadStatusRepository.countByMessage_ChatRoom_IdAndWsMemberId(chatRoom.getId(), wsMemberId);
+
               return ChatListResponseDTO.builder()
                       .chatRoomId(chatRoom.getId())
                       .name(chatRoom.getName())
@@ -62,6 +68,7 @@ public class ChatRoomServiceImpl implements ChatRoomService {
                       .date(chatRoom.getDate())
                       .lastMessage(lastMsgContent)
                       .participantCount(participantCount)
+                      .notReadMsgCount(notReadMsgCount)
                       .build();
             }).collect(Collectors.toList());
   }
