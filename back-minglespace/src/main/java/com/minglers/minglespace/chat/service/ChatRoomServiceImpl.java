@@ -4,6 +4,7 @@ import com.minglers.minglespace.chat.dto.*;
 import com.minglers.minglespace.chat.entity.ChatMessage;
 import com.minglers.minglespace.chat.entity.ChatRoom;
 import com.minglers.minglespace.chat.entity.ChatRoomMember;
+import com.minglers.minglespace.chat.exception.ChatException;
 import com.minglers.minglespace.chat.repository.ChatMessageRepository;
 import com.minglers.minglespace.chat.repository.ChatRoomMemberRepository;
 import com.minglers.minglespace.chat.repository.ChatRoomRepository;
@@ -17,6 +18,7 @@ import com.minglers.minglespace.workspace.repository.WorkspaceRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -81,7 +83,8 @@ public class ChatRoomServiceImpl implements ChatRoomService {
   @Override
   @Transactional
   public ChatListResponseDTO createRoom(CreateChatRoomRequestDTO requestDTO, WSMember createMember, Image saveFile) {
-    WorkSpace wspace = workspaceRepository.findById(requestDTO.getWorkspaceId()).orElse(null);
+    WorkSpace wspace = workspaceRepository.findById(requestDTO.getWorkspaceId())
+            .orElseThrow(() -> new ChatException(HttpStatus.NOT_FOUND.value(), "Workspace not found with ID " + requestDTO.getWorkspaceId()));
 
     // 사진 처리 필요
     ChatRoom chatRoom = ChatRoom.builder()
@@ -106,7 +109,8 @@ public class ChatRoomServiceImpl implements ChatRoomService {
 
     // 일반 멤버 추가
     for (Long memberId : requestDTO.getParticipantIds()) {
-      WSMember member = wsMemberRepository.findById(memberId).orElseThrow(() -> new RuntimeException("Member not found"));
+      WSMember member = wsMemberRepository.findById(memberId)
+              .orElseThrow(() -> new ChatException(HttpStatus.NOT_FOUND.value(), "Member not found"));
 
       ChatRoomMember chatRoomMember = ChatRoomMember.builder()
               .chatRoom(chatRoom)
@@ -145,7 +149,7 @@ public class ChatRoomServiceImpl implements ChatRoomService {
   public ChatRoomResponseDTO getChatRoomWithMsgAndParticipants(Long chatRoomId, Long workspaceId, Long userId) {
     ChatRoom chatRoom = findRoomById(chatRoomId);
     if (chatRoom == null){
-      throw new RuntimeException("채팅방이 존재하지 않습니다.");
+      throw new ChatException(HttpStatus.NOT_FOUND.value(), "채팅방이 존재하지 않습니다.");
     }
 
     List<ChatMessageDTO> messages = chatMessageService.getMessagesByChatRoom(chatRoom);
