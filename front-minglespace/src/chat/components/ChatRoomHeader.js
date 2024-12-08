@@ -22,24 +22,21 @@ const ChatRoomHeader = ({ chatRoomInfo, inviteMembers, isRoomOwner, isModalOpen,
 
   return (
     <div className="chatroom-header">
-      <button
+      {/* <button
         onClick={() => openModal("invite")}
         className="chatroom-invite-btn"
       >
         <PiUserCirclePlusFill className="icon" />
-      </button>
+      </button> */}
 
-<<<<<<< HEAD
       {isRoomOwner && (
         <button onClick={() => openModal("invite")} className="invite-btn">
           <PiUserCirclePlusFill className="icon" />
         </button>
       )}
-=======
       <button onClick={() => openModal("exit")} className="chatroom-exit-btn">
         <FcExport className="icon" />
       </button>
->>>>>>> feature/채팅_입력창_UI
 
       <ChatRoomModal
         modalType={modalType}

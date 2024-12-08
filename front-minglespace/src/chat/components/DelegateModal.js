@@ -41,17 +41,8 @@ const DelegateModal = ({ isOpen, onClose, onDelegate, participants }) => {
               </li>
             ))}
         </ul>
-<<<<<<< HEAD
         <button onClick={handleDelegateAndExit} disabled={!selectedUser}> 위임 및 나가기 </button>
         <button onClick={onClose}>닫기</button>
-=======
-        <button className="create_btn" onClick={handleTransfer}>
-          확인{" "}
-        </button>
-        <button className="close_btn" onClick={onClose}>
-          닫기
-        </button>
->>>>>>> feature/채팅_입력창_UI
       </div>
     </div>
   );

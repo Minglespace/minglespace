@@ -160,19 +160,9 @@ const CreateChatRoomModal = ({ isOpen, onClose, onCreate, wsMembers }) => {
             </ul>
           </div>
 
-<<<<<<< HEAD
           {errorMsg && <p style={{color:"#e52500", fontSize:"14px", marginTop:"10px", textAlign:"center"}}>{errorMsg}</p>}
-          <button onClick={handleCreate}>생성</button>
-          <button onClick={handleClose}>닫기</button>
-=======
-          {/* 버튼들  */}
-          <button className="create_btn" onClick={handleCreate}>
-            생성
-          </button>
-          <button className="close_btn" onClick={handleClose}>
-            닫기
-          </button>
->>>>>>> feature/채팅_입력창_UI
+          <button className="create_btn" onClick={handleCreate}>생성</button>
+          <button className="close_btn" onClick={handleClose}>닫기</button>
         </div>
       </div>
     </>

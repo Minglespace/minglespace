@@ -1,8 +1,4 @@
-<<<<<<< HEAD
 import React, { useEffect, useState } from "react";
-=======
-import React, { useState } from "react";
->>>>>>> feature/채팅_입력창_UI
 import ChatRoomHeader from "./ChatRoomHeader";
 import MessageList from "./MessageList";
 import MessageInput from "./MessageInput";
@@ -19,6 +15,7 @@ const initChatRoomInfo = {
   participants: []
 };
 const ChatRoom = ({ isFold, wsMembers, workSpaceId, updateRoomParticipantCount, removeRoom }) => {
+
   const [chatRoomInfo, setChatRoomInfo] = useState(initChatRoomInfo);
   const [inviteMembers, setInviteMembers] = useState([]);
   const [isRoomOwner, setIsRoomOwner] = useState(false);
@@ -181,29 +178,10 @@ const ChatRoom = ({ isFold, wsMembers, workSpaceId, updateRoomParticipantCount, 
     }
   }
 
-
-<<<<<<< HEAD
-  return (
-    <div className={`chatroom_container ${isFold ? "folded" : ""}`}>
-      <ChatRoomHeader
-        chatRoomInfo={chatRoomInfo}
-        inviteMembers={inviteMembers}
-        isRoomOwner={isRoomOwner}
-        isModalOpen={isModalOpen}
-        setIsModalOpen={setIsModalOpen}
-        handleInvite={handleInvite}
-        handleKick={handleKick}
-        handleDelegate={handleDelegate}
-        handleExit={handleExit} />
-      <div className="chat_messages">
-        {/* 여기에 채팅 메시지들이 들어갑니다 */}
-=======
-const ChatRoom = ({ isFold }) => {
   const [messages, setMessages] = useState([
     { sender: "Alice", text: "Hello!", isCurrentUser: false },
     { sender: "Bob", text: "Hi!", isCurrentUser: false },
   ]);
->>>>>>> feature/채팅_입력창_UI
 
   const [newMessage, setNewMessage] = useState("");
 
@@ -218,9 +196,18 @@ const ChatRoom = ({ isFold }) => {
   };
 
   return (
-    <div className={`chatroom-container ${isFold ? "folded" : ""}`}>
-      <ChatRoomHeader />
-      <div className="chat-messages">
+    <div className={`chatroom_container ${isFold ? "folded" : ""}`}>
+      <ChatRoomHeader
+        chatRoomInfo={chatRoomInfo}
+        inviteMembers={inviteMembers}
+        isRoomOwner={isRoomOwner}
+        isModalOpen={isModalOpen}
+        setIsModalOpen={setIsModalOpen}
+        handleInvite={handleInvite}
+        handleKick={handleKick}
+        handleDelegate={handleDelegate}
+        handleExit={handleExit} />
+      <div className="chat_messages">
         {/* 여기에 채팅 메시지들이 들어갑니다 */}
         <MessageList messages={messages} /> {/* 전송된 메시지 목록 표시 */}
         <MessageInput onSendMessage={handleSendMessage} />

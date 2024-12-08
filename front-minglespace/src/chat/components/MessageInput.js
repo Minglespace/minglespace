@@ -32,7 +32,9 @@ const MessageInput = ({ onSendMessage }) => {
       { sender: "User", text: newMessage, isCurrentUser: true },
     ]);
   };
+  
   const handleKeyDown = (e) => {
+    console.log(typeof messages);
     if (e.key === "Enter" && !e.shiftKey && messages.trim()) {
       onSendMessage(messages);
       setMessages(""); // 메시지 전송 후 입력란 초기화
