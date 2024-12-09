@@ -6,6 +6,7 @@ import { useEffect, useState } from "react";
 import MilestoneApi from "../../api/milestoneApi";
 import { useParams } from "react-router-dom";
 import MileStoneModal from "./MileStoneModal";
+import MileStoneHelpModal from "./MileStoneHelpModal";
 
 const initGroup = [{ id: 0, title: "" }];
 
@@ -27,6 +28,7 @@ const MileStoneComponent = () => {
   const [selectedItem, setSelectedItem] = useState(null);
   const [selectedGroup, setSelectedGroup] = useState(null);
   const [modalOpen, setModalOpen] = useState(false);
+  const [helpModalOpen, setHelpModalOpen] = useState(false);
   const [newTitle, setNewTitle] = useState("");
   const [newStartTime, setNewStartTime] = useState("");
   const [newEndTime, setNewEndTime] = useState("");
@@ -351,15 +353,42 @@ const MileStoneComponent = () => {
       });
     }
   };
-  
+
   //그룹별 아이템 완료상태에 따른 진행률 계산
   const getGroupCompletionRate = (groupId) => {
     const groupItems = items.filter((item) => item.group === groupId);
-    const completedItems = groupItems.filter((item) => item.taskStatus === "COMPLETED");
-    const completionRate = groupItems.length > 0 
-      ? (completedItems.length / groupItems.length) * 100 
-      : 0;
+    const completedItems = groupItems.filter(
+      (item) => item.taskStatus === "COMPLETED"
+    );
+    const completionRate =
+      groupItems.length > 0
+        ? (completedItems.length / groupItems.length) * 100
+        : 0;
     return Math.round(completionRate);
+  };
+
+  const getStatusCounts = () => {
+    const totalItems = items.length;
+    const notStartItems = items.filter(
+      (item) => item.taskStatus === "NOT_START"
+    ).length;
+    const inProgressItems = items.filter(
+      (item) => item.taskStatus === "IN_PROGRESS"
+    ).length;
+    const completedItems = items.filter(
+      (item) => item.taskStatus === "COMPLETED"
+    ).length;
+    const onHoldItems = items.filter(
+      (item) => item.taskStatus == "ON_HOLD"
+    ).length;
+
+    return {
+      total: totalItems,
+      notStart: notStartItems,
+      inProgress: inProgressItems,
+      completed: completedItems,
+      onHold: onHoldItems,
+    };
   };
 
   //수정 후 렌더링을 위한 클릭 핸들러
@@ -378,7 +407,7 @@ const MileStoneComponent = () => {
           title: items.title,
           start_time: items.start_time,
           end_time: items.end_time,
-          taskStatus : items.taskStatus
+          taskStatus: items.taskStatus,
         }))
       );
       setItems(updateItem);
@@ -388,21 +417,53 @@ const MileStoneComponent = () => {
   const handleClick = () => {
     handleOneClick();
   };
+
+  const handleHelpModalOpen = () => {
+    setHelpModalOpen(true);
+  };
+  const handleHelpModalClose = () => {
+    setHelpModalOpen(false);
+  };
+  const { total, notStart, inProgress, completed, onHold } = getStatusCounts();
   return (
     <div
       style={{
         overflowX: "auto",
         overflowY: "auto",
-        height: "500px",
+        height: "600px",
       }}
     >
-      <div className="milestone_group_add_button">
-        <button onClick={handleGroupAdd}>그룹 추가하기</button>
+      <div className="milestone_header">
+        <div className="milestone_group_add_button">
+          <button onClick={handleGroupAdd}>그룹 추가하기</button>
+        </div>
+        <div className="milestone_complete_count">
+          <p>전체 작업 : {total}건</p>
+          <p>시작 전 : {notStart}건</p>
+          <p>진행중 : {inProgress}건</p>
+          <p>완료 : {completed}건</p>
+          <p>보류 : {onHold}건</p>
+        </div>
+        <div className="milestone_category">
+          <div className="milestone_not_start"></div>
+          <p>시작 전</p>
+          <div className="milestone_inprogress"></div>
+          <p>진행중</p>
+          <div className="milestone_completed"></div>
+          <p>완료</p>
+          <div className="milestone_on_hold"></div>
+          <p>보류</p>
+        </div>
+        <div className="milestone_help_button">
+          <p onClick={handleHelpModalOpen}>마일스톤 사용 설명서</p>
+        </div>
       </div>
       <Timeline
         minZoom={36000000}
         groups={groups}
         items={items}
+        lineHeight={30}
+        itemHeightRatio={0.9}
         canChangeGroup={false}
         defaultTimeStart={moment().add(0, "day")}
         defaultTimeEnd={moment().add(31, "day")}
@@ -432,6 +493,11 @@ const MileStoneComponent = () => {
           } else {
             styles = "#EA7436";
           }
+
+          const BackgroundColor = itemContext.selected
+            ? `${styles} !important`
+            : styles;
+
           const { left: leftResizeProps, right: rightResizeProps } =
             getResizeProps();
           return (
@@ -439,8 +505,8 @@ const MileStoneComponent = () => {
               tabIndex={0}
               {...getItemProps({
                 style: {
-                  backgroundColor: itemContext.selected ? "none" : styles,
-                  borderColor: itemContext.selected ? "red" : "#66b2f0",
+                  backgroundColor: BackgroundColor,
+                  borderColor: itemContext.selected ? "#ff0000" : styles,
                 },
                 onDoubleClick: () => handleItemDoubleClick(item.id),
               })}
@@ -477,6 +543,7 @@ const MileStoneComponent = () => {
         onDelete={handleModalDelete}
         mode={mode}
       />
+      <MileStoneHelpModal open={helpModalOpen} onClose={handleHelpModalClose} />
     </div>
   );
 };

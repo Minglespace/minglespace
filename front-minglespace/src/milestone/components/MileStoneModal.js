@@ -81,7 +81,7 @@ const MileStoneModal = ({
             <div>
               <p>Task Status : </p>
               <select value={taskStatus} onChange={handleTaskStatusChange}>
-                <option value="NOT_STARTED">시작 전</option>
+                <option value="NOT_START">시작 전</option>
                 <option value="IN_PROGRESS">진행중</option>
                 <option value="COMPLETED">완료</option>
                 <option value="ON_HOLD">보류</option>
