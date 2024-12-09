@@ -32,13 +32,6 @@ const ChatRoomHeader = ({
 
   return (
     <div className="chatroom-header">
-      {/* <button
-        onClick={() => openModal("invite")}
-        className="chatroom-invite-btn"
-      >
-        <PiUserCirclePlusFill className="icon" />
-      </button> */}
-
       {isRoomOwner && (
         <button
           onClick={() => openModal("invite")}
