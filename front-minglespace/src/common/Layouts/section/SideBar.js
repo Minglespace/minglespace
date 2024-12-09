@@ -9,7 +9,9 @@ const SideBar = ({ addmenu }) => {
         <li>
           <Link to="/workspace/">WorkSpace</Link>
         </li>
-        <li>My Friend</li>
+        <li>
+          <Link to="/myfriends/">My Friends</Link>
+        </li>
         {addmenu && (
           <>
             <li>

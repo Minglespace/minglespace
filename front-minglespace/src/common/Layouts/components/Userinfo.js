@@ -1,19 +1,18 @@
-import React from 'react'
-import ProfileImage from './ProfileImage'
+﻿import React from "react";
+import ProfileImage from "./ProfileImage";
+import Button from "./Button";
 
-const Userinfo = ({ name, role, email, src }) => {
+const Userinfo = ({ name, role, email, src, title }) => {
   return (
-    <div className='userinfo_container'>
-      <div className='userinfo_imgbox'>
-        <ProfileImage size="80px" src={src} />
-      </div>
-      <div className='userinfo_profile_container'>
-        <p className='userinfo_username'>{name}</p>
-        <p className='userinfo_userrole'>{role}</p>
-        <p className='userinfo_useremail'>{email}</p>
-      </div>
-    </div>
-  )
-}
+    <div className="userInfo_box">
+      <ProfileImage src={src} />
+      <div className="userInfo_context">
+        <div>
+          <h2>{name}</h2>
+          <p>{role}</p>
+        </div>
+        <p>{email}</p>
+  );
+};
 
-export default Userinfo
+export default Userinfo;
