@@ -15,25 +15,64 @@
 
   &.folded {
     .chat_toggle {
-      top: 20px;
-      left: 11px;
+      top: 100px;
+      left: 164px;
     }
   }
 }
 .chat_toggle {
-  font-size: 30px;
+  font-size: 38px;
+
+  width: 30px;
+  height: 730px;
+  border-radius: 8px;
+
+  color: #555;
+  background-color: aliceblue;
+  border: none;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+
+  position: sticky; /* 스크롤 시 컨테이너 내에서 고정 */
+  left: 175px;
+  transition: all 0.3s ease;
+  z-index: 9999;
+}
+
+.no-chat-selected {
+  display: flex;
+  flex-direction: column; // 아이콘과 텍스트를 세로로 정렬
+  justify-content: center; // 세로 중앙 정렬
+  align-items: center; // 가로 중앙 정렬
+  height: 100vh; // 화면 전체 높이를 차지하도록 설정 (선택적)
+  text-align: center; // 텍스트 가운데 정렬
+  font-size: 25px;
+  color: #888;
+  border: solid 1px #aaa;
+  margin: 15px;
+  border-radius: 10px;
+  flex-grow: 1;
+  transition: all 0.3s ease;
+  width: 1100px;
+  height: 700px;
+  position: relative;
   background-color: #f9f5f6;
-  position: absolute;
-  top: 25px;
-  left: 25px;
-  padding: 5px;
-  padding-bottom: 0px;
-  z-index: 10;
-  border-radius: 5px;
+}
+
+.no-chat-selected svg {
+  font-size: 10rem; // 아이콘 크기 조정 (필요한 크기만큼 조정)
+  margin-bottom: 10px; // 아이콘과 텍스트 간 간격 설정
+  color: #888;
+}
+
+.no-chat-selected span {
+  font-size: 1.5rem; // 텍스트 크기 조정 (필요한 크기만큼 조정)
 }
 
 //ChatList.js
-.chat_list_wrapper{
+.chat_list_wrapper {
   position: absolute;
 }
 
@@ -64,21 +103,21 @@
 
 .create_button {
   font-size: 38px;
-  width: 50px; /* 버튼의 너비 */
-  height: 50px; /* 버튼의 높이 (너비와 같으면 동그라미) */
-  border-radius: 50%; /* 동그라미 형태 */
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
 
-  color: #555; /* 글자색 */
+  color: #555;
   background-color: #ffd0d0;
-  border: none; /* 테두리 제거 */
+  border: none;
   display: flex;
-  justify-content: center; /* 수평 중앙 정렬 */
-  align-items: center; /* 수직 중앙 정렬 */
-  cursor: pointer; /* 커서 스타일 */
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
 
-  position: absolute; /* wrapper를 기준으로 고정 */
+  position: sticky; /* 스크롤 시 컨테이너 내에서 고정 */
   bottom: 20px; /* wrapper 하단 기준 */
-  right: 20px;
+  left: 420px;
   transition: all 0.3s ease;
 }
 

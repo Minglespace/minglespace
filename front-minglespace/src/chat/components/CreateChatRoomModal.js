@@ -18,7 +18,7 @@ const CreateChatRoomModal = ({ isOpen, onClose, onCreate, wsMembers }) => {
   const fileInputRef = useRef(null);
 
   // useEffect(() => {
-  //   console.log("selectedFriends updated: ", newChatRoomData.participantIds);
+  console.log("selectedFriends : ", wsMembers);
   // }, [newChatRoomData.participantIds]);
 
   //폼에서 채팅방 이름을 변경하는 함수
@@ -71,19 +71,18 @@ const CreateChatRoomModal = ({ isOpen, onClose, onCreate, wsMembers }) => {
 
   //채팅방 생성 버튼 클릭시
   const handleCreate = async () => {
-    if(!validateForm()) return;
-    try{
+    if (!validateForm()) return;
+    try {
       await onCreate(newChatRoomData, newChatRoomData.image);
 
       //초기화
       setNewChatRoomData(initCreateChatRoomRequest);
       setSelectedImage(null);
       onClose();
-    }catch(error){
+    } catch (error) {
       setErrorMsg("채팅방 생성 중 오류가 발생했습니다. 다시 시도해주세요");
       console.error(error);
     }
-    
   };
 
   // 모달 닫기 버튼
@@ -160,9 +159,24 @@ const CreateChatRoomModal = ({ isOpen, onClose, onCreate, wsMembers }) => {
             </ul>
           </div>
 
-          {errorMsg && <p style={{color:"#e52500", fontSize:"14px", marginTop:"10px", textAlign:"center"}}>{errorMsg}</p>}
-          <button className="create_btn" onClick={handleCreate}>생성</button>
-          <button className="close_btn" onClick={handleClose}>닫기</button>
+          {errorMsg && (
+            <p
+              style={{
+                color: "#e52500",
+                fontSize: "14px",
+                marginTop: "10px",
+                textAlign: "center",
+              }}
+            >
+              {errorMsg}
+            </p>
+          )}
+          <button className="create_btn" onClick={handleCreate}>
+            생성
+          </button>
+          <button className="close_btn" onClick={handleClose}>
+            닫기
+          </button>
         </div>
       </div>
     </>

@@ -32,13 +32,6 @@ const ChatRoomHeader = ({
 
   return (
     <div className="chatroom-header">
-      {/* <button
-        onClick={() => openModal("invite")}
-        className="chatroom-invite-btn"
-      >
-        <PiUserCirclePlusFill className="icon" />
-      </button> */}
-
       {isRoomOwner && (
         <button
           onClick={() => openModal("invite")}
@@ -47,10 +40,6 @@ const ChatRoomHeader = ({
           <PiUserCirclePlusFill className="icon" />
         </button>
       )}
-      <button onClick={() => openModal("exit")} className="chatroom-exit-btn">
-        <FcExport className="icon" />
-      </button>
-
       <ChatRoomModal
         modalType={modalType}
         isOpen={isModalOpen}
@@ -63,6 +52,9 @@ const ChatRoomHeader = ({
         onExit={handleExit}
         onKick={handleKick}
       />
+      <button onClick={() => openModal("exit")} className="chatroom-exit-btn">
+        <FcExport className="icon" />
+      </button>
     </div>
   );
 };
