@@ -60,6 +60,7 @@ public class User implements UserDetails {
     private String introduction;
     private boolean deleteFlag;
 
+    private String verificationCode;
 
 
 

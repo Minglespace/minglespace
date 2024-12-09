@@ -2,16 +2,22 @@ package com.minglers.minglespace.auth.controller;
 
 import com.minglers.minglespace.auth.dto.*;
 import com.minglers.minglespace.auth.security.JWTUtils;
+import com.minglers.minglespace.auth.service.AuthEmailService;
 import com.minglers.minglespace.auth.service.TokenBlacklistService;
 import com.minglers.minglespace.auth.service.UserService;
+import jakarta.mail.MessagingException;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
+import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 
 @Slf4j
 @RestController
@@ -21,11 +27,43 @@ class AuthController {
     private final UserService usersManagementService;
     private final TokenBlacklistService tokenBlacklistService;
     private final JWTUtils jwtUtils;
-
+    private final AuthEmailService authEmailService;
 
     @PostMapping("/auth/signup")
-    public ResponseEntity<DefaultResponse> signup(@RequestBody SignupRequest reg) {
-        return ResponseEntity.ok(usersManagementService.signup(reg));
+    public ResponseEntity<DefaultResponse> signup(@RequestBody SignupRequest reg, HttpServletRequest request) throws MessagingException {
+
+        // 이메일 인증 코드 생성
+        String code = UUID.randomUUID().toString();
+
+        // 유저에 세팅
+        reg.setVerificationCode(code);
+
+        // 회원가입 서비스 진행
+        DefaultResponse res = usersManagementService.signup(reg);
+
+        if(res.getCode() == HttpStatus.OK.value()){
+            log.info("비동기 이메일 전송 - Before");
+            CompletableFuture<String> emailResult = authEmailService.sendEmail(code, reg.getEmail(), request);
+            // 비동기 작업이 완료된 후 결과를 기다림
+            emailResult.thenAccept(result -> {
+                log.info("비동기 이메일 전송 결과: {}", result);
+            });
+            log.info("비동기 이메일 전송 - After : {}", emailResult.toString());
+        }
+
+        return ResponseEntity.ok(res);
+    }
+
+    @GetMapping("/auth/verify/{code}/{encodedEmail}")
+    public ResponseEntity<DefaultResponse> verifyEmail(
+            @PathVariable String code,
+            @PathVariable String encodedEmail) {
+
+        DefaultResponse res = authEmailService.verify(code, encodedEmail);
+
+        log.info("verifyEmail res : {}", res);
+
+        return ResponseEntity.ok(res);
     }
 
     @PostMapping("/auth/login")
