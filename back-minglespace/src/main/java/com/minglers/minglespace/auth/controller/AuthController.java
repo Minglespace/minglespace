@@ -112,13 +112,40 @@ class AuthController {
         return ResponseEntity.status(response.getCode()).body(response);
     }
 
-//    @GetMapping("/auth/user/{userId}")
-//    public ResponseEntity<UserResponse> getUserById(@PathVariable Long userId) {
-//        return ResponseEntity.ok(usersManagementService.getUserById(userId));
-//    }
+    @GetMapping("/auth/user/{userId}")
+    public ResponseEntity<UserResponse> getUserById(@PathVariable Long userId) {
+        return ResponseEntity.ok(usersManagementService.getUserById(userId));
+    }
+
+
+    @PutMapping("/auth/update")
+    public ResponseEntity<DefaultResponse> updateUser(
+            @RequestBody UserUpdateRequest req,
+            @RequestPart(value = "image", required = false) MultipartFile image) {
+
+        Image saveFile = null;
+        if(image != null){
+            try{
+                saveFile = imageService.uploadImage(image);
+            }catch (RuntimeException | IOException e) {
+                log.error("Image upload failed: " + e.getMessage(), e);
+                throw new RuntimeException("이미지 업로드 실패 : ", e);
+            }
+        }
+
+        User updateUser = new User();
+
+        modelMapper.map(req, updateUser);
+
+        updateUser.setImage(saveFile);
+
+        DefaultResponse res = usersManagementService.updateUser(updateUser);
+
+        return ResponseEntity.ok(res);
+    }
 
     @PutMapping("/auth/update/{userId}")
-    public ResponseEntity<DefaultResponse> updateUser(
+    public ResponseEntity<DefaultResponse> updateUserById(
             @PathVariable Long userId,
             @RequestBody UserUpdateRequest req,
             @RequestPart("image")MultipartFile image) {

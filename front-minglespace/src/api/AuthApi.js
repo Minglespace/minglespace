@@ -1,6 +1,8 @@
 ﻿
-import api from "./Api";
+import api, { HOST_URL } from "./Api";
 import Repo from "../auth/Repo";
+import Userinfo from "../common/Layouts/components/Userinfo";
+import axios from "axios";
 
 class AuthApi{
 
@@ -85,6 +87,57 @@ class AuthApi{
         throw err; 
     }
   };
+
+  static updateUserInfo_old = async (userInfo) => {
+    try {
+      const res = await api.axiosIns.put("/auth/update", userInfo);
+      if (res && res.data && res.data.code === 200) {
+          return res.data;
+      } else {
+          console.error("회원정보 변경 실패 res.data : ", res.data);
+          throw new Error("Invalid API response"); 
+      }
+  } catch (err) {
+      console.error("회원정보 변경 에러 err : ", err);
+      throw err; 
+  }
+  }
+
+
+  static updateUserInfo = async (userInfo, imageFile) => {
+
+    console.log("updateUserInfo params userInfo : ", userInfo);
+    console.log("updateUserInfo params imageFile : ", imageFile);
+
+    const formData = new FormData();
+
+    formData.append("userInfo", new Blob([JSON.stringify(Userinfo)], { type: 'application/json' }));
+    formData.append("image", imageFile);
+
+    const accessToken = Repo.getAccessToken();
+    const headers = {
+      'Authorization': `Bearer ${accessToken}`,
+    }
+
+    try {
+      const url = `${HOST_URL}/auth/update`;
+      console.log("updateUserInfo url : ", url);
+
+      const res = await axios.put(url, userInfo, { headers } );
+
+      console.log("updateUserInfo res : ", res);
+
+      if (res && res.data && res.data.code === 200) {
+          return res.data;
+      } else {
+          console.error("회원정보 변경 실패 res.data : ", res.data);
+          throw new Error("Invalid API response"); 
+      }
+  } catch (err) {
+      console.error("회원정보 변경 에러 err : ", err);
+      throw err; 
+  }
+  }
 
 
 

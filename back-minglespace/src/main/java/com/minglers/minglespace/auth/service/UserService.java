@@ -15,6 +15,8 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.InternalAuthenticationServiceException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -269,6 +271,17 @@ public class UserService {
         log.info("");
 
         return res;
+    }
+
+    public DefaultResponse updateUser(User updateUser) {
+
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        User user = (User) authentication.getPrincipal();
+
+        Long userId = user.getId();
+
+        return updateUser(userId, updateUser);
     }
 
     public DefaultResponse updateUser(Long userId, User updateUser) {
