@@ -32,12 +32,12 @@ const ChatRoomHeader = ({
 
   return (
     <div className="chatroom-header">
-      <button
+      {/* <button
         onClick={() => openModal("invite")}
         className="chatroom-invite-btn"
       >
         <PiUserCirclePlusFill className="icon" />
-      </button>
+      </button> */}
 
       {isRoomOwner && (
         <button
@@ -47,22 +47,21 @@ const ChatRoomHeader = ({
           <PiUserCirclePlusFill className="icon" />
         </button>
       )}
-      <button onClick={() => openModal("exit")} className="chatroom-exit-btn">
-        <FcExport className="icon" />
-      </button>
-
       <ChatRoomModal
         modalType={modalType}
         isOpen={isModalOpen}
         onClose={closeModal}
         roomMembers={chatRoomInfo.participants}
         isRoomOwner={isRoomOwner}
-        inviteUsers={inviteMembers} //초대할 사용자 목록
-        onInvite={handleInvite} //초대 함수
+        inviteUsers={inviteMembers} //초�용목록
+        onInvite={handleInvite} //초� �수
         onDelegate={handleDelegate}
         onExit={handleExit}
         onKick={handleKick}
       />
+      <button onClick={() => openModal("exit")} className="chatroom-exit-btn">
+        <FcExport className="icon" />
+      </button>
     </div>
   );
 };

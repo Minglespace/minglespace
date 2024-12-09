@@ -1,10 +1,9 @@
-import React from "react";
-import MileStoneTest from "./components/MileStoneTest";
+import React, { useEffect, useState } from "react";
+import MileStoneTest from "./components/MileStoneComponent";
 
 const MileStone = () => {
   return (
-    <div>
-      <h1> 마일스톤 페이지</h1>
+    <div className="milestone_main">
       <MileStoneTest />
     </div>
   );

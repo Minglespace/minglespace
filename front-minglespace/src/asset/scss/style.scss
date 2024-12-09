@@ -1,4 +1,4 @@
-@charset "UTF-8";
+﻿﻿@charset "UTF-8";
 
 //setting
 @use "setting/fonts";
@@ -11,11 +11,19 @@
 @use "section/footer";
 @use "section/sidebar";
 @use "section/basiclayout";
-@use "section/button";
 @use "section/workspace.scss";
 @use "section/modal.scss";
+@use "section/LoginPage.scss";
+@use "section/SignupPage.scss";
 @use "section/calendar.scss";
-@use "section/test.scss";
 @use "section/chat.scss";
+@use "section/milestone.scss";
 @use "section/chatroom.scss";
+@use "section/myFriends.scss";
+
+//components
+@use "components/image";
+@use "components/userInfo";
+@use "components/search";
+@use "components/button";
 @use "section/userinfo.scss";

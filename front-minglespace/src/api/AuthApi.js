@@ -63,7 +63,13 @@ class AuthApi{
     }
   };
 
-
+  static verify = async (code, encodedEmail) => {
+    try{
+      return await api.axiosIns.get(`/auth/verify/${ code }/${encodedEmail}`);
+    }catch(err){
+      throw err;
+    }
+  };
 
 }
 

@@ -10,6 +10,7 @@ const Chat = lazy(() => import("../page/ChatPage"));
 // const Calendar = lazy(() => import("../page/Calendar"));
 // const Milestone = lazy(() => import("../page/Milestone"));
 const Workspace = lazy(() => import("../page/WorkspacePage"));
+const MyFriends = lazy(() => import("../page/MyFriendsPage"));
 const MileStone = lazy(() => import("../page/MileStonePage"));
 
 const root = createBrowserRouter([
@@ -23,6 +24,10 @@ const root = createBrowserRouter([
   {
     path: "/main",
     element: (<SuspenseWithPrivateRoute page={Main}/>)
+  },
+  {
+    path: "/MyFriends",
+    element: (<SuspenseWithPrivateRoute page={MyFriends}/>)
   },
   {
     path: "/workspace",
@@ -41,6 +46,10 @@ const root = createBrowserRouter([
   // 로그인 유무 체크하지 않는 대상 페이지들
   {
     path: "/auth/login",
+    element: (<Suspense fallback={Loading}><Login /></Suspense>)
+  },
+  {
+    path: "/auth/login/:code/:encodedEmail",
     element: (<Suspense fallback={Loading}><Login /></Suspense>)
   },
   {

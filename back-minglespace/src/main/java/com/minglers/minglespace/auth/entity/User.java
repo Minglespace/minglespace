@@ -4,19 +4,24 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.minglers.minglespace.common.entity.Image;
 import com.minglers.minglespace.workspace.entity.WSMember;
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.time.LocalDateTime;
-import java.util.Collection;
-import java.util.List;
+import java.util.*;
 
 @Entity
 @Table(name = "user")
 @Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class User implements UserDetails {
 
     @Id
@@ -30,7 +35,10 @@ public class User implements UserDetails {
     private Image image;
 
     @OneToMany(mappedBy = "user", fetch =FetchType.LAZY)
-    private List<WSMember> wsMembers;
+    private List<WSMember> wsMembers = new ArrayList<>();
+
+    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
+    private List<UserFriend> userFriends = new ArrayList<>();
 
     @JsonIgnore
     @Column(nullable = false)
@@ -52,6 +60,7 @@ public class User implements UserDetails {
     private String introduction;
     private boolean deleteFlag;
 
+    private String verificationCode;
 
 
 

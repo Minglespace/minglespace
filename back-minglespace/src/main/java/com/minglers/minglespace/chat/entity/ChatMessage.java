@@ -1,5 +1,6 @@
 package com.minglers.minglespace.chat.entity;
 
+import com.minglers.minglespace.chat.dto.ChatMessageDTO;
 import com.minglers.minglespace.common.converter.LocalDateTimeAttributeConverter;
 import com.minglers.minglespace.workspace.entity.WSMember;
 import jakarta.persistence.*;
@@ -25,6 +26,7 @@ public class ChatMessage {
     private WSMember wsMember;
 
     @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "chatroom_id")
     private ChatRoom chatRoom;
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -37,4 +39,17 @@ public class ChatMessage {
 
     @Builder.Default
     private Boolean isAnnouncement = false;
+
+    public ChatMessageDTO toDTO(){
+        Long replyId = (this.getParentMessage() != null) ? this.getParentMessage().getId() : null;
+        return ChatMessageDTO.builder()
+                .id(this.getId())
+                .chatRoomId(this.getChatRoom().getId())
+                .date(this.getDate())
+                .content(this.getContent())
+                .replyId(replyId)
+                .writerWsMemberId(this.getWsMember().getId())
+                .isAnnouncement(this.getIsAnnouncement())
+                .build();
+    }
 }

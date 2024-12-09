@@ -1,0 +1,338 @@
+.milestone_main {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  padding-top: 70px;
+  .milestone_borderbox {
+    height: 600px;
+    border: 1px solid #ccc;
+    background-color: #eee7ea;
+    border-radius: 10px;
+    overflow-y: scroll;
+  }
+  .milestone_group_add_button {
+    display: flex;
+    position: absolute;
+    right: 65px;
+    bottom: -50px;
+    justify-content: end;
+    margin-bottom: 10px;
+    button {
+      width: 120px;
+      height: 30px;
+      border-radius: 5px;
+      cursor: pointer;
+      background-color: rgba($color: #ff0000, $alpha: 0.5);
+    }
+  }
+  .milestone_category {
+    display: flex;
+    position: absolute;
+    top: 40px;
+    right: 50px;
+    width: auto;
+    justify-content: end;
+    align-items: center;
+    div {
+      margin-right: 10px;
+      width: 10px;
+      height: 10px;
+      border: 1px solid;
+    }
+    p {
+      margin-right: 20px;
+    }
+    .milestone_not_start {
+      background-color: #c8c8c8;
+    }
+    .milestone_inprogress {
+      background-color: #2eeb3a;
+    }
+    .milestone_completed {
+      background-color: #3e63eb;
+    }
+    .milestone_on_hold {
+      background-color: #ea7436;
+    }
+  }
+  .milestone_help_button {
+    position: absolute;
+    cursor: pointer;
+    bottom: -30px;
+    left: 50px;
+  }
+  .milestone_complete_count {
+    display: flex;
+    position: absolute;
+    top: 40px;
+    right: 50px;
+    p {
+      margin-right: 20px;
+    }
+  }
+}
+.milestone_modal_container {
+  width: auto;
+  height: 100%;
+  p {
+    width: 120px;
+    display: inline-block;
+  }
+  .milestone_modal_title {
+    margin: 10px;
+    text-align: center;
+  }
+  .milestone_modal_modify_title {
+    margin: 10px;
+    margin-top: 30px;
+    input {
+      border: solid 1px #ccc;
+      border-radius: 5px;
+      padding: 5px;
+      width: 249px;
+    }
+  }
+  .milestone_modal_modify_starttime {
+    margin: 10px;
+    input {
+      border: solid 1px #ccc;
+      border-radius: 5px;
+      padding: 5px;
+    }
+  }
+  .milestone_modal_modify_endtime {
+    margin: 10px;
+    input {
+      border: solid 1px #ccc;
+      border-radius: 5px;
+      padding: 5px;
+    }
+  }
+  .milestone_modal_taskStatus {
+    margin: 10px;
+    select {
+      margin-bottom: 10px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      padding: 5px;
+    }
+  }
+  .milestone_modal_modify_button {
+    display: flex;
+
+    justify-content: space-between;
+    margin: 0 auto;
+    button {
+      width: 80px;
+      height: 30px;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    :first-child {
+      background-color: rgb(92, 173, 240);
+    }
+    :nth-child(2) {
+      background-color: rgb(253, 113, 113);
+    }
+    :last-child {
+      background-color: gray;
+    }
+  }
+}
+
+.milestone_help {
+  p {
+    margin-bottom: 5px;
+  }
+  .title {
+    font-size: 30px;
+    text-align: center;
+  }
+  .create_group {
+    margin-bottom: 10px;
+    :first-child {
+      font-size: 20px;
+      font-weight: bold;
+    }
+  }
+  .create_item {
+    margin-bottom: 10px;
+    :first-child {
+      font-size: 20px;
+      font-weight: bold;
+    }
+  }
+  .modify_group {
+    margin-bottom: 10px;
+    :first-child {
+      font-size: 20px;
+      font-weight: bold;
+    }
+  }
+  .modify_item {
+    margin-bottom: 10px;
+    :first-child {
+      font-size: 20px;
+      font-weight: bold;
+    }
+  }
+  .modify_controll {
+    margin-bottom: 10px;
+    :first-child {
+      font-size: 20px;
+      font-weight: bold;
+    }
+  }
+}
+
+.react-calendar-timeline * {
+  box-sizing: border-box;
+}
+
+.timeline-container {
+  width: 100%;
+  height: 100%;
+}
+.react-calendar-timeline {
+  overflow-x: hidden !important;
+  width: 1500px !important;
+}
+.react-calendar-timeline .rct-outer {
+  display: block;
+  width: 1500px !important;
+  overflow: hidden;
+  white-space: nowrap;
+}
+.react-calendar-timeline .rct-scroll {
+  display: inline-block;
+  white-space: normal;
+  vertical-align: top;
+  overflow-x: scroll;
+  overflow-y: hidden;
+  -ms-touch-action: none;
+  touch-action: none;
+}
+/* 기본 아이템 스타일 */
+.react-calendar-timeline .rct-item {
+  overflow: hidden !important;
+  border-radius: 10px !important;
+  text-align: center !important;
+  font-size: 16px !important;
+  font-weight: bold !important;
+}
+
+.react-calendar-timeline .rct-item:hover {
+  z-index: 88;
+}
+.react-calendar-timeline .rct-item .rct-item-content {
+  position: sticky;
+
+  position: -webkit-sticky;
+  left: 0;
+  overflow: hidden;
+  display: inline-block;
+  border-radius: 2px;
+  padding: 0 6px;
+  height: 100%;
+}
+.react-calendar-timeline .rct-sidebar {
+  overflow: hidden;
+  white-space: normal;
+  display: inline-block;
+  vertical-align: top;
+  position: relative;
+  box-sizing: border-box;
+  border-right: 1px solid #bbb;
+}
+.react-calendar-timeline .rct-sidebar.rct-sidebar-right {
+  border-right: 0;
+  border-left: 1px solid #bbb;
+}
+.react-calendar-timeline .rct-sidebar .rct-sidebar-row {
+  padding: 0 4px;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  box-sizing: border-box;
+  margin: 0;
+  border-bottom: 1px solid #bbb;
+  border-top: 1px solid #bbb;
+}
+.react-calendar-timeline .rct-sidebar .rct-sidebar-row.rct-sidebar-row-odd {
+  //짝수줄 그룹 배경 색상
+  background: #fff !important;
+  border-left: 1px solid #bbb !important;
+}
+.react-calendar-timeline .rct-sidebar .rct-sidebar-row.rct-sidebar-row-even {
+  //홀수줄 그룹 배경 색상
+  background: #fff !important;
+  border-left: 1px solid #bbb !important;
+}
+.react-calendar-timeline .rct-vertical-lines .rct-vl {
+  position: absolute;
+  border-left: 1px solid #bbb;
+  z-index: 30;
+}
+.react-calendar-timeline .rct-vertical-lines .rct-vl.rct-vl-first {
+  border-left-width: 2px;
+}
+.react-calendar-timeline .rct-vertical-lines .rct-vl.rct-day-6,
+.react-calendar-timeline .rct-vertical-lines .rct-vl.rct-day-0 {
+  background: #faf6e180; //주말 색상
+}
+.react-calendar-timeline .rct-horizontal-lines {
+  -webkit-user-select: none;
+  -moz-user-select: -moz-none;
+  -ms-user-select: none;
+  user-select: none;
+}
+.react-calendar-timeline .rct-horizontal-lines .rct-hl-even,
+.react-calendar-timeline .rct-horizontal-lines .rct-hl-odd {
+  border-bottom: 1px solid #bbb;
+  box-sizing: border-box;
+  z-index: 40;
+}
+.react-calendar-timeline .rct-horizontal-lines .rct-hl-odd {
+  //데이터 들어가는 짝수줄 색상
+  background: #fff !important;
+}
+.react-calendar-timeline .rct-horizontal-lines .rct-hl-even {
+  //데이터 들어가는 홀수줄 색상
+  background: #ffffff !important;
+}
+.react-calendar-timeline .rct-cursor-line {
+  position: absolute;
+  width: 2px;
+  background: #2196f3;
+  z-index: 51;
+}
+.react-calendar-timeline .rct-dateHeader {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  border-bottom: none !important;
+
+  cursor: pointer;
+  font-size: 12px !important;
+  background-color: white !important;
+  border: 1px solid #bbb !important;
+}
+.react-calendar-timeline .rct-dateHeader-primary {
+  background-color: initial;
+  border-left: 1px solid #bbb;
+  border-right: 1px solid #bbbbbb;
+  color: #000 !important;
+  background-color: #f6ecfa !important;
+  font-weight: bold !important;
+  font-size: 16px !important;
+}
+.react-calendar-timeline .rct-header-root {
+  background: rgba($color: #000000, $alpha: 0) !important;
+  border-bottom: none !important;
+  border-left: none !important;
+}
+.react-calendar-timeline .rct-calendar-header {
+  border: 1px solid #bbb;
+  border-right: none !important;
+}

@@ -3,33 +3,48 @@ import { BsPeopleFill } from "react-icons/bs";
 import default_img from "../../asset/imgs/profile1.png";
 import { HOST_URL } from "../../api/Api";
 import { useNavigate, useParams } from "react-router-dom";
+import { TbPencil } from "react-icons/tb";
 
-const ChatListItem = ({ chat }) => {
+const ChatListItem = ({ chat, onReadMsg, onSelectRoom }) => {
   const navigate = useNavigate();
-  const {workspaceId} = useParams();
+  const { workspaceId } = useParams();
 
-  // unread_count가 이미 더미 데이터에 포함되어 있으므로, 그것을 사용합니다.
-  const unreadCount = chat.unreadCount || 0; // chat.unread_count 사용
+  const handleClick = async () => {
+    // console.log("chatlistitem_click: ", typeof chat.chatRoomId);
+    try {
+      if (chat.notReadMsgCount > 0) {
+        await onReadMsg(chat.chatRoomId);
+      }
+      onSelectRoom(chat.chatRoomId);
 
-  // const unreadCount = (chat.messages || []).filter(
-  //   (msg) => !msg.read && msg.receiver !== me // 안 읽은 메시지 수
-  // ).length;
-
-  const handleClick = () => {
-    navigate(`/workspace/${workspaceId}/chat?chatRoomId=${chat.chatRoomId}`)
-  }
+      navigate(`/workspace/${workspaceId}/chat?chatRoomId=${chat.chatRoomId}`);
+    } catch (e) {
+      console.error("메시지 읽음 처리 중 오류 발생:", e);
+    }
+  };
 
   return (
     <div className="chat_list_item" onClick={handleClick}>
       <div className="chat_img">
         <img
-          src={chat.imageUriPath ? `${HOST_URL}${chat.imageUriPath}` : default_img}
+          src={
+            chat.imageUriPath ? `${HOST_URL}${chat.imageUriPath}` : default_img
+          }
           alt="채팅방 이미지"
         />
       </div>
       <div className="chat_info">
         <div className="chat_header">
           <h3 className="chat_name">{chat.name}</h3>
+
+          {/* 채팅방 정보 수정 버튼  */}
+          {/* <button
+            onClick={}
+            className="modify-content"
+          >
+            <FaUserPlus  />
+          </button> */}
+
           <span className="participants_count">
             <BsPeopleFill />
             {chat.participantCount}명 참여중
@@ -37,8 +52,8 @@ const ChatListItem = ({ chat }) => {
         </div>
         <div className="chat_footer">
           <p className="last_message">{chat.lastMessage}</p>
-          {unreadCount > 0 && (
-            <span className="unread_count">{unreadCount}</span>
+          {chat.notReadMsgCount > 0 && (
+            <span className="unread_count">{chat.notReadMsgCount}</span>
           )}
         </div>
       </div>

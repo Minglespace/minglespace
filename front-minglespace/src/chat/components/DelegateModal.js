@@ -34,15 +34,32 @@ const DelegateModal = ({ isOpen, onClose, onDelegate, participants }) => {
               <li
                 key={member.userId}
                 style={{
-                  backgroundColor: selectedUser?.wsMemberId === member.wsMemberId ? "#d3f4f8" : "transparent"
-                }}>
+                  backgroundColor:
+                    selectedUser?.wsMemberId === member.wsMemberId
+                      ? "#d3f4f8"
+                      : "transparent",
+                }}
+              >
                 {member.email}
-                <button onClick={() => handleUserSelect(member)}>위임</button>
+                <button
+                  className="invite-btn"
+                  onClick={() => handleUserSelect(member)}
+                >
+                  위임
+                </button>
               </li>
             ))}
         </ul>
-        <button onClick={handleDelegateAndExit} disabled={!selectedUser}> 위임 및 나가기 </button>
-        <button onClick={onClose}>닫기</button>
+        <button
+          className="create_btn"
+          onClick={handleDelegateAndExit}
+          disabled={!selectedUser}
+        >
+          나가기
+        </button>
+        <button className="close_btn" onClick={onClose}>
+          닫기
+        </button>
       </div>
     </div>
   );

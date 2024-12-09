@@ -1,8 +1,8 @@
-import React, { useContext, useEffect } from "react";
+﻿import React, { useContext, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { WSMemberRoleContext } from "../../../workspace/context/WSMemberRoleContext";
-import authApi from "../../../api/AuthApi";
 import Repo from "../../../auth/Repo";
+import AuthApi from "../../../api/AuthApi";
 import "./Header.css";
 
 const Header = ({ workspaceData }) => {
@@ -16,13 +16,8 @@ const Header = ({ workspaceData }) => {
       navigate("/");
     }
   }, []);
-
-  const handleClickLogout = () => {
-    console.log("handleClickLogout");
-
-    authApi.logout().then((data) => {
-      console.log("logout data : ", data);
-
+const handleClickLogout = () => {
+    AuthApi.logout().then((data) => {
       if (data.code === 200) {
         navigate("/auth/login");
       } else {

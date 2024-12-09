@@ -121,17 +121,23 @@ public class UserService {
             // 유저 정보
             User user = usersRepo.findByEmail(req.getEmail()).orElseThrow();
 
-            // 토큰 생성
-            String accessToken = jwtUtils.generateToken(user);
-            String refreshToken = jwtUtils.generateRefreshToken(new HashMap<>(), user);
+            if(user.getVerificationCode().isEmpty()){
+                // 토큰 생성
+                String accessToken = jwtUtils.generateToken(user);
+                String refreshToken = jwtUtils.generateRefreshToken(new HashMap<>(), user);
 
-            // 응답 세팅
-            modelMapper.map(user, res);
-            res.setAccessToken(accessToken);
-            res.setRefreshToken(refreshToken);
+                // 응답 세팅
+                modelMapper.map(user, res);
+                res.setAccessToken(accessToken);
+                res.setRefreshToken(refreshToken);
 
-            res.setStatus(HttpStatus.OK);
-            res.setMsg("유저 로그인 성공 : " + user.getEmail());
+                res.setStatus(HttpStatus.OK);
+                res.setMsg("유저 로그인 성공 : " + user.getEmail());
+
+            }else{
+                res.setStatus(HttpStatus.TOO_EARLY);
+                res.setMsg("먼저, 이메일 인증을 완료하세요.");
+            }
 
         } catch (InternalAuthenticationServiceException e) {
             // 인증 서비스 예외 처리

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+﻿import React, { useEffect, useState } from "react";
 import ChatRoomHeader from "./ChatRoomHeader";
 import MessageList from "./MessageList";
 import MessageInput from "./MessageInput";
@@ -30,9 +30,13 @@ const ChatRoom = ({
   );
   const navigate = useNavigate();
 
+
+
+  console.log("wsMembers.", wsMembers);
   useEffect(() => {
     if (!chatRoomId) {
       console.log("No chatRoomId provided, skipping server request.");
+
       return;
     }
 
@@ -55,7 +59,7 @@ const ChatRoom = ({
 
         setInviteMembers(nonParticipants);
 
-        //방 리더인지 확인
+        //�리더�� �인
         const currentMemberInfo = roomInfo.participants.find(
           (participant) =>
             Number(participant.userId) === Number(Repo.getUserId())
@@ -85,7 +89,7 @@ const ChatRoom = ({
         addMember.wsMemberId
       );
 
-      //참여자 갱신
+      //참여갱신
       const newParticipant = {
         ...addMember,
         chatRole: "CHATMEMBER",
@@ -100,17 +104,17 @@ const ChatRoom = ({
         participants: updatedParticipants,
       }));
 
-      //초대 목록 갱신
+      //초� 목록 갱신
       const updatedInviteMembers = inviteMembers.filter(
         (member) => member.wsMemberId !== addMember.wsMemberId
       );
 
       setInviteMembers(updatedInviteMembers);
 
-      //목록에 보이는 참여 카운트 갱신
+      //목록보이참여 카운갱신
       updateRoomParticipantCount(chatRoomId, 1);
 
-      // alert(addMember.name, "님 채팅방 초대 완료: ", data);
+      // alert(addMember.name, "채팅�초� �료: ", data);
       setIsModalOpen(false);
     } catch (error) {
       console.error("error fetching addMemberToRoom: ", error);
@@ -136,17 +140,17 @@ const ChatRoom = ({
         participants: updatedParticipants,
       }));
 
-      //초대 목록 갱신
+      //초� 목록 갱신
       const kickedMember = chatRoomInfo.participants.find(
         (member) => member.wsMemberId === kickMember.wsMemberId
       );
 
       setInviteMembers((prev) => [...prev, kickedMember]);
 
-      //목록에 보이는 참여 카운트 갱신
+      //목록보이참여 카운갱신
       updateRoomParticipantCount(chatRoomId, -1);
 
-      // alert(kickMember.name, "님 채팅방 강퇴 완료: ", data);
+      // alert(kickMember.name, "채팅�강퇴 �료: ", data);
       setIsModalOpen(false);
     } catch (error) {
       console.error("error fetching kickMemberToRoom: ", error);
@@ -161,15 +165,14 @@ const ChatRoom = ({
         newLeader.wsMemberId
       );
 
-      //방장 위임 로컬 업데이트
+      //방장 �임 로컬 �데�트
       setChatRoomInfo((prev) => {
         const updatedParticipants = prev.participants.map((member) => {
-          //현재 방장 역할 변경
-          if (Number(member.userId) === Number(Repo.getUserId)) {
+          //�재 방장 �� 변�          if (Number(member.userId) === Number(Repo.getUserId)) {
             return { ...member, chatRole: "CHATMEMBER" };
           }
 
-          //새 방장 위임
+          //방장 �임
           if (Number(member.wsMemberId) === Number(newLeader.wsMemberId)) {
             return { ...member, chatRole: "CHATLEADER" };
           }
@@ -183,7 +186,8 @@ const ChatRoom = ({
       });
 
       handleExit();
-      // alert(`새로운 방장으로 ${newLeader.name}님이 설정되었습니다.`);
+      // alert(`�로방장�로 ${newLeader.name}�이 �정�었�니`);
+
     } catch (error) {
       console.error("error fetching delegateChatLeader: ", error);
     }
@@ -198,7 +202,7 @@ const ChatRoom = ({
 
         setIsModalOpen(false);
 
-        navigate(`${window.location.pathname}`); // chatRoomId 쿼리 파라미터를 제거
+        navigate(`${window.location.pathname}`); // chatRoomId 쿼리 �라미터륜거
       }
     } catch (error) {
       console.error("error fetching exit: ", error);
@@ -212,9 +216,9 @@ const ChatRoom = ({
 
   const [newMessage, setNewMessage] = useState("");
 
-  // 메시지 전송 처리 함수
+  // 메시지 �송 처리 �수
   const handleSendMessage = (newMessage) => {
-    // 새로운 메시지 객체를 추가
+    // �로메시지 객체�추�
     setMessages((prevMessages) => [
       ...prevMessages,
       { sender: "User", text: newMessage, isCurrentUser: true },
@@ -236,10 +240,10 @@ const ChatRoom = ({
         handleExit={handleExit}
       />
       <div className="chat_messages">
-        {/* 여기에 채팅 메시지들이 들어갑니다 */}
-        <MessageList messages={messages} /> {/* 전송된 메시지 목록 표시 */}
+        {/* �기채팅 메시지�이 �어갑니*/}
+        <MessageList messages={messages} /> {/* �송메시지 목록 �시 */}
         <MessageInput onSendMessage={handleSendMessage} />
-        {/* 메시지 전송 처리 */}
+        {/* 메시지 �송 처리 */}
       </div>
     </div>
   );

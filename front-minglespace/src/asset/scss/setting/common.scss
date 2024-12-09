@@ -1,3 +1,18 @@
+//색션
+.section_container {
+  margin: 20px auto;
+  padding: 10px;
+  border: solid 1px;
+  border-radius: 5px;
+  box-shadow: 3px 3px darkgray;
+  background-color: #fff8ff;
+}
+//색션 내 제목
+.section_container_title{
+  text-align: center;
+  font-weight: bold;
+}
+
 // body {
 //     background-color: var(--black);
 //     color: var(--white);
