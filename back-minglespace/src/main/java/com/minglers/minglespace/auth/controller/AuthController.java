@@ -1,20 +1,26 @@
 package com.minglers.minglespace.auth.controller;
 
 import com.minglers.minglespace.auth.dto.*;
+import com.minglers.minglespace.auth.entity.User;
 import com.minglers.minglespace.auth.security.JWTUtils;
 import com.minglers.minglespace.auth.service.AuthEmailService;
 import com.minglers.minglespace.auth.service.TokenBlacklistService;
 import com.minglers.minglespace.auth.service.UserService;
+import com.minglers.minglespace.common.entity.Image;
+import com.minglers.minglespace.common.service.ImageService;
 import jakarta.mail.MessagingException;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.modelmapper.ModelMapper;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
@@ -28,6 +34,8 @@ class AuthController {
     private final TokenBlacklistService tokenBlacklistService;
     private final JWTUtils jwtUtils;
     private final AuthEmailService authEmailService;
+    private final ImageService imageService;
+    private final ModelMapper modelMapper;
 
     @PostMapping("/auth/signup")
     public ResponseEntity<DefaultResponse> signup(@RequestBody SignupRequest reg, HttpServletRequest request) throws MessagingException {
@@ -58,7 +66,6 @@ class AuthController {
     public ResponseEntity<DefaultResponse> verifyEmail(
             @PathVariable String code,
             @PathVariable String encodedEmail) {
-
         DefaultResponse res = authEmailService.verify(code, encodedEmail);
 
         log.info("verifyEmail res : {}", res);
@@ -105,14 +112,35 @@ class AuthController {
         return ResponseEntity.status(response.getCode()).body(response);
     }
 
-    @GetMapping("/auth/user/{userId}")
-    public ResponseEntity<UserResponse> getUserById(@PathVariable Long userId) {
-        return ResponseEntity.ok(usersManagementService.getUserById(userId));
-    }
+//    @GetMapping("/auth/user/{userId}")
+//    public ResponseEntity<UserResponse> getUserById(@PathVariable Long userId) {
+//        return ResponseEntity.ok(usersManagementService.getUserById(userId));
+//    }
 
     @PutMapping("/auth/update/{userId}")
-    public ResponseEntity<DefaultResponse> updateUser(@PathVariable Long userId, @RequestBody UserUpdateRequest req) {
-        return ResponseEntity.ok(usersManagementService.updateUser(userId, req));
+    public ResponseEntity<DefaultResponse> updateUser(
+            @PathVariable Long userId,
+            @RequestBody UserUpdateRequest req,
+            @RequestPart("image")MultipartFile image) {
+
+        Image saveFile = null;
+//        try{
+//            saveFile = imageService.uploadImage(image);
+//        }catch (RuntimeException | IOException e) {
+//            log.error("Image upload failed: " + e.getMessage(), e);
+//            throw new RuntimeException("채팅방 이미지 업로드 실패 : ", e);  // 업로드 실패 시 처리
+//        }
+
+
+        User updateUser = new User();
+
+        modelMapper.map(req, updateUser);
+
+        updateUser.setImage(saveFile);
+
+        DefaultResponse res = usersManagementService.updateUser(userId, updateUser);
+
+        return ResponseEntity.ok(res);
     }
 
     @DeleteMapping("/auth/delete/{userId}")
