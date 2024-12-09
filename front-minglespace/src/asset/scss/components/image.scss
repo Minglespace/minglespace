@@ -1,0 +1,17 @@
+//유저 이미지 동그랗게
+.round_user_image{
+  width: 70px;
+  height: 70px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid #000;
+}
+//이미지가 없으면 아이콘으로
+.user_alt_icon{
+  width: 70px;
+  height: 70px;
+  color : black;
+  background-color: #AADBFF;
+  border-radius: 50%;
+  border: 2px solid #000;
+}

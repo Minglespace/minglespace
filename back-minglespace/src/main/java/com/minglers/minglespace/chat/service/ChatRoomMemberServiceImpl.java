@@ -6,6 +6,7 @@ import com.minglers.minglespace.chat.config.interceptor.CustomHandShakeIntercept
 import com.minglers.minglespace.chat.dto.ChatRoomMemberDTO;
 import com.minglers.minglespace.chat.entity.ChatRoom;
 import com.minglers.minglespace.chat.entity.ChatRoomMember;
+import com.minglers.minglespace.chat.exception.ChatException;
 import com.minglers.minglespace.chat.repository.ChatRoomMemberRepository;
 import com.minglers.minglespace.chat.repository.ChatRoomRepository;
 import com.minglers.minglespace.chat.role.ChatRole;
@@ -13,6 +14,7 @@ import com.minglers.minglespace.workspace.entity.WSMember;
 import com.minglers.minglespace.workspace.repository.WSMemberRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 
@@ -29,29 +31,31 @@ public class ChatRoomMemberServiceImpl implements ChatRoomMemberService {
     //알림 처리
     private final CustomHandShakeInterceptor customHandShakeInterceptor;
     private final SimpMessagingTemplate simpMessagingTemplate;
-    private final UserRepository userRepository;
 
     @Override
     @Transactional
     public void updateIsLeftFromLeave(Long chatRoomId, Long wsMemberId) {
-        ChatRoom chatRoom = chatRoomRepository.findById(chatRoomId).orElseThrow(() -> new RuntimeException("해당하는 채팅방이 없습니다.."));
-        WSMember member = wsMemberRepository.findById(wsMemberId).orElseThrow(() -> new RuntimeException("해당하는 멤버가 없습니다. "));
+//        ChatRoom chatRoom = chatRoomRepository.findById(chatRoomId).orElseThrow(() -> new RuntimeException("해당하는 채팅방이 없습니다.."));
+//        WSMember member = wsMemberRepository.findById(wsMemberId).orElseThrow(() -> new RuntimeException("해당하는 멤버가 없습니다. "));
 
         if (!chatRoomMemberRepository.existsByChatRoomIdAndWsMemberIdAndIsLeftFalse(chatRoomId, wsMemberId)) {
-            throw new IllegalArgumentException("채팅방에 참여하지 않은 유저입니다.");
+            throw new ChatException(HttpStatus.NOT_FOUND.value(), "채팅방에 참여하지 않은 유저입니다.");
         }
 
         int updateResult = chatRoomMemberRepository.updateIsLeftStatus(true, chatRoomId, wsMemberId);
         if (updateResult == 0) {
-            throw new IllegalArgumentException("Failed to mark user as left. User not found in the chat room.");
+            throw new ChatException(HttpStatus.BAD_REQUEST.value(), "사용자를 채팅방에서 나갔다는 상태로 업데이트하는데 실패했습니다.");
         }
+
     }
 
     @Override
     @Transactional
     public void addUserToRoom(Long chatRoomId, Long wsMemberId) {
-        ChatRoom chatRoom = chatRoomRepository.findById(chatRoomId).orElseThrow(() -> new RuntimeException("해당하는 채팅방이 없습니다.."));
-        WSMember member = wsMemberRepository.findById(wsMemberId).orElseThrow(() -> new RuntimeException("해당하는 멤버가 없습니다. "));
+        ChatRoom chatRoom = chatRoomRepository.findById(chatRoomId)
+                .orElseThrow(() -> new ChatException(HttpStatus.NOT_FOUND.value(), "해당하는 채팅방이 없습니다.."));
+        WSMember member = wsMemberRepository.findById(wsMemberId)
+                .orElseThrow(() -> new ChatException(HttpStatus.NOT_FOUND.value(), "해당하는 멤버가 없습니다. "));
 
         if (chatRoomMemberRepository.existsByChatRoomIdAndWsMemberId(chatRoomId, wsMemberId)) {
             chatRoomMemberRepository.updateIsLeftStatus(false, chatRoomId, wsMemberId);
@@ -72,7 +76,7 @@ public class ChatRoomMemberServiceImpl implements ChatRoomMemberService {
     @Transactional
     public void kickMemberFromRoom(Long chatRoomId, Long wsMemberId) {
         if (!chatRoomMemberRepository.existsByChatRoomIdAndWsMemberIdAndIsLeftFalse(chatRoomId, wsMemberId)) {
-            throw new IllegalArgumentException("채팅방에 참여하지 않은 유저입니다.");
+            throw new ChatException(HttpStatus.NOT_FOUND.value(), "채팅방에 참여하지 않은 유저입니다.");
         }
 
         chatRoomMemberRepository.updateIsLeftStatus(true, chatRoomId, wsMemberId);
@@ -90,20 +94,8 @@ public class ChatRoomMemberServiceImpl implements ChatRoomMemberService {
         List<ChatRoomMember> chatRoomMembers = chatRoomMemberRepository.findByChatRoomIdAndIsLeftFalse(chatRoomId);
 
         return chatRoomMembers.stream()
-                .map(member -> {
-                    User user = member.getWsMember().getUser();
-                    String uriPath = user.getImage() != null ? user.getImage().getUripath() : "";
-                    ChatRoomMemberDTO dto = ChatRoomMemberDTO.builder()
-                            .wsMemberId(member.getWsMember().getId())
-                            .userId(user.getId())
-                            .email(user.getEmail())
-                            .name(user.getName())
-                            .imageUriPath(uriPath)
-                            .position(user.getPosition())
-                            .build();
-                    dto.setChatRole(member.getChatRole());
-                    return dto;
-                }).collect(Collectors.toList());
+                .map(ChatRoomMember::toDTO)
+                .collect(Collectors.toList());
     }
 
     @Override
@@ -115,16 +107,16 @@ public class ChatRoomMemberServiceImpl implements ChatRoomMemberService {
     @Override
     public void delegateLeader(Long chatRoomId, Long newLeaderId, Long leaderId) {
         ChatRoom chatRoom = chatRoomRepository.findById(chatRoomId)
-                .orElseThrow(() -> new IllegalArgumentException("채팅방이 존재하지 않습니다."));
+                .orElseThrow(() -> new ChatException(HttpStatus.NOT_FOUND.value(), "채팅방이 존재하지 않습니다."));
         ChatRoomMember chatRoomMember = chatRoomMemberRepository.findByChatRoomIdAndWsMemberId(chatRoomId, leaderId)
-                .orElseThrow(() -> new IllegalArgumentException("사용자가 존재하지 않습니다."));
+                .orElseThrow(() -> new ChatException(HttpStatus.NOT_FOUND.value(), "사용자가 존재하지 않습니다."));
 
         if (!chatRoomMember.getChatRole().equals(ChatRole.CHATLEADER)) {
-            throw new IllegalStateException("방장만 방장 권한을 위임할 수 있습니다.");
+            throw new ChatException(HttpStatus.FORBIDDEN.value(), "방장만 방장 권한을 위임할 수 있습니다.");
         }
 
         ChatRoomMember newLeader = chatRoomMemberRepository.findByChatRoomIdAndWsMemberId(chatRoomId, newLeaderId)
-                .orElseThrow(() -> new IllegalArgumentException("사용자가 존재하지 않습니다."));
+                .orElseThrow(() -> new ChatException(HttpStatus.NOT_FOUND.value(), "사용자가 존재하지 않습니다."));
 
         chatRoomMember.setChatRole(ChatRole.CHATMEMBER);
         newLeader.setChatRole(ChatRole.CHATLEADER);

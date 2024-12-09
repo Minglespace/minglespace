@@ -8,9 +8,11 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @ToString
+@Getter
+@Setter
 public class MilestoneResponseDTO {
   private Long id;
-  private Long title;
+  private String title;
 
   private List<MilestoneItemResponseDTO> milestoneItemDTOList;
 }

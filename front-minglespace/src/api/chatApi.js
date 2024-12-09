@@ -19,7 +19,6 @@ class ChatApi {
                 window.location.href = `/workspace`;
             } else {
                 console.error("채팅방 목록 가져오기 실패:", error);
-                throw error;  // 에러 발생시 예외 처리
             }
         }
     };
@@ -43,7 +42,6 @@ class ChatApi {
             return res.data;  // 서버 응답 반환
         } catch (error) {
             console.error("채팅방 생성 실패:", error);
-            throw error;  // 에러 처리
         }
     };
 
@@ -61,7 +59,6 @@ class ChatApi {
             return res.data;
         } catch (error) {
             console.error("채팅방 정보 겟 실패:", error);
-            // throw error;  // 에러 처리
         }
 
     };
@@ -72,7 +69,6 @@ class ChatApi {
             return res.data;
         } catch (error) {
             console.error("채팅방 멤버 추가 실패:", error);
-            // throw error;  // 에러 처리
         }
     };
 
@@ -82,7 +78,6 @@ class ChatApi {
             return res.data;
         } catch (error) {
             console.error("채팅방 멤버 강퇴 실패:", error);
-            // throw error;  // 에러 처리
         }
     };
 
@@ -92,7 +87,6 @@ class ChatApi {
             return res.data;
         } catch (error) {
             console.error("채팅방 나가기 실패:", error);
-            // throw error;  // 에러 처리
         }
     };
 
@@ -102,9 +96,16 @@ class ChatApi {
             return res.data;
         } catch (error) {
             console.error("채팅방 방장 위임 실패:", error);
-            // throw error;  // 에러 처리
         }
     };
+
+    static readMessage = async (workspaceId, chatRoomId) => {
+        try{
+            const res = await api.axiosIns.delete(`${prefix}/${workspaceId}/chatRooms/${chatRoomId}/readMsg`);
+        }catch(error){
+            console.log("메시지 읽음 처리 실패: ", error);
+        }
+    }
 
 }
 
