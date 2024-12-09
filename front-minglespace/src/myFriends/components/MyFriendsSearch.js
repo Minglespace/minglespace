@@ -63,7 +63,7 @@ const MyFriendsSearch = () => {
 
   const handleFriendRequest = (friendId) => {
     MyFriendsApi.friendRequest(friendId).then((data) => {
-      console.log(data);
+      setUser((prevUsers) => prevUsers.filter((user) => user.id !== friendId));
     });
   };
 

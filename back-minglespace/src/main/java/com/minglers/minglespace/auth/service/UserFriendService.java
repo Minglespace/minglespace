@@ -112,31 +112,34 @@ public class UserFriendService {
         UserFriend friendUser = findByUserIdAndFriendId(friendId,userId);
         friendUser.ChangeFriendshipStatus(FriendshipStatus.ACCEPTED);
         userFriendRepository.save(friendUser);
-        return friendPenddingList(userId);
+        return friendPendingList(userId);
     }
     //친구 거절
     public List<UserResponse> refuseFriend(Long userId, Long friendId){
 
-        User user = findUserById(userId);
-        User friend = findFriendById(friendId);
+        User validUser = findUserById(userId);
+        User validFriend = findFriendById(friendId);
 
         userFriendRepository.deleteByUserIdAndFriendId(userId,friendId);
         userFriendRepository.deleteByUserIdAndFriendId(friendId,userId);//양방향 삭제(상대쪽에서도삭제)
-        return friendPenddingList(userId);
+        return friendPendingList(userId);
     }
     //친구 신청목록
     public List<UserResponse> friendRequestList(Long userId){
-        User user = findUserById(userId);
+        User validUser = findUserById(userId);
 
         List<User> userList = userFriendRepository.findAllByUserIdAndStatus(userId,FriendshipStatus.REQUEST,null);
-        return userList.stream().map((u)->{
-            return modelMapper.map(u, UserResponse.class);
+        return userList.stream().map((user)->{
+            return modelMapper.map(user, UserResponse.class);
         }).toList();
     }
 
     //친구 요청온 목록
-    public List<UserResponse> friendPenddingList(Long userId){
-        User user = findUserById(userId);
-        return null;
+    public List<UserResponse> friendPendingList(Long userId){
+        User validUser = findUserById(userId);
+
+        List<User> userList = userFriendRepository.findAllByUserIdAndStatus(userId,FriendshipStatus.PENDING,null);
+        return userList.stream().map((user)->{
+            return modelMapper.map(user, UserResponse.class);}).toList();
     }
 }

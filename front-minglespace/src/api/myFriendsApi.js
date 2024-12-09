@@ -50,6 +50,47 @@ class MyFriendsApi {
       throw error;
     }
   };
+  //친구 수락
+  static acceptFriend = async (friendId) => {
+    try {
+      const res = await api.axiosIns.put(`${prefix}/accept/${friendId}`);
+      return res.data;
+    } catch (error) {
+      console.error("친구 수락 실패");
+      throw error;
+    }
+  };
+  //친구 거절
+  static refuseFriend = async (friendId) => {
+    try {
+      const res = await api.axiosIns.delete(`${prefix}/refuse/${friendId}`);
+      return res.data;
+    } catch (error) {
+      console.error("친구 거절 실패");
+      throw error;
+    }
+  };
+  //친구 신청한 목록
+  static friendRequestList = async () => {
+    try {
+      const res = await api.axiosIns.get(`${prefix}/request`);
+      return res.data;
+    } catch (error) {
+      console.error("친구 신청 목록 조회 실패");
+      throw error;
+    }
+  };
+  //친구 요청온 목록
+  static friendPendingList = async () => {
+    try {
+      const res = await api.axiosIns.get(`${prefix}/pending`);
+      return res.data;
+    } catch (error) {
+      console.error("친구 요청온 목록 조회 실패");
+      throw error;
+    }
+  };
+
 }
 
 export default MyFriendsApi;
