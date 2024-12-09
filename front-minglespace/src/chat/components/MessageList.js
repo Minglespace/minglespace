@@ -1,22 +1,23 @@
 import React from "react";
 
-const MessageList = ({ messages }) => {
+const MessageList = ({ messages, currentMemberInfo }) => {
+  console.log("messagelist_ mesg; ", messages);
+
   return (
     <div className="message-list">
-      {messages.map((message, index) => (
+      {messages.map((message) => (
         <div
-          key={index}
-          className={`message-item ${
-            message.isCurrentUser ? "sender" : "received"
-          }`}
+          key={message.id}
+          className={`message-item ${message.writerWsMemberId === currentMemberInfo.wsMemberId ? "sender" : "received"
+            }`}
         >
           {console.log(
-            `Message ${index}:`,
+            `Message ${message.id}:`,
             message,
-            message.isCurrentUser ? "sent" : "received"
+            message.writerWsMemberId === currentMemberInfo.wsMemberId ? "sent" : "received"
           )}
           <span className="message-sender">{message.sender}: </span>
-          <span className="message-text">{message.text}</span>
+          <span className="message-text">{message.content}</span>
         </div>
       ))}
     </div>

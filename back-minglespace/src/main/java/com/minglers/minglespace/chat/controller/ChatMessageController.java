@@ -12,6 +12,7 @@ import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.messaging.simp.stomp.StompHeaderAccessor;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
 
@@ -30,7 +31,8 @@ public class ChatMessageController {
                                                  @Payload ChatMessageDTO messageDTO,
                                                  StompHeaderAccessor headerAccessor){
         //이미 핸드셰이크 단계에서 jwt를 검증했기 때문에 accessor를 이용해 websocket세션에서 userId를 가져온다.
-        Long writerUserId = (Long) headerAccessor.getSessionAttributes().get("userId");
+        Authentication authentication = (Authentication) headerAccessor.getUser();
+        Long writerUserId = (Long) authentication.getPrincipal();
 
         if (writerUserId == null){
             log.error("user ID not found in websocket session");
@@ -51,10 +53,10 @@ public class ChatMessageController {
             return messageDTO;
         }catch (Exception e){
             log.error("메시지 저장 중 오류 발생: ",e);
-            String sessionId = customHandShakeInterceptor.getSessionForUser(writerUserId);
+//            String sessionId = customHandShakeInterceptor.getSessionForUser(writerUserId);
             //예외 발생 시 클라이언트에게 오류 메시지 발송
             simpMessagingTemplate.convertAndSendToUser(
-                    sessionId, "/queue/errors", "Error saving message: "+e.getMessage()
+                    writerUserId.toString(), "/queue/errors", "Error saving message: "+e.getMessage()
             );
             return null;
         }

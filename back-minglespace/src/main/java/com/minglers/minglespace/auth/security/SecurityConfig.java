@@ -22,6 +22,7 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
+
 @RequiredArgsConstructor
 @Configuration
 @EnableWebSecurity
@@ -54,6 +55,9 @@ public class SecurityConfig {
         // Preflight 캐시 타임
         corsConfig.setMaxAge(3600L);
 
+        //websocket의 jwt를 받기 위한 자격 증명 요청 허용
+        corsConfig.setAllowCredentials(true);
+
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
 
@@ -68,7 +72,7 @@ public class SecurityConfig {
         httpSecurity.csrf(AbstractHttpConfigurer::disable)
                 .cors(c->c.configurationSource(corsConfigurationSource()))
                 .authorizeHttpRequests(request -> request
-                        .requestMatchers("/auth/**", "/public/**","/images/**").permitAll()
+                        .requestMatchers("/auth/**", "/public/**","/images/**","/ws/**").permitAll()
                         .requestMatchers("/admin/**").hasAnyAuthority("ADMIN")
                         .requestMatchers("/user/**").hasAnyAuthority("USER")
                         .requestMatchers("/adminuser/**").hasAnyAuthority("ADMIN", "USER")
@@ -77,6 +81,7 @@ public class SecurityConfig {
                 .authenticationProvider(authenticationProvider()).addFilterBefore(
                         jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
                 .exceptionHandling(c -> c.authenticationEntryPoint(customAuthenticationEntryPoint));
+
 
         return httpSecurity.build();
     }

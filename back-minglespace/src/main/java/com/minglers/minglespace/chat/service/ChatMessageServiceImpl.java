@@ -44,6 +44,7 @@ public class ChatMessageServiceImpl implements ChatMessageService {
               .orElseThrow(() -> new ChatException(HttpStatus.NOT_FOUND.value(), "워크스페이스에 해당 유저가 존재하지 않습니다."));
 
       messageDTO.setWriterWsMemberId(wsMember.getId());
+      messageDTO.setDate(LocalDateTime.now());
 
       // 답글이 있는 경우 처리
       ChatMessage parentMsg = null;
@@ -91,9 +92,9 @@ public class ChatMessageServiceImpl implements ChatMessageService {
   // 방 메시지 가져오기
   @Override
   public List<ChatMessageDTO> getMessagesByChatRoom(ChatRoom chatRoom) {
-    log.info("getMessagesByChatRoom_chatRoomId : " + chatRoom);
-    List<ChatMessage> messages = chatMessageRepository.findByChatRoom(chatRoom);
-    log.info("getMessagesByChatRoom_ msg : " + messages);
+    log.info("getMessagesByChatRoom_chatRoomId : " + chatRoom.getId());
+    List<ChatMessage> messages = chatMessageRepository.findByChatRoomId(chatRoom.getId());
+    log.info("getMessagesByChatRoom_ msg : " + messages.size());
 
     List<ChatMessageDTO> dtos = messages.stream()
             .map(ChatMessage::toDTO)

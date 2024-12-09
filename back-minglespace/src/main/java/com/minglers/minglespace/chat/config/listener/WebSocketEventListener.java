@@ -18,11 +18,11 @@ public class WebSocketEventListener {
         StompHeaderAccessor accessor = StompHeaderAccessor.wrap(event.getMessage());
 
         String sessionId = accessor.getSessionId();
-        System.out.println("새로운 웹 소켓 연결 - 세션 id : "+ sessionId);
+        System.out.println("new websocket connect - connectSession id : "+ sessionId);
 
         Long userId = (Long) accessor.getSessionAttributes().get("userId");
         if (userId != null){
-            System.out.println("websocket 사용자 연결 : "+userId);
+            System.out.println("websocket connect userId : "+userId);
         }
 
     }
@@ -32,11 +32,11 @@ public class WebSocketEventListener {
         StompHeaderAccessor accessor = StompHeaderAccessor.wrap(event.getMessage());
 
         String sessionId = accessor.getSessionId();
-        System.out.println("웹소켓 연결 종료 세션id : "+ sessionId);
+        System.out.println("websocket disconnected session id : "+ sessionId);
 
         Long userId = (Long) accessor.getSessionAttributes().get("userId");
         if (userId != null) {
-            System.out.println("사용자 연결 종료: userId = " + userId);
+            System.out.println("websocket disconnected : userId = " + userId);
             customHandShakeInterceptor.removeSession(userId);
         }
     }

@@ -1,5 +1,6 @@
 package com.minglers.minglespace.chat.dto;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.minglers.minglespace.chat.entity.ChatMessage;
 import com.minglers.minglespace.chat.entity.ChatRoom;
 import com.minglers.minglespace.workspace.entity.WSMember;
@@ -18,11 +19,13 @@ import java.util.List;
 public class ChatMessageDTO {
   private Long id;
   private String content;
+  @JsonProperty("writerWsMemberId")
   private Long writerWsMemberId;
   private Long chatRoomId;
   private Long replyId;
   private LocalDateTime date;
   private Boolean isAnnouncement;
+  private String sender; //response
   private Long workspaceId; //request_url에 포함하도록 수정?
   private List<Long> mentionedUserIds; //request
   //파일
