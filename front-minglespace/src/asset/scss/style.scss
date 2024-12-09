@@ -11,7 +11,6 @@
 @use "section/footer";
 @use "section/sidebar";
 @use "section/basiclayout";
-@use "section/button";
 @use "section/workspace.scss";
 @use "section/modal.scss";
 @use "section/calendar.scss";
@@ -24,3 +23,4 @@
 @use "components/image";
 @use "components/userInfo";
 @use "components/search";
+@use "components/button";

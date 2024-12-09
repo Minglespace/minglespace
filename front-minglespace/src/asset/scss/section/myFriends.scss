@@ -6,13 +6,19 @@
   gap: 10px;
 }
 
-.myFriends_container_item{
+.myFriends_container_item {
   flex: 1;
   display: flex;
   flex-direction: column;
 }
 
-.myFriends_userInfo_container{
+.myFriends_userInfo_container {
   flex: 1;
-  overflow-y : auto;
+  overflow-y: auto;
+}
+.myFriends_userInfo_deleteButton {
+  height: 90px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
