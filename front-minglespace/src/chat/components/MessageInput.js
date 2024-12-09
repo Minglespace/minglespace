@@ -18,21 +18,14 @@ const MessageInput = ({ onSendMessage }) => {
     }
   };
 
-  // const handleSendMessage = () => {
-  //   if (message.trim() !== "") {
-  //     onSendMessage(message);
-  //     setMessage("");
-  //   }
-  // };
-
   // 메시지 전송 처리 함수
-  const handleSendMessage = (newMessage) => {
-    setMessages((prevMessages) => [
-      ...prevMessages,
-      { sender: "User", text: newMessage, isCurrentUser: true },
-    ]);
+  const handleSendMessage = () => {
+    if (messages.trim() !== "") {
+      onSendMessage(messages);
+      setMessages("");
+    }
   };
-  
+
   const handleKeyDown = (e) => {
     console.log(typeof messages);
     if (e.key === "Enter" && !e.shiftKey && messages.trim()) {
