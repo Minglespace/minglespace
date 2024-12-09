@@ -12,7 +12,7 @@ const initChatRoomInfo = {
   imageUriPath: "",
   workSpaceId: 0,
   messages: [],
-  participants: []
+  participants: [],
 };
 const ChatRoom = ({
   isFold,
@@ -29,10 +29,11 @@ const ChatRoom = ({
     "chatRoomId"
   );
   const navigate = useNavigate();
-
+  console.log("wsMembers.", wsMembers);
   useEffect(() => {
     if (!chatRoomId) {
       console.log("No chatRoomId provided, skipping server request.");
+
       return;
     }
 
@@ -79,14 +80,21 @@ const ChatRoom = ({
   const handleInvite = async (addMember) => {
     try {
       // console.log("add member wsmemberId: ", addMember.wsMemberId);
-      const data = await ChatApi.addMemberToRoom(workSpaceId, chatRoomId, addMember.wsMemberId);
+      const data = await ChatApi.addMemberToRoom(
+        workSpaceId,
+        chatRoomId,
+        addMember.wsMemberId
+      );
 
       //참여자 갱신
       const newParticipant = {
         ...addMember,
-        chatRole: "CHATMEMBER"
+        chatRole: "CHATMEMBER",
       };
-      const updatedParticipants = [...chatRoomInfo.participants, newParticipant];
+      const updatedParticipants = [
+        ...chatRoomInfo.participants,
+        newParticipant,
+      ];
 
       setChatRoomInfo((prev) => ({
         ...prev,

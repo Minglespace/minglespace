@@ -36,26 +36,39 @@
   cursor: pointer;
 
   position: sticky; /* 스크롤 시 컨테이너 내에서 고정 */
-  // bottom: 20px; /* wrapper 하단 기준 */
   left: 175px;
   transition: all 0.3s ease;
   z-index: 9999;
-  // font-size: 30px;
-  // background-color: #f9f5f6;
-  // position: sticky;
-  // top: 130px;
-  // left: 255px;
-  // padding: 5px 5px;
+}
 
-  // z-index: 10;
-  // border-radius: 5px;
-  // display: inline-flex; /* 텍스트와 아이콘을 가로로 배치 */
-  // justify-content: center; /* 가로 중앙 정렬 */
-  // align-items: center; /* 세로 중앙 정렬 */
-  // width: auto; /* 버튼의 너비를 자동으로 설정 */
-  // min-width: 50px; /* 최소 너비를 설정해 버튼 크기를 일정하게 유지 */
-  // height: 50px; /* 버튼 높이를 고정 */
-  // cursor: pointer; /* 버튼 클릭 시 커서 모양 변경 */
+.no-chat-selected {
+  display: flex;
+  flex-direction: column; // 아이콘과 텍스트를 세로로 정렬
+  justify-content: center; // 세로 중앙 정렬
+  align-items: center; // 가로 중앙 정렬
+  height: 100vh; // 화면 전체 높이를 차지하도록 설정 (선택적)
+  text-align: center; // 텍스트 가운데 정렬
+  font-size: 25px;
+  color: #888;
+  border: solid 1px #aaa;
+  margin: 15px;
+  border-radius: 10px;
+  flex-grow: 1;
+  transition: all 0.3s ease;
+  width: 1100px;
+  height: 700px;
+  position: relative;
+  background-color: #f9f5f6;
+}
+
+.no-chat-selected svg {
+  font-size: 10rem; // 아이콘 크기 조정 (필요한 크기만큼 조정)
+  margin-bottom: 10px; // 아이콘과 텍스트 간 간격 설정
+  color: #888;
+}
+
+.no-chat-selected span {
+  font-size: 1.5rem; // 텍스트 크기 조정 (필요한 크기만큼 조정)
 }
 
 //ChatList.js
