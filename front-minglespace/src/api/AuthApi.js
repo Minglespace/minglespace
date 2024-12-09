@@ -71,6 +71,22 @@ class AuthApi{
     }
   };
 
+  static userProfile = async () => {
+    try {
+        const res = await api.axiosIns.get("/auth/user");
+        if (res && res.data && res.data.code === 200) {
+            return res.data;
+        } else {
+            console.error("회원정보 불러오기 실패 res.data : ", res.data);
+            throw new Error("Invalid API response"); 
+        }
+    } catch (err) {
+        console.error("회원정보 불러오기 에러 err : ", err);
+        throw err; 
+    }
+  };
+
+
 }
 
 export default AuthApi;

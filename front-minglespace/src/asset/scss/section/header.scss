@@ -18,5 +18,64 @@ header {
   .title {
     margin-left: 10px;
   }
+
+  .button-container{
+    button {
+      background-color: #ff4b5c;
+      border: none;
+      color: white;
+      font-size: 16px;
+      font-weight: 600;
+      padding: 10px 20px;
+      border-radius: 30px;
+      cursor: pointer;
+      transition: background-color 0.3s ease, transform 0.2s ease;
+    }
+  
+    // .user-profile-button {
+    //   display: flex;
+    //   align-items: center;
+    //   gap: 8px;
+      
+    //   // padding: 8px 16px;
+    //   padding: 10px 20px;
+    
+    //   // font-size: 14px;
+    //   // font-weight: 500;
+    //   font-size: 16px;
+    //   font-weight: 600;
+    
+    //   color: #4B5563; /* text-gray-700 */
+    //   background-color: white;
+      
+    //   // border: 1px solid #E5E7EB; /* border-gray-200 */
+      
+    //   // border-radius: 8px;
+    //   border-radius: 30px;
+    //   // transition: background-color 0.2s, border-color 0.2s;
+    //   transition: background-color 0.3s ease, transform 0.2s ease;
+    
+    // }
+    
+    button:hover {
+      background-color: #ff2f3b;
+      transform: scale(1.05);
+    }
+    
+    button:focus {
+      outline: none;
+    }
+    
+    button:active {
+      background-color: #d32f40;
+    }
+    
+    button-container {
+      display: flex;
+      justify-content: flex-end;
+    }
+  }
+  
+
 }
 

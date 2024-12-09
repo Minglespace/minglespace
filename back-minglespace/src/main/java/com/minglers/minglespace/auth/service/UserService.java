@@ -271,7 +271,7 @@ public class UserService {
         return res;
     }
 
-    public DefaultResponse updateUser(Long userId, UserUpdateRequest req) {
+    public DefaultResponse updateUser(Long userId, User updateUser) {
 
         DefaultResponse res = new DefaultResponse();
 
@@ -281,10 +281,10 @@ public class UserService {
             if (userOptional.isPresent()) {
                 User existingUser = userOptional.get();
 
-                modelMapper.map(req, existingUser);
+                modelMapper.map(updateUser, existingUser);
 
-                if (req.getPassword() != null && !req.getPassword().isEmpty()) {
-                    existingUser.setPassword(passwordEncoder.encode(req.getPassword()));
+                if (updateUser.getPassword() != null && !updateUser.getPassword().isEmpty()) {
+                    existingUser.setPassword(passwordEncoder.encode(updateUser.getPassword()));
                 }
 
                 User savedUser = usersRepo.save(existingUser);
