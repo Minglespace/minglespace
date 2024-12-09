@@ -3,7 +3,17 @@ import ChatRoomModal from "./ChatRoomModal";
 import { FcExport } from "react-icons/fc";
 import { PiUserCirclePlusFill } from "react-icons/pi";
 
-const ChatRoomHeader = ({ chatRoomInfo, inviteMembers, isRoomOwner, isModalOpen, setIsModalOpen, handleInvite, handleKick, handleDelegate, handleExit }) => {
+const ChatRoomHeader = ({
+  chatRoomInfo,
+  inviteMembers,
+  isRoomOwner,
+  isModalOpen,
+  setIsModalOpen,
+  handleInvite,
+  handleKick,
+  handleDelegate,
+  handleExit,
+}) => {
   const [modalType, setModalType] = useState("");
 
   const openModal = (type) => {
@@ -22,15 +32,18 @@ const ChatRoomHeader = ({ chatRoomInfo, inviteMembers, isRoomOwner, isModalOpen,
 
   return (
     <div className="chatroom-header">
-      {/* <button
+      <button
         onClick={() => openModal("invite")}
         className="chatroom-invite-btn"
       >
         <PiUserCirclePlusFill className="icon" />
-      </button> */}
+      </button>
 
       {isRoomOwner && (
-        <button onClick={() => openModal("invite")} className="invite-btn">
+        <button
+          onClick={() => openModal("invite")}
+          className="chatroom-invite-btn"
+        >
           <PiUserCirclePlusFill className="icon" />
         </button>
       )}
