@@ -12,6 +12,8 @@ const Userinfo = ({ name, role, email, src, title }) => {
           <p>{role}</p>
         </div>
         <p>{email}</p>
+      </div>
+    </div>
   );
 };
 
