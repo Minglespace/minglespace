@@ -275,18 +275,18 @@ const ChatRoom = ({
       const newMessage = {
         content: msg,
         isAnnouncement: false,  ////수정 필요
-        mentionedUserIds: null,
+        mentionedUserIds: [],
         replyId: null,
         sender: currentMemberInfo.name,
-        //workspaceId
-        writerWsMemberId: 6
-        // writerWsMemberId: currentMemberInfo.wsMemberId
+        workspaceId: chatRoomInfo.workSpaceId,
+        writerWsMemberId: currentMemberInfo.wsMemberId
       };
 
       console.log("Sending message:", JSON.stringify(newMessage));
 
 
       websocketRef.current.publish({
+        // destination: `/app/chat`,
         destination: `/app/chat/${chatRoomId}`,
         body: JSON.stringify(newMessage),
       });

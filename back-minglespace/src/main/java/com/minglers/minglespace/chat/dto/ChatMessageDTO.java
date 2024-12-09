@@ -1,5 +1,6 @@
 package com.minglers.minglespace.chat.dto;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.minglers.minglespace.chat.entity.ChatMessage;
 import com.minglers.minglespace.chat.entity.ChatRoom;
@@ -19,7 +20,6 @@ import java.util.List;
 public class ChatMessageDTO {
   private Long id;
   private String content;
-  @JsonProperty("writerWsMemberId")
   private Long writerWsMemberId;
   private Long chatRoomId;
   private Long replyId;

@@ -1,9 +1,14 @@
 package com.minglers.minglespace.chat.config;
 
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.minglers.minglespace.chat.config.interceptor.CustomHandShakeInterceptor;
 import com.minglers.minglespace.chat.config.interceptor.StompInterceptor;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.messaging.simp.config.ChannelRegistration;
 import org.springframework.messaging.simp.config.MessageBrokerRegistry;
 import org.springframework.web.socket.config.annotation.EnableWebSocketMessageBroker;
@@ -12,10 +17,14 @@ import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerCo
 
 @Configuration
 @EnableWebSocketMessageBroker
-@RequiredArgsConstructor
 public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
     private final StompInterceptor stompInterceptor;
-    private final CustomHandShakeInterceptor customHandShakeInterceptor;
+
+    //순환 의존성 방지
+    @Autowired
+    public WebSocketConfig(@Lazy StompInterceptor stompInterceptor) {
+        this.stompInterceptor = stompInterceptor;
+    }
 
     @Override
     public void configureMessageBroker(MessageBrokerRegistry config) {
@@ -36,5 +45,13 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
     public void configureClientInboundChannel(ChannelRegistration registration){
         registration.interceptors(stompInterceptor);
     }
+
+
+//    @Bean
+//    public ObjectMapper objectMapper(){
+//        return new ObjectMapper()
+//                .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES,false)
+//                .configure(DeserializationFeature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT,true);
+//    }
 
 }

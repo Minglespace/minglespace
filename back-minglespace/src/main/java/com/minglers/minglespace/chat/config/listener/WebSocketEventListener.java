@@ -1,7 +1,9 @@
 package com.minglers.minglespace.chat.config.listener;
 
 import com.minglers.minglespace.chat.config.interceptor.CustomHandShakeInterceptor;
+import com.minglers.minglespace.chat.config.interceptor.StompInterceptor;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.context.event.EventListener;
 import org.springframework.messaging.simp.stomp.StompHeaderAccessor;
 import org.springframework.stereotype.Component;
@@ -11,7 +13,7 @@ import org.springframework.web.socket.messaging.SessionDisconnectEvent;
 @Component
 @RequiredArgsConstructor
 public class WebSocketEventListener {
-    private final CustomHandShakeInterceptor customHandShakeInterceptor;
+    private final StompInterceptor stompInterceptor;
 
     @EventListener
     public void handleWebSocketConnectListener(SessionConnectEvent event){
@@ -23,21 +25,24 @@ public class WebSocketEventListener {
         Long userId = (Long) accessor.getSessionAttributes().get("userId");
         if (userId != null){
             System.out.println("websocket connect userId : "+userId);
+            stompInterceptor.addSession(userId, sessionId);
+
         }
 
     }
 
     @EventListener
     public void handleWebSocketDisconnectListener(SessionDisconnectEvent event){
+        String sessionId = event.getSessionId();
+
         StompHeaderAccessor accessor = StompHeaderAccessor.wrap(event.getMessage());
 
-        String sessionId = accessor.getSessionId();
         System.out.println("websocket disconnected session id : "+ sessionId);
 
         Long userId = (Long) accessor.getSessionAttributes().get("userId");
         if (userId != null) {
             System.out.println("websocket disconnected : userId = " + userId);
-            customHandShakeInterceptor.removeSession(userId);
+            stompInterceptor.removeSession(userId);
         }
     }
 
