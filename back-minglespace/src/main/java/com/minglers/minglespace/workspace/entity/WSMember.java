@@ -2,6 +2,7 @@ package com.minglers.minglespace.workspace.entity;
 
 import com.minglers.minglespace.auth.entity.User;
 import com.minglers.minglespace.chat.entity.ChatRoomMember;
+import com.minglers.minglespace.todo.entity.Todo;
 import com.minglers.minglespace.workspace.role.WSMemberRole;
 import jakarta.persistence.*;
 import lombok.*;
@@ -38,6 +39,9 @@ public class WSMember {
     @OneToMany(mappedBy = "wsMember", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default
     private List<ChatRoomMember> chatRoomMembers = new ArrayList<>();
+
+    @OneToMany(mappedBy = "wsMember", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Todo> todoList = new ArrayList<>();
 
     public void addChatRoomMember(ChatRoomMember chatRoomMember){
         chatRoomMembers.add(chatRoomMember);

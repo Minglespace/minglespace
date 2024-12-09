@@ -23,6 +23,9 @@ const SideBar = ({ addmenu }) => {
             <li>
               <Link to={`/workspace/${workspaceId}/chat`}>ChatRoom</Link>
             </li>
+            <li>
+              <Link to={`/workspace/${workspaceId}/todo/1`}>Todo</Link>
+            </li>
           </>
         )}
       </ul>
