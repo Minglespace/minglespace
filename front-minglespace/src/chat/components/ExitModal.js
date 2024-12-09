@@ -21,11 +21,13 @@ const ExitModal = ({ isOpen, onClose, isRoomOwner, onExit }) => {
   return (
     <div className="exit_modal">
       <h1>정말로 나가시겠습니까? </h1>
-      <button onClick={handleExit}>
+      <button className="create_btn" onClick={handleExit}>
         {isRoomOwner ? "방장 위임 후 나가기" : "나가기"}
       </button>
 
-      <button onClick={handleClose}>닫기 </button>
+      <button className="close_btn" onClick={handleClose}>
+        닫기{" "}
+      </button>
     </div>
   );
 };

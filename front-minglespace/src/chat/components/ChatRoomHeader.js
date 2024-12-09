@@ -3,7 +3,17 @@ import ChatRoomModal from "./ChatRoomModal";
 import { FcExport } from "react-icons/fc";
 import { PiUserCirclePlusFill } from "react-icons/pi";
 
-const ChatRoomHeader = ({ chatRoomInfo, inviteMembers, isRoomOwner, isModalOpen, setIsModalOpen, handleInvite, handleKick, handleDelegate, handleExit }) => {
+const ChatRoomHeader = ({
+  chatRoomInfo,
+  inviteMembers,
+  isRoomOwner,
+  isModalOpen,
+  setIsModalOpen,
+  handleInvite,
+  handleKick,
+  handleDelegate,
+  handleExit,
+}) => {
   const [modalType, setModalType] = useState("");
 
   const openModal = (type) => {
@@ -21,19 +31,25 @@ const ChatRoomHeader = ({ chatRoomInfo, inviteMembers, isRoomOwner, isModalOpen,
   };
 
   return (
-    <div className="chatroom_header">
-      {/* <PiUserCirclePlusFill className="chatroom_plus" />
-      <FcExport className="chatroom_export" /> */}
-
-      <button onClick={() => openModal("exit")} className="exit-btn">
-        <FcExport className="icon" />
-      </button>
+    <div className="chatroom-header">
+      {/* <button
+        onClick={() => openModal("invite")}
+        className="chatroom-invite-btn"
+      >
+        <PiUserCirclePlusFill className="icon" />
+      </button> */}
 
       {isRoomOwner && (
-        <button onClick={() => openModal("invite")} className="invite-btn">
+        <button
+          onClick={() => openModal("invite")}
+          className="chatroom-invite-btn"
+        >
           <PiUserCirclePlusFill className="icon" />
         </button>
       )}
+      <button onClick={() => openModal("exit")} className="chatroom-exit-btn">
+        <FcExport className="icon" />
+      </button>
 
       <ChatRoomModal
         modalType={modalType}

@@ -37,7 +37,7 @@ const InviteFriendModal = ({ isOpen, onClose, inviteUsers, participants, onInvit
           inviteUsers.map((member) => (
             <li key={member.wsMemberId}>
               {member.email}
-              <button onClick={() => handleInvite(member)}>초대</button>
+              <button className="close_btn" onClick={() => handleInvite(member)}>초대</button>
             </li>
           ))
         )}
@@ -46,13 +46,14 @@ const InviteFriendModal = ({ isOpen, onClose, inviteUsers, participants, onInvit
           .map((member) => (
             <li key={member.wsMemberId}>
               {member.email}
-              <button onClick={() => handleKick(member)}>강퇴</button>
+              {/* <button className="invite-btn" onClick={() => handleKick(member)}>강퇴</button> */}
+              <button className="close_btn" onClick={() => handleKick(member)}>강퇴</button>
             </li>
           ))
         }
       </ul>
       {/* <button onClick={handleInvite}>확인 </button> */}
-      <button onClick={onClose}>닫기</button>
+      <button className="close_btn" onClick={onClose}>닫기</button>
     </div>
   );
 };

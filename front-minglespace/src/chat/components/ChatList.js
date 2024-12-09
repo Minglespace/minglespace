@@ -2,7 +2,7 @@
 import ChatListItem from "./ChatListItem";
 import CreateChatRoomModal from "./CreateChatRoomModal";
 
-const ChatList = ({ isFold, rooms, onCreateRoom, wsmembers }) => {
+const ChatList = ({ isFold, rooms, onCreateRoom, onReadMsg, wsmembers }) => {
   const [isModalOpen, setIsModalOpen] = useState(false); //모달 열림/닫힘 상태
 
   //모달을 여는 함수
@@ -24,7 +24,7 @@ const ChatList = ({ isFold, rooms, onCreateRoom, wsmembers }) => {
           <p>채팅방이 없습니다. </p>
         ) : (
           rooms.map((room) => (
-            <ChatListItem key={room.chatRoomId} chat={room} />
+            <ChatListItem key={room.chatRoomId} chat={room} onReadMsg={onReadMsg} />
           ))
         )}
         {/* 이슈)생성 버튼 위치 조정 필요 -> 스크롤하면 같이 올라감 + 스크롤이 토글 침범*/}

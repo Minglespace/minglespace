@@ -18,5 +18,4 @@ public class ChatRoomResponseDTO {
   private Long workSpaceId;
   private List<ChatMessageDTO> messages;
   private List<ChatRoomMemberDTO> participants;
-  private Long LeaderWsMemberId;
 }

@@ -4,12 +4,13 @@ import com.minglers.minglespace.chat.dto.*;
 import com.minglers.minglespace.chat.entity.ChatMessage;
 import com.minglers.minglespace.chat.entity.ChatRoom;
 import com.minglers.minglespace.chat.entity.ChatRoomMember;
+import com.minglers.minglespace.chat.exception.ChatException;
 import com.minglers.minglespace.chat.repository.ChatMessageRepository;
 import com.minglers.minglespace.chat.repository.ChatRoomMemberRepository;
 import com.minglers.minglespace.chat.repository.ChatRoomRepository;
+import com.minglers.minglespace.chat.repository.MsgReadStatusRepository;
 import com.minglers.minglespace.chat.role.ChatRole;
 import com.minglers.minglespace.common.entity.Image;
-import com.minglers.minglespace.common.service.ImageService;
 import com.minglers.minglespace.workspace.entity.WSMember;
 import com.minglers.minglespace.workspace.entity.WorkSpace;
 import com.minglers.minglespace.workspace.repository.WSMemberRepository;
@@ -17,6 +18,7 @@ import com.minglers.minglespace.workspace.repository.WorkspaceRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -34,15 +36,17 @@ public class ChatRoomServiceImpl implements ChatRoomService {
   private final ChatMessageRepository chatMessageRepository;
   private final WorkspaceRepository workspaceRepository;
   private final WSMemberRepository wsMemberRepository;
+  private final MsgReadStatusRepository msgReadStatusRepository;
+
   private final ChatMessageService chatMessageService;
   private final ChatRoomMemberService chatRoomMemberService;
 
   @Override
   public List<ChatListResponseDTO> getRoomsByWsMember(Long workspaceId, Long wsMemberId) {
     // 채팅방 목록을 얻기 위한
-    List<ChatRoomMember> chatRoomMembers = chatRoomMemberRepository.findByChatRoom_WorkSpace_IdAndWsMember_Id(workspaceId, wsMemberId);
+    List<ChatRoomMember> chatRooms = chatRoomMemberRepository.findByChatRoom_WorkSpace_IdAndWsMember_Id(workspaceId, wsMemberId);
 
-    return chatRoomMembers.stream()
+    return chatRooms.stream()
             .map(chatRoomMember -> {
               ChatRoom chatRoom = chatRoomMember.getChatRoom();
               String imageUriPath = (chatRoom.getImage() != null && chatRoom.getImage().getUripath() != null) ? chatRoom.getImage().getUripath() : "";
@@ -54,6 +58,10 @@ public class ChatRoomServiceImpl implements ChatRoomService {
 
               // 참여 인원수
               int participantCount = chatRoomMemberRepository.findByChatRoomIdAndIsLeftFalse(chatRoom.getId()).size();
+
+              //안읽은 메시지
+              long notReadMsgCount = msgReadStatusRepository.countByMessage_ChatRoom_IdAndWsMemberId(chatRoom.getId(), wsMemberId);
+
               return ChatListResponseDTO.builder()
                       .chatRoomId(chatRoom.getId())
                       .name(chatRoom.getName())
@@ -62,6 +70,7 @@ public class ChatRoomServiceImpl implements ChatRoomService {
                       .date(chatRoom.getDate())
                       .lastMessage(lastMsgContent)
                       .participantCount(participantCount)
+                      .notReadMsgCount(notReadMsgCount)
                       .build();
             }).collect(Collectors.toList());
   }
@@ -74,7 +83,8 @@ public class ChatRoomServiceImpl implements ChatRoomService {
   @Override
   @Transactional
   public ChatListResponseDTO createRoom(CreateChatRoomRequestDTO requestDTO, WSMember createMember, Image saveFile) {
-    WorkSpace wspace = workspaceRepository.findById(requestDTO.getWorkspaceId()).orElse(null);
+    WorkSpace wspace = workspaceRepository.findById(requestDTO.getWorkspaceId())
+            .orElseThrow(() -> new ChatException(HttpStatus.NOT_FOUND.value(), "Workspace not found with ID " + requestDTO.getWorkspaceId()));
 
     // 사진 처리 필요
     ChatRoom chatRoom = ChatRoom.builder()
@@ -99,7 +109,8 @@ public class ChatRoomServiceImpl implements ChatRoomService {
 
     // 일반 멤버 추가
     for (Long memberId : requestDTO.getParticipantIds()) {
-      WSMember member = wsMemberRepository.findById(memberId).orElseThrow(() -> new RuntimeException("Member not found"));
+      WSMember member = wsMemberRepository.findById(memberId)
+              .orElseThrow(() -> new ChatException(HttpStatus.NOT_FOUND.value(), "Member not found"));
 
       ChatRoomMember chatRoomMember = ChatRoomMember.builder()
               .chatRoom(chatRoom)
@@ -138,7 +149,7 @@ public class ChatRoomServiceImpl implements ChatRoomService {
   public ChatRoomResponseDTO getChatRoomWithMsgAndParticipants(Long chatRoomId, Long workspaceId, Long userId) {
     ChatRoom chatRoom = findRoomById(chatRoomId);
     if (chatRoom == null){
-      throw new RuntimeException("채팅방이 존재하지 않습니다.");
+      throw new ChatException(HttpStatus.NOT_FOUND.value(), "채팅방이 존재하지 않습니다.");
     }
 
     List<ChatMessageDTO> messages = chatMessageService.getMessagesByChatRoom(chatRoom);
@@ -147,15 +158,13 @@ public class ChatRoomServiceImpl implements ChatRoomService {
 
     String imageUriPath = (chatRoom.getImage() != null && chatRoom.getImage().getUripath() != null) ? chatRoom.getImage().getUripath() : "";
 
-    ChatRoomResponseDTO roomdtos = ChatRoomResponseDTO.builder()
+    return ChatRoomResponseDTO.builder()
             .chatRoomId(chatRoomId)
             .name(chatRoom.getName())
             .participants(participants)
             .messages(messages)
             .workSpaceId(chatRoom.getWorkSpace().getId())
             .imageUriPath(imageUriPath)
-//            .LeaderWsMemberId()
             .build();
-    return roomdtos;
   }
 }

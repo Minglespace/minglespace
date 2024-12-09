@@ -6,11 +6,13 @@ import { HOST_URL } from "../../api/Api";
 const initCreateChatRoomRequest = {
   name: "",
   workspaceId: 0,
-  participantIds: []
+  participantIds: [],
 };
 
 const CreateChatRoomModal = ({ isOpen, onClose, onCreate, wsMembers }) => {
-  const [newChatRoomData, setNewChatRoomData] = useState(initCreateChatRoomRequest);
+  const [newChatRoomData, setNewChatRoomData] = useState(
+    initCreateChatRoomRequest
+  );
   const [selectedImage, setSelectedImage] = useState(null); // 선택된 이미지 파일 선택
   const [errorMsg, setErrorMsg] = useState(null);
   const fileInputRef = useRef(null);
@@ -19,11 +21,11 @@ const CreateChatRoomModal = ({ isOpen, onClose, onCreate, wsMembers }) => {
   //   console.log("selectedFriends updated: ", newChatRoomData.participantIds);
   // }, [newChatRoomData.participantIds]);
 
-
   //폼에서 채팅방 이름을 변경하는 함수
   const handleInputChange = (e) => {
     setNewChatRoomData((prev) => ({
-      ...prev, name: e.target.value
+      ...prev,
+      name: e.target.value,
     }));
   };
 
@@ -36,7 +38,9 @@ const CreateChatRoomModal = ({ isOpen, onClose, onCreate, wsMembers }) => {
       // 만약 prev.participantIds가 배열이 아니라면 빈 배열로 초기화
       return {
         ...prev,
-        participantIds: Array.isArray(updatedParticipantIds) ? updatedParticipantIds : []
+        participantIds: Array.isArray(updatedParticipantIds)
+          ? updatedParticipantIds
+          : [],
       };
     });
   };
@@ -46,7 +50,8 @@ const CreateChatRoomModal = ({ isOpen, onClose, onCreate, wsMembers }) => {
     if (file) {
       setSelectedImage(URL.createObjectURL(file)); // 선택된 파일을 미리보기로 사용
       setNewChatRoomData((prev) => ({
-        ...prev, image: file
+        ...prev,
+        image: file,
       }));
     }
   };
@@ -137,7 +142,9 @@ const CreateChatRoomModal = ({ isOpen, onClose, onCreate, wsMembers }) => {
                   <label>
                     <input
                       type="checkbox"
-                      checked={newChatRoomData.participantIds.includes(member.wsMemberId)} // 체크 상태 유지
+                      checked={newChatRoomData.participantIds.includes(
+                        member.wsMemberId
+                      )} // 체크 상태 유지
                       onChange={(e) => handleMemberSelect(e, member.wsMemberId)}
                     />
                     <Userinfo
@@ -154,8 +161,8 @@ const CreateChatRoomModal = ({ isOpen, onClose, onCreate, wsMembers }) => {
           </div>
 
           {errorMsg && <p style={{color:"#e52500", fontSize:"14px", marginTop:"10px", textAlign:"center"}}>{errorMsg}</p>}
-          <button onClick={handleCreate}>생성</button>
-          <button onClick={handleClose}>닫기</button>
+          <button className="create_btn" onClick={handleCreate}>생성</button>
+          <button className="close_btn" onClick={handleClose}>닫기</button>
         </div>
       </div>
     </>

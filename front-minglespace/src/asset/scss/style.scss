@@ -1,4 +1,4 @@
-@charset "UTF-8";
+﻿@charset "UTF-8";
 
 //setting
 @use "setting/fonts";
@@ -24,3 +24,4 @@
 @use "components/userInfo";
 @use "components/search";
 @use "components/button";
+@use "section/userinfo.scss";

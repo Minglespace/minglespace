@@ -4,6 +4,7 @@ import com.minglers.minglespace.chat.config.interceptor.CustomHandShakeIntercept
 import com.minglers.minglespace.chat.dto.ChatMessageDTO;
 import com.minglers.minglespace.chat.entity.ChatMessage;
 import com.minglers.minglespace.chat.entity.ChatRoom;
+import com.minglers.minglespace.chat.exception.ChatException;
 import com.minglers.minglespace.chat.repository.ChatMessageRepository;
 import com.minglers.minglespace.chat.repository.ChatRoomRepository;
 import com.minglers.minglespace.chat.repository.specification.ChatMessageSpecification;
@@ -12,6 +13,7 @@ import com.minglers.minglespace.workspace.repository.WSMemberRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.http.HttpStatus;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 
@@ -35,10 +37,11 @@ public class ChatMessageServiceImpl implements ChatMessageService {
   @Override
   public ChatMessage saveMessage(ChatMessageDTO messageDTO, Long writerUserId) {
     try {
-      ChatRoom chatRoom = chatRoomRepository.findById(messageDTO.getChatRoomId()).orElseThrow(() -> new RuntimeException("채팅방이 존재하지 않습니다."));
+      ChatRoom chatRoom = chatRoomRepository.findById(messageDTO.getChatRoomId())
+              .orElseThrow(() -> new ChatException(HttpStatus.NOT_FOUND.value(),"채팅방이 존재하지 않습니다."));
 
       WSMember wsMember = wsMemberRepository.findByUserIdAndWorkSpaceId(writerUserId, messageDTO.getWorkspaceId())
-              .orElseThrow(() -> new RuntimeException("워크스페이스에 해당 유저가 존재하지 않습니다."));
+              .orElseThrow(() -> new ChatException(HttpStatus.NOT_FOUND.value(), "워크스페이스에 해당 유저가 존재하지 않습니다."));
 
       messageDTO.setWriterWsMemberId(wsMember.getId());
 
@@ -46,16 +49,10 @@ public class ChatMessageServiceImpl implements ChatMessageService {
       ChatMessage parentMsg = null;
       if (messageDTO.getReplyId() != null) {
         parentMsg = chatMessageRepository.findById(messageDTO.getReplyId())
-                .orElseThrow(() -> new RuntimeException("답글단 댓글 메시지가 존재하지 않습니다."));
+                .orElseThrow(() -> new ChatException(HttpStatus.NOT_FOUND.value(), "답글단 댓글 메시지가 존재하지 않습니다."));
       }
-      ChatMessage chatMessage = ChatMessage.builder()
-              .content(messageDTO.getContent())
-              .wsMember(wsMember)
-              .chatRoom(chatRoom)
-              .parentMessage(parentMsg)
-              .date(LocalDateTime.now())
-              .isAnnouncement(messageDTO.getIsAnnouncement())
-              .build();
+
+      ChatMessage chatMessage = messageDTO.toEntity(chatRoom, wsMember, parentMsg);
       ChatMessage savedMessage = chatMessageRepository.save(chatMessage);
 
       //답글이면 부모 댓글에게 답글 달린 알림 보내기
@@ -73,9 +70,8 @@ public class ChatMessageServiceImpl implements ChatMessageService {
       return savedMessage;
     } catch (RuntimeException e) {
       log.error("메시지 저장 중 오류 발생 : ", e);
-      throw e; //클라이언트에게 오류 던짐
+      throw new ChatException(HttpStatus.INTERNAL_SERVER_ERROR.value(), "메시지 저장 중 오류 발생: " + e.getMessage());
     }
-
   }
 
   //답글 알림
@@ -100,18 +96,7 @@ public class ChatMessageServiceImpl implements ChatMessageService {
     log.info("getMessagesByChatRoom_ msg : " + messages);
 
     List<ChatMessageDTO> dtos = messages.stream()
-            .map(msg -> {
-              Long replyId = (msg.getParentMessage() != null) ? msg.getParentMessage().getId() : null;
-              return ChatMessageDTO.builder()
-                      .id(msg.getId())
-                      .chatRoomId(msg.getChatRoom().getId())
-                      .date(msg.getDate())
-                      .content(msg.getContent())
-                      .replyId(replyId)
-                      .writerWsMemberId(msg.getWsMember().getId())
-                      .isAnnouncement(msg.getIsAnnouncement())
-                      .build();
-            })
+            .map(ChatMessage::toDTO)
             .collect(Collectors.toList());
     return dtos;
   }
