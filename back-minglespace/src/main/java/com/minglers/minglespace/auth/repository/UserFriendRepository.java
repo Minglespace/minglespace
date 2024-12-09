@@ -11,7 +11,6 @@ import java.util.List;
 import java.util.Optional;
 
 public interface UserFriendRepository extends JpaRepository<UserFriend, Long> {
-    Optional<UserFriend> findByUser(User user);
 
     @Query("SELECT u FROM UserFriend uf JOIN uf.friend u " +
             "WHERE uf.user.id = :userId AND uf.friendshipStatus = :friendshipStatus " +
@@ -20,4 +19,12 @@ public interface UserFriendRepository extends JpaRepository<UserFriend, Long> {
     List<User> findAllByUserIdAndStatus(@Param("userId") Long userId,
                                         @Param("friendshipStatus") FriendshipStatus friendshipStatus,
                                         @Param("searchKeyword") String searchKeyword);
+
+
+    //친구 삭제
+    void deleteByUserIdAndFriendId(Long userId, Long friendId);
+
+    //친구엔티티조회
+    Optional<UserFriend> findByUserIdAndFriendId(Long userId, Long friendId);
+
 }
