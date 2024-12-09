@@ -4,19 +4,20 @@ import default_img from "../../asset/imgs/profile1.png";
 import { HOST_URL } from "../../api/Api";
 import { useNavigate, useParams } from "react-router-dom";
 
-const ChatListItem = ({ chat }) => {
+const ChatListItem = ({ chat, onReadMsg }) => {
   const navigate = useNavigate();
   const {workspaceId} = useParams();
 
-  // unread_count가 이미 더미 데이터에 포함되어 있으므로, 그것을 사용합니다.
-  const unreadCount = chat.unreadCount || 0; // chat.unread_count 사용
-
-  // const unreadCount = (chat.messages || []).filter(
-  //   (msg) => !msg.read && msg.receiver !== me // 안 읽은 메시지 수
-  // ).length;
-
-  const handleClick = () => {
-    navigate(`/workspace/${workspaceId}/chat?chatRoomId=${chat.chatRoomId}`)
+  const handleClick = async () => {
+    // console.log("chatlistitem_click: ", typeof chat.chatRoomId);
+    try{
+      if(chat.notReadMsgCount > 0){
+        await onReadMsg(chat.chatRoomId);
+      }
+      navigate(`/workspace/${workspaceId}/chat?chatRoomId=${chat.chatRoomId}`);
+    }catch(e){
+      console.error("메시지 읽음 처리 중 오류 발생:", e);
+    }
   }
 
   return (
@@ -37,8 +38,8 @@ const ChatListItem = ({ chat }) => {
         </div>
         <div className="chat_footer">
           <p className="last_message">{chat.lastMessage}</p>
-          {unreadCount > 0 && (
-            <span className="unread_count">{unreadCount}</span>
+          {chat.notReadMsgCount > 0 && (
+            <span className="unread_count">{chat.notReadMsgCount}</span>
           )}
         </div>
       </div>

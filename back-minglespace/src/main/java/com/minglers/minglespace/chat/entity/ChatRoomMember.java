@@ -1,5 +1,7 @@
 package com.minglers.minglespace.chat.entity;
 
+import com.minglers.minglespace.auth.entity.User;
+import com.minglers.minglespace.chat.dto.ChatRoomMemberDTO;
 import com.minglers.minglespace.chat.role.ChatRole;
 import com.minglers.minglespace.common.converter.LocalDateTimeAttributeConverter;
 import com.minglers.minglespace.workspace.entity.WSMember;
@@ -36,5 +38,21 @@ public class ChatRoomMember {
     @JoinColumn(name = "wsmember_id")
     private WSMember wsMember;
 
+    @Builder.Default
     private boolean isLeft = false;
+
+    public ChatRoomMemberDTO toDTO(){
+        User user = this.getWsMember().getUser();
+        String uriPath = user.getImage() != null ? user.getImage().getUripath() : "";
+        ChatRoomMemberDTO dto = ChatRoomMemberDTO.builder()
+                .wsMemberId(this.getWsMember().getId())
+                .userId(user.getId())
+                .email(user.getEmail())
+                .name(user.getName())
+                .imageUriPath(uriPath)
+                .position(user.getPosition())
+                .build();
+        dto.setChatRole(this.getChatRole());
+        return dto;
+    }
 }

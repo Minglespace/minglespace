@@ -38,18 +38,13 @@ public class ChatRoomController {
   //채팅방 목록 조회
   @GetMapping("/members")
   public ResponseEntity<?> getRoomsByMember(@PathVariable Long workspaceId,
-                                            @RequestHeader("Authorization") String authorizationHeader) {
-    String token = authorizationHeader.replace("Bearer ", "");
-
-    Long userId = jwtUtils.extractUserId(token);
-    log.info("chatRoom_getRoomByMember - requestUserId : " + userId);
+                                            @RequestHeader("Authorization") String token) {
+    Long userId = jwtUtils.extractUserId(token.substring(7));
+//    log.info("chatRoom_getRoomByMember - requestUserId : " + userId);
 
     WSMember wsMember = wsMemberService.findByUserIdAndWsId(userId, workspaceId);
     if (wsMember == null) {
-      log.info("getRoom_ requestUser_ not participant");
-      return ResponseEntity.status(HttpStatus.FORBIDDEN).body(new HashMap<String, String>() {{
-        put("error", "워크스페이스에 참여하는 유저가 아닙니다.");
-      }});
+      return ResponseEntity.status(HttpStatus.FORBIDDEN).body("워크스페이스에 참여하는 유저가 아닙니다.");
     }
 
     List<ChatListResponseDTO> chatRooms = chatRoomService.getRoomsByWsMember(workspaceId, wsMember.getId());
@@ -61,12 +56,8 @@ public class ChatRoomController {
   public ResponseEntity<ChatListResponseDTO> createRoom(@PathVariable Long workspaceId,
                                                              @RequestPart("requestDTO") CreateChatRoomRequestDTO requestDTO,
                                                              @RequestPart(value = "image", required = false) MultipartFile image,
-                                                             @RequestHeader("Authorization") String authorizationHeader) {
-    String token = authorizationHeader.replace("Bearer ", "");
-
-    Long userId = jwtUtils.extractUserId(token);
-    log.info("chatRoom_createRoom - requestUserId : " + userId);
-
+                                                             @RequestHeader("Authorization") String token) {
+    Long userId = jwtUtils.extractUserId(token.substring(7));
     WSMember createMember = wsMemberService.findByUserIdAndWsId(userId, workspaceId);
 
     requestDTO.setWorkspaceId(workspaceId);
@@ -89,12 +80,10 @@ public class ChatRoomController {
   //특정 방 조회
   @GetMapping("/{chatRoomId}")
   public ResponseEntity<?> getChatRoomWithMsg(@PathVariable Long workspaceId, @PathVariable Long chatRoomId,
-                                              @RequestHeader("Authorization") String authorizationHeader) {
+                                              @RequestHeader("Authorization") String token) {
 
-    String token = authorizationHeader.replace("Bearer ", "");
-
-    Long userId = jwtUtils.extractUserId(token);
-    log.info("chatRoom _ getChatRoomWithMsg - requestUserId : " + userId);
+    Long userId = jwtUtils.extractUserId(token.substring(7));
+//    log.info("chatRoom _ getChatRoomWithMsg - requestUserId : " + userId);
 
     try{
       ChatRoomResponseDTO chatRoomResponseDTO = chatRoomService.getChatRoomWithMsgAndParticipants(chatRoomId, workspaceId, userId);
@@ -110,12 +99,8 @@ public class ChatRoomController {
   public ResponseEntity<String> addMemberToRoom(@PathVariable Long workspaceId,
                                                 @PathVariable Long chatRoomId,
                                                 @PathVariable Long addMemberId,
-                                                @RequestHeader("Authorization") String authorizationHeader) {
-    String token = authorizationHeader.replace("Bearer ", "");
-
-    Long userId = jwtUtils.extractUserId(token);
-    log.info("chatRoom _ addMemberToRoom - requestUserId : " + userId);
-
+                                                @RequestHeader("Authorization") String token) {
+    Long userId = jwtUtils.extractUserId(token.substring(7));
     Long wsMemberId = wsMemberService.findByUserIdAndWsId(userId, workspaceId).getId();
 
     if (!chatRoomMemberService.isRoomLeader(chatRoomId, wsMemberId)) {
@@ -132,12 +117,8 @@ public class ChatRoomController {
   public ResponseEntity<String> kickMemberFromRoom(@PathVariable Long workspaceId,
                                                    @PathVariable Long chatRoomId,
                                                    @PathVariable Long kickMemberId,
-                                                   @RequestHeader("Authorization") String authorizationHeader) {
-    String token = authorizationHeader.replace("Bearer ", "");
-
-    Long userId = jwtUtils.extractUserId(token);
-    log.info("chatRoom _ kickMemberFromRoom - requestUserId : " + userId);
-
+                                                   @RequestHeader("Authorization") String token) {
+    Long userId = jwtUtils.extractUserId(token.substring(7));
     Long wsMemberId = wsMemberService.findByUserIdAndWsId(userId, workspaceId).getId();
 
     if (!chatRoomMemberService.isRoomLeader(chatRoomId, wsMemberId)) {
@@ -151,18 +132,14 @@ public class ChatRoomController {
   //자진 방 나가기
   @DeleteMapping("/{chatRoomId}/leave")
   public ResponseEntity<String> leaveChatRoom(@PathVariable Long workspaceId, @PathVariable Long chatRoomId,
-                                              @RequestHeader("Authorization") String authorizationHeader) {
-    String token = authorizationHeader.replace("Bearer ", "");
-
-    Long userId = jwtUtils.extractUserId(token);
-    log.info("chatRoom _ leaveChatRoom - requestUserId : " + userId);
-
+                                              @RequestHeader("Authorization") String token) {
+    Long userId = jwtUtils.extractUserId(token.substring(7));
     Long wsMemberId = wsMemberService.findByUserIdAndWsId(userId, workspaceId).getId();
 
     chatRoomMemberService.updateIsLeftFromLeave(chatRoomId, wsMemberId);
 
-    boolean isChatRoomEmpty = !chatRoomMemberService.isChatRoomEmpty(chatRoomId);
-    if (isChatRoomEmpty) {
+    //방에 아무도 없으면 폭파
+    if (!chatRoomMemberService.isChatRoomEmpty(chatRoomId)) {
       chatRoomService.deleteChatRoomData(chatRoomId);
     }
 
@@ -174,12 +151,8 @@ public class ChatRoomController {
   public ResponseEntity<String> delegateLeader(@PathVariable Long workspaceId,
                                                @PathVariable Long chatRoomId,
                                                @PathVariable Long newLeaderId,
-                                               @RequestHeader("Authorization") String authorizationHeader) {
-    String token = authorizationHeader.replace("Bearer ", "");
-
-    Long userId = jwtUtils.extractUserId(token);
-    log.info("chatRoom _ delegateLeader - requestUserId : " + userId);
-
+                                               @RequestHeader("Authorization") String token) {
+    Long userId = jwtUtils.extractUserId(token.substring(7));
     Long currentMemberId = wsMemberService.findByUserIdAndWsId(userId, workspaceId).getId();
 
     try {

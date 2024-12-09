@@ -19,4 +19,5 @@ public class ChatListResponseDTO {
   private LocalDateTime date;
   private String lastMessage;
   private int participantCount;
+  private long notReadMsgCount;
 }

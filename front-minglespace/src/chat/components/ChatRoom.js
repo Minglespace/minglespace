@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+﻿import React, { useEffect, useState } from "react";
 import ChatRoomHeader from "./ChatRoomHeader";
 import MessageList from "./MessageList";
 import MessageInput from "./MessageInput";
@@ -12,7 +12,7 @@ const initChatRoomInfo = {
   imageUriPath: "",
   workSpaceId: 0,
   messages: [],
-  participants: [],
+  participants: []
 };
 const ChatRoom = ({
   isFold,
@@ -23,7 +23,7 @@ const ChatRoom = ({
 }) => {
   const [chatRoomInfo, setChatRoomInfo] = useState(initChatRoomInfo);
   const [inviteMembers, setInviteMembers] = useState([]);
-  const [isRoomOwner, setIsRoomOwner] = useState(true);
+  const [isRoomOwner, setIsRoomOwner] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const chatRoomId = new URLSearchParams(useLocation().search).get(
     "chatRoomId"
@@ -79,21 +79,14 @@ const ChatRoom = ({
   const handleInvite = async (addMember) => {
     try {
       // console.log("add member wsmemberId: ", addMember.wsMemberId);
-      const data = await ChatApi.addMemberToRoom(
-        workSpaceId,
-        chatRoomId,
-        addMember.wsMemberId
-      );
+      const data = await ChatApi.addMemberToRoom(workSpaceId, chatRoomId, addMember.wsMemberId);
 
       //참여자 갱신
       const newParticipant = {
         ...addMember,
-        chatRole: "CHATMEMBER",
+        chatRole: "CHATMEMBER"
       };
-      const updatedParticipants = [
-        ...chatRoomInfo.participants,
-        newParticipant,
-      ];
+      const updatedParticipants = [...chatRoomInfo.participants, newParticipant];
 
       setChatRoomInfo((prev) => ({
         ...prev,
@@ -183,7 +176,6 @@ const ChatRoom = ({
       });
 
       handleExit();
-      // alert(`새로운 방장으로 ${newLeader.name}님이 설정되었습니다.`);
     } catch (error) {
       console.error("error fetching delegateChatLeader: ", error);
     }
