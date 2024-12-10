@@ -30,8 +30,6 @@ const ChatRoom = ({
   );
   const navigate = useNavigate();
 
-
-
   console.log("wsMembers.", wsMembers);
   useEffect(() => {
     if (!chatRoomId) {
@@ -59,7 +57,7 @@ const ChatRoom = ({
 
         setInviteMembers(nonParticipants);
 
-        //�리더�� �인
+        //��리더�� �인
         const currentMemberInfo = roomInfo.participants.find(
           (participant) =>
             Number(participant.userId) === Number(Repo.getUserId())
@@ -104,7 +102,7 @@ const ChatRoom = ({
         participants: updatedParticipants,
       }));
 
-      //초� 목록 갱신
+      //초� 목록 갱신
       const updatedInviteMembers = inviteMembers.filter(
         (member) => member.wsMemberId !== addMember.wsMemberId
       );
@@ -114,7 +112,7 @@ const ChatRoom = ({
       //목록보이참여 카운갱신
       updateRoomParticipantCount(chatRoomId, 1);
 
-      // alert(addMember.name, "채팅�초� �료: ", data);
+      // alert(addMember.name, "채팅��초� �료: ", data);
       setIsModalOpen(false);
     } catch (error) {
       console.error("error fetching addMemberToRoom: ", error);
@@ -140,7 +138,7 @@ const ChatRoom = ({
         participants: updatedParticipants,
       }));
 
-      //초� 목록 갱신
+      //초� 목록 갱신
       const kickedMember = chatRoomInfo.participants.find(
         (member) => member.wsMemberId === kickMember.wsMemberId
       );
@@ -150,7 +148,7 @@ const ChatRoom = ({
       //목록보이참여 카운갱신
       updateRoomParticipantCount(chatRoomId, -1);
 
-      // alert(kickMember.name, "채팅�강퇴 �료: ", data);
+      // alert(kickMember.name, "채팅��강퇴 �료: ", data);
       setIsModalOpen(false);
     } catch (error) {
       console.error("error fetching kickMemberToRoom: ", error);
@@ -165,14 +163,14 @@ const ChatRoom = ({
         newLeader.wsMemberId
       );
 
-      //방장 �임 로컬 �데�트
+      //방장 �임 로컬 �데�트
       setChatRoomInfo((prev) => {
         const updatedParticipants = prev.participants.map((member) => {
-          //�재 방장 �� 변�          if (Number(member.userId) === Number(Repo.getUserId)) {
-            return { ...member, chatRole: "CHATMEMBER" };
-          }
+          //�재 방장 �� 변��          if (Number(member.userId) === Number(Repo.getUserId)) {
+          //   return { ...member, chatRole: "CHATMEMBER" };
+          // }
 
-          //방장 �임
+          //방장 �임
           if (Number(member.wsMemberId) === Number(newLeader.wsMemberId)) {
             return { ...member, chatRole: "CHATLEADER" };
           }
@@ -186,8 +184,7 @@ const ChatRoom = ({
       });
 
       handleExit();
-      // alert(`�로방장�로 ${newLeader.name}�이 �정�었�니`);
-
+      // alert(`�로방장�로 ${newLeader.name}�이 �정�었�니`);
     } catch (error) {
       console.error("error fetching delegateChatLeader: ", error);
     }
@@ -202,7 +199,7 @@ const ChatRoom = ({
 
         setIsModalOpen(false);
 
-        navigate(`${window.location.pathname}`); // chatRoomId 쿼리 �라미터륜거
+        navigate(`${window.location.pathname}`); // chatRoomId 쿼리 �라미터륜거
       }
     } catch (error) {
       console.error("error fetching exit: ", error);
@@ -216,9 +213,9 @@ const ChatRoom = ({
 
   const [newMessage, setNewMessage] = useState("");
 
-  // 메시지 �송 처리 �수
+  // 메시지 �송 처리 �수
   const handleSendMessage = (newMessage) => {
-    // �로메시지 객체�추�
+    // �로메시지 객체��추�
     setMessages((prevMessages) => [
       ...prevMessages,
       { sender: "User", text: newMessage, isCurrentUser: true },
@@ -240,10 +237,10 @@ const ChatRoom = ({
         handleExit={handleExit}
       />
       <div className="chat_messages">
-        {/* �기채팅 메시지�이 �어갑니*/}
-        <MessageList messages={messages} /> {/* �송메시지 목록 �시 */}
+        {/* �기채팅 메시지�이 �어갑니*/}
+        <MessageList messages={messages} /> {/* �송메시지 목록 �시 */}
         <MessageInput onSendMessage={handleSendMessage} />
-        {/* 메시지 �송 처리 */}
+        {/* 메시지 �송 처리 */}
       </div>
     </div>
   );
