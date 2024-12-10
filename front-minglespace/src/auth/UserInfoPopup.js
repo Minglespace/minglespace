@@ -4,7 +4,8 @@ import AuthApi from "../api/AuthApi";
 import './UserInfoPopup.css'; // CSS 파일을 import합니다.
 import { useNavigate } from "react-router-dom";
 import Userinfo from "../common/Layouts/components/Userinfo";
-import default_img from "../asset/imgs/profile1.png";
+import { HOST_URL } from "../api/Api";
+import ProfileImage from "../common/Layouts/components/ProfileImage";
 
 
 //============================================================================================
@@ -16,14 +17,16 @@ export default function UserInfoPopup() {
   const navigate = useNavigate();
 
   const [isOpen, setIsOpen] = useState(false);
-  const [isEditing, setIsEditing] = useState(false); // Manage edit state
+  const [isEditing, setIsEditing] = useState(false); 
+  const [dontUseProfileImage, setDontUseProfileImage] = useState(false); 
   const [userInfo, setUserInfo] = useState({
-    profileImage: "",
+    profileImagePath: "",
     name: "",
     position: "",
     email: "",
     phone: "",
     introduction: "",
+    localImage: "",
   });
 
   const [selectedImage, setSelectedImage] = useState(null); // 선택된 이미지 파일 선택
@@ -39,16 +42,27 @@ export default function UserInfoPopup() {
   const handleClickOpen = async () => {
     const nowIsOpen = !isOpen;
 
+    console.log("handleClickOpen profileImagePath : ", `${HOST_URL}`+ userInfo.profileImagePath);
+
     if (nowIsOpen) {
+      
+      console.log("handleClickOpen userInfo before : ", userInfo);
+
       const res = await AuthApi.userInfo();
+
+      console.log("handleClickOpen userInfo res : ", res);
+
       setUserInfo(res);
+
+      console.log("handleClickOpen userInfo after : ", userInfo);
+
     }
 
     setIsOpen(nowIsOpen);
   };
 
   const handleClickSetting = () => {
-    setIsEditing(true); // Switch to edit mode
+    setIsEditing(true); 
   };
 
   const handleClickLogout = () => {
@@ -70,26 +84,61 @@ export default function UserInfoPopup() {
   };
 
   const handleSaveChanges = async () => {
-    // You can send updated user info to your API here (e.g., AuthApi.updateUserInfo(userInfo))
-    const res = await AuthApi.updateUserInfo(userInfo, userInfo.profileImage);
+    
+    userInfo.dontUseProfileImage = dontUseProfileImage;
+
+    console.log("handleSaveChanges before : ", userInfo);
+
+    const res = await AuthApi.updateUserInfoNew2(userInfo, userInfo.localImage);
+
+    console.log("handleSaveChanges res : ", res);
+
     if (res.code === 200) {
-      setIsEditing(false); // Exit edit mode
+
+      userInfo.profileImagePath = res.profileImagePath;
+      userInfo.name = res.name;
+      userInfo.position = res.position;
+      userInfo.email = res.email;
+      userInfo.phone = res.phone;
+      userInfo.introduction = res.introduction;
+
+      console.log("handleSaveChanges after : ", userInfo);
+
+      setIsEditing(false); 
+      
     }
   };
 
   const handleImageChange = (e) => {
     const file = e.target.files ? e.target.files[0] : null; // 파일이 있는지 확인
     if (file) {
+
+      setDontUseProfileImage(false);
+
       setSelectedImage(URL.createObjectURL(file)); // 선택된 파일을 미리보기로 사용
 
-      userInfo.profileImage = file;
-      // setNewChatRoomData((prev) => ({
-      //   ...prev,
-      //   image: file,
-      // }));
+      userInfo.localImage = file;
     }
   };
 
+  const handleClickDontUseImage = () =>{
+    
+    setSelectedImage(null);
+
+    setDontUseProfileImage(true);
+
+  }
+
+  const getHostImagePath = () => {
+
+    if(dontUseProfileImage)
+      return null;
+
+    if(userInfo.profileImagePath)
+      return `${HOST_URL}` + userInfo.profileImagePath;
+    else
+      return null;
+  }
 
   //============================================================================================
   //============================================================================================
@@ -113,14 +162,17 @@ export default function UserInfoPopup() {
           <div className="popup-header">
             {isEditing ? (
               <div className="user-info">
+
+                <ProfileImage src={selectedImage || getHostImagePath()} userName={userInfo.name} />
+
                 {/* 이미지 선택 (기본 동그라미 이미지와 선택된 이미지 변경) */}
-                <div className="modal_img">
+                {/* <div className="modal_img">
                   <img
                     className="chat_create_Img"
-                    src={selectedImage || default_img}
+                    src={selectedImage || getHostImagePath()}
                     alt="이미지"
                   />
-                </div>
+                </div> */}
 
                 <button
                   className="select_img_btn"
@@ -128,7 +180,12 @@ export default function UserInfoPopup() {
                 >
                   변경
                 </button>
-                
+                <button
+                  className="select_img_btn"
+                  onClick={handleClickDontUseImage} 
+                >
+                  제거
+                </button>
                 <input
                   className="hidden-file-input"
                   ref={fileInputRef}
@@ -187,7 +244,7 @@ export default function UserInfoPopup() {
                 name={userInfo.name}
                 role={userInfo.position}
                 email={userInfo.email}
-                src={userInfo.profileImage}
+                src={ getHostImagePath()}
               />
             )}
           </div>

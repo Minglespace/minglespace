@@ -1,13 +1,19 @@
 package com.minglers.minglespace.auth.controller;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.minglers.minglespace.auth.dto.*;
 import com.minglers.minglespace.auth.entity.User;
+import com.minglers.minglespace.auth.exception.AuthException;
 import com.minglers.minglespace.auth.security.JWTUtils;
 import com.minglers.minglespace.auth.service.AuthEmailService;
 import com.minglers.minglespace.auth.service.TokenBlacklistService;
 import com.minglers.minglespace.auth.service.UserService;
+import com.minglers.minglespace.chat.dto.ChatListResponseDTO;
+import com.minglers.minglespace.chat.dto.CreateChatRoomRequestDTO;
 import com.minglers.minglespace.common.entity.Image;
 import com.minglers.minglespace.common.service.ImageService;
+import com.minglers.minglespace.workspace.entity.WSMember;
 import jakarta.mail.MessagingException;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
@@ -22,6 +28,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
@@ -36,6 +43,7 @@ class AuthController {
     private final AuthEmailService authEmailService;
     private final ImageService imageService;
     private final ModelMapper modelMapper;
+    private final ObjectMapper objectMapper;
 
     @PostMapping("/auth/signup")
     public ResponseEntity<DefaultResponse> signup(@RequestBody SignupRequest reg, HttpServletRequest request) throws MessagingException {
@@ -91,8 +99,7 @@ class AuthController {
 
         tokenBlacklistService.addToBlacklist(refreshToken, expiresAt);
 
-        res.setCode(200);
-
+        res.setStatus(HttpStatus.OK);
         return ResponseEntity.ok(res);
     }
 
@@ -107,68 +114,90 @@ class AuthController {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
         String email = authentication.getName();
-        UserResponse response = usersManagementService.getUserByEmail(email);
+        User user = usersManagementService.getUserByEmail(email);
 
-        return ResponseEntity.status(response.getCode()).body(response);
+        UserResponse response = new UserResponse();
+
+        modelMapper.map(user, response);
+
+        Image image = user.getImage();
+        if(image != null){
+            response.setProfileImagePath(image.getUripath());
+        }
+
+        response.setStatus(HttpStatus.OK);
+        return ResponseEntity.ok(response);
     }
 
     @GetMapping("/auth/user/{userId}")
     public ResponseEntity<UserResponse> getUserById(@PathVariable Long userId) {
-        return ResponseEntity.ok(usersManagementService.getUserById(userId));
+
+        User user = usersManagementService.getUserById(userId);
+        UserResponse response = new UserResponse();
+        modelMapper.map(user, response);
+
+        return ResponseEntity.ok(response);
     }
 
+//    @PostMapping("/auth/updateNew2")
+    @PutMapping("/auth/updateNew2")
+    public ResponseEntity<UserResponse> updateUserInfoNew2(
+//            @PathVariable Long workspaceId,
+//            @RequestPart("requestDTO") CreateChatRoomRequestDTO requestDTO,
+            @RequestPart("req") UserUpdateRequest req,
+            @RequestPart(value = "image", required = false) MultipartFile image,
+            @RequestHeader("Authorization") String token) {
 
-    @PutMapping("/auth/update")
-    public ResponseEntity<DefaultResponse> updateUser(
-            @RequestBody UserUpdateRequest req,
-            @RequestPart(value = "image", required = false) MultipartFile image) {
+        log.info("/auth/updateNew2 UserUpdateRequest req : {}", req);
+        log.info("/auth/updateNew2 image : {}", image);
+
+
+        User updateUser = new User();
+
+        modelMapper.map(req, updateUser);
 
         Image saveFile = null;
-        if(image != null){
-            try{
+        if (image == null) {
+            if(req.isDontUseProfileImage()){
+                updateUser.setImage(saveFile);
+            }
+        }else{
+            try {
                 saveFile = imageService.uploadImage(image);
-            }catch (RuntimeException | IOException e) {
-                log.error("Image upload failed: " + e.getMessage(), e);
-                throw new RuntimeException("이미지 업로드 실패 : ", e);
+                updateUser.setImage(saveFile);
+            } catch (RuntimeException | IOException e) {
+                throw new AuthException(HttpStatus.INTERNAL_SERVER_ERROR.value() , "이미지 업로드 실패");
             }
         }
 
-        User updateUser = new User();
+        UserResponse res = usersManagementService.updateUser(updateUser, saveFile);
 
-        modelMapper.map(req, updateUser);
-
-        updateUser.setImage(saveFile);
-
-        DefaultResponse res = usersManagementService.updateUser(updateUser);
+        if(saveFile != null){
+            res.setProfileImagePath(saveFile.getUripath());
+        }
 
         return ResponseEntity.ok(res);
     }
 
-    @PutMapping("/auth/update/{userId}")
-    public ResponseEntity<DefaultResponse> updateUserById(
-            @PathVariable Long userId,
-            @RequestBody UserUpdateRequest req,
-            @RequestPart("image")MultipartFile image) {
-
-        Image saveFile = null;
-//        try{
-//            saveFile = imageService.uploadImage(image);
-//        }catch (RuntimeException | IOException e) {
-//            log.error("Image upload failed: " + e.getMessage(), e);
-//            throw new RuntimeException("채팅방 이미지 업로드 실패 : ", e);  // 업로드 실패 시 처리
-//        }
 
 
-        User updateUser = new User();
-
-        modelMapper.map(req, updateUser);
-
-        updateUser.setImage(saveFile);
-
-        DefaultResponse res = usersManagementService.updateUser(userId, updateUser);
-
-        return ResponseEntity.ok(res);
-    }
+//    @PutMapping("/auth/update/{userId}")
+//    public ResponseEntity<DefaultResponse> updateUserById(
+//            @PathVariable Long userId,
+//            @RequestBody UserUpdateRequest req,
+//            @RequestPart("image")MultipartFile image) {
+//
+//
+//        User updateUser = new User();
+//
+//        modelMapper.map(req, updateUser);
+//
+//        updateUser.setImage(saveFile);
+//
+//        DefaultResponse res = usersManagementService.updateUser(userId, updateUser);
+//
+//        return ResponseEntity.ok(res);
+//    }
 
     @DeleteMapping("/auth/delete/{userId}")
     public ResponseEntity<DefaultResponse> deleteUSer(@PathVariable Long userId) {

@@ -3,9 +3,11 @@ import ProfileImage from "./ProfileImage";
 import Button from "./Button";
 
 const Userinfo = ({ name, role, email, src, title }) => {
+
+
   return (
     <div className="userInfo_box">
-      <ProfileImage src={src} />
+      <ProfileImage src={src} userName={name} />
       <div className="userInfo_context">
         <div>
           <h2>{name}</h2>
@@ -15,6 +17,9 @@ const Userinfo = ({ name, role, email, src, title }) => {
       </div>
     </div>
   );
+
+
+
 };
 
 export default Userinfo;

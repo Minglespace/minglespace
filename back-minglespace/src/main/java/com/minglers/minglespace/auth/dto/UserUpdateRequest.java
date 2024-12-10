@@ -17,7 +17,6 @@ public class UserUpdateRequest {
   private String phone;
   private String position;
   private String introduction;
-
-//  private MultipartFile image;
+  private boolean dontUseProfileImage;
 
 }
