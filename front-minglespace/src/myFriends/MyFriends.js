@@ -21,11 +21,13 @@ const MyFriends = () => {
   const [friendRequest, setFriendRequest] = useState([...friendInit]); // 친구 요청 상태 관리
   const [friendPending, setFriendPending] = useState([...friendInit]); // 친구 대기 상태 관리
   const [friends, setFriends] = useState([]);
+  const [loading, setLoading] = useState(true); //로딩 상태관리
 
   //친구리스트 조회용
   const getFriendList = (searchKeyword) => {
     MyFriendsApi.getList(searchKeyword).then((data) => {
       setFriends(data);
+      setLoading(false);
     });
   };
   //친구 요청 조회용
@@ -46,6 +48,7 @@ const MyFriends = () => {
   };
 
   useEffect(() => {
+    getFriendList();
     getFriendRequestList();
     getFriendPendingList();
   }, []);
@@ -65,20 +68,26 @@ const MyFriends = () => {
 
   return (
     <div className="myFriends_container">
-      <MyFriendsList
-        friends={friends}
-        getFriendList={getFriendList}
-        handelSetFriends={handelSetFriends}
-      />
-      <MyFriendsSearch addFriendRequest={addFriendRequest} />
-      <div className="myFriends_container_item myFriends_friendStatus_container">
-        <MyFriendsRequest friendRequest={friendRequest} />
-        <MyFriendsPending
-          friendPending={friendPending}
-          refuseFriend={refuseFriend}
-          acceptFriend={acceptFriend}
-        />
-      </div>
+      {loading ? (
+        <p>로딩 중입니다....</p>
+      ) : (
+        <>
+          <MyFriendsList
+            friends={friends}
+            getFriendList={getFriendList}
+            handelSetFriends={handelSetFriends}
+          />
+          <MyFriendsSearch addFriendRequest={addFriendRequest} />
+          <div className="myFriends_container_item myFriends_friendStatus_container">
+            <MyFriendsRequest friendRequest={friendRequest} />
+            <MyFriendsPending
+              friendPending={friendPending}
+              refuseFriend={refuseFriend}
+              acceptFriend={acceptFriend}
+            />
+          </div>
+        </>
+      )}
     </div>
   );
 };

@@ -9,6 +9,8 @@ import com.minglers.minglespace.auth.repository.UserRepository;
 import com.minglers.minglespace.auth.type.FriendshipStatus;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -69,13 +71,10 @@ public class UserFriendService {
     }
     //친구 제외한 유저목록 조회
     @Transactional(readOnly = true)
-    public List<UserResponse> getNonFriendList(Long userId, String searchKeyword){
-        List<User> userList = userRepository.findNonFriends(userId, searchKeyword);
+    public Slice<UserResponse> getNonFriendList(Long userId, String searchKeyword, Pageable pageable){
+        Slice<User> userList = userRepository.findNonFriends(userId, searchKeyword, pageable);
 
-        return userList.stream()
-                .map(user-> {
-                    return modelMapper.map(user, UserResponse.class);
-                }).toList();
+        return userList.map(user->modelMapper.map(user, UserResponse.class));
     }
 
     //친구 추가

@@ -1,6 +1,8 @@
 package com.minglers.minglespace.auth.repository;
 
 import com.minglers.minglespace.auth.entity.User;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -18,6 +20,7 @@ public interface UserRepository extends JpaRepository<User, Long> {
     @Query("SELECT u FROM User u " +
             "WHERE u.id <> :userId " +
             "AND u.id NOT IN (SELECT f.friend.id FROM UserFriend f WHERE f.user.id = :userId) " +
-            "AND (:searchKeyword IS NULL OR u.email LIKE %:searchKeyword%)")
-    List<User> findNonFriends(@Param("userId") Long userId, @Param("searchKeyword") String searchKeyword);
+            "AND (:searchKeyword IS NULL OR u.email LIKE %:searchKeyword%) " +
+            "ORDER BY u.name ASC")
+    Slice<User> findNonFriends(@Param("userId") Long userId, @Param("searchKeyword") String searchKeyword, Pageable pageable);
 }

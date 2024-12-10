@@ -5,6 +5,9 @@ import com.minglers.minglespace.auth.entity.UserFriend;
 import com.minglers.minglespace.auth.security.JWTUtils;
 import com.minglers.minglespace.auth.service.UserFriendService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.function.EntityResponse;
@@ -37,10 +40,13 @@ public class MyFriendsController {
 
     //친추를 위한 유저 검색
     @GetMapping({"/userSearch", "/userSearch/{searchKeyword}"})
-    public ResponseEntity<List<UserResponse>> getNonFriendList(@RequestHeader("Authorization") String token,
-                                                               @PathVariable(value = "searchKeyword", required = false) String searchKeyword) {
+    public ResponseEntity<Slice<UserResponse>> getNonFriendList(@RequestHeader("Authorization") String token,
+                                                                @PathVariable(value = "searchKeyword", required = false) String searchKeyword,
+                                                                @RequestParam(defaultValue = "0") int page,
+                                                                @RequestParam(defaultValue = "10") int size) {
         Long userId = jwtUtils.extractUserId(token.substring(7));
-        return ResponseEntity.ok(userFriendService.getNonFriendList(userId, searchKeyword));
+        Pageable pageable = PageRequest.of(page, size);
+        return ResponseEntity.ok(userFriendService.getNonFriendList(userId, searchKeyword,pageable));
     }
 
     //친구 신청

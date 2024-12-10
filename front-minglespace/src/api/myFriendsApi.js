@@ -27,12 +27,17 @@ class MyFriendsApi {
   };
 
   //친추를 위한 유저 조회
-  static getUserList = async (searchKeyword) => {
+  static getUserList = async (searchKeyword, page, size) => {
     try {
       const url = searchKeyword
         ? `${prefix}/userSearch/${searchKeyword}`
         : `${prefix}/userSearch`;
-      const res = await api.axiosIns.get(url);
+      const res = await api.axiosIns.get(url, {
+        params: {
+          page: page,
+          size: size,
+        },
+      });
       return res.data;
     } catch (error) {
       console.error("유저 조회 실패", error);
@@ -90,7 +95,6 @@ class MyFriendsApi {
       throw error;
     }
   };
-
 }
 
 export default MyFriendsApi;

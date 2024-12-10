@@ -64,7 +64,6 @@ const MyFriendsList = ({ friends, getFriendList, handelSetFriends }) => {
         {friends.map((userInfo) => (
           <div className="myFriends_userInfo_deleteButton" key={userInfo.id}>
             <Userinfo
-              key={userInfo.id}
               name={userInfo.name}
               role={userInfo.position}
               email={userInfo.email}
