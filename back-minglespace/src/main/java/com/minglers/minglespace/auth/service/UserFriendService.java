@@ -103,6 +103,7 @@ public class UserFriendService {
     }
 
     //친구 수락
+    @Transactional
     public List<UserResponse> acceptFriend(Long userId, Long friendId){
         //요청받은 사람이 수락하면 요청한 사람도 상태를 accepted로 바꿔줌
         UserFriend userFriend = findByUserIdAndFriendId(userId, friendId);
@@ -115,8 +116,8 @@ public class UserFriendService {
         return friendPendingList(userId);
     }
     //친구 거절
+    @Transactional
     public List<UserResponse> refuseFriend(Long userId, Long friendId){
-
         User validUser = findUserById(userId);
         User validFriend = findFriendById(friendId);
 
@@ -125,6 +126,7 @@ public class UserFriendService {
         return friendPendingList(userId);
     }
     //친구 신청목록
+    @Transactional(readOnly = true)
     public List<UserResponse> friendRequestList(Long userId){
         User validUser = findUserById(userId);
 
@@ -135,6 +137,7 @@ public class UserFriendService {
     }
 
     //친구 요청온 목록
+    @Transactional(readOnly = true)
     public List<UserResponse> friendPendingList(Long userId){
         User validUser = findUserById(userId);
 

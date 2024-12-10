@@ -14,7 +14,7 @@ const userInitData = [
     img: "",
   },
 ];
-const MyFriendsSearch = () => {
+const MyFriendsSearch = ({ addFriendRequest }) => {
   const [user, setUser] = useState(...[userInitData]);
   const [searchKeyword, setSearchKeyword] = useState("");
 
@@ -46,7 +46,7 @@ const MyFriendsSearch = () => {
 
   //단어체크 유효성검사
   const isValidCharacter = (char) => {
-    const validCharRegex = /^[a-zA-Z0-9]*$/;
+    const validCharRegex = /^[a-zA-Z0-9@.]*$/;
     return validCharRegex.test(char);
   };
 
@@ -63,7 +63,8 @@ const MyFriendsSearch = () => {
 
   const handleFriendRequest = (friendId) => {
     MyFriendsApi.friendRequest(friendId).then((data) => {
-      setUser((prevUsers) => prevUsers.filter((user) => user.id !== friendId));
+      setUser((prevUsers) => prevUsers.filter((user) => user.id !== data.id));
+      addFriendRequest();
     });
   };
 

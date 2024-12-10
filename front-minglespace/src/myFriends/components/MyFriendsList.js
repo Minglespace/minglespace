@@ -14,24 +14,13 @@ const userInitData = [
     img: "",
   },
 ];
-const MyFriendsList = () => {
-  const [user, setUser] = useState([...userInitData]);
+const MyFriendsList = ({ friends, getFriendList, handelSetFriends }) => {
   const [searchKeyword, setSearchKeyword] = useState("");
-
-  //친구리스트 조회용
-  const getList = () => {
-    myFriendsApi.getList(searchKeyword).then((data) => {
-      setUser(data);
-    });
-  };
-  useEffect(() => {
-    getList();
-  }, []);
 
   useEffect(() => {
     if (isValidKoreanCharacter(searchKeyword) || searchKeyword === "") {
       const timer = setTimeout(() => {
-        getList(searchKeyword);
+        getFriendList(searchKeyword);
       }, 1000);
       return () => clearTimeout(timer);
     }
@@ -46,7 +35,7 @@ const MyFriendsList = () => {
   const handleKeyDown = (event) => {
     if (event.key === "Enter") {
       event.preventDefault();
-      getList(searchKeyword);
+      getFriendList(searchKeyword);
     }
   };
 
@@ -59,7 +48,7 @@ const MyFriendsList = () => {
   //친구삭제 핸들러
   const handleDeleteFriend = (friendId) => {
     myFriendsApi.remove(friendId).then((data) => {
-      setUser(data);
+      handelSetFriends(data);
     });
   };
 
@@ -72,7 +61,7 @@ const MyFriendsList = () => {
         onKeyDown={handleKeyDown}
       />
       <div className="myFriends_userInfo_container">
-        {user.map((userInfo) => (
+        {friends.map((userInfo) => (
           <div className="myFriends_userInfo_deleteButton" key={userInfo.id}>
             <Userinfo
               key={userInfo.id}
