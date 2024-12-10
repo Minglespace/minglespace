@@ -2,7 +2,6 @@ import React, { useEffect, useState } from "react";
 import Userinfo from "../../common/Layouts/components/Userinfo";
 import Search from "../../common/Layouts/components/Search";
 import myFriendsApi from "../../api/myFriendsApi";
-import Button from "../../common/Layouts/components/Button";
 
 const userInitData = [
   {
@@ -15,24 +14,13 @@ const userInitData = [
     img: "",
   },
 ];
-const MyFriendsList = () => {
-  const [user, setUser] = useState([...userInitData]);
+const MyFriendsList = ({ friends, getFriendList, handelSetFriends }) => {
   const [searchKeyword, setSearchKeyword] = useState("");
-
-  const getList = () => {
-    myFriendsApi.getList(searchKeyword).then((data) => {
-      setUser(data);
-    });
-  };
-
-  useEffect(() => {
-    getList();
-  }, []);
 
   useEffect(() => {
     if (isValidKoreanCharacter(searchKeyword) || searchKeyword === "") {
       const timer = setTimeout(() => {
-        getList(searchKeyword);
+        getFriendList(searchKeyword);
       }, 1000);
       return () => clearTimeout(timer);
     }
@@ -47,7 +35,7 @@ const MyFriendsList = () => {
   const handleKeyDown = (event) => {
     if (event.key === "Enter") {
       event.preventDefault();
-      getList(searchKeyword);
+      getFriendList(searchKeyword);
     }
   };
 
@@ -56,11 +44,12 @@ const MyFriendsList = () => {
     const validCharRegex = /^[가-힣a-zA-Z]+$/;
     return validCharRegex.test(char);
   };
-  const isCompleteKoreanString = (str) => {
-    for (let char of str) {
-      if (!isValidKoreanCharacter(char)) return false;
-    }
-    return true;
+
+  //친구삭제 핸들러
+  const handleDeleteFriend = (friendId) => {
+    myFriendsApi.remove(friendId).then((data) => {
+      handelSetFriends(data);
+    });
   };
 
   return (
@@ -72,16 +61,22 @@ const MyFriendsList = () => {
         onKeyDown={handleKeyDown}
       />
       <div className="myFriends_userInfo_container">
-        {user.map((userInfo) => (
-          <div className="myFriends_userInfo_deleteButton">
+        {friends.map((userInfo) => (
+          <div className="myFriends_userInfo_deleteButton" key={userInfo.id}>
             <Userinfo
-              key={userInfo.id}
               name={userInfo.name}
               role={userInfo.position}
               email={userInfo.email}
               src={userInfo.img}
             />
-            <Button btnStyle="exit_button" title="친구삭제" />
+            <button
+              className="add_button_2"
+              onClick={() => {
+                handleDeleteFriend(userInfo.id);
+              }}
+            >
+              친구 삭제
+            </button>
           </div>
         ))}
       </div>

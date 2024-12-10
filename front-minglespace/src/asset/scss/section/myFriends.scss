@@ -7,6 +7,8 @@
 }
 
 .myFriends_container_item {
+  margin: 0 auto;
+  padding: 0;
   flex: 1;
   display: flex;
   flex-direction: column;
@@ -14,8 +16,47 @@
 
 .myFriends_userInfo_container {
   flex: 1;
+  width: 100%;
   overflow-y: auto;
 }
+
+.myFriends_friendStatus_container {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.myFriends_friendStatus_item{
+  flex: 1;
+  width: 100%;
+}
+
+.myFriend_request_info{
+  margin: 5px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border: 1px solid darkgray;
+  border-radius: 5px;
+  padding: 3px 10px;
+  >div{
+    >p:nth-child(2){
+      font-size: 15px;
+      color: #6b7280;
+    }
+  }
+  >p{
+    font-size: 13px;
+    color: #6b7280;
+  }
+}
+
+.myFriends_request_userInfo{
+  height: 280px;
+  overflow-y: auto;
+}
+
+///////////컴포넌트들
 .myFriends_userInfo_deleteButton {
   height: 90px;
   display: flex;
