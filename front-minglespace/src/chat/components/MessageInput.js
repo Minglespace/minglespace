@@ -1,7 +1,8 @@
 import React, { useState } from "react";
 import { FaLock, FaLockOpen } from "react-icons/fa";
+import Mentions from "./Mentions";
 
-const MessageInput = ({ onSendMessage }) => {
+const MessageInput = ({ wsMembers, tags, onSendMessage }) => {
   // 메시지 입력을 잠그는 상태 변수
   const [isLocked, setIsLocked] = useState(false);
   const [messages, setMessages] = useState("");
@@ -20,6 +21,7 @@ const MessageInput = ({ onSendMessage }) => {
 
   // 메시지 전송 처리 함수
   const handleSendMessage = () => {
+    const mentionsData = messages.match(/@\w+|#\w+/g) || [];
     if (messages.trim() !== "") {
       onSendMessage(messages);
       setMessages("");
@@ -48,7 +50,12 @@ const MessageInput = ({ onSendMessage }) => {
           }
           className="message-input"
         />
-
+        <Mentions
+          value={messages}
+          onChange={handleMessageChange}
+          wsMembers={wsMembers}
+          tags={tags}
+        ></Mentions>
         <button
           className="send-btn"
           onClick={handleSendMessage}

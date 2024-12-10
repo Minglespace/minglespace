@@ -133,8 +133,10 @@ const CreateChatRoomModal = ({ isOpen, onClose, onCreate, wsMembers }) => {
           />
 
           {/* 친구 추가 목록 */}
+
+          <h1>친구 추가</h1>
           <div className="friends-list">
-            <h1>친구 추가</h1>
+            <p>초대할 멤버를 선택하세요:</p>
             <ul>
               {wsMembers.map((member) => (
                 <li key={member.wsMemberId}>

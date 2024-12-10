@@ -103,10 +103,6 @@ const InviteFriendModal = ({
         </ul>
       </div>
 
-      {/* <button className="create_btn" onClick={handleInvite}>
-        확인
-      </button> */}
-
       <button className="close_btn" onClick={onClose}>
         닫기
       </button>

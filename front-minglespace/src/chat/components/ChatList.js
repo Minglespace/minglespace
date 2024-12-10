@@ -1,6 +1,7 @@
 ﻿import React, { useState } from "react";
 import ChatListItem from "./ChatListItem";
 import CreateChatRoomModal from "./CreateChatRoomModal";
+import { IoLogoWechat } from "react-icons/io5";
 
 const ChatList = ({
   isFold,
@@ -35,7 +36,11 @@ const ChatList = ({
         {!isFold && <h1>채팅방 목록</h1>}
         {/* isFold 상태가 false일 때만 '채팅방 목록'을 보여줌 */}
         {rooms && rooms.length === 0 ? (
-          <p>채팅방이 없습니다. </p>
+          <div className="no-chatroom-selected">
+            <IoLogoWechat />
+            <p>채팅방이 없습니다. </p>
+            <p>채팅방을 생성해주세요.</p>
+          </div>
         ) : (
           rooms.map((room) => (
             <ChatListItem
