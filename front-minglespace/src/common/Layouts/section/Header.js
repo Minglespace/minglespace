@@ -1,36 +1,10 @@
 ﻿import React, { useContext, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { WSMemberRoleContext } from "../../../workspace/context/WSMemberRoleContext";
-// import Repo from "../../../auth/Repo";
-// import AuthApi from "../../../api/AuthApi";
 import UserInfoPopup from "../../../auth/UserInfoPopup";
-
-// scss로 변경후 제거해야함
-import "./Header.css"
-
 
 const Header = ({ workspaceData }) => {
   const wsMember = useContext(WSMemberRoleContext);
-
-  const navigate = useNavigate();
-
-
-//   // 이게 필요한겨?
-//   const isAuthenticated = Repo.isAuthenticated();
-//   useEffect(() => {
-//     if (!isAuthenticated) {
-//       navigate("/");
-//     }
-//   }, []);
-// const handleClickLogout = () => {
-//     AuthApi.logout().then((data) => {
-//       if (data.code === 200) {
-//         navigate("/auth/login");
-//       } else {
-//         // 뭘할까?
-//       }
-//     });
-//   };
 
   return (
     <header>

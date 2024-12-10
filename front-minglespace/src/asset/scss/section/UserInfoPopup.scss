@@ -1,22 +1,23 @@
 /* user-info-button */
 .user-info-button {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 8px 16px;
-  font-size: 14px;
-  font-weight: 500;
-  color: #4b5563; /* text-gray-700 */
+  /* display: flex; */
+  /* align-items: center; */
+  /* gap: 8px; */
+  /* padding: 8px 16px; */
+  /* font-size: 14px; */
+  /* font-weight: 500; */
+  /* color: #4b5563;  */
   background-color: white;
-  border: 1px solid #e5e7eb; /* border-gray-200 */
-  border-radius: 8px;
-  transition: background-color 0.2s, border-color 0.2s;
+  cursor: pointer;
+  /* border: 1px solid #e5e7eb; */
+  /* border-radius: 8px; */
+  /* transition: background-color 0.2s, border-color 0.2s; */
 }
 
-.user-info-button:hover {
-  background-color: #f9fafb; /* hover:bg-gray-50 */
-  border-color: #d1d5db; /* hover:border-gray-300 */
-}
+/* .user-info-button:hover {
+  background-color: #f9fafb;
+  border-color: #d1d5db;
+} */
 
 /* popup-content */
 .popup-content {
@@ -57,6 +58,22 @@
   border: 2px solid #f3f4f6; /* border-gray-100 */
 }
 
+.profile-container {
+  display: flex; /* flexbox 사용 */
+  align-items: center; /* 아이템을 수직으로 가운데 정렬 */
+  gap: 16px;
+  /* 아이템 간의 간격 */
+}
+
+.userInfo-button {
+  padding: 8px 16px;
+  font-size: 14px;
+  color: #4b5563; /* text-gray-700 */
+  background-color: #f9fafb; /* bg-gray-50 */
+  border-radius: 8px;
+  cursor: pointer;
+}
+
 .user-info {
   flex: 1;
   min-width: 0;
@@ -79,6 +96,7 @@
 /* user-details */
 .user-details {
   padding: 0 24px 24px;
+  margin-left: 20px;
 }
 
 .detail-label {
@@ -115,6 +133,7 @@
   background-color: #f9fafb; /* bg-gray-50 */
   border-radius: 8px;
   transition: background-color 0.2s;
+  cursor: pointer;
 }
 
 .logout-button:hover {

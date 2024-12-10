@@ -1,12 +1,13 @@
-import React, { useRef, useState } from "react";
-import { LogOut, Settings, User } from "lucide-react";
-import AuthApi from "../api/AuthApi";
-import './UserInfoPopup.css'; // CSS 파일을 import합니다.
+import React, { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { LogOut, Settings } from "lucide-react";
+
 import Userinfo from "../common/Layouts/components/Userinfo";
-import { HOST_URL } from "../api/Api";
 import ProfileImage from "../common/Layouts/components/ProfileImage";
 
+import Repo from "./Repo";
+import AuthApi from "../api/AuthApi";
+import { HOST_URL } from "../api/Api";
 
 //============================================================================================
 //============================================================================================
@@ -32,32 +33,26 @@ export default function UserInfoPopup() {
   const [selectedImage, setSelectedImage] = useState(null); // 선택된 이미지 파일 선택
   const fileInputRef = useRef(null);
 
+  useEffect(()=>{
+    getUserInfo();
+  },[]);
+
   //============================================================================================
   //============================================================================================
   //============================================================================================
   //============================================================================================
   //============================================================================================
   
+  const getUserInfo = async () => {
+    const res = await AuthApi.userInfo();
+    setUserInfo(res);
+  }
 
   const handleClickOpen = async () => {
     const nowIsOpen = !isOpen;
-
-    console.log("handleClickOpen profileImagePath : ", `${HOST_URL}`+ userInfo.profileImagePath);
-
     if (nowIsOpen) {
-      
-      console.log("handleClickOpen userInfo before : ", userInfo);
-
-      const res = await AuthApi.userInfo();
-
-      console.log("handleClickOpen userInfo res : ", res);
-
-      setUserInfo(res);
-
-      console.log("handleClickOpen userInfo after : ", userInfo);
-
+      getUserInfo();
     }
-
     setIsOpen(nowIsOpen);
   };
 
@@ -87,14 +82,10 @@ export default function UserInfoPopup() {
     
     userInfo.dontUseProfileImage = dontUseProfileImage;
 
-    console.log("handleSaveChanges before : ", userInfo);
-
     const res = await AuthApi.updateUserInfoNew2(userInfo, userInfo.localImage);
-
-    console.log("handleSaveChanges res : ", res);
-
     if (res.code === 200) {
 
+      // 개선 필요
       userInfo.profileImagePath = res.profileImagePath;
       userInfo.name = res.name;
       userInfo.position = res.position;
@@ -102,35 +93,26 @@ export default function UserInfoPopup() {
       userInfo.phone = res.phone;
       userInfo.introduction = res.introduction;
 
-      console.log("handleSaveChanges after : ", userInfo);
-
-      setIsEditing(false); 
-      
+      setIsEditing(false);      
     }
   };
 
   const handleImageChange = (e) => {
-    const file = e.target.files ? e.target.files[0] : null; // 파일이 있는지 확인
+    const file = e.target.files ? e.target.files[0] : null; 
     if (file) {
-
       setDontUseProfileImage(false);
-
-      setSelectedImage(URL.createObjectURL(file)); // 선택된 파일을 미리보기로 사용
-
+      setSelectedImage(URL.createObjectURL(file)); 
       userInfo.localImage = file;
     }
   };
 
   const handleClickDontUseImage = () =>{
-    
+    Repo.clearProfileColor();
     setSelectedImage(null);
-
     setDontUseProfileImage(true);
-
   }
 
   const getHostImagePath = () => {
-
     if(dontUseProfileImage)
       return null;
 
@@ -154,7 +136,7 @@ export default function UserInfoPopup() {
         aria-expanded={isOpen}
         aria-haspopup="true"
       >
-        <User size={24} />
+        <ProfileImage src={selectedImage || getHostImagePath()} userName={userInfo.name} size={50} />
       </button>
 
       {isOpen && (
@@ -162,37 +144,28 @@ export default function UserInfoPopup() {
           <div className="popup-header">
             {isEditing ? (
               <div className="user-info">
-
-                <ProfileImage src={selectedImage || getHostImagePath()} userName={userInfo.name} />
-
-                {/* 이미지 선택 (기본 동그라미 이미지와 선택된 이미지 변경) */}
-                {/* <div className="modal_img">
-                  <img
-                    className="chat_create_Img"
-                    src={selectedImage || getHostImagePath()}
-                    alt="이미지"
-                  />
-                </div> */}
-
-                <button
-                  className="select_img_btn"
-                  onClick={() => fileInputRef.current.click()} // 버튼 클릭 시 파일 선택창 열기
-                >
-                  변경
-                </button>
-                <button
-                  className="select_img_btn"
-                  onClick={handleClickDontUseImage} 
-                >
-                  제거
-                </button>
-                <input
-                  className="hidden-file-input"
-                  ref={fileInputRef}
-                  type="file"
-                  accept="image/*"
-                  onChange={handleImageChange}
-                ></input>
+                <div className="profile-container">
+                  <ProfileImage src={selectedImage || getHostImagePath()} userName={userInfo.name} />
+                  <button
+                    className="userInfo-button"
+                    onClick={() => fileInputRef.current.click()} // 버튼 클릭 시 파일 선택창 열기
+                  >
+                    변경
+                  </button>
+                  <button
+                    className="userInfo-button"
+                    onClick={handleClickDontUseImage} 
+                  >
+                    제거
+                  </button>
+                  <input
+                    className="hidden-file-input"
+                    ref={fileInputRef}
+                    type="file"
+                    accept="image/*"
+                    onChange={handleImageChange}
+                  ></input>
+                </div>
                 
                 <label className="input-label" htmlFor="name">이름</label>
                 <input
@@ -220,6 +193,7 @@ export default function UserInfoPopup() {
                   value={userInfo.email}
                   onChange={handleInputChange}
                   className="input-field"
+                  disabled
                 />
                 <label className="input-label" htmlFor="phone">전화번호</label>
                 <input
