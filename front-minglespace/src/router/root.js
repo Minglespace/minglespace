@@ -49,6 +49,10 @@ const root = createBrowserRouter([
     element: (<Suspense fallback={Loading}><Login /></Suspense>)
   },
   {
+    path: "/auth/login/:code/:encodedEmail",
+    element: (<Suspense fallback={Loading}><Login /></Suspense>)
+  },
+  {
     path: "/auth/signup",
     element: (<Suspense fallback={Loading}><Signup /></Suspense>)
   },

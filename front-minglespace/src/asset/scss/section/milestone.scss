@@ -3,18 +3,32 @@
   display: flex;
   justify-content: center;
   padding-top: 70px;
+  .milestone_borderbox {
+    height: 600px;
+    border: 1px solid #ccc;
+    background-color: #eee7ea;
+    border-radius: 10px;
+    overflow-y: scroll;
+  }
   .milestone_group_add_button {
     display: flex;
     position: absolute;
-    left: 43px;
-    top: 5px;
+    right: 65px;
+    bottom: -50px;
     justify-content: end;
     margin-bottom: 10px;
+    button {
+      width: 120px;
+      height: 30px;
+      border-radius: 5px;
+      cursor: pointer;
+      background-color: rgba($color: #ff0000, $alpha: 0.5);
+    }
   }
   .milestone_category {
     display: flex;
     position: absolute;
-    bottom: -30px;
+    top: 40px;
     right: 50px;
     width: auto;
     justify-content: end;
@@ -43,6 +57,7 @@
   }
   .milestone_help_button {
     position: absolute;
+    cursor: pointer;
     bottom: -30px;
     left: 50px;
   }
@@ -125,6 +140,51 @@
   }
 }
 
+.milestone_help {
+  p {
+    margin-bottom: 5px;
+  }
+  .title {
+    font-size: 30px;
+    text-align: center;
+  }
+  .create_group {
+    margin-bottom: 10px;
+    :first-child {
+      font-size: 20px;
+      font-weight: bold;
+    }
+  }
+  .create_item {
+    margin-bottom: 10px;
+    :first-child {
+      font-size: 20px;
+      font-weight: bold;
+    }
+  }
+  .modify_group {
+    margin-bottom: 10px;
+    :first-child {
+      font-size: 20px;
+      font-weight: bold;
+    }
+  }
+  .modify_item {
+    margin-bottom: 10px;
+    :first-child {
+      font-size: 20px;
+      font-weight: bold;
+    }
+  }
+  .modify_controll {
+    margin-bottom: 10px;
+    :first-child {
+      font-size: 20px;
+      font-weight: bold;
+    }
+  }
+}
+
 .react-calendar-timeline * {
   box-sizing: border-box;
 }
@@ -196,6 +256,7 @@
   box-sizing: border-box;
   margin: 0;
   border-bottom: 1px solid #bbb;
+  border-top: 1px solid #bbb;
 }
 .react-calendar-timeline .rct-sidebar .rct-sidebar-row.rct-sidebar-row-odd {
   //짝수줄 그룹 배경 색상
@@ -251,6 +312,7 @@
   justify-content: center;
   height: 100%;
   border-bottom: none !important;
+
   cursor: pointer;
   font-size: 12px !important;
   background-color: white !important;
@@ -261,14 +323,16 @@
   border-left: 1px solid #bbb;
   border-right: 1px solid #bbbbbb;
   color: #000 !important;
+  background-color: #f6ecfa !important;
   font-weight: bold !important;
   font-size: 16px !important;
 }
 .react-calendar-timeline .rct-header-root {
-  background: white !important;
-  border-bottom: 1px solid #bbb;
-  border-left: 1px solid #bbb !important;
+  background: rgba($color: #000000, $alpha: 0) !important;
+  border-bottom: none !important;
+  border-left: none !important;
 }
 .react-calendar-timeline .rct-calendar-header {
   border: 1px solid #bbb;
+  border-right: none !important;
 }

@@ -13,7 +13,7 @@ const MessageList = ({ messages }) => {
           {console.log(
             `Message ${index}:`,
             message,
-            message.isCurrentUser ? "sent" : "received"
+            message.isCurrentUser ? "sender" : "received"
           )}
           <span className="message-sender">{message.sender}: </span>
           <span className="message-text">{message.text}</span>
