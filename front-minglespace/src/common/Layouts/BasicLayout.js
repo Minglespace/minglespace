@@ -33,7 +33,7 @@ const BasicLayout = ({ children }) => {
       <WSMemberRoleContext.Provider value={wsMemberData}>
         <Header workspaceData={workspaceData} />
         <div className="midcontainer">
-          <Sidebar addmenu={workspaceId} />
+          <Sidebar />
           <div className="main_container">{children}</div>
         </div>
       </WSMemberRoleContext.Provider>
