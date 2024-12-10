@@ -8,6 +8,8 @@ import Repo from "../../auth/Repo";
 import SockJS from "sockjs-client";
 import { HOST_URL } from "../../api/Api";
 import { Client, Stomp } from "@stomp/stompjs";
+import { createWebSocketClient, disconnectWebsocket, getStompClient, subToMsgByChatRoom, unsubFromMsgByChatRoom } from "../../api/websocket";
+import { useWebSocket } from "../context/WebSocketContext";
 
 const initChatRoomInfo = {
   chatRoomId: 0,
@@ -34,7 +36,7 @@ const ChatRoom = ({
   const chatRoomId = new URLSearchParams(useLocation().search).get("chatRoomId");
 
   const navigate = useNavigate();
-  const websocketRef = useRef(null); ///websocket 연결 클라이언트 저장
+  const socketRef = useRef(null); ///websocket 연결 클라이언트 저장
 
   useEffect(() => {
     if (!chatRoomId) {
@@ -213,65 +215,98 @@ const ChatRoom = ({
 
   // const [newMessage, setNewMessage] = useState("");
 
+  const handleNewMessage = (newMsg) => {
+    setChatRoomInfo(prev => ({
+      ...prev,
+      messages: [...prev.messages, newMsg]
+    }));
+  };
+
+  const { isConnected, stompClientRef } = useWebSocket([
+    { path: `/topic/chatRooms/${chatRoomId}/msg`, messageHandler: handleNewMessage }
+  ]);
+
+
+
   /////////////////////websocket 연결///////////////////
-  useEffect(() => {
-    if (!chatRoomId) {
-      console.log("No chatRoomId provided, skipping server request.");
-      return;
-    }
+  // useEffect(() => {
+  //   if (!chatRoomId) {
+  //     console.log("No chatRoomId provided, skipping server request.");
+  //     return;
+  //   }
 
-    //이전 연결 있으면 제거
-    if (websocketRef.current && websocketRef.current.active) {
-      websocketRef.current.deactivate();
-      websocketRef.current = null;
-    }
+  //   // 이전 연결 있으면 제거
+  //   if (socketRef.current) { //&& socketRef.current.active
+  //     socketRef.current.deactivate();
+  //     socketRef.current = null;
+  //   }
 
-    const socket = new SockJS(`${HOST_URL}/ws`);
+  //   const socket = new SockJS(`${HOST_URL}/ws`);
 
-    const stompClient = new Client({
-      webSocketFactory: () => socket,
-      connectHeaders: {
-        Authorization: `Bearer ${Repo.getAccessToken()}`,
-      },
-      onConnect: () => {
-        console.log(`채팅방 ${chatRoomId}번 websocket 연결 완료`);
+  //   const stompClient = new Client({
+  //     webSocketFactory: () => socket,
+  //     connectHeaders: {
+  //       Authorization: `Bearer ${Repo.getAccessToken()}`,
+  //     },
+  //     onConnect: () => {
+  //       console.log(`채팅방 ${chatRoomId}번 websocket 연결 완료`);
 
-        ///구독 연결 
-        stompClient.subscribe(`/topic/chat/${chatRoomId}`, (msg) => {
-          const newMsg = JSON.parse(msg.body);
+  //       ///구독 연결 
+  //       stompClient.subscribe(`/topic/chatRooms/${chatRoomId}/msg`, (msg) => {
+  //         const newMsg = JSON.parse(msg.body);
+  //         console.log("chatRoom_ new msg: ", newMsg);
 
-          setChatRoomInfo(prev => ({
-            ...prev,
-            messages: [...prev.messages, newMsg]
-          }));
+  //         setChatRoomInfo(prev => ({
+  //           ...prev,
+  //           messages: [...prev.messages, newMsg]
+  //         }));
 
-        });
+  //       });
 
-      },
-      onWebSocketError: (error) => {
-        console.log(`채팅방 ${chatRoomId}번 websocket 연결 오류:`, error);
-      },
-      withCredentials: true, //쿠키, 인증정보 포함
-    });
+  //     },
+  //     onWebSocketError: (error) => {
+  //       console.log(`채팅방 ${chatRoomId}번 websocket 연결 오류:`, error);
+  //     },
+  //     reconnectDelay: 5000,  // 5초마다 자동 재연결 시도
+  //     heartbeatIncoming: 4000,  // 서버에서 4초마다 ping
+  //     heartbeatOutgoing: 4000,  // 클라이언트에서 4초마다 pong
+  //     withCredentials: true, //쿠키, 인증정보 포함
+  //   });
 
-    stompClient.activate();
-    websocketRef.current = stompClient;
+  //   stompClient.activate();
+  //   socketRef.current = stompClient;
 
-    //언마운트시 연결 종료
-    return () => {
-      if (websocketRef.current) {
-        websocketRef.current.deactivate();
-        websocketRef.current = null;
-      }
-    };
+  //   //언마운트시 연결 종료
+  //   return () => {
+  //     if (socketRef.current) {
+  //       socketRef.current.deactivate();
+  //       socketRef.current = null;
+  //     }
+  //   };
 
-  }, [chatRoomId]);
+  // socketRef.current = createWebSocketClient((stompClient) => {
+  //   // WebSocket 연결 후 chatRoomId에 대한 메시지 구독 시작
+  //   subToMsgByChatRoom(stompClient, chatRoomId, (newMsg) => {
+  //     setChatRoomInfo(prev => ({
+  //       ...prev,
+  //       messages: [...prev.messages, newMsg]
+  //     }));
+  //   });
+  // });
+
+  // return () => {
+  //   // unsubFromMsgByChatRoom(chatRoomId, socketRef.current);
+  //   disconnectWebsocket(socketRef.current);
+  // }
+
+  // }, [chatRoomId]);
 
   // 메시지 전송 처리 함수
   const handleSendMessage = (msg) => {
     // console.log("name type: ", msg);
     // console.log("wsMemberId type: ", currentMemberInfo.wsMemberId);
-    if (websocketRef.current) {
+    // if (socketRef.current) {
+    if (isConnected && stompClientRef.current) {
       const newMessage = {
         content: msg,
         isAnnouncement: false,  ////수정 필요
@@ -285,9 +320,8 @@ const ChatRoom = ({
       console.log("Sending message:", JSON.stringify(newMessage));
 
 
-      websocketRef.current.publish({
-        // destination: `/app/chat`,
-        destination: `/app/chat/${chatRoomId}`,
+      stompClientRef.current.publish({
+        destination: `/app/messages/${chatRoomId}`,
         body: JSON.stringify(newMessage),
       });
     } else {

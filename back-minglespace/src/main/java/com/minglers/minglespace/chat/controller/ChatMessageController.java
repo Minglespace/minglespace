@@ -14,6 +14,8 @@ import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.messaging.simp.stomp.StompHeaderAccessor;
 import org.springframework.stereotype.Controller;
 
+import java.util.Set;
+
 
 @Controller
 @Log4j2
@@ -24,13 +26,13 @@ public class ChatMessageController {
     private final SimpMessagingTemplate simpMessagingTemplate;
     private final StompInterceptor stompInterceptor;
 
-    @MessageMapping("/chat/{chatRoomId}")
-    @SendTo("/topic/chat/{chatRoomId}")
+    @MessageMapping("/messages/{chatRoomId}")
+    @SendTo("/topic/chatRooms/{chatRoomId}/msg")
     public ChatMessageDTO saveAndSendChatMessage(@DestinationVariable Long chatRoomId,
                                                  ChatMessageDTO messageDTO,
                                                  StompHeaderAccessor headerAccessor){
-        log.info("message_Chatroomid: "+ chatRoomId);
-        log.info("Received raw JSON message: " + messageDTO);
+//        log.info("message_Chatroomid: "+ chatRoomId);
+//        log.info("Received raw JSON message: " + messageDTO);
         Long writerUserId = (Long) headerAccessor.getSessionAttributes().get("userId");
 
         if (writerUserId == null){
@@ -49,14 +51,18 @@ public class ChatMessageController {
             //MsgReadStatus테이블에 추가
             msgReadStatusService.createMsgForMembers(savedMsg);
 
+            //안읽은 메시지 처리를 위해 채팅 목록에 보내기
+            simpMessagingTemplate.convertAndSend("/topic/workspaces/"+messageDTO.getWorkspaceId(), messageDTO);
+
+
             return messageDTO;
         }catch (Exception e){
             log.error("메시지 저장 중 오류 발생: ",e);
-            String sessionId = stompInterceptor.getSessionForUser(writerUserId);
+//            String sessionId = stompInterceptor.getSessionForUser(writerUserId);
             //예외 발생 시 클라이언트에게 오류 메시지 발송
-            simpMessagingTemplate.convertAndSendToUser(
-                    writerUserId.toString(), "/queue/errors", "Error saving message: "+e.getMessage()
-            );
+//            simpMessagingTemplate.convertAndSendToUser(
+//                    writerUserId.toString(), "/queue/errors", "Error saving message: "+e.getMessage()
+//            );
             return null;
         }
     }

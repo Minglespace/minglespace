@@ -2,7 +2,6 @@ package com.minglers.minglespace.chat.config.interceptor;
 
 import com.minglers.minglespace.auth.security.JWTUtils;
 import com.minglers.minglespace.chat.exception.ChatException;
-import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.messaging.Message;
@@ -16,13 +15,16 @@ import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Component;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
+//웹소켓 연결 세션 관리
 @Component
-public class StompInterceptor implements ChannelInterceptor{
+public class StompInterceptor implements ChannelInterceptor {
   private final JWTUtils jwtUtils;
   private final SimpMessagingTemplate simpMessagingTemplate;
-  private final Map<Long, String> userSessions = new HashMap<>();
+  private final Map<Long, Set<String>> userSessions = new HashMap<>();
 
   @Autowired
   public StompInterceptor(JWTUtils jwtUtils, SimpMessagingTemplate simpMessagingTemplate) {
@@ -31,29 +33,29 @@ public class StompInterceptor implements ChannelInterceptor{
   }
 
   @Override
-  public Message<?> preSend(Message<?> message, MessageChannel channel){
+  public Message<?> preSend(Message<?> message, MessageChannel channel) {
     StompHeaderAccessor accessor = StompHeaderAccessor.wrap(message);
     String token = accessor.getFirstNativeHeader("Authorization");
 
-    System.out.println("message: "+message);
-    System.out.println("header; "+message.getHeaders());
-    System.out.println("websocket _ token : "+ accessor.getNativeHeader("Authorization"));
+//    System.out.println("message: "+message);
+//    System.out.println("header; "+message.getHeaders());
+//    System.out.println("websocket _ token : "+ accessor.getNativeHeader("Authorization"));
 
-    if (StompCommand.CONNECT.equals(accessor.getCommand()) && token != null){
+    if (StompCommand.CONNECT.equals(accessor.getCommand()) && token != null) {
       token = token.substring(7);
-      try{
+      try {
         Long userId = jwtUtils.extractUserId(token);
-
         String sessionId = accessor.getSessionId();
-        userSessions.put(userId,sessionId);
+
+        userSessions.computeIfAbsent(userId, k -> new HashSet<>()).add(sessionId);
 
         accessor.getSessionAttributes().put("userId", userId);
 
-        System.out.println("websocket _ connect userId: "+ userId);
+        System.out.println("websocket _ connect userId: " + userId);
 //        Authentication authentication = new UsernamePasswordAuthenticationToken(userId.toString(), null);
 //        accessor.setUser(authentication);
 
-      }catch (Exception e){
+      } catch (Exception e) {
         throw new ChatException(HttpStatus.BAD_REQUEST.value(), "웹소켓 연결 시 토큰 오류 발생");
       }
       ///token 유효한지 검사 필요한가
@@ -65,22 +67,28 @@ public class StompInterceptor implements ChannelInterceptor{
 
 
   public void sendMessageToUser(Long userId, String message) {
-    String sessionId = userSessions.get(userId);
-    if (sessionId != null) {
-      simpMessagingTemplate.convertAndSendToUser(sessionId, "/queue/messages", message);
+    Set<String> sessions = userSessions.get(userId);
+    if (sessions != null) {
+      sessions.forEach(sessionId -> simpMessagingTemplate.convertAndSendToUser(sessionId, "/queue/messages", message));
     }
   }
 
-  public String getSessionForUser(Long userId) {
+  public Set<String> getSessionForUser(Long userId) {
     return userSessions.get(userId);
   }
 
   public void addSession(Long userId, String sessionId) {
-    userSessions.put(userId, sessionId);
+    userSessions.computeIfAbsent(userId, k-> new HashSet<>()).add(sessionId);
   }
 
-  public void removeSession(Long userId) {
-    userSessions.remove(userId);
+  public void removeSession(Long userId, String sessionId) {
+    Set<String> sessionIds = userSessions.get(userId);
+    if (sessionIds != null){
+      sessionIds.remove(sessionId);
+      if (sessionIds.isEmpty()){
+        userSessions.remove(userId);
+      }
+    }
   }
 
 }

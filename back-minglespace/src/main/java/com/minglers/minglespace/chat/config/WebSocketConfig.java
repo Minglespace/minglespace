@@ -38,7 +38,8 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 //                .setAllowedOriginPatterns("*") // CORS 설정. 이건 모든 도메인 허용
                 .setAllowedOrigins("http://localhost:3000", "ws://localhost:3000") // CORS 설정. 이건 모든 도메인 허용
 //                .addInterceptors(customHandShakeInterceptor) //핸드셰이크 요청 시 우선 검증
-                .withSockJS(); // SockJS 사용>websocket 지원 안하는 브라우저도 fallback기능 제공
+                .withSockJS()// SockJS 사용>websocket 지원 안하는 브라우저도 fallback기능 제공
+                .setHeartbeatTime(4000);
     }
 
     @Override
@@ -46,12 +47,5 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
         registration.interceptors(stompInterceptor);
     }
 
-
-//    @Bean
-//    public ObjectMapper objectMapper(){
-//        return new ObjectMapper()
-//                .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES,false)
-//                .configure(DeserializationFeature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT,true);
-//    }
 
 }

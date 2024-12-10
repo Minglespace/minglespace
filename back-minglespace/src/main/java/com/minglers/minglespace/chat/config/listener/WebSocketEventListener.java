@@ -10,6 +10,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.socket.messaging.SessionConnectEvent;
 import org.springframework.web.socket.messaging.SessionDisconnectEvent;
 
+//연결 및 해제 집중
 @Component
 @RequiredArgsConstructor
 public class WebSocketEventListener {
@@ -25,7 +26,7 @@ public class WebSocketEventListener {
         Long userId = (Long) accessor.getSessionAttributes().get("userId");
         if (userId != null){
             System.out.println("websocket connect userId : "+userId);
-            stompInterceptor.addSession(userId, sessionId);
+//            stompInterceptor.addSession(userId, sessionId);
 
         }
 
@@ -42,7 +43,7 @@ public class WebSocketEventListener {
         Long userId = (Long) accessor.getSessionAttributes().get("userId");
         if (userId != null) {
             System.out.println("websocket disconnected : userId = " + userId);
-            stompInterceptor.removeSession(userId);
+            stompInterceptor.removeSession(userId, sessionId);
         }
     }
 
