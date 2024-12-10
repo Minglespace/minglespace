@@ -5,7 +5,11 @@ import Button from "./Button";
 const Userinfo = ({ name, role, email, src, title }) => {
   return (
     <div className="userInfo_box">
-      <ProfileImage src={src} />
+      <ProfileImage
+        src={src}
+        imgClass={"round_user_info_image"}
+        iconClass={"user_alt_icon"}
+      />
       <div className="userInfo_context">
         <div>
           <h2>{name}</h2>

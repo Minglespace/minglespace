@@ -50,6 +50,17 @@ public class SampleDataTest {
 
     @Test
     public void insertUserTest() {
+        userRepository.save(User.builder()
+                .name(generateRandomKoreanName())
+                .email("abc@abc.abc")
+                .introduction("안녕하세요")
+                .password(passwordEncoder.encode("123123"))
+                .phone("000-0000-0000")
+                .deleteFlag(false)
+                .position("사원")
+                .role("ADMIN")
+                .verificationCode("")
+                .build());
         for (int i = 0; i < 100; i++) {
             userRepository.save(User.builder()
                     .name(generateRandomKoreanName())
@@ -60,6 +71,7 @@ public class SampleDataTest {
                     .deleteFlag(false)
                     .position("사원")
                     .role("ADMIN")
+                    .verificationCode("")
                     .build());
         }
     }

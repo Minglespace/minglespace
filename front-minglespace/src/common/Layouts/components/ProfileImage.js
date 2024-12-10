@@ -1,18 +1,16 @@
 ﻿import React from "react";
-import {IoPersonSharp} from "react-icons/io5";
+import { IoPersonSharp } from "react-icons/io5";
 
-const ProfileImage = ({src}) => {
-    return (
-        <>
-            {
-                src ? (
-                    <img className="round_user_image" src={src} alt="Profile"/>
-                ) : (
-                    <IoPersonSharp className="user_alt_icon"/>
-                )
-            }
-        </>
-    );
+const ProfileImage = ({ src, imgClass, iconClass }) => {
+  return (
+    <>
+      {src ? (
+        <img className={imgClass} src={src} alt="Profile" />
+      ) : (
+        <IoPersonSharp className={iconClass} />
+      )}
+    </>
+  );
 };
 
 export default ProfileImage;

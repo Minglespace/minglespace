@@ -2,6 +2,8 @@ import React, { useEffect, useState } from "react";
 import Userinfo from "../../common/Layouts/components/Userinfo";
 import Search from "../../common/Layouts/components/Search";
 import myFriendsApi from "../../api/myFriendsApi";
+import Modal from "../../common/Layouts/components/Modal";
+import UserInfoDetail from "../../common/Layouts/components/UserInfoDetail";
 
 const userInitData = [
   {
@@ -16,6 +18,8 @@ const userInitData = [
 ];
 const MyFriendsList = ({ friends, getFriendList, handelSetFriends }) => {
   const [searchKeyword, setSearchKeyword] = useState("");
+  const [selectedUser, setSelectedUser] = useState(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   useEffect(() => {
     if (isValidKoreanCharacter(searchKeyword) || searchKeyword === "") {
@@ -52,6 +56,15 @@ const MyFriendsList = ({ friends, getFriendList, handelSetFriends }) => {
     });
   };
 
+  //상세보기를 위한 모달기능
+  const handleUserClick = (user) => {
+    setSelectedUser(user);
+    setIsModalOpen(true);
+  };
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+  };
+
   return (
     <div className="section_container myFriends_container_item">
       <h1 className="section_container_title">My Friends</h1>
@@ -63,12 +76,18 @@ const MyFriendsList = ({ friends, getFriendList, handelSetFriends }) => {
       <div className="myFriends_userInfo_container">
         {friends.map((userInfo) => (
           <div className="myFriends_userInfo_deleteButton" key={userInfo.id}>
-            <Userinfo
-              name={userInfo.name}
-              role={userInfo.position}
-              email={userInfo.email}
-              src={userInfo.img}
-            />
+            <div
+              className="myFriends_userInfo_view"
+              onClick={() => handleUserClick(userInfo)}
+            >
+              <Userinfo
+                name={userInfo.name}
+                role={userInfo.position}
+                email={userInfo.email}
+                src={userInfo.img}
+                onClick={() => handleUserClick(userInfo)}
+              />
+            </div>
             <button
               className="add_button_2"
               onClick={() => {
@@ -80,6 +99,9 @@ const MyFriendsList = ({ friends, getFriendList, handelSetFriends }) => {
           </div>
         ))}
       </div>
+      <Modal open={isModalOpen} onClose={handleCloseModal}>
+        {selectedUser && <UserInfoDetail user={selectedUser} />}
+      </Modal>
     </div>
   );
 };
