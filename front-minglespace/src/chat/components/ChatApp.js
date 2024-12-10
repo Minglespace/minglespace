@@ -87,6 +87,9 @@ const ChatApp = () => {
 
   const handleNewMessage = (newMsg) => {
     console.log("chatapp_ newmsg: ", newMsg);
+    console.log("validChatRoomId: ", validChatRoomId, "newMsg.chatRoomId: ", newMsg.chatRoomId);
+
+    console.log("chatapp_ newmsg: ", newMsg);
     if (validChatRoomId == null || Number(validChatRoomId) !== Number(newMsg.chatRoomId)) {
       setRooms(prev =>
         prev.map(room =>
@@ -105,7 +108,7 @@ const ChatApp = () => {
   };
 
   const { isConnected, stompClientRef } = useWebSocket([
-    { path: `topic/workspaces/${workspaceId}`, messageHandler: handleNewMessage }
+    { path: `/topic/workspaces/${workspaceId}`, messageHandler: handleNewMessage }
   ]);
 
   ////websocket 연결

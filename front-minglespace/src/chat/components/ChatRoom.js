@@ -208,13 +208,7 @@ const ChatRoom = ({
     }
   };
 
-  // const [messages, setMessages] = useState([
-  //   { sender: "Alice", text: "Hello!", isCurrentUser: false },
-  //   { sender: "Bob", text: "Hi!", isCurrentUser: false },
-  // ]);
-
-  // const [newMessage, setNewMessage] = useState("");
-
+  /////////////////websocket
   const handleNewMessage = (newMsg) => {
     setChatRoomInfo(prev => ({
       ...prev,
@@ -222,13 +216,73 @@ const ChatRoom = ({
     }));
   };
 
-  const { isConnected, stompClientRef } = useWebSocket([
-    { path: `/topic/chatRooms/${chatRoomId}/msg`, messageHandler: handleNewMessage }
-  ]);
+  const { isConnected, stompClientRef } = useWebSocket(
+    chatRoomId ? 
+      [{ path: `/topic/chatRooms/${chatRoomId}/msg`, messageHandler: handleNewMessage }]
+      : []
+  ) ;
 
 
 
-  /////////////////////websocket 연결///////////////////
+  
+
+  // 메시지 전송 처리 함수
+  const handleSendMessage = (msg) => {
+    // console.log("name type: ", msg);
+    // console.log("wsMemberId type: ", currentMemberInfo.wsMemberId);
+    // if (socketRef.current) {
+    if (isConnected && stompClientRef.current) {
+      const newMessage = {
+        content: msg,
+        isAnnouncement: false,  ////수정 필요
+        mentionedUserIds: [],
+        replyId: null,
+        sender: currentMemberInfo.name,
+        workspaceId: chatRoomInfo.workSpaceId,
+        writerWsMemberId: currentMemberInfo.wsMemberId
+      };
+
+      console.log("Sending message:", JSON.stringify(newMessage));
+
+
+      stompClientRef.current.publish({
+        destination: `/app/messages/${chatRoomId}`,
+        body: JSON.stringify(newMessage),
+      });
+    } else {
+      console.warn("websocket 미연결 or 메시지 빔");
+    }
+  };
+
+
+  return (
+    <div className={`chatroom_container ${isFold ? "folded" : ""}`}>
+      <ChatRoomHeader
+        chatRoomInfo={chatRoomInfo}
+        inviteMembers={inviteMembers}
+        isRoomOwner={isRoomOwner}
+        isModalOpen={isModalOpen}
+        setIsModalOpen={setIsModalOpen}
+        handleInvite={handleInvite}
+        handleKick={handleKick}
+        handleDelegate={handleDelegate}
+        handleExit={handleExit}
+      />
+      <div className="chat_messages">
+        {/* 여기에 채팅 메시지들이 들어갑니다 */}
+        <MessageList messages={chatRoomInfo.messages} currentMemberInfo={currentMemberInfo} /> {/* 전송된 메시지 목록 표시 */}
+        <MessageInput onSendMessage={handleSendMessage} />
+        {/* 메시지 전송 처리 */}
+      </div>
+    </div>
+  );
+};
+
+export default ChatRoom;
+
+
+
+/////////////////////websocket 연결///////////////////
   // useEffect(() => {
   //   if (!chatRoomId) {
   //     console.log("No chatRoomId provided, skipping server request.");
@@ -300,57 +354,3 @@ const ChatRoom = ({
   // }
 
   // }, [chatRoomId]);
-
-  // 메시지 전송 처리 함수
-  const handleSendMessage = (msg) => {
-    // console.log("name type: ", msg);
-    // console.log("wsMemberId type: ", currentMemberInfo.wsMemberId);
-    // if (socketRef.current) {
-    if (isConnected && stompClientRef.current) {
-      const newMessage = {
-        content: msg,
-        isAnnouncement: false,  ////수정 필요
-        mentionedUserIds: [],
-        replyId: null,
-        sender: currentMemberInfo.name,
-        workspaceId: chatRoomInfo.workSpaceId,
-        writerWsMemberId: currentMemberInfo.wsMemberId
-      };
-
-      console.log("Sending message:", JSON.stringify(newMessage));
-
-
-      stompClientRef.current.publish({
-        destination: `/app/messages/${chatRoomId}`,
-        body: JSON.stringify(newMessage),
-      });
-    } else {
-      console.warn("websocket 미연결 or 메시지 빔");
-    }
-  };
-
-
-  return (
-    <div className={`chatroom_container ${isFold ? "folded" : ""}`}>
-      <ChatRoomHeader
-        chatRoomInfo={chatRoomInfo}
-        inviteMembers={inviteMembers}
-        isRoomOwner={isRoomOwner}
-        isModalOpen={isModalOpen}
-        setIsModalOpen={setIsModalOpen}
-        handleInvite={handleInvite}
-        handleKick={handleKick}
-        handleDelegate={handleDelegate}
-        handleExit={handleExit}
-      />
-      <div className="chat_messages">
-        {/* 여기에 채팅 메시지들이 들어갑니다 */}
-        <MessageList messages={chatRoomInfo.messages} currentMemberInfo={currentMemberInfo} /> {/* 전송된 메시지 목록 표시 */}
-        <MessageInput onSendMessage={handleSendMessage} />
-        {/* 메시지 전송 처리 */}
-      </div>
-    </div>
-  );
-};
-
-export default ChatRoom;

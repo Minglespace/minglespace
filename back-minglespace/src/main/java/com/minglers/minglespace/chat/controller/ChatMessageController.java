@@ -40,7 +40,7 @@ public class ChatMessageController {
             return null;
         }
 
-        log.info("received message : "+messageDTO.getContent()+ " from "+writerUserId);
+        log.info("received message : "+messageDTO.getContent()+ " from "+messageDTO.getWorkspaceId());
 
         try{
             messageDTO.setChatRoomId(chatRoomId);

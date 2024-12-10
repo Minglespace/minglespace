@@ -71,7 +71,7 @@ export const WebSocketProvider = ({ children }) => {
 	}, []);
 
 	return (
-		<WebSocketContext.Provider value={{ connectWebSocket, isConnected, stompClientRef }}>
+		<WebSocketContext.Provider value={{ connectWebSocket, isConnected, stompClientRef, subscriptionRefs }}>
 			{children}
 		</WebSocketContext.Provider>
 	);
@@ -81,14 +81,52 @@ export const WebSocketProvider = ({ children }) => {
 
 //websocket context hook
 export const useWebSocket = (subscriptions) => {
-	const { connectWebSocket, isConnected, stompClientRef } = useContext(WebSocketContext);
+	const { connectWebSocket, isConnected, stompClientRef, subscriptionRefs } = useContext(WebSocketContext);
 
 	useEffect(() => {
-		if (subscriptions && subscriptions.length > 0 && isConnected === false) {
-			connectWebSocket(subscriptions);
+		let activeSubscriptions = [];
+		const client = stompClientRef.current;
+		const subscriptionMap = subscriptionRefs.current;
+
+
+		if (subscriptions && subscriptions.length > 0) {
+			//유효한 path만 받기. null이나 undefined는 안받음
+			activeSubscriptions = subscriptions.filter((sub) => !!sub.path);
+
+			if(activeSubscriptions.length > 0 && !isConnected){ //첫 연결
+				connectWebSocket(activeSubscriptions);
+			}else if(isConnected && client){ //연결 후라면
+
+				activeSubscriptions.forEach(({path, messageHandler}) => {
+					console.log("useWEbsocket _ mount_ getmap : ", subscriptionMap);
+					if(client.connected){
+						if(!subscriptionMap.has(path)){
+							const subscription = client.subscribe(path, (msg) => {
+								const newMsg = JSON.parse(msg.body);
+								messageHandler(newMsg);
+							});
+							subscriptionMap.set(path, subscription);
+							console.log("usewebsocket_addPath: ", path);
+						}
+					}else{
+						console.error("stomp client is not connected");
+					}
+				});
+
+			}
 		}
 
 		return () => {
+			if(client && activeSubscriptions.length > 0){
+				activeSubscriptions.forEach(({path}) => {
+					if(subscriptionMap.has(path)){
+						const subscription = subscriptionMap.get(path);
+						subscription.unsubscribe();
+						console.log("usewebsocket _ unmount_ unsubPath: ", path);
+						subscriptionMap.delete(path);
+					}
+				});
+			}
 
 		};
 	}, [subscriptions, connectWebSocket, isConnected]);
