@@ -1,12 +1,14 @@
 package com.minglers.minglespace.todo.dto;
 
+import com.minglers.minglespace.workspace.dto.WSMemberResponseDTO;
+import com.minglers.minglespace.workspace.entity.WSMember;
 import lombok.*;
 
 import java.util.List;
 
 @NoArgsConstructor
 @AllArgsConstructor
-@ToString
+@ToString(exclude = {"todoAssigneeResponseDTOList"})
 @Getter
 @Setter
 @Builder
@@ -17,6 +19,6 @@ public class TodoResponseDTO {
   private Long start_date;
   private Long end_date;
   private boolean complete;
-
-  private List<TodoAssigneeResponseDTO> todoAssigneeResponseDTOList;
+  private String creator_name;
+  private List<WSMemberResponseDTO> assignee_list;
 }

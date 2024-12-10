@@ -22,7 +22,17 @@ public class TodoAssignee {
   @JoinColumn(name = "todo_id")
   private Todo todo;
 
+
+
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "wsmember_id")
   private WSMember wsMember;
+
+  public void changeWsMember(WSMember wsMember) {
+    this.wsMember = wsMember;
+  }
+
+  public void changeTodo(Todo todo) {
+    this.todo = todo;
+  }
 }

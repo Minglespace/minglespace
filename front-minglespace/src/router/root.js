@@ -8,6 +8,7 @@ const Signup = lazy(() => import("../auth/SignupPage"));
 const Main = lazy(() => import("../page/MainPage"));
 const Chat = lazy(() => import("../page/ChatPage"));
 const Todo = lazy(() => import("../page/TodoPage"));
+const TodoLeader = lazy(() => import("../todo/TodoLeader"));
 // const Calendar = lazy(() => import("../page/Calendar"));
 // const Milestone = lazy(() => import("../page/Milestone"));
 const Workspace = lazy(() => import("../page/WorkspacePage"));
@@ -42,8 +43,12 @@ const root = createBrowserRouter([
     element: <SuspenseWithPrivateRoute page={Chat} />,
   },
   {
-    path: "/workspace/:workspaceId/todo/1",
+    path: "/workspace/:workspaceId/todo/:wsmemberId",
     element: <SuspenseWithPrivateRoute page={Todo} />,
+  },
+  {
+    path: "/workspace/:workspaceId/todo/leader",
+    element: <SuspenseWithPrivateRoute page={TodoLeader} />,
   },
 
   // Suspense

@@ -1,10 +1,12 @@
 import React from "react";
-import TodoComponent from "./TodoComponent";
+import TodoListComponent from "./components/TodoListComponent";
 
 const Todo = () => {
   return (
-    <div>
-      <TodoComponent />
+    <div className="todo_main_container">
+      <div className="todo_list_section">
+        <TodoListComponent />
+      </div>
     </div>
   );
 };

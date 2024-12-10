@@ -9,6 +9,6 @@ import lombok.*;
 @Builder
 public class TodoAssigneeResponseDTO {
   private Long id;
-  private Long todoId;
+  private Long todo_id;
   private Long wsmember_id;
 }

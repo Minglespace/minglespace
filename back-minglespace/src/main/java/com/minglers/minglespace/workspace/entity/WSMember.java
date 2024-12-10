@@ -15,7 +15,7 @@ import java.util.List;
 @Table(name = "wsmember", uniqueConstraints = { @UniqueConstraint(columnNames = {"workspace_id", "user_id"}) })
 @NoArgsConstructor
 @AllArgsConstructor
-@ToString
+@ToString(exclude = {"workSpace", "todoList"})
 @Getter
 @Builder
 public class WSMember {

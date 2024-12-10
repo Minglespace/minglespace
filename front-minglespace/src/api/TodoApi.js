@@ -11,68 +11,40 @@ class TodoApi {
     return res.data;
   };
 
-  static getOne = async (workspaceId) => {
-    const res = await api.axiosIns.get(`${TodoApi.prefix}/${workspaceId}`);
+  static getAllList = async (workspaceId) => {
+    const res = await api.axiosIns.get(
+      `${TodoApi.prefix}/${workspaceId}/todo/leader`
+    );
 
     return res.data;
   };
 
-  static postAddGroup = async (workspaceId, milestoneGroupObj) => {
+  static getOne = async (workspaceId, todoId) => {
+    const res = await api.axiosIns.get(`${workspaceId}/todo/${todoId}`);
+
+    return res.data;
+  };
+
+  static postAddTodo = async (workspaceId, todoObj) => {
     const res = await api.axiosIns.post(
-      `${TodoApi.prefix}/${workspaceId}/milestone/milestoneGroup`,
-      milestoneGroupObj
+      `${TodoApi.prefix}/${workspaceId}/todo`,
+      todoObj
     );
 
     return res.data;
   };
 
-  static postAddItem = async (
-    workspaceId,
-    milestoneGroupId,
-    milestoneItemObj
-  ) => {
-    const res = await api.axiosIns.post(
-      `${TodoApi.prefix}/${workspaceId}/milestone/milestoneGroup/${milestoneGroupId}`,
-      milestoneItemObj
-    );
-
-    return res.data;
-  };
-
-  static modifyGroup = async (
-    workspaceId,
-    milestoneGroupId,
-    milestoneGroupObj
-  ) => {
+  static modifyTodo = async (todoId, workspaceId, todoObj) => {
     const res = await api.axiosIns.put(
-      `${TodoApi.prefix}/${workspaceId}/milestone/milestoneGroup/${milestoneGroupId}`,
-      milestoneGroupObj
+      `${TodoApi.prefix}/${workspaceId}/milestone/milestoneGroup/${todoId}`,
+      todoObj
     );
     return res.data;
   };
 
-  static modifyItem = async (
-    workspaceId,
-    milestoneItemId,
-    milestoneItemObj
-  ) => {
-    const res = await api.axiosIns.put(
-      `${TodoApi.prefix}/${workspaceId}/milestone/milestoneItem/${milestoneItemId}`,
-      milestoneItemObj
-    );
-    return res.data;
-  };
-
-  static deleteGroup = async (workspaceId, milestoneGroupId) => {
+  static deleteTodo = async (workspaceId, todoId) => {
     const res = await api.axiosIns.delete(
-      `${TodoApi.prefix}/${workspaceId}/milestone/milestoneGroup/${milestoneGroupId}`
-    );
-    return res.data;
-  };
-
-  static deleteItem = async (workspaceId, milestoneItemId) => {
-    const res = await api.axiosIns.delete(
-      `${TodoApi.prefix}/${workspaceId}/milestone/milestoneItem/${milestoneItemId}`
+      `${TodoApi.prefix}/${workspaceId}/milestone/milestoneGroup/${todoId}`
     );
     return res.data;
   };
