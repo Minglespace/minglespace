@@ -83,6 +83,21 @@ class Repo{
     return this.isAuthenticated() && role === "USER";
   }
 
+  //
+  static setProfileColor(color){
+    if(color){
+      localStorage.setItem("profileColor", color);
+    }
+  }
+
+  static getProfileColor() {
+    return localStorage.getItem("profileColor");
+  }
+
+  static clearProfileColor(){
+    localStorage.removeItem("profileColor");
+  }
+
 
   // for test
   static setAccessTokenForAbuse(accessToken){

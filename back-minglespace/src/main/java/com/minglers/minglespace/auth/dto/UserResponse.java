@@ -18,5 +18,6 @@ public class UserResponse extends DefaultResponse {
     String introduction;
     String position;
     String role;
+    String profileImagePath;
 
 }
