@@ -9,7 +9,6 @@ const ChatList = ({
   onCreateRoom,
   onReadMsg,
   wsMembers,
-  onSelectRoom,
 }) => {
   const [isModalOpen, setIsModalOpen] = useState(false); //모달 열림/닫힘 상태
 
@@ -22,12 +21,6 @@ const ChatList = ({
   // 모달을 닫는 함수
   const closeModal = () => {
     setIsModalOpen(false);
-  };
-
-  // 채팅방을 클릭했을 때 호출되는 함수
-  const handleSelectRoom = (chatRoomId) => {
-    console.log("Selected chat room:", chatRoomId); // 로그 추가
-    onSelectRoom(chatRoomId); // 채팅방 선택 처리
   };
 
   return (
@@ -47,7 +40,6 @@ const ChatList = ({
               key={room.chatRoomId}
               chat={room}
               onReadMsg={onReadMsg}
-              onSelectRoom={onSelectRoom}
             />
           ))
         )}

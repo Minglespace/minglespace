@@ -1,4 +1,4 @@
-﻿﻿import React, { useEffect, useRef, useState } from "react";
+﻿import React, { useEffect, useRef, useState } from "react";
 import { FiChevronsLeft } from "react-icons/fi";
 import ChatList from "./ChatList";
 import ChatRoom from "./ChatRoom";
@@ -35,7 +35,6 @@ const ChatApp = () => {
   const [wsmembers, setWsMembers] = useState(initMembers);
   const chatListRef = useRef(null); // 채팅방 목록을 참조하기 위한 ref
   const [error, setError] = useState(null); //오류 상태
-  const [selectedChatRoom, setSelectedChatRoom] = useState(null); // 채팅방을
   const [validChatRoomId, setValidChatRoomId] = useState(null);
 
   const { workspaceId } = useParams();
@@ -48,17 +47,17 @@ const ChatApp = () => {
       // 스크롤을 맨 아래로 이동
       chatListRef.current.scrollTop = chatListRef.current.scrollHeight;
     }
-    console.log("updated_chatrooms: ", rooms);
+    // console.log("updated_chatrooms: ", rooms);
   }, [rooms]); // rooms 배열이 변경될 때마다 실행
 
   useEffect(() => {
-    console.log("변경된 validId: ", validChatRoomId);
+    // console.log("변경된 validId: ", validChatRoomId);
     validChatRoomIdRef.current = validChatRoomId;
   }, [validChatRoomId]);
 
   useEffect(() => {
     const chatRoomId = new URLSearchParams(location.search).get("chatRoomId");
-    console.log("쿼리 변화 감지 하고 있니, ", chatRoomId);
+    // console.log("쿼리 변화 감지 하고 있니, ", chatRoomId);
     setValidChatRoomId(chatRoomId);
   }, [location.search]);
 
@@ -110,7 +109,7 @@ const ChatApp = () => {
             ? { ...room, notReadMsgCount: room.notReadMsgCount + 1, lastMessage: newMsg.content } : room
         )
       );
-      console.log("newmsg 변경완");
+      // console.log("newmsg 변경완");
     } else {
       setRooms(prev =>
         prev.map(room =>
@@ -118,7 +117,7 @@ const ChatApp = () => {
             ? { ...room, lastMessage: newMsg.content } : room
         )
       );
-      console.log("참여중이라서 마지막 메시지만 ");
+      // console.log("참여중이라서 마지막 메시지만 ");
       handleReadMsg(newMsg.chatRoomId);
     }
   };
@@ -171,19 +170,13 @@ const ChatApp = () => {
       const updatedRooms = prevRooms.map((room) =>
         Number(room.chatRoomId) === Number(chatRoomId)
           ? {
-              ...room,
-              participantCount: Number(room.participantCount) + Number(change),
-            }
+            ...room,
+            participantCount: Number(room.participantCount) + Number(change),
+          }
           : room
       );
       return updatedRooms;
     });
-  };
-
-  // 채팅방을 선택했을 때 호출되는 함수
-  const selectChatRoom = (chatRoomId) => {
-    console.log("채팅방 선택됨: ", chatRoomId); // 선택된 채팅방 ID 확인
-    setSelectedChatRoom(chatRoomId); // 채팅방 ID를 선택된 상태로 설정
   };
 
   // 채팅방 나가기 시 방 제거
@@ -191,7 +184,6 @@ const ChatApp = () => {
     setRooms((prevRooms) =>
       prevRooms.filter((room) => Number(room.chatRoomId) !== Number(chatRoomId))
     );
-    setSelectedChatRoom(null);
   };
 
   // 채팅방 목록을 접고 펼치는 함수
@@ -212,9 +204,8 @@ const ChatApp = () => {
         onCreateRoom={handleCreateRoom}
         onReadMsg={handleReadMsg}
         wsMembers={wsmembers}
-        onSelectRoom={selectChatRoom}
       />
-      {selectedChatRoom === null ? (
+      {validChatRoomId === null ? (
         <div className="no-chat-selected">
           <IoLogoWechat />
           <span>채팅방을 선택해주세요.</span>

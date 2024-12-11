@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { FaLock, FaLockOpen } from "react-icons/fa";
-import Mentions from "./Mentions";
+// import Mentions from "./Mentions";
 
 const MessageInput = ({ wsMembers, tags, onSendMessage }) => {
   // 메시지 입력을 잠그는 상태 변수
@@ -52,12 +52,12 @@ const MessageInput = ({ wsMembers, tags, onSendMessage }) => {
           }
           className="message-input"
         />
-        <Mentions
+        {/* <Mentions
           value={messages}
           onChange={handleMessageChange}
           wsMembers={wsMembers}
           tags={tags}
-        ></Mentions>
+        ></Mentions> */}
         <button
           className="send-btn"
           onClick={handleSendMessage}
