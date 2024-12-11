@@ -51,12 +51,6 @@ public class WorkspaceServiceImpl implements WorkspaceService {
             .orElseThrow(() -> new WorkspaceException(HttpStatus.NOT_FOUND.value(), "워크스페이스 정보를 찾을수 없습니다."));
   }
 
-  //워크스페이스멤버 가져오기
-  private WSMember findWSMemberBy(Long userId, Long workSpaceId){
-    return wsMemberRepository.findByUserIdAndWorkSpaceId(userId,workSpaceId)
-            .orElseThrow(() -> new WorkspaceException(HttpStatus.NOT_FOUND.value(), "워크스페이스 멤버가 아닙니다"));
-  }
-
   //워크스페이스 삭제여부체크
   private void checkDelflag(WorkSpace workSpace) {
     if (workSpace.isDelflag())
@@ -158,28 +152,6 @@ public class WorkspaceServiceImpl implements WorkspaceService {
     response.setCount(workSpace.getWorkSpaceList().size());
 
     return response;
-  }
-  //리더 체크하기
-  @Override
-  @Transactional(readOnly = true)
-  public void checkLeader(Long userId, Long workSpaceId) {
-
-    WSMember wsMember = findWSMemberBy(userId,workSpaceId);
-
-    if(WSMemberRole.MEMBER == wsMember.getRole())//리더가 아니라면
-      throw new WorkspaceException(HttpStatus.UNAUTHORIZED.value(),"워크스페이스 리더가 아닙니다");
-  }
-  //유저id+권한 가져오기
-  @Override
-  @Transactional(readOnly = true)
-  public WSMemberResponseDTO getWorkSpaceRole(Long userId, Long workSpaceId) {
-
-    WSMember wsMember = findWSMemberBy(userId,workSpaceId);
-
-    return WSMemberResponseDTO.builder()
-            .memberId(wsMember.getId())
-            .role(wsMember.getRole().name())
-            .build();
   }
 
 }

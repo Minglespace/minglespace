@@ -105,8 +105,8 @@ public class SampleDataTest {
     }
     @Test
     public void insertWorkSpaceMember(){
-        WorkSpace workSpace = workspaceRepository.findById(2L).orElseThrow();
-        for (int i = 31; i < 50; i++) {
+        WorkSpace workSpace = workspaceRepository.findById(1L).orElseThrow();
+        for (int i = 2; i < 20; i++) {
             User user = userRepository.findById((long) i).orElseThrow();
             WSMember wsMember = WSMember.builder()
                     .user(user)
