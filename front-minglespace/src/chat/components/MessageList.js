@@ -19,11 +19,11 @@ const MessageList = ({ messages, currentMemberInfo }) => {
           className={`message-item ${message.writerWsMemberId === currentMemberInfo.wsMemberId ? "sender" : "received"
             }`}
         >
-          {console.log(
+          {/* {console.log(
             `Message ${message.id}:`,
             message,
             message.writerWsMemberId === currentMemberInfo.wsMemberId ? "sent" : "received"
-          )}
+          )} */}
           <span className="message-sender">{message.sender}: </span>
           <span className="message-text">{message.content}</span>
         </div>

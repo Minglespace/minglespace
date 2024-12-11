@@ -6,6 +6,8 @@ import Repo from "../../auth/Repo";
 
 const WebSocketContext = createContext(null);
 
+
+
 export const WebSocketProvider = ({ children }) => {
 	const socketRef = useRef(null); //websocket client
 	const stompClientRef = useRef(null); //stomp client
@@ -14,6 +16,8 @@ export const WebSocketProvider = ({ children }) => {
 	const [isConnected, setIsConnected] = useState(false);
 
 	const connectWebSocket = useCallback((subscriptions) => {
+		if (stompClientRef.current) return;
+
 		const socket = new SockJS(`${HOST_URL}/ws`);
 		const stompClient = new Client({
 			webSocketFactory: () => socket,
@@ -28,11 +32,12 @@ export const WebSocketProvider = ({ children }) => {
 				subscriptions.forEach(({ path, messageHandler }) => {
 					if (!subscriptionRefs.current.has(path)) {
 						const subscription = stompClient.subscribe(path, (msg) => {
+							console.log("구독 메시지 도착 : ", msg.body);
 							const newMsg = JSON.parse(msg.body);
 							messageHandler(newMsg); // 메시지 처리 함수 호출
 						});
 						subscriptionRefs.current.set(path, subscription);
-						console.log("update subscriptions: ", subscriptionRefs);
+						console.log("update subscriptions: ", subscriptionRefs.current);
 					}
 				});
 			},
@@ -83,52 +88,56 @@ export const WebSocketProvider = ({ children }) => {
 export const useWebSocket = (subscriptions) => {
 	const { connectWebSocket, isConnected, stompClientRef, subscriptionRefs } = useContext(WebSocketContext);
 
+
 	useEffect(() => {
-		let activeSubscriptions = [];
+		const activeSubscriptions = subscriptions?.filter((sub) => !!sub.path) || [];
 		const client = stompClientRef.current;
 		const subscriptionMap = subscriptionRefs.current;
 
 
-		if (subscriptions && subscriptions.length > 0) {
-			//유효한 path만 받기. null이나 undefined는 안받음
-			activeSubscriptions = subscriptions.filter((sub) => !!sub.path);
+		if (activeSubscriptions.length > 0) {
+			if (isConnected) {
+				activeSubscriptions.forEach(({ path, messageHandler }) => {
 
-			if(activeSubscriptions.length > 0 && !isConnected){ //첫 연결
-				connectWebSocket(activeSubscriptions);
-			}else if(isConnected && client){ //연결 후라면
+					// const existingSubChat = Array.from(subscriptionMap.keys()).find((key) => key.startsWith('/topic/chatRooms/') && path.startsWith('/topic/chatRooms'));
+					// console.log("기존 구독 존재: ", existingSubChat);
 
-				activeSubscriptions.forEach(({path, messageHandler}) => {
-					console.log("useWEbsocket _ mount_ getmap : ", subscriptionMap);
-					if(client.connected){
-						if(!subscriptionMap.has(path)){
-							const subscription = client.subscribe(path, (msg) => {
-								const newMsg = JSON.parse(msg.body);
-								messageHandler(newMsg);
-							});
-							subscriptionMap.set(path, subscription);
-							console.log("usewebsocket_addPath: ", path);
-						}
-					}else{
-						console.error("stomp client is not connected");
+					// if (existingSubChat) {
+					// 	const beforeSubChat = subscriptionMap.get(existingSubChat);
+					// 	beforeSubChat.unsubscribe();
+					// 	console.log("기존 구독 취소: ", existingSubChat);
+					// 	subscriptionMap.delete(existingSubChat);
+					// }
+
+					if (!subscriptionMap.has(path)) {
+						const subscription = client.subscribe(path, (msg) => {
+							console.log("구독 메시지 도착 2: ", msg.body, ", path: ", path);
+							const newMsg = JSON.parse(msg.body);
+							messageHandler(newMsg);
+						});
+						subscriptionMap.set(path, subscription);
+						console.log("구독 추가됨:", path);
+						console.log("현 전체 구독:", subscriptionMap);
 					}
 				});
-
+			} else {
+				connectWebSocket(activeSubscriptions);
 			}
 		}
 
-		return () => {
-			if(client && activeSubscriptions.length > 0){
-				activeSubscriptions.forEach(({path}) => {
-					if(subscriptionMap.has(path)){
-						const subscription = subscriptionMap.get(path);
-						subscription.unsubscribe();
-						console.log("usewebsocket _ unmount_ unsubPath: ", path);
-						subscriptionMap.delete(path);
-					}
-				});
-			}
+		// return () => {
+		// 	if (client && activeSubscriptions.length > 0) {
+		// 		activeSubscriptions.forEach(({ path }) => {
+		// 			if (subscriptionMap.has(path)) {
+		// 				const subscription = subscriptionMap.get(path);
+		// 				subscription.unsubscribe();
+		// 				console.log("usewebsocket _ unmount_ unsubPath: ", path);
+		// 				subscriptionMap.delete(path);
+		// 			}
+		// 		});
+		// 	}
 
-		};
+		// };
 	}, [subscriptions, connectWebSocket, isConnected]);
 
 	return { isConnected, stompClientRef };

@@ -21,49 +21,49 @@ import java.util.Set;
 @Log4j2
 @RequiredArgsConstructor
 public class ChatMessageController {
-    private final ChatMessageService chatMessageService;
-    private final MsgReadStatusService msgReadStatusService;
-    private final SimpMessagingTemplate simpMessagingTemplate;
-    private final StompInterceptor stompInterceptor;
+  private final ChatMessageService chatMessageService;
+  private final MsgReadStatusService msgReadStatusService;
+  private final SimpMessagingTemplate simpMessagingTemplate;
+  private final StompInterceptor stompInterceptor;
 
-    @MessageMapping("/messages/{chatRoomId}")
-    @SendTo("/topic/chatRooms/{chatRoomId}/msg")
-    public ChatMessageDTO saveAndSendChatMessage(@DestinationVariable Long chatRoomId,
-                                                 ChatMessageDTO messageDTO,
-                                                 StompHeaderAccessor headerAccessor){
+  @MessageMapping("/messages/{chatRoomId}")
+  @SendTo("/topic/chatRooms/{chatRoomId}/msg")
+  public ChatMessageDTO saveAndSendChatMessage(@DestinationVariable Long chatRoomId,
+                                               ChatMessageDTO messageDTO,
+                                               StompHeaderAccessor headerAccessor) {
 //        log.info("message_Chatroomid: "+ chatRoomId);
 //        log.info("Received raw JSON message: " + messageDTO);
-        Long writerUserId = (Long) headerAccessor.getSessionAttributes().get("userId");
+    Long writerUserId = (Long) headerAccessor.getSessionAttributes().get("userId");
 
-        if (writerUserId == null){
-            log.error("user ID not found in websocket session");
-            return null;
-        }
+    if (writerUserId == null) {
+      log.error("user ID not found in websocket session");
+      return null;
+    }
 
-        log.info("received message : "+messageDTO.getContent()+ " from "+messageDTO.getWorkspaceId());
+    log.info("received message : " + messageDTO.getContent() + " from " + messageDTO.getWorkspaceId());
 
-        try{
-            messageDTO.setChatRoomId(chatRoomId);
+    try {
+      messageDTO.setChatRoomId(chatRoomId);
 
-            ChatMessage savedMsg = chatMessageService.saveMessage(messageDTO, writerUserId);
-            messageDTO.setId(savedMsg.getId());
+      ChatMessage savedMsg = chatMessageService.saveMessage(messageDTO, writerUserId);
+      messageDTO.setId(savedMsg.getId());
 
-            //MsgReadStatus테이블에 추가
-            msgReadStatusService.createMsgForMembers(savedMsg);
+      //MsgReadStatus테이블에 추가
+      msgReadStatusService.createMsgForMembers(savedMsg);
 
-            //안읽은 메시지 처리를 위해 채팅 목록에 보내기
-            simpMessagingTemplate.convertAndSend("/topic/workspaces/"+messageDTO.getWorkspaceId(), messageDTO);
+      //안읽은 메시지 처리를 위해 채팅 목록에 보내기
+      simpMessagingTemplate.convertAndSend("/topic/workspaces/" + messageDTO.getWorkspaceId(), messageDTO);
 
 
-            return messageDTO;
-        }catch (Exception e){
-            log.error("메시지 저장 중 오류 발생: ",e);
+      return messageDTO;
+    } catch (Exception e) {
+      log.error("메시지 저장 중 오류 발생: ", e);
 //            String sessionId = stompInterceptor.getSessionForUser(writerUserId);
-            //예외 발생 시 클라이언트에게 오류 메시지 발송
+      //예외 발생 시 클라이언트에게 오류 메시지 발송
 //            simpMessagingTemplate.convertAndSendToUser(
 //                    writerUserId.toString(), "/queue/errors", "Error saving message: "+e.getMessage()
 //            );
-            return null;
-        }
+      return null;
     }
+  }
 }

@@ -14,38 +14,36 @@ import org.springframework.web.socket.messaging.SessionDisconnectEvent;
 @Component
 @RequiredArgsConstructor
 public class WebSocketEventListener {
-    private final StompInterceptor stompInterceptor;
+  private final StompInterceptor stompInterceptor;
 
-    @EventListener
-    public void handleWebSocketConnectListener(SessionConnectEvent event){
-        StompHeaderAccessor accessor = StompHeaderAccessor.wrap(event.getMessage());
+  @EventListener
+  public void handleWebSocketConnectListener(SessionConnectEvent event){
+    StompHeaderAccessor accessor = StompHeaderAccessor.wrap(event.getMessage());
 
-        String sessionId = accessor.getSessionId();
-        System.out.println("new websocket connect - connectSession id : "+ sessionId);
+    String sessionId = accessor.getSessionId();
+    System.out.println("new websocket connect - connectSession id : "+ sessionId);
 
-        Long userId = (Long) accessor.getSessionAttributes().get("userId");
-        if (userId != null){
-            System.out.println("websocket connect userId : "+userId);
-//            stompInterceptor.addSession(userId, sessionId);
-
-        }
-
+    Long userId = (Long) accessor.getSessionAttributes().get("userId");
+    if (userId != null){
+      System.out.println("websocket connect userId : "+userId);
     }
 
-    @EventListener
-    public void handleWebSocketDisconnectListener(SessionDisconnectEvent event){
-        String sessionId = event.getSessionId();
+  }
 
-        StompHeaderAccessor accessor = StompHeaderAccessor.wrap(event.getMessage());
+  @EventListener
+  public void handleWebSocketDisconnectListener(SessionDisconnectEvent event){
+    String sessionId = event.getSessionId();
 
-        System.out.println("websocket disconnected session id : "+ sessionId);
+    StompHeaderAccessor accessor = StompHeaderAccessor.wrap(event.getMessage());
 
-        Long userId = (Long) accessor.getSessionAttributes().get("userId");
-        if (userId != null) {
-            System.out.println("websocket disconnected : userId = " + userId);
-            stompInterceptor.removeSession(userId, sessionId);
-        }
+    System.out.println("websocket disconnected session id : "+ sessionId);
+
+    Long userId = (Long) accessor.getSessionAttributes().get("userId");
+    if (userId != null) {
+      System.out.println("websocket disconnected : userId = " + userId);
+      stompInterceptor.removeSession(userId, sessionId);
     }
+  }
 
 
 }

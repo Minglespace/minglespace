@@ -37,7 +37,6 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
         registry.addEndpoint("/ws") // WebSocket 연결 엔드포인트
 //                .setAllowedOriginPatterns("*") // CORS 설정. 이건 모든 도메인 허용
                 .setAllowedOrigins("http://localhost:3000", "ws://localhost:3000") // CORS 설정. 이건 모든 도메인 허용
-//                .addInterceptors(customHandShakeInterceptor) //핸드셰이크 요청 시 우선 검증
                 .withSockJS()// SockJS 사용>websocket 지원 안하는 브라우저도 fallback기능 제공
                 .setHeartbeatTime(4000);
     }

@@ -14,13 +14,15 @@ import java.util.Optional;
 @Repository
 public interface ChatMessageRepository extends JpaRepository<ChatMessage, Long>, JpaSpecificationExecutor<ChatMessage> {
 
-    List<ChatMessage> findByChatRoomId(Long chatRoomId);
-    List<ChatMessage> findByChatRoom(ChatRoom chatRoom);
-    List<ChatMessage> findByChatRoomIdAndContentContaining(Long chatRoomId, String keyword);
+  List<ChatMessage> findByChatRoomId(Long chatRoomId);
 
-    // 채팅방의 마지막 메시지 조회
-    @Query(value = "SELECT * FROM chatmessage WHERE chatroom_id = :chatRoomId ORDER BY date DESC LIMIT 1", nativeQuery = true)
-    Optional<ChatMessage> findLatestMessageByChatRoomId(@Param("chatRoomId") Long chatRoomId);
+  List<ChatMessage> findByChatRoom(ChatRoom chatRoom);
 
-    void deleteByChatRoomId(Long chatRoomId);
+  List<ChatMessage> findByChatRoomIdAndContentContaining(Long chatRoomId, String keyword);
+
+  // 채팅방의 마지막 메시지 조회
+  @Query(value = "SELECT * FROM chatmessage WHERE chatroom_id = :chatRoomId ORDER BY date DESC LIMIT 1", nativeQuery = true)
+  Optional<ChatMessage> findLatestMessageByChatRoomId(@Param("chatRoomId") Long chatRoomId);
+
+  void deleteByChatRoomId(Long chatRoomId);
 }
