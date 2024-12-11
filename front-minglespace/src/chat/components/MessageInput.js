@@ -31,7 +31,7 @@ const MessageInput = ({ wsMembers, tags, onSendMessage }) => {
   };
 
   const handleKeyDown = (e) => {
-    console.log(typeof messages);
+    // console.log(typeof messages);
     if (e.key === "Enter" && !e.shiftKey && messages.trim()) {
       handleSendMessage();
       setMessages(""); // 메시지 전송 후 입력란 초기화
