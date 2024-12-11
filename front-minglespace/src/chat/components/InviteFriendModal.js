@@ -86,7 +86,7 @@ const InviteFriendModal = ({
         <ul>
           {/* invitableUsers가 정의되지 않았을 때 기본값을 빈 배열로 설정 */}
           {inviteUsers.length === 0 ? (
-            <li>초대할 친구가 없습니다.</li>
+            <li>초대할 멤버가 없습니다.</li>
           ) : (
             inviteUsers.map((member) => (
               <li key={member.wsMemberId}>

@@ -32,7 +32,7 @@ export const WebSocketProvider = ({ children }) => {
 				subscriptions.forEach(({ path, messageHandler }) => {
 					if (!subscriptionRefs.current.has(path)) {
 						const subscription = stompClient.subscribe(path, (msg) => {
-							console.log("구독 메시지 도착 : ", msg.body);
+							console.log("구독 메시지 도착 : ", msg.body, ", path: ", path);
 							const newMsg = JSON.parse(msg.body);
 							messageHandler(newMsg); // 메시지 처리 함수 호출
 						});

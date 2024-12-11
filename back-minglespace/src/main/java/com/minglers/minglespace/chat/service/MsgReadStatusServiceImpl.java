@@ -55,7 +55,7 @@ public class MsgReadStatusServiceImpl implements MsgReadStatusService{
       long deletedCount = msgReadStatusRepository.deleteByMessage_ChatRoom_IdAndWsMemberId(chatRoomId, wsMemberId);
 
       if (deletedCount == 0) {
-        throw new ChatException(HttpStatus.NOT_FOUND.value(), "읽음 처리할 메시지가 없습니다. 채팅방 ID: " + chatRoomId + ", 유저 ID: " + wsMemberId);
+//        throw new ChatException(HttpStatus.NOT_FOUND.value(), "읽음 처리할 메시지가 없습니다. 채팅방 ID: " + chatRoomId + ", 유저 ID: " + wsMemberId);
       }
 
       log.info("Messages marked as read and deleted for chat room ID: " + chatRoomId + " and user ID: " + wsMemberId);

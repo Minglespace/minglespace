@@ -45,6 +45,12 @@ const ChatRoom = ({
     setValidChatRoomId(chatRoomId);
   }, [location.search]);
 
+
+  useEffect(() => {
+    console.log("Updated chatRoomInfo:", chatRoomInfo);  // 상태가 바뀔 때마다 콘솔로 확인
+  }, [chatRoomInfo]);
+
+
   useEffect(() => {
     const currentChatRoomId = validChatRoomIdRef.current;
     if (!currentChatRoomId) {
@@ -57,7 +63,7 @@ const ChatRoom = ({
     const fetchRoomInfo = async () => {
       try {
         const roomInfo = await ChatApi.getChatRoom(workSpaceId, currentChatRoomId);
-        // console.log("chatRoom_ get info: ", roomInfo);
+        console.log("chatRoom_ get info: ", roomInfo);
         setChatRoomInfo(roomInfo);
 
         const participantsIds = roomInfo.participants.map((participant) =>
@@ -223,10 +229,30 @@ const ChatRoom = ({
     console.log("Received message:", newMsg);
     console.log("chatRoomId: ", currentChatRoomId, ", newMsg_crId: ", newMsg.chatRoomId);
     if (Number(currentChatRoomId) === Number(newMsg.chatRoomId)) {
-      setChatRoomInfo(prev => ({
-        ...prev,
-        messages: [...prev.messages, newMsg]
-      }));
+      console.log("현 채팅방 맞음");
+      console.log("chatRoomInfo: ", chatRoomInfo, " , setchatroominfo: ", setChatRoomInfo);
+      // setChatRoomInfo(prev => {
+      //   // ...prev,
+      //   // messages: [...prev.messages, newMsg]
+
+      //   const updatedMessages = [...prev.messages, newMsg];
+      //   console.log("Updated messages: ", updatedMessages); // 상태 업데이트 전에 확인
+      //   return { ...prev, messages: updatedMessages };
+      // });
+
+      setChatRoomInfo((prev) => {
+        const updatedMessages = [...prev.messages, newMsg];
+        console.log("Updated messages before set: ", updatedMessages); // 상태 업데이트 전에 확인
+
+        return { ...prev, messages: updatedMessages };
+      });
+
+      // 상태 업데이트 후 확인
+      setChatRoomInfo((prev) => {
+        console.log("Chat room info updated:", prev);
+        return prev;
+      });
+
     }
 
   };

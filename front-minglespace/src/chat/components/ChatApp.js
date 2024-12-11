@@ -33,13 +33,14 @@ const ChatApp = () => {
   const [isFold, setFold] = useState(false); // 채팅방 목록을 접고 펼치는 상태.
   const [rooms, setRooms] = useState(initRooms); // 채팅방 정보
   const [wsmembers, setWsMembers] = useState(initMembers);
-  const chatListRef = useRef(null); // 채팅방 목록을 참조하기 위한 ref
   const [error, setError] = useState(null); //오류 상태
   const [validChatRoomId, setValidChatRoomId] = useState(null);
 
   const { workspaceId } = useParams();
   const location = useLocation();
+  const chatListRef = useRef(null); // 채팅방 목록을 참조하기 위한 ref
   const validChatRoomIdRef = useRef(validChatRoomId);
+
 
   // 채팅방 목록이 변경될 때마다 자동 스크롤
   useEffect(() => {
@@ -51,15 +52,48 @@ const ChatApp = () => {
   }, [rooms]); // rooms 배열이 변경될 때마다 실행
 
   useEffect(() => {
-    // console.log("변경된 validId: ", validChatRoomId);
+    const chatRoomId = new URLSearchParams(location.search).get("chatRoomId");
+    console.log("쿼리 변화 감지 하고 있니, ", chatRoomId);
+    setValidChatRoomId(chatRoomId);
+  }, [location.search]);
+
+  useEffect(() => {
+    console.log("변경된 validId: ", validChatRoomId);
     validChatRoomIdRef.current = validChatRoomId;
   }, [validChatRoomId]);
 
-  useEffect(() => {
-    const chatRoomId = new URLSearchParams(location.search).get("chatRoomId");
-    // console.log("쿼리 변화 감지 하고 있니, ", chatRoomId);
-    setValidChatRoomId(chatRoomId);
-  }, [location.search]);
+
+
+
+  ///websocket 구독 및 콜백함수
+  const handleNewMessage = (newMsg) => {
+    const nowChatRoomId = validChatRoomIdRef.current;
+    console.log("validChatRoomId: ", nowChatRoomId, "newMsg.chatRoomId: ", newMsg.chatRoomId, " , 현 유저: ", Repo.getUserId());
+    console.log("chatapp_ newmsg: ", newMsg);
+
+    if (nowChatRoomId == null || Number(nowChatRoomId) !== Number(newMsg.chatRoomId)) {
+      setRooms(prev =>
+        prev.map(room =>
+          room.chatRoomId === newMsg.chatRoomId
+            ? { ...room, notReadMsgCount: room.notReadMsgCount + 1, lastMessage: newMsg.content } : room
+        )
+      );
+      console.log("newmsg 변경완");
+    } else {
+      setRooms(prev =>
+        prev.map(room =>
+          room.chatRoomId === newMsg.chatRoomId
+            ? { ...room, lastMessage: newMsg.content } : room
+        )
+      );
+      console.log("참여중이라서 마지막 메시지만 ");
+      handleReadMsg(newMsg.chatRoomId);
+    }
+  };
+
+  const { isConnected, stompClientRef } = useWebSocket([
+    { path: `/topic/workspaces/${workspaceId}`, messageHandler: handleNewMessage }
+  ]);
 
 
   //마운트 시, 채팅방 목록 가져오기
@@ -96,35 +130,6 @@ const ChatApp = () => {
   }, [workspaceId]);
 
 
-  ///websocket 구독 및 콜백함수
-  const handleNewMessage = (newMsg) => {
-    const nowChatRoomId = validChatRoomIdRef.current;
-    console.log("validChatRoomId: ", nowChatRoomId, "newMsg.chatRoomId: ", newMsg.chatRoomId, " , 현 유저: ", Repo.getUserId());
-    console.log("chatapp_ newmsg: ", newMsg);
-
-    if (nowChatRoomId == null || Number(nowChatRoomId) !== Number(newMsg.chatRoomId)) {
-      setRooms(prev =>
-        prev.map(room =>
-          room.chatRoomId === newMsg.chatRoomId
-            ? { ...room, notReadMsgCount: room.notReadMsgCount + 1, lastMessage: newMsg.content } : room
-        )
-      );
-      // console.log("newmsg 변경완");
-    } else {
-      setRooms(prev =>
-        prev.map(room =>
-          room.chatRoomId === newMsg.chatRoomId
-            ? { ...room, lastMessage: newMsg.content } : room
-        )
-      );
-      // console.log("참여중이라서 마지막 메시지만 ");
-      handleReadMsg(newMsg.chatRoomId);
-    }
-  };
-
-  const { isConnected, stompClientRef } = useWebSocket([
-    { path: `/topic/workspaces/${workspaceId}`, messageHandler: handleNewMessage }
-  ]);
 
   // 새로운 채팅방 추가 함수
   const handleCreateRoom = async (newRoomData, imageFile) => {
