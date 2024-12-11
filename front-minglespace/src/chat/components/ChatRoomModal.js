@@ -13,7 +13,7 @@ const ChatRoomModal = ({
   onInvite,
   onDelegate,
   onKick,
-  onExit
+  onExit,
 }) => {
   if (!isOpen) return null;
 
@@ -45,7 +45,7 @@ const ChatRoomModal = ({
           />
         );
       case "transfer":
-        // console.log("delegateModal 렌더링");
+        console.log("delegateModal 렌더링");
         return (
           <DelegateModal
             isOpen={isOpen}

@@ -180,9 +180,6 @@ const ChatRoom = ({
         };
       });
       handleExit();
-      // alert(`�로방장�로 ${newLeader.name}�이 �정�었�니`);
-
-      // alert(`�로방장�로 ${newLeader.name}�이 �정�었�니`);
     } catch (error) {
       console.error("error fetching delegateChatLeader: ", error);
     }
@@ -205,19 +202,105 @@ const ChatRoom = ({
   };
 
   const [messages, setMessages] = useState([
-    { sender: "Alice", text: "Hello!", isCurrentUser: false },
-    { sender: "Bob", text: "Hi!", isCurrentUser: false },
+    {
+      message_id: 1,
+      sender: "Alice",
+      text: "Hello!",
+      isCurrentUser: false,
+      replies: [],
+    },
+    {
+      message_id: 2,
+      sender: "Bob",
+      text: "Hi there!",
+      isCurrentUser: false,
+      replies: [],
+    },
   ]);
 
   const [newMessage, setNewMessage] = useState("");
+  const [replyToMessage, setReplyToMessage] = useState(null); //답글을 달 메시지 상태
+  const [selectedMessageId, setSelectedMessageId] = useState(null);
+
+  // 메시지에 답글 추가하는 함수
+  const onAddReply = (messageIndex, replyText) => {
+    const updatedMessages = [...messages]; // 기존 메시지 배열 복사
+    const message = updatedMessages[messageIndex];
+
+    // 해당 메시지에 답글 추가
+    message.replies.push({
+      sender: "User",
+      text: replyText,
+      isCurrentUser: true,
+    });
+    setMessages(updatedMessages); // 업데이트된 메시지 배열로 상태 갱신
+    setNewMessage(""); // 새 메시지 입력창 비우기
+    setReplyToMessage(null); // 답글 작성 후 상태 초기화
+  };
 
   // 메시지 전송 처리 함수
-  const handleSendMessage = async (newMessage) => {
-    setMessages((prevMessages) => [
-      ...prevMessages,
-      { sender: "User", text: newMessage, isCurrentUser: true },
-    ]);
-    console.log(messages);
+  const handleSendMessage = (messageText) => {
+    const newMessage = {
+      text: messageText,
+      replies: [],
+      sender: "User",
+      isCurrentUser: true,
+      message_id: messages.length + 1,
+    };
+
+    if (replyToMessage) {
+      // 답글이 달린 메시지 처리
+      const updatedMessages = messages.map((msg) => {
+        if (msg.message_id === replyToMessage.message_id) {
+          return {
+            ...msg,
+            replies: [...msg.replies, { sender: "User", text: messageText }],
+          };
+        }
+        return msg;
+      });
+      setMessages(updatedMessages);
+    } else {
+      setMessages((prevMessages) => [...prevMessages, newMessage]);
+    }
+
+    // 메시지 전송 후 입력창 초기화
+    setNewMessage("");
+    setReplyToMessage(null); // 답글 상태 초기화
+    console.log("현재 메시지 목록: ", messages);
+  };
+
+  // 메시지를 클릭하면 해당 메시지를 선택
+  const handleMessageClick = (messageId) => {
+    setSelectedMessageId(messageId);
+  };
+
+  // 답글을 작성하는 함수
+  const handleReplyChange = (event) => {
+    setReplyToMessage(event.target.value);
+  };
+
+  const handlePostReply = () => {
+    if (selectedMessageId !== null && setReplyToMessage.trim() !== "") {
+      // 답글을 작성한 메시지 ID에 추가
+      const newMessages = messages.map((message) => {
+        if (message.message_id === selectedMessageId) {
+          return {
+            ...message,
+            replies: [
+              ...message.replies,
+              { user: "User3", content: setReplyToMessage },
+            ],
+          };
+        }
+        return message;
+      });
+
+      setMessages(newMessages);
+      setReplyToMessage(""); // 답글 작성 후 입력 필드 초기화
+    } else {
+      alert("답글을 달 메시지를 선택하거나 내용을 입력하세요.");
+    }
   };
 
   return (
@@ -233,10 +316,21 @@ const ChatRoom = ({
         handleDelegate={handleDelegate}
         handleExit={handleExit}
       />
-      <div className="chat_messages">
-        <MessageInput onSendMessage={handleSendMessage} />
-        {/*  메시지 전송 처리 */}
-      </div>
+
+      <MessageList
+        messages={messages || []}
+        setReplyToMessage={setReplyToMessage} // 답글 달고 싶은 메시지 설정
+      />
+
+      <MessageInput
+        onSendMessage={handleSendMessage}
+        newMessage={newMessage}
+        setNewMessage={setNewMessage}
+        replyToMessage={replyToMessage}
+        setReplyToMessage={setReplyToMessage}
+      />
+
+      {/*  메시지 전송 처리 */}
     </div>
   );
 };

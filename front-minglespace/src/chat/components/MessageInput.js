@@ -1,11 +1,16 @@
 import React, { useState } from "react";
 import { FaLock, FaLockOpen } from "react-icons/fa";
-import Mentions from "./Mentions";
 
-const MessageInput = ({ wsMembers, tags, onSendMessage }) => {
+const MessageInput = ({
+  onSendMessage,
+  newMessage,
+  setNewMessages,
+  replyToMessage,
+  setReplyToMessage,
+}) => {
   // 메시지 입력을 잠그는 상태 변수
   const [isLocked, setIsLocked] = useState(false);
-  const [messages, setMessages] = useState("");
+  const [messages, setMessages] = useState(newMessage || "");
 
   // 메시지 잠금 상태 변경 함수
   const toggleLock = () => {
@@ -21,10 +26,13 @@ const MessageInput = ({ wsMembers, tags, onSendMessage }) => {
 
   // 메시지 전송 처리 함수
   const handleSendMessage = () => {
-    const mentionsData = messages.match(/@\w+|#\w+/g) || [];
-    if (messages.trim() !== "") {
+    if (typeof messages === "string" && messages.trim() !== "") {
+      console.log("전송할 메시지", newMessage);
       onSendMessage(messages);
       setMessages("");
+      setReplyToMessage(null);
+    } else {
+      console.log("빈 메시지 전송 시도 ");
     }
   };
 
@@ -39,6 +47,13 @@ const MessageInput = ({ wsMembers, tags, onSendMessage }) => {
   return (
     <div className="message-input-container">
       <div className="message-input-wrapper">
+        {replyToMessage && (
+          <div className="replying-to-message">
+            <span>답글을 달고 있는 메시지:</span>
+            <p>{replyToMessage.text}</p>
+            <button onClick={() => setReplyToMessage(null)}>답글 취소</button>
+          </div>
+        )}
         <input
           type="text"
           value={messages}
@@ -50,16 +65,18 @@ const MessageInput = ({ wsMembers, tags, onSendMessage }) => {
           }
           className="message-input"
         />
-        <Mentions
+        {/* <Mentions
           value={messages}
           onChange={handleMessageChange}
           wsMembers={wsMembers}
           tags={tags}
-        ></Mentions>
+        ></Mentions> */}
         <button
           className="send-btn"
           onClick={handleSendMessage}
-          disabled={isLocked || !messages.trim()}
+          disabled={
+            isLocked || (typeof messages === "string" && !messages.trim())
+          }
         >
           전송
         </button>
