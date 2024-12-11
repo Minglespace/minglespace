@@ -45,6 +45,17 @@ public class ImageServiceImpl implements ImageService{
       }
     }
 
+    //이미지 폴더 생성
+    File imagesFolder = new File(uploadPath + File.separator + "images");
+    if(!imagesFolder.exists()){
+      boolean folderCreated = imagesFolder.mkdirs();
+      if(folderCreated){
+        log.info("images folder created at: ", imagesFolder.getAbsolutePath());
+      }else{
+        log.error("failed to create images folder at: " + imagesFolder.getAbsolutePath());
+      }
+    }
+
     System.out.println("upload path: "+ tempFolder.getAbsolutePath());
     uploadPath = tempFolder.getAbsolutePath();
   }
@@ -61,8 +72,8 @@ public class ImageServiceImpl implements ImageService{
     log.info("uploadImage_renameFilename : "+ updatedName);
 
     // 파일 저장 경로
-    String localPath = uploadPath + File.separator + updatedName;
-    String uriPath = "/images/" + updatedName;  // 클라이언트에서 파일을 불러올 때 URI 경로
+    String localPath = uploadPath + File.separator + "images" + File.separator + updatedName;
+    String uriPath = "/upload/images/" + updatedName;  // 클라이언트에서 파일을 불러올 때 URI 경로
 
     // 로컬에 파일 저장
     File destFile = new File(localPath); //실제 저장할 파일 객체
@@ -116,12 +127,13 @@ public class ImageServiceImpl implements ImageService{
   public Resource getImage(String imageName) throws IOException {
     String decodedImageName = URLDecoder.decode(imageName, StandardCharsets.UTF_8);
 
-    Path path = Paths.get(uploadPath + File.separator + decodedImageName);
+    Path path = Paths.get(uploadPath + File.separator + "images" + File.separator + decodedImageName);
     return new UrlResource(path.toUri());
   }
 
   @Override
   public String getMimeType(String imageName) {
-    return URLConnection.guessContentTypeFromName(imageName) != null ? URLConnection.guessContentTypeFromName(imageName) : "application/octet-stream";
+    return URLConnection.guessContentTypeFromName(imageName) != null ?
+            URLConnection.guessContentTypeFromName(imageName) : "application/octet-stream";
   }
 }

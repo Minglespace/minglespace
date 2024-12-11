@@ -14,14 +14,14 @@ import java.net.MalformedURLException;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/images")
+@RequestMapping("/upload")
 public class ImageController {
   private final ImageService imageService;
 
   //클라이언트에서 통하는 이미지 경로.
   //고민 > chatRoom, user, message에 활용되는 메시지를 구분하려면 service에서 저장할 때 uripath 처리를 수정해야함
   @CrossOrigin(origins = "http://localhost:3000")
-  @GetMapping("/{imageName}")
+  @GetMapping("/images/{imageName}")
   public ResponseEntity<Resource> getImage(@PathVariable String imageName) {
     try {
       Resource resource = imageService.getImage(imageName);
