@@ -4,7 +4,7 @@ import { useContext } from "react";
 import TodoModal from "./TodoModal";
 const TodoItem = ({ todo }) => {
   const [modalOpen, setModalOpen] = useState(false);
-
+  const [ modifyTodo, setModifyTodo] = useState({todo});
   const handleModalOpen = () => {
     setModalOpen(true);
   };
@@ -13,12 +13,16 @@ const TodoItem = ({ todo }) => {
     setModalOpen(false);
   };
 
+  const handleSave = (updatedTodo) => {
+    setModifyTodo(modifyTodo.map(todo => todo.id === updatedTodo.id ? updatedTodo : todo))
+  };
+
   const formatDate = (timestamp) => {
     const date = new Date(timestamp);
     return date.toLocaleDateString();
   };
   return (
-    <div onClick={handleModalOpen}>
+    <div onClick={(e) => {e.stopPropagation(); handleModalOpen();}}>
       <div>
         <div>
           <p className="todo_item_title">{todo.title}</p>
@@ -43,7 +47,7 @@ const TodoItem = ({ todo }) => {
         </div>
       </div>
 
-      <TodoModal open={modalOpen} onClose={handleModalClose} />
+      <TodoModal todo={todo} open={modalOpen} onClose={handleModalClose} onSave={handleSave}/>
     </div>
   );
 };

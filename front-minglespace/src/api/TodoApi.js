@@ -34,7 +34,7 @@ class TodoApi {
 
   static modifyTodo = async (todoId, workspaceId, todoObj) => {
     const res = await api.axiosIns.put(
-      `${TodoApi.prefix}/${workspaceId}/milestone/milestoneGroup/${todoId}`,
+      `${TodoApi.prefix}/${workspaceId}/todo/${todoId}`,
       todoObj
     );
     return res.data;
