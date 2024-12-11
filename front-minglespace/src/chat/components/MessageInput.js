@@ -25,13 +25,15 @@ const MessageInput = ({ wsMembers, tags, onSendMessage }) => {
     if (messages.trim() !== "") {
       onSendMessage(messages);
       setMessages("");
+    } else {
+      alert("메시지를 입력해주세요");
     }
   };
 
   const handleKeyDown = (e) => {
     console.log(typeof messages);
     if (e.key === "Enter" && !e.shiftKey && messages.trim()) {
-      onSendMessage(messages);
+      handleSendMessage();
       setMessages(""); // 메시지 전송 후 입력란 초기화
     }
   };

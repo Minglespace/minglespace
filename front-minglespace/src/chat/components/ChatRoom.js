@@ -1,10 +1,11 @@
-﻿import React, { useEffect, useState } from "react";
+﻿import React, { useEffect, useRef, useState } from "react";
 import ChatRoomHeader from "./ChatRoomHeader";
 import MessageList from "./MessageList";
 import MessageInput from "./MessageInput";
 import ChatApi from "../../api/chatApi";
 import { useLocation, useNavigate } from "react-router-dom";
 import Repo from "../../auth/Repo";
+import { useWebSocket } from "../context/WebSocketContext";
 
 const initChatRoomInfo = {
   chatRoomId: 0,
@@ -14,6 +15,7 @@ const initChatRoomInfo = {
   messages: [],
   participants: [],
 };
+
 const ChatRoom = ({
   isFold,
   wsMembers,
@@ -25,22 +27,36 @@ const ChatRoom = ({
   const [inviteMembers, setInviteMembers] = useState([]);
   const [isRoomOwner, setIsRoomOwner] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const chatRoomId = new URLSearchParams(useLocation().search).get(
-    "chatRoomId"
-  );
+  const [currentMemberInfo, setCurrentMemberInfo] = useState(null); //participants에서 현재 유저 뽑아내기
+  const [validChatRoomId, setValidChatRoomId] = useState(new URLSearchParams(useLocation().search).get("chatRoomId"));
+
+  const location = useLocation();
   const navigate = useNavigate();
+  const validChatRoomIdRef = useRef(validChatRoomId);
 
   useEffect(() => {
-    if (!chatRoomId) {
+    console.log("chatroom _ 변경된 validId: ", validChatRoomId);
+    validChatRoomIdRef.current = validChatRoomId;
+    console.log("chatroom _ 변경되고나서 ref: ", validChatRoomIdRef.current);
+  }, [validChatRoomId]);
+
+  useEffect(() => {
+    const chatRoomId = new URLSearchParams(location.search).get("chatRoomId");
+    setValidChatRoomId(chatRoomId);
+  }, [location.search]);
+
+  useEffect(() => {
+    const currentChatRoomId = validChatRoomIdRef.current;
+    if (!currentChatRoomId) {
       console.log("No chatRoomId provided, skipping server request.");
 
       return;
     }
 
-    // 채팅방 정보 서버에 요청
+    //채팅방 정보 서버에 요청
     const fetchRoomInfo = async () => {
       try {
-        const roomInfo = await ChatApi.getChatRoom(workSpaceId, chatRoomId);
+        const roomInfo = await ChatApi.getChatRoom(workSpaceId, currentChatRoomId);
         // console.log("chatRoom_ get info: ", roomInfo);
         setChatRoomInfo(roomInfo);
 
@@ -62,6 +78,7 @@ const ChatRoom = ({
           (participant) =>
             Number(participant.userId) === Number(Repo.getUserId())
         );
+        setCurrentMemberInfo(currentMemberInfo);
         // console.log("chatroom_ currentmemberinfo:", currentMemberInfo);
         if (currentMemberInfo.chatRole === "CHATLEADER") {
           setIsRoomOwner(true);
@@ -76,16 +93,13 @@ const ChatRoom = ({
     fetchRoomInfo();
 
     setIsModalOpen(false);
-  }, [workSpaceId, chatRoomId, wsMembers]);
+  }, [workSpaceId, validChatRoomId, wsMembers]);
+
 
   const handleInvite = async (addMember) => {
     try {
       // console.log("add member wsmemberId: ", addMember.wsMemberId);
-      const data = await ChatApi.addMemberToRoom(
-        workSpaceId,
-        chatRoomId,
-        addMember.wsMemberId
-      );
+      await ChatApi.addMemberToRoom(workSpaceId, validChatRoomId, addMember.wsMemberId);
 
       //참여자 갱신
       const newParticipant = {
@@ -102,14 +116,17 @@ const ChatRoom = ({
         participants: updatedParticipants,
       }));
 
+      //초대 목록 갱신
       const updatedInviteMembers = inviteMembers.filter(
         (member) => member.wsMemberId !== addMember.wsMemberId
       );
 
       setInviteMembers(updatedInviteMembers);
 
-      updateRoomParticipantCount(chatRoomId, 1);
+      //목록에 보이는 참여 카운트 갱신
+      updateRoomParticipantCount(validChatRoomId, 1);
 
+      // alert(addMember.name, "님 채팅방 초대 완료: ", data);
       setIsModalOpen(false);
     } catch (error) {
       console.error("error fetching addMemberToRoom: ", error);
@@ -119,9 +136,9 @@ const ChatRoom = ({
   const handleKick = async (kickMember) => {
     try {
       // console.log("kick member wsmemberId: ", kickMember.wsMemberId);
-      const data = ChatApi.kickMemberFromRoom(
+      await ChatApi.kickMemberFromRoom(
         workSpaceId,
-        chatRoomId,
+        validChatRoomId,
         kickMember.wsMemberId
       );
 
@@ -141,7 +158,7 @@ const ChatRoom = ({
 
       setInviteMembers((prev) => [...prev, kickedMember]);
 
-      updateRoomParticipantCount(chatRoomId, -1);
+      updateRoomParticipantCount(validChatRoomId, -1);
 
       // alert(kickMember.name, "님 채팅방 강퇴 완료: ", data);
       setIsModalOpen(false);
@@ -153,9 +170,9 @@ const ChatRoom = ({
   const handleDelegate = async (newLeader) => {
     console.log(`${newLeader.email} has been promoted to the leader.`);
     try {
-      const data = await ChatApi.delegateLeader(
+      await ChatApi.delegateLeader(
         workSpaceId,
-        chatRoomId,
+        validChatRoomId.current,
         newLeader.wsMemberId
       );
 
@@ -179,10 +196,8 @@ const ChatRoom = ({
           participants: updatedParticipants,
         };
       });
-      handleExit();
-      // alert(`�로방장�로 ${newLeader.name}�이 �정�었�니`);
 
-      // alert(`�로방장�로 ${newLeader.name}�이 �정�었�니`);
+      handleExit();
     } catch (error) {
       console.error("error fetching delegateChatLeader: ", error);
     }
@@ -190,13 +205,11 @@ const ChatRoom = ({
 
   const handleExit = async () => {
     try {
-      const data = await ChatApi.leaveFromChat(workSpaceId, chatRoomId);
+      const data = await ChatApi.leaveFromChat(workSpaceId, validChatRoomId);
 
       if (data) {
-        removeRoom(chatRoomId);
-
+        removeRoom(validChatRoomId);
         setIsModalOpen(false);
-
         navigate(`${window.location.pathname}`); // chatRoomId 쿼리 파라미터를 제거
       }
     } catch (error) {
@@ -204,21 +217,55 @@ const ChatRoom = ({
     }
   };
 
-  const [messages, setMessages] = useState([
-    { sender: "Alice", text: "Hello!", isCurrentUser: false },
-    { sender: "Bob", text: "Hi!", isCurrentUser: false },
-  ]);
+  /////////////////websocket
+  const handleNewMessage = (newMsg) => {
+    const currentChatRoomId = validChatRoomIdRef.current;
+    console.log("Received message:", newMsg);
+    console.log("chatRoomId: ", currentChatRoomId, ", newMsg_crId: ", newMsg.chatRoomId);
+    if (Number(currentChatRoomId) === Number(newMsg.chatRoomId)) {
+      setChatRoomInfo(prev => ({
+        ...prev,
+        messages: [...prev.messages, newMsg]
+      }));
+    }
 
-  const [newMessage, setNewMessage] = useState("");
+  };
+
+  const { isConnected, stompClientRef } = useWebSocket(
+    validChatRoomId ?
+      [{ path: `/topic/chatRooms/${validChatRoomId}/msg`, messageHandler: handleNewMessage }]
+      : []
+  );
+
 
   // 메시지 전송 처리 함수
-  const handleSendMessage = async (newMessage) => {
-    setMessages((prevMessages) => [
-      ...prevMessages,
-      { sender: "User", text: newMessage, isCurrentUser: true },
-    ]);
-    console.log(messages);
+  const handleSendMessage = (msg) => {
+    // console.log("name type: ", msg);
+    // console.log("wsMemberId type: ", currentMemberInfo.wsMemberId);
+    // if (socketRef.current) {
+    if (isConnected && stompClientRef.current) {
+      const newMessage = {
+        content: msg,
+        isAnnouncement: false,  ////수정 필요
+        mentionedUserIds: [],
+        replyId: null,
+        sender: currentMemberInfo.name,
+        workspaceId: chatRoomInfo.workSpaceId,
+        writerWsMemberId: currentMemberInfo.wsMemberId
+      };
+
+      console.log("Sending message:", JSON.stringify(newMessage));
+
+
+      stompClientRef.current.publish({
+        destination: `/app/messages/${validChatRoomId}`,
+        body: JSON.stringify(newMessage),
+      });
+    } else {
+      console.warn("websocket 미연결 or 메시지 빔");
+    }
   };
+
 
   return (
     <div className={`chatroom-container ${isFold ? "folded" : ""}`}>
@@ -234,6 +281,8 @@ const ChatRoom = ({
         handleExit={handleExit}
       />
       <div className="chat_messages">
+        {/* 여기에 채팅 메시지들이 들어갑니다 */}
+        <MessageList messages={chatRoomInfo.messages} currentMemberInfo={currentMemberInfo} /> {/* 전송된 메시지 목록 표시 */}
         <MessageInput onSendMessage={handleSendMessage} />
         {/*  메시지 전송 처리 */}
       </div>

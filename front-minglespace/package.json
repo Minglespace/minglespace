@@ -3,13 +3,14 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "@stomp/stompjs": "^7.0.0",
     "@testing-library/jest-dom": "^5.17.0",
     "@testing-library/react": "^13.4.0",
     "@testing-library/user-event": "^13.5.0",
     "axios": "^1.7.8",
     "cors": "^2.8.5",
     "interactjs": "^1.10.27",
-    "lucide-react": "^0.461.0",
+    "lucide-react": "^0.468.0",
     "moment": "^2.30.1",
     "react": "^18.3.1",
     "react-calendar-timeline": "^0.30.0-beta.1",
@@ -19,6 +20,7 @@
     "react-router-dom": "^6.28.0",
     "react-scripts": "5.0.1",
     "sass": "^1.81.0",
+    "sockjs-client": "^1.6.1",
     "web-vitals": "^2.1.4"
   },
   "scripts": {

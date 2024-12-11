@@ -1,22 +1,31 @@
-import React from "react";
+﻿import React, { useEffect, useRef } from "react";
 
-const MessageList = ({ messages }) => {
+const MessageList = ({ messages, currentMemberInfo }) => {
+  // console.log("messagelist_ mesg; ", messages);
+  const messageListRef = useRef(null);
+
+  // 메시지 목록이 변경될 때마다 스크롤을 맨 아래로 이동시키는 effect
+  useEffect(() => {
+    if (messageListRef.current) {
+      messageListRef.current.scrollTop = messageListRef.current.scrollHeight;
+    }
+  }, [messages]);
+
   return (
-    <div className="message-list">
-      {messages.map((message, index) => (
+    <div className="message-list" ref={messageListRef}>
+      {messages.map((message) => (
         <div
-          key={index}
-          className={`message-item ${
-            message.isCurrentUser ? "sender" : "received"
-          }`}
+          key={message.id}
+          className={`message-item ${message.writerWsMemberId === currentMemberInfo.wsMemberId ? "sender" : "received"
+            }`}
         >
-          {console.log(
-            `Message ${index}:`,
+          {/* {console.log(
+            `Message ${message.id}:`,
             message,
-            message.isCurrentUser ? "sender" : "received"
-          )}
+            message.writerWsMemberId === currentMemberInfo.wsMemberId ? "sent" : "received"
+          )} */}
           <span className="message-sender">{message.sender}: </span>
-          <span className="message-text">{message.text}</span>
+          <span className="message-text">{message.content}</span>
         </div>
       ))}
     </div>
