@@ -1,5 +1,6 @@
 package com.minglers.minglespace.workspace.service;
 
+import com.minglers.minglespace.workspace.dto.FriendWithWorkspaceStatusDTO;
 import com.minglers.minglespace.workspace.dto.MemberWithUserInfoDTO;
 import com.minglers.minglespace.workspace.entity.WSMember;
 
@@ -9,4 +10,7 @@ public interface WSMemberService {
   WSMember findByUserIdAndWsId(Long userId, Long wsId);
   List<MemberWithUserInfoDTO> getWsMemberWithUserInfo(Long workspaceId);
   List<WSMember> findByWorkSpaceId(Long workspaceId);
+
+  List<FriendWithWorkspaceStatusDTO> getFriendWithWorkspace(Long userId, Long workSpaceId);
+  String inviteMember(Long friendId, Long workSpaceId);
 }

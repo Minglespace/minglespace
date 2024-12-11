@@ -2,7 +2,7 @@ import MyFriendsList from "./components/MyFriendsList";
 import MyFriendsSearch from "./components/MyFriendsSearch";
 import MyFriendsRequest from "./components/MyFriendsRequest";
 import MyFriendsPending from "./components/MyFriendsPending";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import MyFriendsApi from "../api/myFriendsApi";
 
 const friendInit = [
@@ -24,47 +24,50 @@ const MyFriends = () => {
   const [loading, setLoading] = useState(true); //로딩 상태관리
 
   //친구리스트 조회용
-  const getFriendList = (searchKeyword) => {
+  const getFriendList = useCallback((searchKeyword) => {
     MyFriendsApi.getList(searchKeyword).then((data) => {
       setFriends(data);
       setLoading(false);
     });
-  };
+  }, []);
   //친구 요청 조회용
-  const getFriendRequestList = () => {
+  const getFriendRequestList = useCallback(() => {
     MyFriendsApi.friendRequestList().then((data) => {
       setFriendRequest(data);
     });
-  };
+  }, []);
   //친구 대기 조회용
-  const getFriendPendingList = () => {
+  const getFriendPendingList = useCallback(() => {
     MyFriendsApi.friendPendingList().then((data) => {
       setFriendPending(data);
     });
-  };
+  }, []);
   //친구 최신화 핸들러
-  const handelSetFriends = (data) => {
+  const handelSetFriends = useCallback((data) => {
     setFriends(data);
-  };
+  }, []);
 
   useEffect(() => {
     getFriendList();
     getFriendRequestList();
     getFriendPendingList();
+  }, [getFriendList, getFriendRequestList, getFriendPendingList]);
+
+  const addFriendRequest = useCallback(() => {
+    getFriendRequestList();
+  }, [getFriendRequestList]);
+
+  const refuseFriend = useCallback((data) => {
+    setFriendPending(data);
   }, []);
 
-  const addFriendRequest = () => {
-    getFriendRequestList();
-  };
-
-  const refuseFriend = (data) => {
-    setFriendPending(data);
-  };
-
-  const acceptFriend = (data) => {
-    setFriendPending(data);
-    getFriendList();
-  };
+  const acceptFriend = useCallback(
+    (data) => {
+      setFriendPending(data);
+      getFriendList();
+    },
+    [getFriendList]
+  );
 
   return (
     <div className="myFriends_container">

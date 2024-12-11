@@ -11,10 +11,16 @@ const MyFriendsSearch = ({ addFriendRequest }) => {
   const [Loading, setLoading] = useState(false);
   const observer = useRef();
 
+  //단어체크 유효성검사
+  const isValidCharacter = useCallback((char) => {
+    const validCharRegex = /^[a-zA-Z0-9@.]*$/;
+    return validCharRegex.test(char);
+  }, []);
+
   //유저리스트 조회용
-  const getUserList = async (keyword, pageNum) => {
+  const getUserList = useCallback(async (keyword, pageNum) => {
     setLoading(true);
-    const response = await MyFriendsApi.getUserList(searchKeyword, pageNum, 10);
+    const response = await MyFriendsApi.getUserList(keyword, pageNum, 10);
     if (pageNum === 0) {
       setUser(response.content);
     } else {
@@ -23,7 +29,7 @@ const MyFriendsSearch = ({ addFriendRequest }) => {
 
     setHasMore(!response.last);
     setLoading(false);
-  };
+  }, []);
 
   useEffect(() => {
     setUser([]);
@@ -34,47 +40,50 @@ const MyFriendsSearch = ({ addFriendRequest }) => {
       }, 1000);
       return () => clearTimeout(timer);
     }
-  }, [searchKeyword]);
+  }, [searchKeyword, getUserList]);
 
   useEffect(() => {
     if (page > 0 && searchKeyword !== "") {
       getUserList(searchKeyword, page);
     }
-  }, [page]);
+  }, [page, searchKeyword, getUserList]);
 
   //검색 핸들러
-  const handleSearch = (event) => {
-    const value = event.target.value;
-    if (isValidCharacter(value)) {
-      setSearchKeyword(value);
-    }
-  };
-
-  //단어체크 유효성검사
-  const isValidCharacter = (char) => {
-    const validCharRegex = /^[a-zA-Z0-9@.]*$/;
-    return validCharRegex.test(char);
-  };
+  const handleSearch = useCallback(
+    (event) => {
+      const value = event.target.value;
+      if (isValidCharacter(value)) {
+        setSearchKeyword(value);
+      }
+    },
+    [isValidCharacter]
+  );
 
   // 엔터 키 핸들러
-  const handleKeyDown = (event) => {
-    if (event.key === "Enter") {
-      event.preventDefault();
-      if (isValidCharacter(searchKeyword) && searchKeyword !== "") {
-        setUser([]);
-        setPage(0);
-        getUserList(searchKeyword, 0);
+  const handleKeyDown = useCallback(
+    (event) => {
+      if (event.key === "Enter") {
+        event.preventDefault();
+        if (isValidCharacter(searchKeyword) && searchKeyword !== "") {
+          setUser([]);
+          setPage(0);
+          getUserList(searchKeyword, 0);
+        }
       }
-    }
-  };
+    },
+    [searchKeyword, isValidCharacter, getUserList]
+  );
 
   //친구신청 핸들러
-  const handleFriendRequest = (friendId) => {
-    MyFriendsApi.friendRequest(friendId).then((data) => {
-      setUser((prevUsers) => prevUsers.filter((user) => user.id !== data.id));
-      addFriendRequest();
-    });
-  };
+  const handleFriendRequest = useCallback(
+    (friendId) => {
+      MyFriendsApi.friendRequest(friendId).then((data) => {
+        setUser((prevUsers) => prevUsers.filter((user) => user.id !== data.id));
+        addFriendRequest();
+      });
+    },
+    [addFriendRequest]
+  );
 
   //마지막 요소를 관찰하여 페이지 번호 증가
   const lastUserElementRef = useCallback(
@@ -100,7 +109,7 @@ const MyFriendsSearch = ({ addFriendRequest }) => {
       <div className="myFriends_userInfo_container">
         {user.map((userInfo, index) => (
           <div
-            className="myFriends_userInfo_deleteButton"
+            className="myFriends_userInfo_flex"
             key={`${userInfo.id}-${index}`}
             ref={index === user.length - 1 ? lastUserElementRef : null}
           >

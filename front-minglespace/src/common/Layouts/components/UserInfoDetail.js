@@ -2,7 +2,6 @@ import React from "react";
 import ProfileImage from "./ProfileImage";
 
 const UserInfoDetail = ({ user }) => {
-  console.log(user);
   return (
     <div className="userInfo_detail_container">
       <h2>유저 상세보기</h2>

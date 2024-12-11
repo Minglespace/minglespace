@@ -166,7 +166,7 @@ public class WorkspaceServiceImpl implements WorkspaceService {
 
     WSMember wsMember = findWSMemberBy(userId,workSpaceId);
 
-    if(WSMemberRole.LEADER !=wsMember.getRole())//리더가 아니라면
+    if(WSMemberRole.MEMBER == wsMember.getRole())//리더가 아니라면
       throw new WorkspaceException(HttpStatus.UNAUTHORIZED.value(),"워크스페이스 리더가 아닙니다");
   }
   //유저id+권한 가져오기

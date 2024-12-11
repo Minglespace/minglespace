@@ -56,8 +56,8 @@
   overflow-y: auto;
 }
 
-///////////컴포넌트들
-.myFriends_userInfo_deleteButton {
+//userInfo랑 나머지정보 flex하는 클래스
+.myFriends_userInfo_flex {
   height: 90px;
   display: flex;
   justify-content: space-between;
