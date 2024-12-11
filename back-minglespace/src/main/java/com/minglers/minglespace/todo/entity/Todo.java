@@ -25,6 +25,7 @@ public class Todo {
   private String content;
   private Long start_date;
   private Long end_date;
+  @ColumnDefault("false")
   private boolean complete;
 
   @ManyToOne(fetch = FetchType.LAZY)
@@ -32,7 +33,7 @@ public class Todo {
   private WorkSpace workSpace;
 
   @ManyToOne(fetch = FetchType.LAZY)
-  @JoinColumn(name = "creator_name")
+  @JoinColumn(name = "creator_id")
   private WSMember wsMember;
 
   @OneToMany(mappedBy = "todo", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)

@@ -16,6 +16,6 @@ public class TodoRequestDTO {
   private Long start_date;
   private Long end_date;
   private boolean complete;
-  private Long creator_id;
+  private String creator_name;
   private List<Long> assignee_id;
 }

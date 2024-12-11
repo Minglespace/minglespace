@@ -2,19 +2,7 @@ import React, { useState } from "react";
 import { WSMemberRoleContext } from "../../workspace/context/WSMemberRoleContext";
 import { useContext } from "react";
 import TodoModal from "./TodoModal";
-const TodoItem = ({
-  id,
-  title,
-  content,
-  start_date,
-  end_date,
-  creator_id,
-  complete,
-}) => {
-  const { memberId, role } = useContext(WSMemberRoleContext);
-  // console.log("id : ", memberId);
-  // console.log("role : ", role);
-  // console.log("complete : ", complete);
+const TodoItem = ({ todo }) => {
   const [modalOpen, setModalOpen] = useState(false);
 
   const handleModalOpen = () => {
@@ -30,18 +18,26 @@ const TodoItem = ({
     return date.toLocaleDateString();
   };
   return (
-    <div key={id} className="todo_item_contents" onClick={handleModalOpen}>
-      <div className={`${complete ? "_completed" : "_uncompleted"}`}>
+    <div onClick={handleModalOpen}>
+      <div>
         <div>
-          <p className="todo_item_title">{title}</p>
-          <p className="todo_item_content">{content}</p>
+          <p className="todo_item_title">{todo.title}</p>
+          <p className="todo_item_content">{todo.content}</p>
           <div className="todo_item_date">
-            <p>{formatDate(start_date)}　~　</p>
-            <p>{formatDate(end_date)} 까지</p>
+            <p>{formatDate(todo.start_date)}　~　</p>
+            <p>{formatDate(todo.end_date)} 까지</p>
           </div>
           <div className="todo_createor_assignee">
-            <p className="todo_item_creator">담당자 : {creator_id}</p>
-            <p className="todo_item_asignee">작업자 : {memberId}</p>
+            <p className="todo_item_creator">담당자 : {todo.creator_name}</p>
+            <p className="todo_item_asignee">
+              작업자 :{" "}
+              {todo.assignee_list.map((assignee) => (
+                <>
+                  <span key={assignee.id}>{assignee.name} </span>
+                  <br></br>
+                </>
+              ))}
+            </p>
           </div>
           {/* <p>role:{role}</p> */}
         </div>

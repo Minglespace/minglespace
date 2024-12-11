@@ -3,10 +3,8 @@ import api, { HOST_URL } from "./Api";
 class TodoApi {
   static prefix = `${HOST_URL}/workspace`;
 
-  static getList = async (workspaceId, wsmemberId) => {
-    const res = await api.axiosIns.get(
-      `${TodoApi.prefix}/${workspaceId}/todo/${wsmemberId}`
-    );
+  static getList = async (workspaceId) => {
+    const res = await api.axiosIns.get(`${TodoApi.prefix}/${workspaceId}/todo`);
 
     return res.data;
   };

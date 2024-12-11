@@ -10,4 +10,5 @@ import java.util.List;
 public interface TodoRepository extends JpaRepository<Todo, Long> {
   @Query("SELECT t FROM Todo t JOIN t.todoAssigneeList a WHERE a.wsMember.id = :wsMemberId")
   List<Todo> findTodosByAssigneeWsMemberId(@Param("wsMemberId") Long wsMemberId);
+  List<Todo> findAllTodoByWorkSpaceId(Long workspaceId);
 }

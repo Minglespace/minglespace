@@ -43,7 +43,7 @@ const root = createBrowserRouter([
     element: <SuspenseWithPrivateRoute page={Chat} />,
   },
   {
-    path: "/workspace/:workspaceId/todo/:wsmemberId",
+    path: "/workspace/:workspaceId/todo",
     element: <SuspenseWithPrivateRoute page={Todo} />,
   },
   {

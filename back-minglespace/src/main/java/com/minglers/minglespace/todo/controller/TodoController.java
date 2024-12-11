@@ -5,6 +5,8 @@ import com.minglers.minglespace.todo.dto.TodoRequestDTO;
 import com.minglers.minglespace.todo.dto.TodoResponseDTO;
 import com.minglers.minglespace.todo.service.TodoService;
 import com.minglers.minglespace.workspace.entity.WSMember;
+import com.minglers.minglespace.workspace.repository.WorkspaceRepository;
+import com.minglers.minglespace.workspace.service.WorkspaceService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -19,7 +21,7 @@ import java.util.List;
 public class TodoController {
 
   private final TodoService todoService;
-
+  private final WorkspaceService workspaceService;
   private final JWTUtils jwtUtils;
 
   @GetMapping("") //유저용 (자신이 만든것 + 자신에게 부여된것)
@@ -27,6 +29,34 @@ public class TodoController {
           @PathVariable("workspaceId") Long workspaceId){
     Long userId = jwtUtils.extractUserId(token.substring(7));
     return ResponseEntity.ok(todoService.getTodoWithAssigneeInfo(workspaceId, userId));
+  }
+
+  @GetMapping("/leader")
+  public ResponseEntity<List<TodoResponseDTO>> getAllTodo(@RequestHeader("Authorization") String token,
+                                                       @PathVariable("workspaceId") Long workspaceId){
+    Long userId = jwtUtils.extractUserId(token.substring(7));
+    return ResponseEntity.ok(todoService.getAllTodo(workspaceId));
+  }
+
+  @GetMapping("/{todoId}")
+  public ResponseEntity<TodoResponseDTO> getOneTodo(@RequestHeader("Authorization") String token,
+  @PathVariable("todoId") Long todoId, @PathVariable("workspaceId") Long workspaceId) {
+    Long userId = jwtUtils.extractUserId(token.substring(7));
+    return ResponseEntity.ok(todoService.getOneTodo(todoId, workspaceId));
+  }
+
+  @PutMapping("/{todoId}")
+  public ResponseEntity<TodoResponseDTO> putTodo(@RequestHeader("Authorization") String token,
+                                                 @PathVariable("todoId") Long todoId, @RequestBody TodoRequestDTO todoRequestDTO){
+    Long userId = jwtUtils.extractUserId(token.substring(7));
+    return ResponseEntity.ok(todoService.putTodoWithAssigneeInfo(todoId, todoRequestDTO));
+  }
+
+  @DeleteMapping("/{todoId}")
+  public ResponseEntity<String> deleteTodo(@RequestHeader("Authorization") String token,
+                                           @PathVariable("todoId") Long todoId){
+    Long userId = jwtUtils.extractUserId(token.substring(7));
+    return ResponseEntity.ok(todoService.deleteTodo(todoId));
   }
 
 //  @GetMapping("/leader")  //관리자용 모든 TODO보기

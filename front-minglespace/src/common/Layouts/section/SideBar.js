@@ -1,8 +1,10 @@
-import React from "react";
+import React, { useContext } from "react";
 import { Link, useParams } from "react-router-dom";
+import { WSMemberRoleContext } from "../../../workspace/context/WSMemberRoleContext";
 
 const SideBar = ({ addmenu }) => {
   const { workspaceId } = useParams();
+  const { memberId } = useContext(WSMemberRoleContext);
   return (
     <div className="sidebar">
       <ul className="sidebar_menuitem">
@@ -24,7 +26,7 @@ const SideBar = ({ addmenu }) => {
               <Link to={`/workspace/${workspaceId}/chat`}>ChatRoom</Link>
             </li>
             <li>
-              <Link to={`/workspace/${workspaceId}/todo/1`}>Todo</Link>
+              <Link to={`/workspace/${workspaceId}/todo`}>Todo</Link>
             </li>
           </>
         )}
