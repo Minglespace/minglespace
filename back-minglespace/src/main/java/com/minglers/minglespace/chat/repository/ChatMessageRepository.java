@@ -1,4 +1,4 @@
-﻿package com.minglers.minglespace.chat.repository;
+package com.minglers.minglespace.chat.repository;
 
 import com.minglers.minglespace.chat.entity.ChatMessage;
 import com.minglers.minglespace.chat.entity.ChatRoom;
