@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import Modal from "../../common/Layouts/components/Modal";
 import UserInfoDetail from "../../common/Layouts/components/UserInfoDetail";
 import Userinfo from "../../common/Layouts/components/Userinfo";
+import { HOST_URL } from "../../api/Api";
 
 const MemberList = ({ members, onClickMember }) => {
   // 역할 변환 함수 (영어를 한글로)
@@ -15,6 +16,13 @@ const MemberList = ({ members, onClickMember }) => {
         return "서브리더";
     }
   };
+
+  //이미지 체크함수
+  const imageUrlPathCheck = (src) => {
+    if (src && src.trim() !== "") return `${HOST_URL}${src}`;
+    else return null;
+  };
+
   return (
     <div className="section_container myFriends_container_item">
       <h1 className="section_container_title">Members</h1>
@@ -29,7 +37,7 @@ const MemberList = ({ members, onClickMember }) => {
               name={userInfo.name}
               role={transformRole(userInfo.role)}
               email={userInfo.email}
-              src={userInfo.img}
+              src={imageUrlPathCheck(userInfo.imageUriPath)}
             />
             <div>참여중...</div>
           </div>

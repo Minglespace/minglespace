@@ -1,10 +1,10 @@
 import React, { useContext, useState } from "react";
 import ProfileImage from "./ProfileImage";
 import { WSMemberRoleContext } from "../../../workspace/context/WSMemberRoleContext";
-import { TbFlagSearch } from "react-icons/tb";
-
+import api, { HOST_URL } from "../../../api/Api";
 const UserInfoDetail = ({
   user,
+  src,
   isModal,
   handleRemoveMember,
   handleTransferLeader,
@@ -25,7 +25,7 @@ const UserInfoDetail = ({
       return (
         <div className="userInfo_detail_modal_container">
           <h2>유저 상세보기</h2>
-          <ProfileImage src={user.src} userName={user.name} size={200} />
+          <ProfileImage src={src} userName={user.name} size={200} />
           <p>
             <b>이름</b> : {user.name}
           </p>
@@ -50,7 +50,7 @@ const UserInfoDetail = ({
         return (
           <div className="userInfo_detail_modal_container">
             <h2>유저 상세보기</h2>
-            <ProfileImage src={user.src} userName={user.name} size={200} />
+            <ProfileImage src={src} userName={user.name} size={200} />
             <p>
               <b>이름</b> : {user.name}
             </p>
@@ -96,7 +96,7 @@ const UserInfoDetail = ({
         return (
           <div className="userInfo_detail_modal_container">
             <h2>유저 상세보기</h2>
-            <ProfileImage src={user.src} userName={user.name} size={200} />
+            <ProfileImage src={src} userName={user.name} size={200} />
             <p>
               <b>이름</b> : {user.name}
             </p>

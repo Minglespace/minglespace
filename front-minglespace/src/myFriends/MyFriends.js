@@ -13,7 +13,7 @@ const friendInit = [
     phone: "",
     introduction: "",
     position: "",
-    img: "",
+    profileImagePath: "",
   },
 ];
 

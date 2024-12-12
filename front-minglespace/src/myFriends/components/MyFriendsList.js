@@ -4,6 +4,7 @@ import Search from "../../common/Layouts/components/Search";
 import myFriendsApi from "../../api/myFriendsApi";
 import Modal from "../../common/Layouts/components/Modal";
 import UserInfoDetail from "../../common/Layouts/components/UserInfoDetail";
+import api, { HOST_URL } from "../../api/Api";
 
 const MyFriendsList = ({ friends, getFriendList, handelSetFriends }) => {
   const [searchKeyword, setSearchKeyword] = useState("");
@@ -60,6 +61,11 @@ const MyFriendsList = ({ friends, getFriendList, handelSetFriends }) => {
     setIsModalOpen(false);
   };
 
+  //이미지 체크함수
+  const imageUrlPathCheck = (src) => {
+    if (src && src.trim() !== "") return `${HOST_URL}${src}`;
+    else return null;
+  };
   return (
     <div className="section_container myFriends_container_item">
       <h1 className="section_container_title">My Friends</h1>
@@ -79,7 +85,7 @@ const MyFriendsList = ({ friends, getFriendList, handelSetFriends }) => {
                 name={userInfo.name}
                 role={userInfo.position}
                 email={userInfo.email}
-                src={userInfo.img}
+                src={imageUrlPathCheck(userInfo.profileImagePath)}
               />
             </div>
             <button
@@ -94,7 +100,13 @@ const MyFriendsList = ({ friends, getFriendList, handelSetFriends }) => {
         ))}
       </div>
       <Modal open={isModalOpen} onClose={handleCloseModal}>
-        {selectedUser && <UserInfoDetail user={selectedUser} isModal={true} />}
+        {selectedUser && (
+          <UserInfoDetail
+            user={selectedUser}
+            isModal={true}
+            src={imageUrlPathCheck(selectedUser.profileImagePath)}
+          />
+        )}
       </Modal>
     </div>
   );

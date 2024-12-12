@@ -7,6 +7,7 @@ import com.minglers.minglespace.auth.exception.UserFriendsException;
 import com.minglers.minglespace.auth.repository.UserFriendRepository;
 import com.minglers.minglespace.auth.repository.UserRepository;
 import com.minglers.minglespace.auth.type.FriendshipStatus;
+import com.minglers.minglespace.common.entity.Image;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Pageable;
@@ -18,6 +19,7 @@ import org.springframework.web.bind.annotation.PutMapping;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -54,7 +56,11 @@ public class UserFriendService {
         List<User> userList = userFriendRepository.findAllByUserIdAndStatus(userId, FriendshipStatus.ACCEPTED, searchKeyword);
         return userList.stream()
                 .map(user-> {
-                    return modelMapper.map(user, UserResponse.class);
+                    UserResponse userResponse = modelMapper.map(user, UserResponse.class);
+                    String imageUriPath = Optional.ofNullable(user.getImage())
+                            .map(Image::getUripath).orElse("");
+                    userResponse.setProfileImagePath(imageUriPath);
+                    return userResponse;
                 }).toList();
     }
 
@@ -74,7 +80,13 @@ public class UserFriendService {
     public Slice<UserResponse> getNonFriendList(Long userId, String searchKeyword, Pageable pageable){
         Slice<User> userList = userRepository.findNonFriends(userId, searchKeyword, pageable);
 
-        return userList.map(user->modelMapper.map(user, UserResponse.class));
+        return userList.map(user->{
+                UserResponse userResponse = modelMapper.map(user, UserResponse.class);
+                String imageUriPath = Optional.ofNullable(user.getImage())
+                            .map(Image::getUripath).orElse("");
+                userResponse.setProfileImagePath(imageUriPath);
+                return userResponse;
+                });
     }
 
     //친구 추가

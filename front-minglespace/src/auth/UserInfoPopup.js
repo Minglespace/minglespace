@@ -13,13 +13,13 @@ import { HOST_URL } from "../api/Api";
 //============================================================================================
 //============================================================================================
 //============================================================================================
-//============================================================================================ 
+//============================================================================================
 export default function UserInfoPopup() {
   const navigate = useNavigate();
 
   const [isOpen, setIsOpen] = useState(false);
-  const [isEditing, setIsEditing] = useState(false); 
-  const [dontUseProfileImage, setDontUseProfileImage] = useState(false); 
+  const [isEditing, setIsEditing] = useState(false);
+  const [dontUseProfileImage, setDontUseProfileImage] = useState(false);
   const [userInfo, setUserInfo] = useState({
     profileImagePath: "",
     name: "",
@@ -33,20 +33,20 @@ export default function UserInfoPopup() {
   const [selectedImage, setSelectedImage] = useState(null); // 선택된 이미지 파일 선택
   const fileInputRef = useRef(null);
 
-  useEffect(()=>{
+  useEffect(() => {
     getUserInfo();
-  },[]);
+  }, []);
 
   //============================================================================================
   //============================================================================================
   //============================================================================================
   //============================================================================================
   //============================================================================================
-  
+
   const getUserInfo = async () => {
     const res = await AuthApi.userInfo();
     setUserInfo(res);
-  }
+  };
 
   const handleClickOpen = async () => {
     const nowIsOpen = !isOpen;
@@ -57,7 +57,7 @@ export default function UserInfoPopup() {
   };
 
   const handleClickSetting = () => {
-    setIsEditing(true); 
+    setIsEditing(true);
   };
 
   const handleClickLogout = () => {
@@ -79,12 +79,10 @@ export default function UserInfoPopup() {
   };
 
   const handleSaveChanges = async () => {
-    
     userInfo.dontUseProfileImage = dontUseProfileImage;
 
     const res = await AuthApi.updateUserInfoNew2(userInfo, userInfo.localImage);
     if (res.code === 200) {
-
       // 개선 필요
       userInfo.profileImagePath = res.profileImagePath;
       userInfo.name = res.name;
@@ -93,41 +91,39 @@ export default function UserInfoPopup() {
       userInfo.phone = res.phone;
       userInfo.introduction = res.introduction;
 
-      setIsEditing(false);      
+      setIsEditing(false);
     }
   };
 
   const handleImageChange = (e) => {
-    const file = e.target.files ? e.target.files[0] : null; 
+    const file = e.target.files ? e.target.files[0] : null;
     if (file) {
       setDontUseProfileImage(false);
-      setSelectedImage(URL.createObjectURL(file)); 
+      setSelectedImage(URL.createObjectURL(file));
       userInfo.localImage = file;
     }
   };
 
-  const handleClickDontUseImage = () =>{
+  const handleClickDontUseImage = () => {
     Repo.clearProfileColor();
     setSelectedImage(null);
     setDontUseProfileImage(true);
-  }
+  };
 
   const getHostImagePath = () => {
-    if(dontUseProfileImage)
-      return null;
+    if (dontUseProfileImage) return null;
 
-    if(userInfo.profileImagePath)
+    if (userInfo.profileImagePath)
       return `${HOST_URL}` + userInfo.profileImagePath;
-    else
-      return null;
-  }
+    else return null;
+  };
 
   //============================================================================================
   //============================================================================================
   //============================================================================================
   //============================================================================================
   //============================================================================================
-  
+
   return (
     <div className="relative">
       <button
@@ -136,7 +132,11 @@ export default function UserInfoPopup() {
         aria-expanded={isOpen}
         aria-haspopup="true"
       >
-        <ProfileImage src={selectedImage || getHostImagePath()} userName={userInfo.name} size={50} />
+        <ProfileImage
+          src={selectedImage || getHostImagePath()}
+          userName={userInfo.name}
+          size={50}
+        />
       </button>
 
       {isOpen && (
@@ -145,7 +145,10 @@ export default function UserInfoPopup() {
             {isEditing ? (
               <div className="user-info">
                 <div className="profile-container">
-                  <ProfileImage src={selectedImage || getHostImagePath()} userName={userInfo.name} />
+                  <ProfileImage
+                    src={selectedImage || getHostImagePath()}
+                    userName={userInfo.name}
+                  />
                   <button
                     className="userInfo-button"
                     onClick={() => fileInputRef.current.click()} // 버튼 클릭 시 파일 선택창 열기
@@ -154,7 +157,7 @@ export default function UserInfoPopup() {
                   </button>
                   <button
                     className="userInfo-button"
-                    onClick={handleClickDontUseImage} 
+                    onClick={handleClickDontUseImage}
                   >
                     제거
                   </button>
@@ -166,8 +169,10 @@ export default function UserInfoPopup() {
                     onChange={handleImageChange}
                   ></input>
                 </div>
-                
-                <label className="input-label" htmlFor="name">이름</label>
+
+                <label className="input-label" htmlFor="name">
+                  이름
+                </label>
                 <input
                   id="name"
                   type="text"
@@ -176,7 +181,9 @@ export default function UserInfoPopup() {
                   onChange={handleInputChange}
                   className="input-field"
                 />
-                <label className="input-label" htmlFor="position">직책</label>
+                <label className="input-label" htmlFor="position">
+                  직책
+                </label>
                 <input
                   id="position"
                   type="text"
@@ -185,7 +192,9 @@ export default function UserInfoPopup() {
                   onChange={handleInputChange}
                   className="input-field"
                 />
-                <label className="input-label" htmlFor="email">이메일</label>
+                <label className="input-label" htmlFor="email">
+                  이메일
+                </label>
                 <input
                   id="email"
                   type="email"
@@ -195,7 +204,9 @@ export default function UserInfoPopup() {
                   className="input-field"
                   disabled
                 />
-                <label className="input-label" htmlFor="phone">전화번호</label>
+                <label className="input-label" htmlFor="phone">
+                  전화번호
+                </label>
                 <input
                   id="phone"
                   type="text"
@@ -204,7 +215,9 @@ export default function UserInfoPopup() {
                   onChange={handleInputChange}
                   className="input-field"
                 />
-                <label className="input-label" htmlFor="introduction">소개</label>
+                <label className="input-label" htmlFor="introduction">
+                  소개
+                </label>
                 <textarea
                   id="introduction"
                   name="introduction"
@@ -218,7 +231,7 @@ export default function UserInfoPopup() {
                 name={userInfo.name}
                 role={userInfo.position}
                 email={userInfo.email}
-                src={ getHostImagePath()}
+                src={getHostImagePath()}
               />
             )}
           </div>
@@ -232,7 +245,9 @@ export default function UserInfoPopup() {
                 </div>
                 <div>
                   <p className="detail-label">소개</p>
-                  <p className="detail-value truncate">{userInfo.introduction}</p>
+                  <p className="detail-value truncate">
+                    {userInfo.introduction}
+                  </p>
                 </div>
               </>
             )}

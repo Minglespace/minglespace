@@ -2,6 +2,7 @@ import React, { useCallback, useEffect, useRef, useState } from "react";
 import Search from "../../common/Layouts/components/Search";
 import MyFriendsApi from "../../api/myFriendsApi";
 import Userinfo from "../../common/Layouts/components/Userinfo";
+import api, { HOST_URL } from "../../api/Api";
 
 const MyFriendsSearch = ({ addFriendRequest }) => {
   const [user, setUser] = useState([]);
@@ -98,6 +99,12 @@ const MyFriendsSearch = ({ addFriendRequest }) => {
     },
     [hasMore]
   );
+
+  //이미지 체크함수
+  const imageUrlPathCheck = (src) => {
+    if (src && src.trim() !== "") return `${HOST_URL}${src}`;
+    else return null;
+  };
   return (
     <div className="section_container myFriends_container_item">
       <h1 className="section_container_title">친구를 찾아보세요.</h1>
@@ -117,7 +124,7 @@ const MyFriendsSearch = ({ addFriendRequest }) => {
               name={userInfo.name}
               role={userInfo.position}
               email={userInfo.email}
-              src={userInfo.img}
+              src={imageUrlPathCheck(userInfo.profileImagePath)}
             />
             <button
               className="add_button_2"

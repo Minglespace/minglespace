@@ -2,7 +2,7 @@
 import ProfileImage from "./ProfileImage";
 import Button from "./Button";
 
-const Userinfo = ({ name, role, email, src }) => {
+const Userinfo = ({ name, role, email, src, title }) => {
   return (
     <div className="userInfo_box">
       <ProfileImage src={src} userName={name} />

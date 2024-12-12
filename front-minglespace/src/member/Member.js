@@ -5,6 +5,7 @@ import { useParams } from "react-router-dom";
 import UserInfoDetail from "../common/Layouts/components/UserInfoDetail";
 import { WSMemberRoleContext } from "../workspace/context/WSMemberRoleContext";
 import MemberInvite from "./components/MemberInvite";
+import { HOST_URL } from "../api/Api";
 
 const memberInitData = [
   {
@@ -108,7 +109,6 @@ const Member = () => {
   //멤버 권한 바꾸기
   const handleTransferRole = useCallback(
     (memberId, role) => {
-      console.log(role);
       MembersApi.transferRole(workspaceId, memberId, role).then((data) => {
         getMemberList();
         setSelectedMember(null);
@@ -118,6 +118,11 @@ const Member = () => {
     [workspaceId, getMemberList]
   );
 
+  //이미지 체크함수
+  const imageUrlPathCheck = (src) => {
+    if (src && src.trim() !== "") return `${HOST_URL}${src}`;
+    else return null;
+  };
   const renderContent = () => {
     if (loading) {
       return <p>로딩 중입니다....</p>;
@@ -126,7 +131,12 @@ const Member = () => {
     if (role === "MEMBER") {
       return (
         <div className="section_container myFriends_container_item">
-          {selectedMember && <UserInfoDetail user={selectedMember} />}
+          {selectedMember && (
+            <UserInfoDetail
+              user={selectedMember}
+              src={imageUrlPathCheck(selectedMember.imageUriPath)}
+            />
+          )}
         </div>
       );
     } else if (role === "SUB_LEADER") {
@@ -137,7 +147,12 @@ const Member = () => {
             handleInviteMember={handleInviteMember}
           />
           <div className="section_container myFriends_container_item">
-            {selectedMember && <UserInfoDetail user={selectedMember} />}
+            {selectedMember && (
+              <UserInfoDetail
+                user={selectedMember}
+                src={imageUrlPathCheck(selectedMember.imageUriPath)}
+              />
+            )}
           </div>
         </>
       );
@@ -152,6 +167,7 @@ const Member = () => {
             {selectedMember && (
               <UserInfoDetail
                 user={selectedMember}
+                src={imageUrlPathCheck(selectedMember.imageUriPath)}
                 handleRemoveMember={handleRemoveMember}
                 handleTransferLeader={handleTransferLeader}
                 handleTransferRole={handleTransferRole}
