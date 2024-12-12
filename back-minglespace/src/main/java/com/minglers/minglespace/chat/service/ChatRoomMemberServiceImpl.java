@@ -25,118 +25,127 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 public class ChatRoomMemberServiceImpl implements ChatRoomMemberService {
-    private final ChatRoomMemberRepository chatRoomMemberRepository;
-    private final ChatRoomRepository chatRoomRepository;
-    private final WSMemberRepository wsMemberRepository;
-    //알림 처리
-    private final CustomHandShakeInterceptor customHandShakeInterceptor;
-    private final SimpMessagingTemplate simpMessagingTemplate;
+  private final ChatRoomMemberRepository chatRoomMemberRepository;
+  private final ChatRoomRepository chatRoomRepository;
+  private final WSMemberRepository wsMemberRepository;
+  //알림 처리
+  private final CustomHandShakeInterceptor customHandShakeInterceptor;
+  private final SimpMessagingTemplate simpMessagingTemplate;
 
-    @Override
-    @Transactional
-    public void updateIsLeftFromLeave(Long chatRoomId, Long wsMemberId) {
+  @Override
+  @Transactional
+  public void updateIsLeftFromLeave(Long chatRoomId, Long wsMemberId) {
 //        ChatRoom chatRoom = chatRoomRepository.findById(chatRoomId).orElseThrow(() -> new RuntimeException("해당하는 채팅방이 없습니다.."));
 //        WSMember member = wsMemberRepository.findById(wsMemberId).orElseThrow(() -> new RuntimeException("해당하는 멤버가 없습니다. "));
 
-        if (!chatRoomMemberRepository.existsByChatRoomIdAndWsMemberIdAndIsLeftFalse(chatRoomId, wsMemberId)) {
-            throw new ChatException(HttpStatus.NOT_FOUND.value(), "채팅방에 참여하지 않은 유저입니다.");
-        }
-
-        int updateResult = chatRoomMemberRepository.updateIsLeftStatus(true, chatRoomId, wsMemberId);
-        if (updateResult == 0) {
-            throw new ChatException(HttpStatus.BAD_REQUEST.value(), "사용자를 채팅방에서 나갔다는 상태로 업데이트하는데 실패했습니다.");
-        }
-
+    if (!chatRoomMemberRepository.existsByChatRoomIdAndWsMemberIdAndIsLeftFalse(chatRoomId, wsMemberId)) {
+      throw new ChatException(HttpStatus.NOT_FOUND.value(), "채팅방에 참여하지 않은 유저입니다.");
     }
 
-    @Override
-    @Transactional
-    public void addUserToRoom(Long chatRoomId, Long wsMemberId) {
-        ChatRoom chatRoom = chatRoomRepository.findById(chatRoomId)
-                .orElseThrow(() -> new ChatException(HttpStatus.NOT_FOUND.value(), "해당하는 채팅방이 없습니다.."));
-        WSMember member = wsMemberRepository.findById(wsMemberId)
-                .orElseThrow(() -> new ChatException(HttpStatus.NOT_FOUND.value(), "해당하는 멤버가 없습니다. "));
-
-        if (chatRoomMemberRepository.existsByChatRoomIdAndWsMemberId(chatRoomId, wsMemberId)) {
-            chatRoomMemberRepository.updateIsLeftStatus(false, chatRoomId, wsMemberId);
-        } else {
-            ChatRoomMember chatRoomMember = ChatRoomMember.builder()
-                    .chatRoom(chatRoom)
-                    .chatRole(ChatRole.CHATMEMBER)
-                    .wsMember(member)
-                    .date(LocalDateTime.now())
-                    .build();
-
-            chatRoom.addChatRoomMember(chatRoomMember);
-            chatRoomMemberRepository.save(chatRoomMember);
-        }
+    int updateResult = chatRoomMemberRepository.updateIsLeftStatus(true, chatRoomId, wsMemberId);
+    if (updateResult == 0) {
+      throw new ChatException(HttpStatus.BAD_REQUEST.value(), "사용자를 채팅방에서 나갔다는 상태로 업데이트하는데 실패했습니다.");
     }
 
-    @Override
-    @Transactional
-    public void kickMemberFromRoom(Long chatRoomId, Long wsMemberId) {
-        if (!chatRoomMemberRepository.existsByChatRoomIdAndWsMemberIdAndIsLeftFalse(chatRoomId, wsMemberId)) {
-            throw new ChatException(HttpStatus.NOT_FOUND.value(), "채팅방에 참여하지 않은 유저입니다.");
-        }
+  }
 
-        chatRoomMemberRepository.updateIsLeftStatus(true, chatRoomId, wsMemberId);
+  @Override
+  @Transactional
+  public String addUserToRoom(Long chatRoomId, Long wsMemberId) {
+    ChatRoom chatRoom = chatRoomRepository.findById(chatRoomId)
+            .orElseThrow(() -> new ChatException(HttpStatus.NOT_FOUND.value(), "해당하는 채팅방이 없습니다.."));
+    WSMember member = wsMemberRepository.findById(wsMemberId)
+            .orElseThrow(() -> new ChatException(HttpStatus.NOT_FOUND.value(), "해당하는 멤버가 없습니다. "));
 
-        //강퇴된 유저에게 알림 전송
-        String sessionid = customHandShakeInterceptor.getSessionForUser(wsMemberId);
-        if (sessionid != null){
-            String kickMsg = "채팅방에서 강퇴되었습니다.";
-            simpMessagingTemplate.convertAndSendToUser(sessionid, "/queue/notifications", kickMsg);
-        }
+    if (chatRoomMemberRepository.existsByChatRoomIdAndWsMemberId(chatRoomId, wsMemberId)) {
+      chatRoomMemberRepository.updateIsLeftStatus(false, chatRoomId, wsMemberId);
+    } else {
+      ChatRoomMember chatRoomMember = ChatRoomMember.builder()
+              .chatRoom(chatRoom)
+              .chatRole(ChatRole.CHATMEMBER)
+              .wsMember(member)
+              .date(LocalDateTime.now())
+              .build();
+
+      chatRoom.addChatRoomMember(chatRoomMember);
+      chatRoomMemberRepository.save(chatRoomMember);
+    }
+    return "참여자 추가 완료";
+  }
+
+  @Override
+  @Transactional
+  public String kickMemberFromRoom(Long chatRoomId, Long wsMemberId) {
+    if (!chatRoomMemberRepository.existsByChatRoomIdAndWsMemberIdAndIsLeftFalse(chatRoomId, wsMemberId)) {
+      throw new ChatException(HttpStatus.NOT_FOUND.value(), "채팅방에 참여하지 않은 유저입니다.");
     }
 
-    @Override
-    public List<ChatRoomMemberDTO> getParticipantsByChatRoomId(Long chatRoomId) {
-        List<ChatRoomMember> chatRoomMembers = chatRoomMemberRepository.findByChatRoomIdAndIsLeftFalse(chatRoomId);
+    chatRoomMemberRepository.updateIsLeftStatus(true, chatRoomId, wsMemberId);
 
-        return chatRoomMembers.stream()
-                .map(ChatRoomMember::toDTO)
-                .collect(Collectors.toList());
+    //강퇴된 유저에게 알림 전송
+    String sessionid = customHandShakeInterceptor.getSessionForUser(wsMemberId);
+    if (sessionid != null){
+      String kickMsg = "채팅방에서 강퇴되었습니다.";
+      simpMessagingTemplate.convertAndSendToUser(sessionid, "/queue/notifications", kickMsg);
     }
+    return "참여자 강퇴 완료";
+  }
 
-    @Override
-    public boolean isRoomLeader(Long chatRoomId, Long wsMemberId) {
-        Long leaderId = chatRoomMemberRepository.findChatLeaderByChatRoomId(chatRoomId);
-        return wsMemberId.equals(leaderId);
+  @Override
+  public List<ChatRoomMemberDTO> getParticipantsByChatRoomId(Long chatRoomId) {
+    List<ChatRoomMember> chatRoomMembers = chatRoomMemberRepository.findByChatRoomIdAndIsLeftFalse(chatRoomId);
+
+    return chatRoomMembers.stream()
+            .map(ChatRoomMember::toDTO)
+            .collect(Collectors.toList());
+  }
+
+  @Override
+  public boolean isRoomLeader(Long chatRoomId, Long wsMemberId) {
+    Long leaderId = chatRoomMemberRepository.findChatLeaderByChatRoomId(chatRoomId);
+    return wsMemberId.equals(leaderId);
+  }
+
+  @Override
+  public String delegateLeader(Long chatRoomId, Long newLeaderId, Long leaderId) {
+    try{
+      ChatRoom chatRoom = chatRoomRepository.findById(chatRoomId)
+              .orElseThrow(() -> new ChatException(HttpStatus.NOT_FOUND.value(), "채팅방이 존재하지 않습니다."));
+      ChatRoomMember chatRoomMember = chatRoomMemberRepository.findByChatRoomIdAndWsMemberId(chatRoomId, leaderId)
+              .orElseThrow(() -> new ChatException(HttpStatus.NOT_FOUND.value(), "사용자가 존재하지 않습니다."));
+
+      if (!chatRoomMember.getChatRole().equals(ChatRole.CHATLEADER)) {
+        throw new ChatException(HttpStatus.FORBIDDEN.value(), "방장만 방장 권한을 위임할 수 있습니다.");
+      }
+
+      ChatRoomMember newLeader = chatRoomMemberRepository.findByChatRoomIdAndWsMemberId(chatRoomId, newLeaderId)
+              .orElseThrow(() -> new ChatException(HttpStatus.NOT_FOUND.value(), "사용자가 존재하지 않습니다."));
+
+      chatRoomMember.setChatRole(ChatRole.CHATMEMBER);
+      newLeader.setChatRole(ChatRole.CHATLEADER);
+
+      chatRoomMemberRepository.save(chatRoomMember);
+      chatRoomMemberRepository.save(newLeader);
+
+      //뉴방장에게 알림 전송
+      String newLeaderSessionId = customHandShakeInterceptor.getSessionForUser(newLeaderId);
+      if (newLeaderSessionId != null){
+        simpMessagingTemplate.convertAndSendToUser(newLeaderSessionId, "/queue/notifications","새 방장으로 임명되셨습니다.");
+      }
+    }catch (ChatException e){
+      throw  e;
+    }catch(Exception e){
+      throw new ChatException(HttpStatus.INTERNAL_SERVER_ERROR.value(), "방장 위임 중 오류 발생");
     }
+    return "방장 위임 완료";
+  }
 
-    @Override
-    public void delegateLeader(Long chatRoomId, Long newLeaderId, Long leaderId) {
-        ChatRoom chatRoom = chatRoomRepository.findById(chatRoomId)
-                .orElseThrow(() -> new ChatException(HttpStatus.NOT_FOUND.value(), "채팅방이 존재하지 않습니다."));
-        ChatRoomMember chatRoomMember = chatRoomMemberRepository.findByChatRoomIdAndWsMemberId(chatRoomId, leaderId)
-                .orElseThrow(() -> new ChatException(HttpStatus.NOT_FOUND.value(), "사용자가 존재하지 않습니다."));
+  @Override
+  public boolean existsByChatRoomIdAndWsMemberIdAndIsLeftFalse(Long chatRoomId, Long wsMemberId) {
+    return chatRoomMemberRepository.existsByChatRoomIdAndWsMemberIdAndIsLeftFalse(chatRoomId, wsMemberId);
+  }
 
-        if (!chatRoomMember.getChatRole().equals(ChatRole.CHATLEADER)) {
-            throw new ChatException(HttpStatus.FORBIDDEN.value(), "방장만 방장 권한을 위임할 수 있습니다.");
-        }
-
-        ChatRoomMember newLeader = chatRoomMemberRepository.findByChatRoomIdAndWsMemberId(chatRoomId, newLeaderId)
-                .orElseThrow(() -> new ChatException(HttpStatus.NOT_FOUND.value(), "사용자가 존재하지 않습니다."));
-
-        chatRoomMember.setChatRole(ChatRole.CHATMEMBER);
-        newLeader.setChatRole(ChatRole.CHATLEADER);
-
-        chatRoomMemberRepository.save(chatRoomMember);
-        chatRoomMemberRepository.save(newLeader);
-
-        //뉴방장에게 알림 전송
-        String newLeaderSessionId = customHandShakeInterceptor.getSessionForUser(newLeaderId);
-        if (newLeaderSessionId != null){
-            simpMessagingTemplate.convertAndSendToUser(newLeaderSessionId, "/queue/notifications","새 방장으로 임명되셨습니다.");
-        }
-    }
-
-    @Override
-    public boolean existsByChatRoomIdAndWsMemberIdAndIsLeftFalse(Long chatRoomId, Long wsMemberId) {
-        return chatRoomMemberRepository.existsByChatRoomIdAndWsMemberIdAndIsLeftFalse(chatRoomId, wsMemberId);
-    }
-
-    public boolean isChatRoomEmpty(Long chatRoomId){
-        return !chatRoomMemberRepository.existsByChatRoomIdAndIsLeftFalse(chatRoomId);
-    }
+  public boolean isChatRoomEmpty(Long chatRoomId){
+    return !chatRoomMemberRepository.existsByChatRoomIdAndIsLeftFalse(chatRoomId);
+  }
 }

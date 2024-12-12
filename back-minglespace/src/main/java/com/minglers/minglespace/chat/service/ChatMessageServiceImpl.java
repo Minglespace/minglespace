@@ -10,6 +10,7 @@ import com.minglers.minglespace.chat.repository.ChatRoomRepository;
 import com.minglers.minglespace.chat.repository.specification.ChatMessageSpecification;
 import com.minglers.minglespace.workspace.entity.WSMember;
 import com.minglers.minglespace.workspace.repository.WSMemberRepository;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.data.jpa.domain.Specification;
@@ -69,7 +70,9 @@ public class ChatMessageServiceImpl implements ChatMessageService {
       }
 
       return savedMessage;
-    } catch (RuntimeException e) {
+    }catch (ChatException e){
+     throw e;
+    }catch (RuntimeException e) {
       log.error("메시지 저장 중 오류 발생 : ", e);
       throw new ChatException(HttpStatus.INTERNAL_SERVER_ERROR.value(), "메시지 저장 중 오류 발생: " + e.getMessage());
     }
@@ -136,5 +139,28 @@ public class ChatMessageServiceImpl implements ChatMessageService {
 //                      .build();
 //            })
 //            .collect(Collectors.toList());
+  }
+
+  @Override
+  @Transactional
+  public String updateAnnouncement(Long chatRoomId, Long messageId) {
+    try{
+      //기존 공지가 있다면 false
+      chatMessageRepository.findByChatRoomIdAndIsAnnouncementTrue(chatRoomId)
+              .ifPresent(oldNotice -> {
+                oldNotice.setIsAnnouncement(false);
+                chatMessageRepository.save(oldNotice);
+              });
+
+      chatMessageRepository.findById(messageId).ifPresentOrElse(newNotice -> {
+        newNotice.setIsAnnouncement(true);
+        chatMessageRepository.save(newNotice);
+      }, () -> {
+        throw new ChatException(HttpStatus.NOT_FOUND.value(), "공지로 설정할 메시지를 찾지 못했습니다.");
+      });
+      return "공지 등록 완료";
+    }catch (Exception e){
+      throw new ChatException(HttpStatus.INTERNAL_SERVER_ERROR.value(), "공지 등록 중 오류 발생");
+    }
   }
 }

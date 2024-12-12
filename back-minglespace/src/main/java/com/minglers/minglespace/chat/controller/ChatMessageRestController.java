@@ -4,6 +4,7 @@ import com.minglers.minglespace.chat.dto.ChatMessageDTO;
 import com.minglers.minglespace.chat.service.ChatMessageService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -19,5 +20,11 @@ public class ChatMessageRestController {
   public List<Long> searchMessages(@PathVariable("chatRoomId") Long chatRoomId,
                                              @RequestParam List<String> keywords){
     return chatMessageService.searchMessages(chatRoomId, keywords);
+  }
+
+  @PutMapping("/{messageId}/announcement")
+  public ResponseEntity<String> setAnnouncement(@PathVariable("chatRoomId") Long chatRoomId,
+                                        @PathVariable("messageId") Long messageId){
+    return ResponseEntity.ok().body(chatMessageService.updateAnnouncement(chatRoomId, messageId));
   }
 }

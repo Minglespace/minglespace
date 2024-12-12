@@ -11,6 +11,7 @@ import com.minglers.minglespace.chat.repository.ChatRoomRepository;
 import com.minglers.minglespace.chat.repository.MsgReadStatusRepository;
 import com.minglers.minglespace.chat.role.ChatRole;
 import com.minglers.minglespace.common.entity.Image;
+import com.minglers.minglespace.common.service.ImageService;
 import com.minglers.minglespace.workspace.entity.WSMember;
 import com.minglers.minglespace.workspace.entity.WorkSpace;
 import com.minglers.minglespace.workspace.repository.WSMemberRepository;
@@ -19,8 +20,11 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -40,11 +44,15 @@ public class ChatRoomServiceImpl implements ChatRoomService {
 
   private final ChatMessageService chatMessageService;
   private final ChatRoomMemberService chatRoomMemberService;
+  private final ImageService imageService;
 
   @Override
-  public List<ChatListResponseDTO> getRoomsByWsMember(Long workspaceId, Long wsMemberId) {
+  public List<ChatListResponseDTO> getRoomsByWsMember(Long workspaceId, Long userId) {
+
+    WSMember wsMember = wsMemberRepository.findByUserIdAndWorkSpaceId(userId, workspaceId).orElseThrow(() -> new ChatException(HttpStatus.FORBIDDEN.value(), "워크스페이스 참여하는 유저가 아닙니다."));
+
     // 채팅방 목록을 얻기 위한
-    List<ChatRoomMember> chatRooms = chatRoomMemberRepository.findByChatRoom_WorkSpace_IdAndWsMember_Id(workspaceId, wsMemberId);
+    List<ChatRoomMember> chatRooms = chatRoomMemberRepository.findByChatRoom_WorkSpace_IdAndWsMember_Id(workspaceId, wsMember.getId());
 
     return chatRooms.stream()
             .map(chatRoomMember -> {
@@ -60,7 +68,7 @@ public class ChatRoomServiceImpl implements ChatRoomService {
               int participantCount = chatRoomMemberRepository.findByChatRoomIdAndIsLeftFalse(chatRoom.getId()).size();
 
               //안읽은 메시지
-              long notReadMsgCount = msgReadStatusRepository.countByMessage_ChatRoom_IdAndWsMemberId(chatRoom.getId(), wsMemberId);
+              long notReadMsgCount = msgReadStatusRepository.countByMessage_ChatRoom_IdAndWsMemberId(chatRoom.getId(), wsMember.getId());
 
               return ChatListResponseDTO.builder()
                       .chatRoomId(chatRoom.getId())
@@ -82,15 +90,26 @@ public class ChatRoomServiceImpl implements ChatRoomService {
 
   @Override
   @Transactional
-  public ChatListResponseDTO createRoom(CreateChatRoomRequestDTO requestDTO, WSMember createMember, Image saveFile) {
-    WorkSpace wspace = workspaceRepository.findById(requestDTO.getWorkspaceId())
-            .orElseThrow(() -> new ChatException(HttpStatus.NOT_FOUND.value(), "Workspace not found with ID " + requestDTO.getWorkspaceId()));
+  public ChatListResponseDTO createRoom(CreateChatRoomRequestDTO requestDTO, Long userId, MultipartFile image) {
+
+    WSMember createMember = wsMemberRepository.findByUserIdAndWorkSpaceId(userId, requestDTO.getWorkspaceId())
+            .orElseThrow(() -> new ChatException(HttpStatus.NOT_FOUND.value(), "워크스페이스에 참여하는 유저가 아닙니다."));
+
+    Image saveFile = null;
+    if (image != null) {
+      try {
+        saveFile = imageService.uploadImage(image);
+      } catch (RuntimeException | IOException e) {
+        throw new ChatException(HttpStatus.INTERNAL_SERVER_ERROR.value(), "채팅방 이미지 업로드 실패 : "+ e.getMessage());  // 업로드 실패 시 처리
+      }
+    }
+
 
     // 사진 처리 필요
     ChatRoom chatRoom = ChatRoom.builder()
             .image(saveFile)
             .name(requestDTO.getName())
-            .workSpace(wspace)
+            .workSpace(createMember.getWorkSpace())
             .date(LocalDateTime.now())
             .build();
 

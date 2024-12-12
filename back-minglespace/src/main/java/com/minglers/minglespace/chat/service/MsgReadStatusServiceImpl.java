@@ -6,6 +6,9 @@ import com.minglers.minglespace.chat.entity.MsgReadStatus;
 import com.minglers.minglespace.chat.exception.ChatException;
 import com.minglers.minglespace.chat.repository.ChatRoomMemberRepository;
 import com.minglers.minglespace.chat.repository.MsgReadStatusRepository;
+import com.minglers.minglespace.workspace.entity.WSMember;
+import com.minglers.minglespace.workspace.repository.WSMemberRepository;
+import com.minglers.minglespace.workspace.service.WSMemberService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
@@ -21,6 +24,7 @@ import java.util.stream.Collectors;
 public class MsgReadStatusServiceImpl implements MsgReadStatusService{
   private final MsgReadStatusRepository msgReadStatusRepository;
   private final ChatRoomMemberRepository chatRoomMemberRepository;
+  private final WSMemberRepository wsMemberRepository;
 
   @Override
   @Transactional
@@ -50,20 +54,19 @@ public class MsgReadStatusServiceImpl implements MsgReadStatusService{
 
   @Override
   @Transactional
-  public void deleteMsgReadStatus(Long chatRoomId, Long wsMemberId) {
+  public String deleteMsgReadStatus(Long chatRoomId, Long userId, Long workspaceId) {
     try {
-      long deletedCount = msgReadStatusRepository.deleteByMessage_ChatRoom_IdAndWsMemberId(chatRoomId, wsMemberId);
+      WSMember wsMember = wsMemberRepository.findByUserIdAndWorkSpaceId(userId, workspaceId)
+              .orElseThrow(() -> new ChatException(HttpStatus.NOT_FOUND.value(), "워크 스페이스 멤버가 아닙니다."));
+      long deletedCount = msgReadStatusRepository.deleteByMessage_ChatRoom_IdAndWsMemberId(chatRoomId, wsMember.getId());
 
-      if (deletedCount == 0) {
-//        throw new ChatException(HttpStatus.NOT_FOUND.value(), "읽음 처리할 메시지가 없습니다. 채팅방 ID: " + chatRoomId + ", 유저 ID: " + wsMemberId);
-      }
-
-      log.info("Messages marked as read and deleted for chat room ID: " + chatRoomId + " and user ID: " + wsMemberId);
+      log.info("Messages marked as read and deleted for chat room ID: " + chatRoomId + " and user ID: " + wsMember.getId());
 
     } catch (Exception e) {
       log.error("Error occurred while deleting message read status: ", e);
       throw new ChatException(HttpStatus.INTERNAL_SERVER_ERROR.value(), "메시지 읽음 처리 삭제 중 오류 발생");  // 예외를 던짐
     }
+    return "OK";
   }
 
 }

@@ -6,6 +6,7 @@ import com.minglers.minglespace.chat.dto.CreateChatRoomRequestDTO;
 import com.minglers.minglespace.chat.entity.ChatRoom;
 import com.minglers.minglespace.common.entity.Image;
 import com.minglers.minglespace.workspace.entity.WSMember;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -15,7 +16,7 @@ public interface ChatRoomService {
 
     ChatRoom findRoomById(Long chatRoomId);
 
-    ChatListResponseDTO createRoom(CreateChatRoomRequestDTO requestDTO, WSMember createMember, Image image);
+    ChatListResponseDTO createRoom(CreateChatRoomRequestDTO requestDTO, Long userId, MultipartFile image);
 
     void deleteChatRoomData(Long chatRoomId);
 

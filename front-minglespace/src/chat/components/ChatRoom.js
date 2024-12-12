@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+﻿import React, { useEffect, useRef, useState } from "react";
 import ChatRoomHeader from "./ChatRoomHeader";
 import MessageList from "./MessageList";
 import MessageInput from "./MessageInput";
@@ -218,6 +218,20 @@ const ChatRoom = ({
     }
   };
 
+  const handleRegisterAnnouncement = async (message) => {
+    try {
+      await ChatApi.registerAnnouncementMsg(chatRoomId, message.id);
+
+      setChatRoomInfo((prev) => {
+        const updatedMessages = prev.messages.map((msg) =>
+          Number(msg.id) === Number(message.id) ? { ...msg, isAnnouncement: true } : { ...msg, isAnnouncement: false })
+        return { ...prev, messages: updatedMessages };
+      })
+    } catch (error) {
+      console.error("chatroom _ 공지 등록 에러: ", error);
+    }
+  }
+
   /////////////////////websocket 연결///////////////////
   useEffect(() => {
     if (!chatRoomId) {
@@ -321,7 +335,7 @@ const ChatRoom = ({
       />
       <div className="chat_messages">
         {/* 여기에 채팅 메시지들이 들어갑니다 */}
-        <MessageList messages={chatRoomInfo.messages} currentMemberInfo={currentMemberInfo} /> {/* 전송된 메시지 목록 표시 */}
+        <MessageList messages={chatRoomInfo.messages} currentMemberInfo={currentMemberInfo} onAnnouncement={handleRegisterAnnouncement} /> {/* 전송된 메시지 목록 표시 */}
         <MessageInput onSendMessage={handleSendMessage} />
         {/*  메시지 전송 처리 */}
       </div>
