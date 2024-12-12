@@ -2,9 +2,7 @@
 import ProfileImage from "./ProfileImage";
 import Button from "./Button";
 
-const Userinfo = ({ name, role, email, src, title }) => {
-
-
+const Userinfo = ({ name, role, email, src }) => {
   return (
     <div className="userInfo_box">
       <ProfileImage src={src} userName={name} />
@@ -17,9 +15,6 @@ const Userinfo = ({ name, role, email, src, title }) => {
       </div>
     </div>
   );
-
-
-
 };
 
 export default Userinfo;

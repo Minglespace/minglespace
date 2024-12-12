@@ -25,11 +25,7 @@ const UserInfoDetail = ({
       return (
         <div className="userInfo_detail_modal_container">
           <h2>유저 상세보기</h2>
-          <ProfileImage
-            src={user.src}
-            imgClass={"round_user_detail_image"}
-            iconClass={"user_alt_detail_icon"}
-          />
+          <ProfileImage src={user.src} userName={user.name} size={200} />
           <p>
             <b>이름</b> : {user.name}
           </p>
@@ -54,11 +50,7 @@ const UserInfoDetail = ({
         return (
           <div className="userInfo_detail_modal_container">
             <h2>유저 상세보기</h2>
-            <ProfileImage
-              src={user.src}
-              imgClass={"round_user_detail_image"}
-              iconClass={"user_alt_detail_icon"}
-            />
+            <ProfileImage src={user.src} userName={user.name} size={200} />
             <p>
               <b>이름</b> : {user.name}
             </p>
@@ -104,11 +96,7 @@ const UserInfoDetail = ({
         return (
           <div className="userInfo_detail_modal_container">
             <h2>유저 상세보기</h2>
-            <ProfileImage
-              src={user.src}
-              imgClass={"round_user_detail_image"}
-              iconClass={"user_alt_detail_icon"}
-            />
+            <ProfileImage src={user.src} userName={user.name} size={200} />
             <p>
               <b>이름</b> : {user.name}
             </p>
