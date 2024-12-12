@@ -1,4 +1,4 @@
-import { Suspense, lazy } from "react";
+﻿import { Suspense, lazy } from "react";
 import { createBrowserRouter } from "react-router-dom";
 import SuspenseWithPrivateRoute from "./SuspenseWithPrivateRoute";
 
@@ -8,12 +8,12 @@ const Signup = lazy(() => import("../auth/SignupPage"));
 const Main = lazy(() => import("../page/MainPage"));
 const Chat = lazy(() => import("../page/ChatPage"));
 const Todo = lazy(() => import("../page/TodoPage"));
-const TodoLeader = lazy(() => import("../todo/TodoLeader"));
 // const Calendar = lazy(() => import("../page/Calendar"));
 // const Milestone = lazy(() => import("../page/Milestone"));
 const Workspace = lazy(() => import("../page/WorkspacePage"));
 const MyFriends = lazy(() => import("../page/MyFriendsPage"));
 const MileStone = lazy(() => import("../page/MileStonePage"));
+const Member = lazy(() => import("../page/MemberPage"));
 
 const root = createBrowserRouter([
   // SuspenseWithPrivateRoute
@@ -39,6 +39,10 @@ const root = createBrowserRouter([
     element: <SuspenseWithPrivateRoute page={MileStone} />,
   },
   {
+    path: "/workspace/:workspaceId/milestone",
+    element: <SuspenseWithPrivateRoute page={MileStone} />,
+  },
+  {
     path: "/workspace/:workspaceId/chat",
     element: <SuspenseWithPrivateRoute page={Chat} />,
   },
@@ -47,14 +51,22 @@ const root = createBrowserRouter([
     element: <SuspenseWithPrivateRoute page={Todo} />,
   },
   {
-    path: "/workspace/:workspaceId/todo/leader",
-    element: <SuspenseWithPrivateRoute page={TodoLeader} />,
+    path: "/workspace/:workspaceId/member",
+    element: <SuspenseWithPrivateRoute page={Member} />,
   },
 
   // Suspense
   // 로그인 유무 체크하지 않는 대상 페이지들
   {
     path: "/auth/login",
+    element: (
+      <Suspense fallback={Loading}>
+        <Login />
+      </Suspense>
+    ),
+  },
+  {
+    path: "/auth/login/:code/:encodedEmail",
     element: (
       <Suspense fallback={Loading}>
         <Login />

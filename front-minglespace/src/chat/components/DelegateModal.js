@@ -11,6 +11,7 @@ const DelegateModal = ({ isOpen, onClose, onDelegate, participants }) => {
 
   const handleDelegateAndExit = async () => {
     if (selectedUser) {
+      console.log("selected user :", selectedUser);
       await onDelegate(selectedUser); // 새 방장으로 위임
       alert(`${selectedUser.name}님이 방장으로 위임되었습니다.`);
       setSelectedUser(null);
@@ -34,15 +35,32 @@ const DelegateModal = ({ isOpen, onClose, onDelegate, participants }) => {
               <li
                 key={member.userId}
                 style={{
-                  backgroundColor: selectedUser?.wsMemberId === member.wsMemberId ? "#d3f4f8" : "transparent"
-                }}>
+                  backgroundColor:
+                    selectedUser?.wsMemberId === member.wsMemberId
+                      ? "#d3f4f8"
+                      : "transparent",
+                }}
+              >
                 {member.email}
-                <button onClick={() => handleUserSelect(member)}>위임</button>
+                <button
+                  className="invite-btn"
+                  onClick={() => handleUserSelect(member)}
+                >
+                  위임
+                </button>
               </li>
             ))}
         </ul>
-        <button onClick={handleDelegateAndExit} disabled={!selectedUser}> 위임 및 나가기 </button>
-        <button onClick={onClose}>닫기</button>
+        <button
+          className="create_btn"
+          onClick={handleDelegateAndExit}
+          disabled={!selectedUser}
+        >
+          나가기
+        </button>
+        <button className="close_btn" onClick={onClose}>
+          닫기
+        </button>
       </div>
     </div>
   );

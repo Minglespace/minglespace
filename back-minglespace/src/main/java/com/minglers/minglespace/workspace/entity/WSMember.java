@@ -47,5 +47,8 @@ public class WSMember {
         chatRoomMembers.add(chatRoomMember);
         chatRoomMember.setWsMember(this);
     }
+    public void changeRole(WSMemberRole role) {
+        this.role = role;
+    }
 }
 

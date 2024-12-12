@@ -16,4 +16,7 @@ public class MemberWithUserInfoDTO {
   private String name;
   private String imageUriPath;
   private String position;
+  private String phone;
+  private String introduction;
+  private String role;
 }

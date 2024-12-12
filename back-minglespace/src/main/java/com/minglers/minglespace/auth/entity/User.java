@@ -35,10 +35,10 @@ public class User implements UserDetails {
     private Image image;
 
     @OneToMany(mappedBy = "user", fetch =FetchType.LAZY)
-    private List<WSMember> wsMembers = new ArrayList<>();
+    private List<WSMember> wsMembers;
 
     @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
-    private List<UserFriend> userFriends = new ArrayList<>();
+    private List<UserFriend> userFriends;
 
     @JsonIgnore
     @Column(nullable = false)
@@ -60,6 +60,7 @@ public class User implements UserDetails {
     private String introduction;
     private boolean deleteFlag;
 
+    private String verificationCode;
 
 
 

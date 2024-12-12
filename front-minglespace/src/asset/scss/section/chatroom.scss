@@ -1,6 +1,6 @@
 // ChatRomm.js
 
-.chatroom_container {
+.chatroom-container {
   background-color: #f9f5f6;
   border: solid 1px #aaa;
   margin: 15px;
@@ -40,8 +40,8 @@
   position: fixed;
   top: 50%;
   left: 50%;
-  width: 400px; // 모달 너비
-  height: 50%; // 전체 화면 높이
+  width: 23%; // 모달 너비
+  height: 60%; // 전체 화면 높이
   transform: translate(-50%, -50%);
   background-color: #fff;
   box-shadow: -2px 0 10px rgba(0, 0, 0, 0.2);
@@ -51,6 +51,17 @@
   flex-direction: column;
   // overflow-y: auto;
 
+  .modify-content {
+    display: flex;
+    gap: 20px;
+  }
+
+  .modal-section {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+  }
+
   h1 {
     font-size: 24px;
     font-weight: bold;
@@ -59,7 +70,7 @@
     color: #333;
   }
 
-  .friends-list {
+  .invite-friends-list {
     flex: 1; // 가변 영역
     padding: 10px;
     margin-bottom: 20px;
@@ -166,37 +177,6 @@
     text-align: center;
     color: #333;
   }
-
-  .create_btn,
-  .close_btn {
-    padding: 10px 20px;
-    font-size: 16px;
-    font-weight: bold;
-    border: none;
-    border-radius: 6px;
-    cursor: pointer;
-    width: 100%;
-    margin-bottom: 10px;
-    text-align: center;
-
-    &:first-of-type {
-      background-color: #007bff;
-      color: #fff;
-
-      &:hover {
-        background-color: #0056b3;
-      }
-    }
-
-    &:last-of-type {
-      background-color: #6c757d;
-      color: #fff;
-
-      &:hover {
-        background-color: #5a6268;
-      }
-    }
-  }
 }
 
 // DelegateModal.js
@@ -247,51 +227,18 @@
       &:hover {
         background-color: #f8f9fa;
       }
-
-      button {
-        padding: 5px 10px;
+      .invite-btn {
+        padding: 6px 12px;
         font-size: 14px;
-        font-weight: bold;
         border: none;
         border-radius: 4px;
-        background-color: #007bff;
+        background-color: #dbb5b5;
         color: #fff;
         cursor: pointer;
 
         &:hover {
-          background-color: #0056b3;
+          background-color: #987070;
         }
-      }
-    }
-  }
-
-  .create_btn,
-  .close_btn {
-    padding: 10px 20px;
-    font-size: 16px;
-    font-weight: bold;
-    border: none;
-    border-radius: 6px;
-    cursor: pointer;
-    width: 100%;
-    margin-bottom: 10px;
-    text-align: center;
-
-    &:first-of-type {
-      background-color: #007bff;
-      color: #fff;
-
-      &:hover {
-        background-color: #0056b3;
-      }
-    }
-
-    &:last-of-type {
-      background-color: #6c757d;
-      color: #fff;
-
-      &:hover {
-        background-color: #5a6268;
       }
     }
   }
@@ -302,18 +249,19 @@
 
 .chatroom-header {
   display: flex;
-  justify-content: space-between;
+  // justify-content: space-between;
   align-items: center;
   padding: 10px 15px;
   border-bottom: 2px solid #aaa;
 }
 
 .chatroom-exit-btn {
+  width: 100%;
   font-size: 40px;
   background-color: transparent;
-  display: inline-flex; /* 아이콘 크기에 맞게 버튼 크기 자동 조정 */
+  display: flex; /* 아이콘 크기에 맞게 버튼 크기 자동 조정 */
   align-items: center; /* 수직 가운데 정렬 */
-  justify-content: center; /* 수평 가운데 정렬 */
+  justify-content: end; /* 수평 가운데 정렬 */
   padding: 0; /* 여백 제거 (아이콘 크기에 맞게 버튼 크기 조정) */
   border: none; /* 버튼 테두리 없애기 */
   background: transparent;
@@ -329,6 +277,10 @@
   justify-content: center; /* 수평 가운데 정렬 */
   padding: 0; /* 여백 제거 (아이콘 크기에 맞게 버튼 크기 조정) */
   cursor: pointer; /* 클릭할 수 있는 버튼으로 설정 */
+}
+
+.chatroom-close-btn {
+  font-size: 30px;
 }
 // ---------------------------------------------------------
 

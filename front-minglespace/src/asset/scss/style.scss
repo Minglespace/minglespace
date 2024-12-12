@@ -13,16 +13,20 @@
 @use "section/basiclayout";
 @use "section/workspace.scss";
 @use "section/modal.scss";
+@use "section/LoginPage.scss";
+@use "section/SignupPage.scss";
+@use "section/UserInfoPopup.scss";
 @use "section/calendar.scss";
 @use "section/chat.scss";
 @use "section/milestone.scss";
 @use "section/chatroom.scss";
 @use "section/myFriends.scss";
 @use "section/todo.scss";
+@use "section/members.scss";
 
 //components
 @use "components/image";
 @use "components/userInfo";
 @use "components/search";
 @use "components/button";
-@use "section/userinfo.scss";
+@use "components/userInfoDetail.scss";

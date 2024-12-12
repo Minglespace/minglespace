@@ -4,12 +4,12 @@ const ExitModal = ({ isOpen, onClose, isRoomOwner, onExit }) => {
   if (!isOpen) return null;
 
   const handleExit = () => {
-    // console.log("나가기 버튼 클릭 ");
-    // console.log("isRoomOwner: ", isRoomOwner);
+    console.log("나가기 버튼 클릭 ");
+    console.log("isRoomOwner: ", isRoomOwner);
     if (isRoomOwner) {
       onClose("transfer");
     } else {
-      onExit()
+      onExit();
       onClose();
     }
   };

@@ -2,6 +2,7 @@ import { useState } from "react";
 import ChatRoomModal from "./ChatRoomModal";
 import { FcExport } from "react-icons/fc";
 import { PiUserCirclePlusFill } from "react-icons/pi";
+import e from "cors";
 
 const ChatRoomHeader = ({
   chatRoomInfo,
@@ -18,51 +19,66 @@ const ChatRoomHeader = ({
 
   const openModal = (type) => {
     // console.log(`opening modal: ${type}`);
+
     setModalType(type);
     setIsModalOpen(true);
   };
 
-  const closeModal = (newModalType) => {
-    if (newModalType) {
-      setModalType(newModalType);
-    } else {
-      setIsModalOpen(false);
+  const closeModal = () => {
+    setIsModalOpen(false); // 모달 닫기
+    setModalType(""); // 모달 타입 초기화
+    // if (newModalType) {
+    //   setModalType(newModalType);
+    // } else {
+    //   setIsModalOpen(false);
+    // }
+  };
+
+  // 헤더 클릭 핸들러
+  const handleHeaderClick = (e) => {
+    // 아이콘 외의 부분을 클릭했을 때 모달이 열리지 않도록
+    if (
+      !e.target.closest(".chatroom-invite-btn") &&
+      !e.target.closest(".chatroom-exit-btn")
+    ) {
+      e.stopPropagation(); // 모달이 열리지 않게 하기 위해 이벤트 전파를 막음
     }
   };
 
   return (
-    <div className="chatroom-header">
-      {/* <button
-        onClick={() => openModal("invite")}
-        className="chatroom-invite-btn"
-      >
-        <PiUserCirclePlusFill className="icon" />
-      </button> */}
-
+    <div className="chatroom-header" onClick={handleHeaderClick}>
       {isRoomOwner && (
         <button
-          onClick={() => openModal("invite")}
+          onClick={(e) => {
+            e.stopPropagation();
+            openModal("invite");
+          }}
           className="chatroom-invite-btn"
         >
           <PiUserCirclePlusFill className="icon" />
         </button>
       )}
-      <button onClick={() => openModal("exit")} className="chatroom-exit-btn">
-        <FcExport className="icon" />
-      </button>
-
       <ChatRoomModal
         modalType={modalType}
         isOpen={isModalOpen}
         onClose={closeModal}
         roomMembers={chatRoomInfo.participants}
         isRoomOwner={isRoomOwner}
-        inviteUsers={inviteMembers} //초대할 사용자 목록
-        onInvite={handleInvite} //초대 함수
+        inviteUsers={inviteMembers}
+        onInvite={handleInvite}
         onDelegate={handleDelegate}
         onExit={handleExit}
         onKick={handleKick}
       />
+      <button
+        onClick={(e) => {
+          e.stopPropagation();
+          openModal("exit");
+        }}
+        className="chatroom-exit-btn"
+      >
+        <FcExport className="icon" />
+      </button>
     </div>
   );
 };

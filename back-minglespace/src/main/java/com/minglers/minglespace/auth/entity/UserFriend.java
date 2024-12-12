@@ -30,4 +30,7 @@ public class UserFriend {
     @Enumerated(EnumType.STRING)
     private FriendshipStatus friendshipStatus;
 
+    public void ChangeFriendshipStatus(FriendshipStatus friendshipStatus) {
+        this.friendshipStatus = friendshipStatus;
+    }
 }

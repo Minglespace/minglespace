@@ -2,9 +2,12 @@ package com.minglers.minglespace.auth.service;
 
 import com.minglers.minglespace.auth.dto.*;
 import com.minglers.minglespace.auth.entity.User;
+import com.minglers.minglespace.auth.exception.AuthException;
 import com.minglers.minglespace.auth.exception.JwtExceptionCode;
 import com.minglers.minglespace.auth.repository.UserRepository;
 import com.minglers.minglespace.auth.security.JWTUtils;
+import com.minglers.minglespace.common.entity.Image;
+import com.minglers.minglespace.common.exception.CustomExceptionHandler;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.hibernate.PropertyValueException;
@@ -15,6 +18,8 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.InternalAuthenticationServiceException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -31,19 +36,14 @@ public class UserService {
     private final JWTUtils jwtUtils;
     private final AuthenticationManager authenticationManager;
     private final PasswordEncoder passwordEncoder;
-    private final ModelMapper modelMapper;
     private final TokenBlacklistService tokenBlacklistService;
+    private final ModelMapper modelMapper;
 
     public DefaultResponse signup(SignupRequest req) {
-
-        DefaultResponse res = new DefaultResponse();
-
         try {
-
             // 이메일 중복 확인
-            if (usersRepo.existsByEmail(req.getEmail())) {  // 이메일이 이미 존재하면
-                res.setStatus(HttpStatus.BAD_REQUEST); // 400 Bad Request
-                res.setMsg("이미 존재하는 이메일입니다.");
+            if (usersRepo.existsByEmail(req.getEmail())) {
+                throw new AuthException(HttpStatus.BAD_REQUEST.value(), "이미 존재하는 이메일입니다.");
             }else{
                 User user = new User();
 
@@ -56,11 +56,12 @@ public class UserService {
                 User userResult = usersRepo.save(user);
 
                 if (userResult.getId() > 0) {
+                    DefaultResponse res = new DefaultResponse();
                     res.setStatus(HttpStatus.OK);
                     res.setMsg("회원 가입 성공 : " + userResult.getEmail());
+                    return res;
                 }else{
-                    res.setStatus(HttpStatus.INTERNAL_SERVER_ERROR);
-                    res.setMsg("회원 가입 실패 : " + userResult);
+                    throw new AuthException(HttpStatus.INTERNAL_SERVER_ERROR.value(), "회원 가입 실패.");
                 }
             }
 
@@ -74,36 +75,19 @@ public class UserService {
                 if (message != null && message.contains("not-null property references a null or transient value")) {
                     // 예외 메시지에서 필드 이름을 추출 (예: "com.minglers.minglespace.auth.entity.User.role"에서 "role" 추출)
                     String fieldName = message.substring(message.lastIndexOf('.') + 1);
-
-                    res.setStatus(HttpStatus.BAD_REQUEST); // 400 Bad Request
-                    res.setMsg(fieldName + " 필드는 반드시 지정되어야 합니다.");
+                    throw new AuthException(HttpStatus.BAD_REQUEST.value(), fieldName + " 필드는 반드시 지정되어야 합니다.");
                 } else {
                     // 그 외 데이터 무결성 위반 예외 처리
-                    res.setStatus(HttpStatus.INTERNAL_SERVER_ERROR); // 500 Internal Server Error
-                    res.setMsg("데이터베이스 오류가 발생했습니다.");
+                    throw new AuthException(HttpStatus.INTERNAL_SERVER_ERROR.value(), "데이터베이스 오류가 발생했습니다.");
                 }
             } else {
                 // DataIntegrityViolationException 발생 시 다른 경우 처리
-                res.setStatus(HttpStatus.INTERNAL_SERVER_ERROR); // 500 Internal Server Error
-                res.setMsg("데이터 무결성 오류가 발생했습니다.");
+                throw new AuthException(HttpStatus.INTERNAL_SERVER_ERROR.value(), "데이터 무결성 오류가 발생했습니다.");
             }
         } catch (Exception e) {
-            // 그 외의 예외 처리
-            res.setStatus(HttpStatus.INTERNAL_SERVER_ERROR); // 500 Internal Server Error
-            res.setMsg("예기치 못한 오류가 발생했습니다.");
-            log.error("회원 가입 중 오류 발생", e);
+            throw new AuthException(HttpStatus.INTERNAL_SERVER_ERROR.value(), "회원 가입 중 예기치 못한 오류가 발생했습니다.");
         }
-
-        log.info("");
-        log.info("");
-        log.info("signup");
-        log.info(res.toString());
-        log.info("");
-        log.info("");
-
-        return res;
     }
-
 
     public LoginResponse login(LoginRequest req) {
 
@@ -121,17 +105,23 @@ public class UserService {
             // 유저 정보
             User user = usersRepo.findByEmail(req.getEmail()).orElseThrow();
 
-            // 토큰 생성
-            String accessToken = jwtUtils.generateToken(user);
-            String refreshToken = jwtUtils.generateRefreshToken(new HashMap<>(), user);
+            if(user.getVerificationCode().isEmpty()){
+                // 토큰 생성
+                String accessToken = jwtUtils.generateToken(user);
+                String refreshToken = jwtUtils.generateRefreshToken(new HashMap<>(), user);
 
-            // 응답 세팅
-            modelMapper.map(user, res);
-            res.setAccessToken(accessToken);
-            res.setRefreshToken(refreshToken);
+                // 응답 세팅
+                modelMapper.map(user, res);
+                res.setAccessToken(accessToken);
+                res.setRefreshToken(refreshToken);
 
-            res.setStatus(HttpStatus.OK);
-            res.setMsg("유저 로그인 성공 : " + user.getEmail());
+                res.setStatus(HttpStatus.OK);
+                res.setMsg("유저 로그인 성공 : " + user.getEmail());
+
+            }else{
+                res.setStatus(HttpStatus.TOO_EARLY);
+                res.setMsg("먼저, 이메일 인증을 완료하세요.");
+            }
 
         } catch (InternalAuthenticationServiceException e) {
             // 인증 서비스 예외 처리
@@ -149,9 +139,7 @@ public class UserService {
             res.setStatus(HttpStatus.UNAUTHORIZED); // 401 Unauthorized
             res.setMsg("비밀번호가 틀렸습니다.");
         } catch (Exception e) {
-            // 예기치 못한 오류
-            res.setStatus(HttpStatus.INTERNAL_SERVER_ERROR); // 500 Internal Server Error
-            res.setMsg("서버 오류");
+            throw new AuthException(HttpStatus.INTERNAL_SERVER_ERROR.value(), "로그인 중 예기치 못한 오류가 발생했습니다.");
         }
 
         log.info("");
@@ -162,7 +150,6 @@ public class UserService {
         log.info("");
 
         return res;
-
     }
 
     public RefreshTokenResponse refreshToken(RefreshTokenRequest req) {
@@ -265,9 +252,20 @@ public class UserService {
         return res;
     }
 
-    public DefaultResponse updateUser(Long userId, UserUpdateRequest req) {
+    public UserResponse updateUser(User updateUser, Image image) {
 
-        DefaultResponse res = new DefaultResponse();
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        User user = (User) authentication.getPrincipal();
+
+        Long userId = user.getId();
+
+        return updateUser(userId, updateUser, image);
+    }
+
+    public UserResponse updateUser(Long userId, User updateUser, Image image) {
+
+        UserResponse res = new UserResponse();
 
         try {
             Optional<User> userOptional = usersRepo.findById(userId);
@@ -275,13 +273,17 @@ public class UserService {
             if (userOptional.isPresent()) {
                 User existingUser = userOptional.get();
 
-                modelMapper.map(req, existingUser);
+                modelMapper.map(updateUser, existingUser);
 
-                if (req.getPassword() != null && !req.getPassword().isEmpty()) {
-                    existingUser.setPassword(passwordEncoder.encode(req.getPassword()));
+                if (updateUser.getPassword() != null && !updateUser.getPassword().isEmpty()) {
+                    existingUser.setPassword(passwordEncoder.encode(updateUser.getPassword()));
                 }
 
+                existingUser.setImage(image);
+
                 User savedUser = usersRepo.save(existingUser);
+
+                modelMapper.map(savedUser, res);
 
                 res.setStatus(HttpStatus.OK);
                 res.setMsg("유저 정보 변경 성공 : " + savedUser.getId());
@@ -304,54 +306,83 @@ public class UserService {
         return res;
     }
 
-    public UserResponse getUserById(Long id) {
+    public User getUserById(Long id) {
 
-        UserResponse res = getUserResponse(usersRepo.findById(id));
-
-        log.info("");
-        log.info("");
-        log.info("getUserById");
-        log.info(res.toString());
-        log.info("");
-        log.info("");
-
-        return res;
-    }
-
-    public UserResponse getUserByEmail(String email) {
-
-        UserResponse res = getUserResponse(usersRepo.findByEmail(email));
-
-        log.info("");
-        log.info("");
-        log.info("getUserByEmail");
-        log.info(res.toString());
-        log.info("");
-        log.info("");
-
-        return res;
-    }
-
-    private UserResponse getUserResponse (Optional<User> optionalUser){
-
-        UserResponse res = new UserResponse();
+        Optional<User> opt = usersRepo.findById(id);
 
         try {
-
-            if (optionalUser.isPresent()) {
-
-                modelMapper.map(optionalUser.get(), res);
-
-                res.setStatus(HttpStatus.OK);
-                res.setMsg("유저 찾기 성공: " + res.getEmail());
+            if (opt.isPresent()) {
+                return opt.get();
             } else {
-                res.setStatus(HttpStatus.NOT_FOUND);
+                throw new AuthException(HttpStatus.NOT_FOUND.value(), "유저를 찾을 수 없습니다");
             }
         }catch (Exception e){
-            res.setStatus(HttpStatus.INTERNAL_SERVER_ERROR);
+            throw new AuthException(HttpStatus.INTERNAL_SERVER_ERROR.value(), "예외 : 유저를 찾을 수 없습니다");
         }
-
-        return res;
     }
 
+    public User getUserByEmail(String email) {
+
+        Optional<User> opt = usersRepo.findByEmail(email);
+
+        try {
+            if (opt.isPresent()) {
+                return opt.get();
+            } else {
+                throw new AuthException(HttpStatus.NOT_FOUND.value(), "유저를 찾을 수 없습니다");
+            }
+        }catch (Exception e){
+            throw new AuthException(HttpStatus.INTERNAL_SERVER_ERROR.value(), "예외 : 유저를 찾을 수 없습니다");
+        }
+    }
+
+//    public UserResponse getUserById(Long id) {
+//
+//        UserResponse res = getUserResponse(usersRepo.findById(id));
+//
+//        log.info("");
+//        log.info("");
+//        log.info("getUserById");
+//        log.info(res.toString());
+//        log.info("");
+//        log.info("");
+//
+//        return res;
+//    }
+//
+//    public UserResponse getUserByEmail(String email) {
+//
+//        UserResponse res = getUserResponse(usersRepo.findByEmail(email));
+//
+//        log.info("");
+//        log.info("");
+//        log.info("getUserByEmail");
+//        log.info(res.toString());
+//        log.info("");
+//        log.info("");
+//
+//        return res;
+//    }
+
+//    private UserResponse getUserResponse (Optional<User> optionalUser){
+//
+//        UserResponse res = new UserResponse();
+//
+//        try {
+//
+//            if (optionalUser.isPresent()) {
+//
+//                modelMapper.map(optionalUser.get(), res);
+//
+//                res.setStatus(HttpStatus.OK);
+//                res.setMsg("유저 찾기 성공: " + res.getEmail());
+//            } else {
+//                res.setStatus(HttpStatus.NOT_FOUND);
+//            }
+//        }catch (Exception e){
+//            res.setStatus(HttpStatus.INTERNAL_SERVER_ERROR);
+//        }
+//
+//        return res;
+//    }
 }

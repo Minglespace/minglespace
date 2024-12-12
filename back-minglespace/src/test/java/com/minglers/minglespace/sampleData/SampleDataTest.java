@@ -5,6 +5,11 @@ import com.minglers.minglespace.auth.entity.UserFriend;
 import com.minglers.minglespace.auth.repository.UserFriendRepository;
 import com.minglers.minglespace.auth.repository.UserRepository;
 import com.minglers.minglespace.auth.type.FriendshipStatus;
+import com.minglers.minglespace.workspace.entity.WSMember;
+import com.minglers.minglespace.workspace.entity.WorkSpace;
+import com.minglers.minglespace.workspace.repository.WSMemberRepository;
+import com.minglers.minglespace.workspace.repository.WorkspaceRepository;
+import com.minglers.minglespace.workspace.role.WSMemberRole;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -23,6 +28,12 @@ public class SampleDataTest {
 
     @Autowired
     private UserFriendRepository userFriendRepository;
+
+    @Autowired
+    private WSMemberRepository wsMemberRepository;
+
+    @Autowired
+    private WorkspaceRepository workspaceRepository;
 
     private final char[] FIRST_NAMES = {'김', '이', '박', '최', '정', '강', '조', '윤', '장', '임', '한', '오', '서', '신', '권', '황', '안', '송', '류', '홍'};
     private final char[] MIDDLE_LAST_NAMES = {'가', '나', '다', '라', '마', '바', '사', '아', '자', '차', '카', '타', '파', '하'};
@@ -50,6 +61,17 @@ public class SampleDataTest {
 
     @Test
     public void insertUserTest() {
+        userRepository.save(User.builder()
+                .name(generateRandomKoreanName())
+                .email("abc@abc.abc")
+                .introduction("안녕하세요")
+                .password(passwordEncoder.encode("123123"))
+                .phone("000-0000-0000")
+                .deleteFlag(false)
+                .position("사원")
+                .role("ADMIN")
+                .verificationCode("")
+                .build());
         for (int i = 0; i < 100; i++) {
             userRepository.save(User.builder()
                     .name(generateRandomKoreanName())
@@ -60,13 +82,14 @@ public class SampleDataTest {
                     .deleteFlag(false)
                     .position("사원")
                     .role("ADMIN")
+                    .verificationCode("")
                     .build());
         }
     }
     @Test
     public void insertFriendTest() {
         User user = userRepository.findById(1L).orElseThrow();
-        for (int i = 102; i < 200; i++) {
+        for (int i = 1; i < 100; i++) {
             User userfriend = userRepository.findById((long) i).orElseThrow();
             userFriendRepository.save(UserFriend.builder()
                     .user(user)
@@ -78,6 +101,19 @@ public class SampleDataTest {
                     .friend(user)
                     .friendshipStatus(FriendshipStatus.ACCEPTED)
                     .build());
+        }
+    }
+    @Test
+    public void insertWorkSpaceMember(){
+        WorkSpace workSpace = workspaceRepository.findById(1L).orElseThrow();
+        for (int i = 2; i < 20; i++) {
+            User user = userRepository.findById((long) i).orElseThrow();
+            WSMember wsMember = WSMember.builder()
+                    .user(user)
+                    .workSpace(workSpace)
+                    .role(WSMemberRole.MEMBER)
+                    .build();
+            wsMemberRepository.save(wsMember);
         }
     }
 }

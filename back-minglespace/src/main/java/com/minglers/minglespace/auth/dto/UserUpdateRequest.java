@@ -2,19 +2,21 @@ package com.minglers.minglespace.auth.dto;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.minglers.minglespace.common.entity.Image;
 import lombok.Data;
+import org.springframework.web.multipart.MultipartFile;
 
 @Data
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class UserUpdateRequest {
 
-  String email;
-  String password;
-
-  String name;
-  String phone;
-  String introduction;
-  String position;
+  private String email;
+  private String password;
+  private String name;
+  private String phone;
+  private String position;
+  private String introduction;
+  private boolean dontUseProfileImage;
 
 }

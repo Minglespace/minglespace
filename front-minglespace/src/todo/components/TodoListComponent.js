@@ -9,7 +9,9 @@ import { WSMemberRoleContext } from "../../workspace/context/WSMemberRoleContext
 const TodoComponent = () => {
   const [todoItem, setTodoItem] = useState([]);
   const { workspaceId } = useParams("workspaceId");
-  const { role } = useContext(WSMemberRoleContext);
+  const {
+    wsMemberData: { role },
+  } = useContext(WSMemberRoleContext);
   const [modalOpen, setModalOpen] = useState(false);
   const [rendering, setRendering] = useState(false);
 
