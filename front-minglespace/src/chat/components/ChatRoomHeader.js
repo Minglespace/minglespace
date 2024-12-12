@@ -2,7 +2,7 @@ import { useState } from "react";
 import ChatRoomModal from "./ChatRoomModal";
 import { FcExport } from "react-icons/fc";
 import { PiUserCirclePlusFill } from "react-icons/pi";
-import e from "cors";
+// import e from "cors";
 
 const ChatRoomHeader = ({
   chatRoomInfo,

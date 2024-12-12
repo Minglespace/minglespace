@@ -1,44 +1,49 @@
-import React, { useState } from "react";
+﻿import React, { useState } from "react";
 
-const MessageList = ({ messages, setReplyToMessage }) => {
-  const safeMessaes = messages || [];
+const MessageList = ({ messages, onMessageClick }) => {
+  const safeMessages = messages || [];
+
   return (
     <div className="message-list">
-      {safeMessaes.map((message, index) => (
-        <div
-          key={index}
-          className={`message-item ${
-            message.isCurrentUser ? "sender" : "received"
-          }`}
-        >
-          {console.log(
-            `Message ${index}:`,
-            message,
-            message.isCurrentUser ? "sender" : "received"
-          )}
-          <span className="message-sender">{message.sender}: </span>
-          <span className="message-text">{message.text}</span>
-          {/* 답글 달기 버튼 */}
-          <button
-            className="reply-button"
-            onClick={() => setReplyToMessage(message)} // 해당 메시지에 답글을 다는 것으로 설정
+      {safeMessages.map((message, index) => {
+        const isSameSender =
+          index > 0 && safeMessages[index - 1].sender === message.sender;
+
+        return (
+          <div
+            key={message.message_id}
+            className={`message-item ${
+              message.isCurrentUser ? "sender" : "received"
+            }`}
           >
-            답장
-          </button>
-          {/* 답글 목록 */}
-          {message.replies && message.replies.length > 0 && (
-            <div className="replies">
-              {message.replies.map((reply, replyIndex) => (
-                <div key={replyIndex} className="reply">
-                  <p className="reply-text">
-                    {reply.sender} :{reply.text}
-                  </p>
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
-      ))}
+            {/* 이전 메시지와 다른 사용자일 경우만 sender를 표시 */}
+            {!isSameSender && (
+              <span className="message-sender">{message.sender}</span>
+            )}
+            <span className="message-text">
+              {message.replyTo
+                ? `${message.replyTo.sender}님에게 답장`
+                : message.text}
+            </span>
+
+            {/* 답글 달기 버튼 */}
+            <button
+              className="reply-button"
+              onClick={() => onMessageClick(message)} // 해당 메시지에 답글을 다는 것으로 설정
+            >
+              답장
+            </button>
+
+            {/* 답장 내용 추가 */}
+            {message.replyTo && (
+              <>
+                <div className="reply-line">--------------------------</div>
+                <div className="reply-text">{message.text}</div>
+              </>
+            )}
+          </div>
+        );
+      })}
     </div>
   );
 };

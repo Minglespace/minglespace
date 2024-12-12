@@ -1,13 +1,8 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { FaLock, FaLockOpen } from "react-icons/fa";
 
-const MessageInput = ({
-  onSendMessage,
-  newMessage,
-  setNewMessages,
-  replyToMessage,
-  setReplyToMessage,
-}) => {
+const MessageInput = ({ onSendMessage, replyToMessage, setReplyToMessage }) => {
+  const [newMessage, setNewMessage] = useState("");
   // 메시지 입력을 잠그는 상태 변수
   const [isLocked, setIsLocked] = useState(false);
   const [messages, setMessages] = useState(newMessage || "");
@@ -19,6 +14,7 @@ const MessageInput = ({
 
   // 메시지 입력
   const handleMessageChange = (e) => {
+    console.log("메시지:", newMessage);
     if (!isLocked) {
       setMessages(e.target.value);
     }
@@ -26,21 +22,26 @@ const MessageInput = ({
 
   // 메시지 전송 처리 함수
   const handleSendMessage = () => {
-    if (typeof messages === "string" && messages.trim() !== "") {
-      console.log("전송할 메시지", newMessage);
-      onSendMessage(messages);
+    if (newMessage.trim()) {
+      const messageToSend = {
+        text: newMessage,
+        sender: "현재 사용자 이름",
+        isCurrentUser: true,
+        replies: [],
+        replyTo: replyToMessage || null,
+      };
+      onSendMessage(messageToSend);
       setMessages("");
       setReplyToMessage(null);
-    } else {
-      console.log("빈 메시지 전송 시도 ");
     }
   };
 
   const handleKeyDown = (e) => {
     console.log(typeof messages);
     if (e.key === "Enter" && !e.shiftKey && messages.trim()) {
-      onSendMessage(messages);
-      setMessages(""); // 메시지 전송 후 입력란 초기화
+      e.preventDefault();
+      handleSendMessage();
+      setMessages("");
     }
   };
 
@@ -49,33 +50,28 @@ const MessageInput = ({
       <div className="message-input-wrapper">
         {replyToMessage && (
           <div className="replying-to-message">
-            <span>답글을 달고 있는 메시지:</span>
+            <span>답글 대상: {replyToMessage.sender}</span>
             <p>{replyToMessage.text}</p>
-            <button onClick={() => setReplyToMessage(null)}>답글 취소</button>
+            <button onClick={() => setReplyToMessage(null)}>취소</button>
           </div>
         )}
         <input
           type="text"
-          value={messages}
+          value={newMessage}
           onChange={handleMessageChange}
-          onKeyDown={handleKeyDown} // Enter 키 입력 감지
-          disabled={isLocked} // 잠금 상태에서 입력을 못 하게 함
+          onKeyDown={handleKeyDown}
+          disabled={isLocked}
           placeholder={
             isLocked ? "입력이 잠겨 있습니다." : "메시지를 입력하세요..."
           }
           className="message-input"
         />
-        {/* <Mentions
-          value={messages}
-          onChange={handleMessageChange}
-          wsMembers={wsMembers}
-          tags={tags}
-        ></Mentions> */}
+
         <button
           className="send-btn"
           onClick={handleSendMessage}
           disabled={
-            isLocked || (typeof messages === "string" && !messages.trim())
+            isLocked || (typeof newMessage === "string" && !newMessage.trim())
           }
         >
           전송

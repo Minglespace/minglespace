@@ -216,6 +216,13 @@ const ChatRoom = ({
       isCurrentUser: false,
       replies: [],
     },
+    {
+      message_id: 3,
+      sender: "sun",
+      text: "Hi there!",
+      replies: [],
+      isCurrentUser: true,
+    },
   ]);
 
   const [newMessage, setNewMessage] = useState("");
@@ -239,40 +246,24 @@ const ChatRoom = ({
   };
 
   // 메시지 전송 처리 함수
-  const handleSendMessage = (messageText) => {
-    const newMessage = {
-      text: messageText,
-      replies: [],
-      sender: "User",
-      isCurrentUser: true,
-      message_id: messages.length + 1,
+  const handleSendMessage = (newMessage) => {
+    const messageWithId = {
+      ...newMessage,
+      message_id: messages.length + 1, // 고유 ID 생성
+      sender: "나", // 예시로 "나"를 보낸 사람으로 설정
+      isCurrentUser: true, // 현재 사용자 메시지 여부
     };
 
-    if (replyToMessage) {
-      // 답글이 달린 메시지 처리
-      const updatedMessages = messages.map((msg) => {
-        if (msg.message_id === replyToMessage.message_id) {
-          return {
-            ...msg,
-            replies: [...msg.replies, { sender: "User", text: messageText }],
-          };
-        }
-        return msg;
-      });
-      setMessages(updatedMessages);
-    } else {
-      setMessages((prevMessages) => [...prevMessages, newMessage]);
-    }
-
-    // 메시지 전송 후 입력창 초기화
-    setNewMessage("");
-    setReplyToMessage(null); // 답글 상태 초기화
-    console.log("현재 메시지 목록: ", messages);
+    setMessages((prevMessages) => [...prevMessages, messageWithId]); // 메시지 추가
   };
 
   // 메시지를 클릭하면 해당 메시지를 선택
-  const handleMessageClick = (messageId) => {
-    setSelectedMessageId(messageId);
+  const handleMessageClick = (messages) => {
+    console.log("답장할 메시지:", messages);
+    // setSelectedMessageId(messageId);
+    setReplyToMessage(messages);
+    setNewMessage(`@${messages.text}`);
+    console.log("입력창에 표시된 답장 대상:", `${messages.text}`);
   };
 
   // 답글을 작성하는 함수
@@ -281,15 +272,18 @@ const ChatRoom = ({
   };
 
   const handlePostReply = () => {
-    if (selectedMessageId !== null && setReplyToMessage.trim() !== "") {
-      // 답글을 작성한 메시지 ID에 추가
+    if (
+      selectedMessageId !== null &&
+      replyToMessage &&
+      replyToMessage.trim() !== ""
+    ) {
       const newMessages = messages.map((message) => {
         if (message.message_id === selectedMessageId) {
           return {
             ...message,
             replies: [
               ...message.replies,
-              { user: "User3", content: setReplyToMessage },
+              { user: "User3", content: replyToMessage },
             ],
           };
         }
@@ -297,7 +291,7 @@ const ChatRoom = ({
       });
 
       setMessages(newMessages);
-      setReplyToMessage(""); // 답글 작성 후 입력 필드 초기화
+      setReplyToMessage(""); // 답글 입력 필드 초기화
     } else {
       alert("답글을 달 메시지를 선택하거나 내용을 입력하세요.");
     }
@@ -320,6 +314,7 @@ const ChatRoom = ({
       <MessageList
         messages={messages || []}
         setReplyToMessage={setReplyToMessage} // 답글 달고 싶은 메시지 설정
+        onMessageClick={handleMessageClick}
       />
 
       <MessageInput
