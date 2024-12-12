@@ -6,7 +6,6 @@ import AuthApi from "../../../api/AuthApi";
 import "./Header.css";
 
 const Header = ({ workspaceData }) => {
-  const wsMember = useContext(WSMemberRoleContext);
   const isAuthenticated = Repo.isAuthenticated();
 
   const navigate = useNavigate();
@@ -16,7 +15,7 @@ const Header = ({ workspaceData }) => {
       navigate("/");
     }
   }, []);
-const handleClickLogout = () => {
+  const handleClickLogout = () => {
     AuthApi.logout().then((data) => {
       if (data.code === 200) {
         navigate("/auth/login");

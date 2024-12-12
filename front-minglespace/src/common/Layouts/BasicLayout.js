@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import Sidebar from "./section/SideBar";
 import Footer from "./section/Footer";
 import Header from "./section/Header";
@@ -17,20 +17,31 @@ const BasicLayout = ({ children }) => {
   const { workspaceId } = useParams();
   const [workspaceData, setWorkspaceData] = useState({ ...initData });
   const [wsMemberData, setWsMEmberData] = useState({ memberId: "", role: "" });
+
+  const getWsMemberRole = useCallback(() => {
+    WorkspaceApi.getWsMemberRole(workspaceId).then((wsMemberServiceData) => {
+      setWsMEmberData(wsMemberServiceData);
+    });
+  }, [workspaceId, setWsMEmberData]);
+
   useEffect(() => {
     if (workspaceId) {
       WorkspaceApi.getOne(workspaceId).then((workspaceServerData) => {
         setWorkspaceData(workspaceServerData);
       });
-      WorkspaceApi.getWsMemberRole(workspaceId).then((wsMemberServiceData) => {
-        setWsMEmberData(wsMemberServiceData);
-      });
+      getWsMemberRole();
     }
-  }, [children]);
+  }, [workspaceId, getWsMemberRole]);
+
+  const refreshMemberContext = useCallback(() => {
+    getWsMemberRole();
+  }, [getWsMemberRole]);
 
   return (
     <>
-      <WSMemberRoleContext.Provider value={wsMemberData}>
+      <WSMemberRoleContext.Provider
+        value={{ wsMemberData, refreshMemberContext }}
+      >
         <Header workspaceData={workspaceData} />
         <div className="midcontainer">
           <Sidebar />

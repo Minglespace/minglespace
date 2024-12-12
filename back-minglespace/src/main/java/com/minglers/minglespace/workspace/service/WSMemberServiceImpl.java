@@ -42,6 +42,11 @@ public class WSMemberServiceImpl implements WSMemberService {
     return wsMemberRepository.findByUserIdAndWorkSpaceId(userId,workSpaceId)
             .orElseThrow(() -> new WorkspaceException(HttpStatus.NOT_FOUND.value(), "워크스페이스 멤버가 아닙니다"));
   }
+  //wsMemberId로 워크스페이스 멤버 조회(pk로)
+  private WSMember findById(Long wsMemberId){
+    return wsMemberRepository.findById(wsMemberId)
+            .orElseThrow(() -> new WorkspaceException(HttpStatus.NOT_FOUND.value(), "워크스페이스 멤버가 아닙니다"));
+  }
 
   /////////////////////////////////
 
@@ -55,7 +60,7 @@ public class WSMemberServiceImpl implements WSMemberService {
   //워크스페이스에 참여중인 멤버 리스트 조회 유저 정보와 함꼐
   @Override
   public List<MemberWithUserInfoDTO> getWsMemberWithUserInfo(Long workspaceId) {
-    List<WSMember> wsMembers = wsMemberRepository.findByWorkSpaceIdOrderByUserNameAsc(workspaceId);
+    List<WSMember> wsMembers = wsMemberRepository.findByWorkSpaceIdOrderByCustomRoleAndUserName(workspaceId);
 
     List<MemberWithUserInfoDTO> wsMemberList = new ArrayList<>();
 
@@ -84,7 +89,7 @@ public class WSMemberServiceImpl implements WSMemberService {
 
   @Override
   public List<WSMember> findByWorkSpaceId(Long workspaceId) {
-    return wsMemberRepository.findByWorkSpaceIdOrderByUserNameAsc(workspaceId);
+    return wsMemberRepository.findByWorkSpaceIdOrderByCustomRoleAndUserName(workspaceId);
   }
 
 //친구목록을 불러오는데 내 워크스페이스에 참여중인지 아닌지 구분
@@ -115,8 +120,8 @@ public class WSMemberServiceImpl implements WSMemberService {
               .workSpace(workSpace)
               .user(user)
               .build();
-      wsMemberRepository.save(wsMember);
-      return "초대에 성공했습니다";
+      WSMember savedMember = wsMemberRepository.save(wsMember);
+      return savedMember.getUser().getName()+"님 초대에 성공했습니다";
     } else {
       return "이미 워크스페이스에 참여중입니다";
     }
@@ -125,7 +130,7 @@ public class WSMemberServiceImpl implements WSMemberService {
   @Override
   @Transactional
   public String removeMember(Long memberId, Long workSpaceId) {
-    WSMember wsMember = findWSMemberBy(memberId, workSpaceId);
+    WSMember wsMember = findById(memberId);
     wsMemberRepository.delete(wsMember);
     return wsMember.getUser().getName()+"님을 추방하였습니다.";
   }
@@ -167,14 +172,14 @@ public class WSMemberServiceImpl implements WSMemberService {
   @Override
   @Transactional
   public String transferLeader(Long userId, Long memberId, Long workspaceId) {
-    WSMember wsLeader = findWSMemberBy(userId,workspaceId);
-    WSMember wsMember = findWSMemberBy(memberId,workspaceId);
+    WSMember wsLeader = findWSMemberBy(userId,workspaceId); //원래 리더확인
+    WSMember wsMember = findById(memberId); //멤버 id(ws쪽 pk임)
 
     wsLeader.changeRole(WSMemberRole.MEMBER);
-    WSMember savedMember = wsMemberRepository.save(wsLeader);
+    WSMember savedMember = wsMemberRepository.save(wsLeader);//리더를 멤버로
 
     wsMember.changeRole(WSMemberRole.LEADER);
-    WSMember savedLeader = wsMemberRepository.save(wsMember);
+    WSMember savedLeader = wsMemberRepository.save(wsMember);//멤버or서브리더 를 리더로
     return savedLeader.getUser().getName()+"님을 리더로 위임하였습니다.";
   }
 
@@ -182,7 +187,7 @@ public class WSMemberServiceImpl implements WSMemberService {
   @Override
   @Transactional
   public String transferRole(Long workspaceId, Long memberId, String role) {
-    WSMember wsMember = findWSMemberBy(memberId,workspaceId);
+    WSMember wsMember = findById(memberId);
     if("MEMBER".equals(role))
       wsMember.changeRole(WSMemberRole.MEMBER);
     else if("SUB_LEADER".equals(role))

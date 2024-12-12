@@ -1,6 +1,5 @@
 import React, { useContext } from "react";
 import { Link, useParams } from "react-router-dom";
-import { WSMemberRoleContext } from "../../../workspace/context/WSMemberRoleContext";
 
 const SideBar = () => {
   const { workspaceId } = useParams();

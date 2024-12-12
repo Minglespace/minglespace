@@ -20,6 +20,5 @@ public interface WSMemberService {
   WSMemberResponseDTO getWorkSpaceRole(Long userId, Long workSpaceId);
 
   String transferLeader(Long userId, Long memberId, Long workspaceId);
-
   String transferRole(Long workspaceId, Long memberId, String role);
 }

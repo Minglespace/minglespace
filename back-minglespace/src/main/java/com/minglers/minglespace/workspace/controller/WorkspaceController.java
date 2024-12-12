@@ -122,10 +122,11 @@ public class WorkspaceController {
   public ResponseEntity<String> transferRole(@RequestHeader("Authorization") String token,
                                              @PathVariable("workspaceId") Long workspaceId,
                                              @PathVariable("memberId") Long memberId,
-                                             @RequestBody String role){
+                                             @RequestBody WSMemberRoleRequestDTO role){
+    System.out.println("롤"+role.getRole());
     Long userId = jwtUtils.extractUserId(token.substring(7));
     checkLeader(userId, workspaceId);
-    return ResponseEntity.ok(wsMemberService.transferRole(workspaceId,memberId,role));
+    return ResponseEntity.ok(wsMemberService.transferRole(workspaceId,memberId,role.getRole()));
   }
 
 

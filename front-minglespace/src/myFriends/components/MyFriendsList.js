@@ -70,11 +70,11 @@ const MyFriendsList = ({ friends, getFriendList, handelSetFriends }) => {
       />
       <div className="myFriends_userInfo_container">
         {friends.map((userInfo) => (
-          <div className="myFriends_userInfo_flex" key={userInfo.id}>
-            <div
-              className="myFriends_userInfo_view"
-              onClick={() => handleUserClick(userInfo)}
-            >
+          <div
+            className="myFriends_userInfo_flex myFriends_userInfo_view"
+            key={userInfo.id}
+          >
+            <div onClick={() => handleUserClick(userInfo)}>
               <Userinfo
                 name={userInfo.name}
                 role={userInfo.position}
@@ -94,7 +94,7 @@ const MyFriendsList = ({ friends, getFriendList, handelSetFriends }) => {
         ))}
       </div>
       <Modal open={isModalOpen} onClose={handleCloseModal}>
-        {selectedUser && <UserInfoDetail user={selectedUser} />}
+        {selectedUser && <UserInfoDetail user={selectedUser} isModal={true} />}
       </Modal>
     </div>
   );

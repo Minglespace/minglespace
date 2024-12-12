@@ -33,7 +33,47 @@ class MembersApi {
       );
       return res.data;
     } catch (error) {
-      console.error("친구 초대 실패", error);
+      console.error("멤버 초대 실패", error);
+      throw error;
+    }
+  };
+
+  //멤버 내보내기
+  static removeMember = async (workspaceId, memberId) => {
+    try {
+      const res = await api.axiosIns.delete(
+        `${prefix}/${workspaceId}/removeMember/${memberId}`
+      );
+      return res.data;
+    } catch (error) {
+      console.error("멤버 추방 실패", error);
+      throw error;
+    }
+  };
+
+  //리더 위임하기
+  static transferLeader = async (workspaceId, memberId) => {
+    try {
+      const res = await api.axiosIns.put(
+        `${prefix}/${workspaceId}/transferLeader/${memberId}`
+      );
+      return res.data;
+    } catch (error) {
+      console.error("리더 위임 실패", error);
+      throw error;
+    }
+  };
+
+  //멤버 권한 바꾸기
+  static transferRole = async (workspaceId, memberId, role) => {
+    try {
+      const res = await api.axiosIns.put(
+        `${prefix}/${workspaceId}/transferRole/${memberId}`,
+        { role }
+      );
+      return res.data;
+    } catch (error) {
+      console.error("멤버 권한 변경 실패", error);
       throw error;
     }
   };

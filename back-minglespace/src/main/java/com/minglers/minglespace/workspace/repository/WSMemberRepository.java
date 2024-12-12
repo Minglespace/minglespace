@@ -11,7 +11,19 @@ import java.util.Optional;
 @Repository
 public interface WSMemberRepository extends JpaRepository<WSMember,Long> {
   Optional<WSMember> findByUserIdAndWorkSpaceId(Long userId, Long workspaceId);
-  List<WSMember> findByWorkSpaceIdOrderByUserNameAsc(Long workspaceId);
+
+  @Query("SELECT m FROM WSMember m " +
+          "JOIN FETCH m.user " +
+          "WHERE m.workSpace.id = :workspaceId " +
+          "ORDER BY " +
+          "CASE m.role " +
+          "  WHEN 'LEADER' THEN 1 " +
+          "  WHEN 'SUB_LEADER' THEN 2 " +
+          "  WHEN 'MEMBER' THEN 3 " +
+          "  ELSE 4 " +
+          "END, " +
+          "m.user.name ASC")
+  List<WSMember> findByWorkSpaceIdOrderByCustomRoleAndUserName(Long workspaceId);
 
   //친구가 워크스페이스에 있는지 확인여부
   @Query("SELECT COUNT(wsm) > 0 FROM WSMember wsm WHERE wsm.user.id = :friendId AND wsm.workSpace.id = :workspaceId")

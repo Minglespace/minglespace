@@ -32,8 +32,10 @@ const myFriendInitData = [
 
 const Member = () => {
   const { workspaceId } = useParams();
-  const { role } = useContext(WSMemberRoleContext);
-
+  const {
+    wsMemberData: { role },
+    refreshMemberContext,
+  } = useContext(WSMemberRoleContext);
   const [loading, setLoading] = useState(true); //로딩 상태관리
 
   const [members, setMembers] = useState([...memberInitData]);
@@ -76,25 +78,95 @@ const Member = () => {
     },
     [workspaceId, getFriendList, getMemberList]
   );
+
+  //멤버 추방
+  const handleRemoveMember = useCallback(
+    (memberId) => {
+      MembersApi.removeMember(workspaceId, memberId).then((data) => {
+        getMemberList();
+        getFriendList();
+        setSelectedMember(null);
+        alert(data);
+      });
+    },
+    [workspaceId, getFriendList, getMemberList]
+  );
+
+  //리더 위임
+  const handleTransferLeader = useCallback(
+    (memberId) => {
+      MembersApi.transferLeader(workspaceId, memberId).then((data) => {
+        getMemberList();
+        setSelectedMember(null);
+        refreshMemberContext();
+        alert(data);
+      });
+    },
+    [workspaceId, getMemberList, refreshMemberContext]
+  );
+
+  //멤버 권한 바꾸기
+  const handleTransferRole = useCallback(
+    (memberId, role) => {
+      console.log(role);
+      MembersApi.transferRole(workspaceId, memberId, role).then((data) => {
+        getMemberList();
+        setSelectedMember(null);
+        alert(data);
+      });
+    },
+    [workspaceId, getMemberList]
+  );
+
+  const renderContent = () => {
+    if (loading) {
+      return <p>로딩 중입니다....</p>;
+    }
+
+    if (role === "MEMBER") {
+      return (
+        <div className="section_container myFriends_container_item">
+          {selectedMember && <UserInfoDetail user={selectedMember} />}
+        </div>
+      );
+    } else if (role === "SUB_LEADER") {
+      return (
+        <>
+          <MemberInvite
+            friends={myFriends}
+            handleInviteMember={handleInviteMember}
+          />
+          <div className="section_container myFriends_container_item">
+            {selectedMember && <UserInfoDetail user={selectedMember} />}
+          </div>
+        </>
+      );
+    } else if (role === "LEADER") {
+      return (
+        <>
+          <MemberInvite
+            friends={myFriends}
+            handleInviteMember={handleInviteMember}
+          />
+          <div className="section_container myFriends_container_item">
+            {selectedMember && (
+              <UserInfoDetail
+                user={selectedMember}
+                handleRemoveMember={handleRemoveMember}
+                handleTransferLeader={handleTransferLeader}
+                handleTransferRole={handleTransferRole}
+              />
+            )}
+          </div>
+        </>
+      );
+    }
+  };
+
   return (
     <div className="myFriends_container">
-      {loading ? (
-        <p>로딩 중입니다....</p>
-      ) : (
-        <>
-          <MemberList members={members} onClickMember={handleMemberClick} />
-          {role === "MEMBER" ? (
-            <div className="section_container myFriends_container_item">
-              {selectedMember && <UserInfoDetail user={selectedMember} />}
-            </div>
-          ) : (
-            <MemberInvite
-              friends={myFriends}
-              handleInviteMember={handleInviteMember}
-            />
-          )}
-        </>
-      )}
+      <MemberList members={members} onClickMember={handleMemberClick} />
+      {renderContent()}
     </div>
   );
 };
