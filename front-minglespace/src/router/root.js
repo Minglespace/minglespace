@@ -12,51 +12,69 @@ const Chat = lazy(() => import("../page/ChatPage"));
 const Workspace = lazy(() => import("../page/WorkspacePage"));
 const MyFriends = lazy(() => import("../page/MyFriendsPage"));
 const MileStone = lazy(() => import("../page/MileStonePage"));
+const Member = lazy(() => import("../page/MemberPage"));
 
 const root = createBrowserRouter([
-
   // SuspenseWithPrivateRoute
   // 로그인 유무 체크 하는 페이지들
   {
     path: "",
-    element: (<SuspenseWithPrivateRoute page={Main}/>)
+    element: <SuspenseWithPrivateRoute page={Main} />,
   },
   {
     path: "/main",
-    element: (<SuspenseWithPrivateRoute page={Main}/>)
+    element: <SuspenseWithPrivateRoute page={Main} />,
   },
   {
     path: "/MyFriends",
-    element: (<SuspenseWithPrivateRoute page={MyFriends}/>)
+    element: <SuspenseWithPrivateRoute page={MyFriends} />,
   },
   {
     path: "/workspace",
-    element: (<SuspenseWithPrivateRoute page={Workspace}/>)
+    element: <SuspenseWithPrivateRoute page={Workspace} />,
   },
   {
     path: "/workspace/:workspaceId",
-    element: (<SuspenseWithPrivateRoute page={MileStone}/>)
+    element: <SuspenseWithPrivateRoute page={MileStone} />,
+  },
+  {
+    path: "/workspace/:workspaceId/milestone",
+    element: <SuspenseWithPrivateRoute page={MileStone} />,
   },
   {
     path: "/workspace/:workspaceId/chat",
-    element: (<SuspenseWithPrivateRoute page={Chat}/>)
+    element: <SuspenseWithPrivateRoute page={Chat} />,
   },
-  
+  {
+    path: "/workspace/:workspaceId/member",
+    element: <SuspenseWithPrivateRoute page={Member} />,
+  },
+
   // Suspense
   // 로그인 유무 체크하지 않는 대상 페이지들
   {
     path: "/auth/login",
-    element: (<Suspense fallback={Loading}><Login /></Suspense>)
+    element: (
+      <Suspense fallback={Loading}>
+        <Login />
+      </Suspense>
+    ),
   },
   {
     path: "/auth/login/:code/:encodedEmail",
-    element: (<Suspense fallback={Loading}><Login /></Suspense>)
+    element: (
+      <Suspense fallback={Loading}>
+        <Login />
+      </Suspense>
+    ),
   },
   {
     path: "/auth/signup",
-    element: (<Suspense fallback={Loading}><Signup /></Suspense>)
+    element: (
+      <Suspense fallback={Loading}>
+        <Signup />
+      </Suspense>
+    ),
   },
-
-
 ]);
 export default root;

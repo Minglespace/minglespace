@@ -1,25 +1,20 @@
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import Userinfo from "../../common/Layouts/components/Userinfo";
 import Search from "../../common/Layouts/components/Search";
 import myFriendsApi from "../../api/myFriendsApi";
 import Modal from "../../common/Layouts/components/Modal";
 import UserInfoDetail from "../../common/Layouts/components/UserInfoDetail";
 
-const userInitData = [
-  {
-    id: 0,
-    email: "",
-    name: "",
-    phone: "",
-    introduction: "",
-    position: "",
-    img: "",
-  },
-];
 const MyFriendsList = ({ friends, getFriendList, handelSetFriends }) => {
   const [searchKeyword, setSearchKeyword] = useState("");
   const [selectedUser, setSelectedUser] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+
+  //자음체크
+  const isValidKoreanCharacter = useCallback((char) => {
+    const validCharRegex = /^[가-힣a-zA-Z]+$/;
+    return validCharRegex.test(char);
+  }, []);
 
   useEffect(() => {
     if (isValidKoreanCharacter(searchKeyword) || searchKeyword === "") {
@@ -28,33 +23,33 @@ const MyFriendsList = ({ friends, getFriendList, handelSetFriends }) => {
       }, 1000);
       return () => clearTimeout(timer);
     }
-  }, [searchKeyword]);
+  }, [isValidKoreanCharacter, getFriendList, searchKeyword]);
 
   //검색 핸들러
-  const handleSearch = (event) => {
+  const handleSearch = useCallback((event) => {
     setSearchKeyword(event.target.value);
-  };
+  }, []);
 
   // 엔터 키 핸들러
-  const handleKeyDown = (event) => {
-    if (event.key === "Enter") {
-      event.preventDefault();
-      getFriendList(searchKeyword);
-    }
-  };
-
-  //자음체크
-  const isValidKoreanCharacter = (char) => {
-    const validCharRegex = /^[가-힣a-zA-Z]+$/;
-    return validCharRegex.test(char);
-  };
+  const handleKeyDown = useCallback(
+    (event) => {
+      if (event.key === "Enter") {
+        event.preventDefault();
+        getFriendList(searchKeyword);
+      }
+    },
+    [getFriendList, searchKeyword]
+  );
 
   //친구삭제 핸들러
-  const handleDeleteFriend = (friendId) => {
-    myFriendsApi.remove(friendId).then((data) => {
-      handelSetFriends(data);
-    });
-  };
+  const handleDeleteFriend = useCallback(
+    (friendId) => {
+      myFriendsApi.remove(friendId).then((data) => {
+        handelSetFriends(data);
+      });
+    },
+    [handelSetFriends]
+  );
 
   //상세보기를 위한 모달기능
   const handleUserClick = (user) => {
@@ -75,17 +70,16 @@ const MyFriendsList = ({ friends, getFriendList, handelSetFriends }) => {
       />
       <div className="myFriends_userInfo_container">
         {friends.map((userInfo) => (
-          <div className="myFriends_userInfo_deleteButton" key={userInfo.id}>
-            <div
-              className="myFriends_userInfo_view"
-              onClick={() => handleUserClick(userInfo)}
-            >
+          <div
+            className="myFriends_userInfo_flex myFriends_userInfo_view"
+            key={userInfo.id}
+          >
+            <div onClick={() => handleUserClick(userInfo)}>
               <Userinfo
                 name={userInfo.name}
                 role={userInfo.position}
                 email={userInfo.email}
                 src={userInfo.img}
-                onClick={() => handleUserClick(userInfo)}
               />
             </div>
             <button
@@ -100,7 +94,7 @@ const MyFriendsList = ({ friends, getFriendList, handelSetFriends }) => {
         ))}
       </div>
       <Modal open={isModalOpen} onClose={handleCloseModal}>
-        {selectedUser && <UserInfoDetail user={selectedUser} />}
+        {selectedUser && <UserInfoDetail user={selectedUser} isModal={true} />}
       </Modal>
     </div>
   );

@@ -4,7 +4,6 @@ import { WSMemberRoleContext } from "../../../workspace/context/WSMemberRoleCont
 import UserInfoPopup from "../../../auth/UserInfoPopup";
 
 const Header = ({ workspaceData }) => {
-  const wsMember = useContext(WSMemberRoleContext);
 
   return (
     <header>

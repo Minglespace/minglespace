@@ -9,14 +9,12 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class MemberWithUserInfoDTO {
-  private Long wsMemberId;
-  private Long userId;
+public class FriendWithWorkspaceStatusDTO {
+  private Long friendId;
   private String email;
   private String name;
   private String imageUriPath;
   private String position;
-  private String phone;
-  private String introduction;
-  private String role;
+  private boolean inWorkSpace;
+
 }

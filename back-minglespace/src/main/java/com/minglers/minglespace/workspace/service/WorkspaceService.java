@@ -14,6 +14,4 @@ public interface WorkspaceService {
   WorkSpaceResponseDTO modify(Long workSpaceId, WorkspaceRequestDTO workspaceDTO);
   String remove(Long workSpaceId, Long userId);
   WorkSpaceResponseDTO getOne(Long workSpaceId);
-  void checkLeader(Long userId, Long workSpaceId);
-  WSMemberResponseDTO getWorkSpaceRole(Long userId, Long workSpaceId);
 }
