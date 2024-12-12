@@ -9,6 +9,7 @@ import com.minglers.minglespace.workspace.repository.WorkspaceRepository;
 import com.minglers.minglespace.workspace.service.WorkspaceService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.RequestEntity;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -43,6 +44,13 @@ public class TodoController {
   @PathVariable("todoId") Long todoId, @PathVariable("workspaceId") Long workspaceId) {
     Long userId = jwtUtils.extractUserId(token.substring(7));
     return ResponseEntity.ok(todoService.getOneTodo(todoId, workspaceId));
+  }
+
+  @PostMapping("")
+  public ResponseEntity<TodoResponseDTO> addTodo(@RequestHeader("Authorization") String token,
+                                                @PathVariable("workspaceId") Long workspaceId, @RequestBody TodoRequestDTO todoRequestDTO){
+    Long userId = jwtUtils.extractUserId(token.substring(7));
+    return ResponseEntity.ok(todoService.postAddTodo(userId, workspaceId, todoRequestDTO));
   }
 
   @PutMapping("/{todoId}")

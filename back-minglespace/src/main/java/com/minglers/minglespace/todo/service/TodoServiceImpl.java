@@ -1,6 +1,7 @@
 package com.minglers.minglespace.todo.service;
 
 import com.minglers.minglespace.auth.entity.User;
+import com.minglers.minglespace.auth.repository.UserRepository;
 import com.minglers.minglespace.todo.dto.TodoAssigneeResponseDTO;
 import com.minglers.minglespace.todo.dto.TodoRequestDTO;
 import com.minglers.minglespace.todo.dto.TodoResponseDTO;
@@ -19,6 +20,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -34,6 +36,7 @@ public class TodoServiceImpl implements TodoService {
   private final TodoAssigneeRepository todoAssigneeRepository;
   private final WorkspaceRepository workspaceRepository;
   private final WSMemberRepository wsMemberRepository;
+  private final UserRepository userRepository;
   private final ModelMapper modelMapper;
 
   @Override
@@ -84,7 +87,7 @@ public class TodoServiceImpl implements TodoService {
   @Override
   @Transactional(readOnly = true)
   public List<TodoResponseDTO> getAllTodo(Long workspaceId) {
-    WorkSpace workSpace = workspaceRepository.findById(workspaceId).orElseThrow(()-> new WorkspaceException(HttpStatus.NOT_FOUND.value(), "워크스페이스를 찾을수 없습니다."));
+    WorkSpace workSpace = workspaceRepository.findById(workspaceId).orElseThrow(() -> new WorkspaceException(HttpStatus.NOT_FOUND.value(), "워크스페이스를 찾을수 없습니다."));
     List<Todo> todoList = todoRepository.findAllTodoByWorkSpaceId(workspaceId);
 
     List<TodoResponseDTO> todoResponseDTOList = todoList.stream().map(todo -> {
@@ -113,11 +116,64 @@ public class TodoServiceImpl implements TodoService {
   }
 
   @Override
+  @Transactional
+  public TodoResponseDTO postAddTodo(Long userId, Long workspaceId, TodoRequestDTO todoRequestDTO) {
+    WorkSpace workSpace = workspaceRepository.findById(workspaceId)
+            .orElseThrow(() -> new WorkspaceException(HttpStatus.NOT_FOUND.value(), "워크스페이스를 찾을 수 없습니다."));
+
+    User user = userRepository.findById(userId)
+            .orElseThrow(() -> new IllegalArgumentException("유저 정보를 찾을 수 없습니다."));
+
+    WSMember wsMember = user.getWsMembers().stream()
+            .filter(wsMembers -> wsMembers.getUser().getId().equals(userId)
+                    && wsMembers.getWorkSpace().getId().equals(workspaceId))
+            .findFirst().orElseThrow(() -> new IllegalArgumentException("WSMember 정보를 찾을 수 없습니다."));
+
+    Todo newTodo = Todo.builder()
+            .title(todoRequestDTO.getTitle())
+            .content(todoRequestDTO.getContent())
+            .start_date(todoRequestDTO.getStart_date())
+            .end_date(todoRequestDTO.getEnd_date())
+            .wsMember(wsMember)
+            .workSpace(workSpace).build();
+
+    List<TodoAssignee> assignees = new ArrayList<>();
+    for (Long wsMemberId : todoRequestDTO.getWsMember_id()) {
+      WSMember assigneeWsMember = wsMemberRepository.findById(wsMemberId)
+              .orElseThrow(() -> new IllegalArgumentException("Assignee 정보를 찾을 수 없습니다."));
+
+      TodoAssignee todoAssignee = TodoAssignee.builder()
+              .todo(newTodo)
+              .wsMember(assigneeWsMember).build();
+
+      assignees.add(todoAssignee);
+    }
+    log.info("===========newTodo============");
+    log.info(newTodo.toString());
+    newTodo.changeTodoAssigneeList(assignees);
+    todoRepository.save(newTodo);
+
+    List<WSMemberResponseDTO> assigneeList =
+            newTodo.getTodoAssigneeList().stream()
+                    .map(assignee -> new WSMemberResponseDTO(assignee.getWsMember().getId(),
+                            assignee.getWsMember().getUser().getName(), assignee.getWsMember().getRole().toString()))
+                    .collect(Collectors.toList());
+    return TodoResponseDTO.builder()
+            .id(newTodo.getId())
+            .title(newTodo.getTitle())
+            .content(newTodo.getContent())
+            .start_date(newTodo.getStart_date())
+            .end_date(newTodo.getEnd_date())
+            .creator_name(newTodo.getWsMember().getUser().getName())
+            .assignee_list(assigneeList).build();
+  }
+
+  @Override
   @Transactional(readOnly = true)
   public TodoResponseDTO getOneTodo(Long todoId, Long workspaceId) {
     List<Todo> todoList = todoRepository.findAllTodoByWorkSpaceId(workspaceId);
 //    Todo todo = todoRepository.findById(todoId).orElseThrow();
-    Todo filterTodo = todoList.stream().filter(todo -> todo.getId().equals(todoId)).findFirst().orElseThrow(()->
+    Todo filterTodo = todoList.stream().filter(todo -> todo.getId().equals(todoId)).findFirst().orElseThrow(() ->
             new TodoException(HttpStatus.NOT_FOUND.value(), "해당 할일 정보를 찾을수 없습니다."));
     String creatorname = filterTodo.getWsMember().getUser().getName();
 
@@ -143,7 +199,7 @@ public class TodoServiceImpl implements TodoService {
   @Override
   @Transactional
   public TodoResponseDTO putTodoWithAssigneeInfo(Long todoId, TodoRequestDTO todoRequestDTO) {
-    Todo todo = todoRepository.findById(todoId).orElseThrow(()->
+    Todo todo = todoRepository.findById(todoId).orElseThrow(() ->
             new TodoException(HttpStatus.NOT_FOUND.value(), "해당하는 할일 정보를 찾을수 없습니다."));
 
     todo.changeTitle(todoRequestDTO.getTitle());
@@ -154,8 +210,8 @@ public class TodoServiceImpl implements TodoService {
 
     todo.getTodoAssigneeList().clear();
 
-    List<TodoAssignee> newTodoAssigneeList = todoRequestDTO.getAssignee_id().stream().map(assigneeId -> {
-      WSMember wsMember = wsMemberRepository.findById(assigneeId).orElseThrow(()->
+    List<TodoAssignee> newTodoAssigneeList = todoRequestDTO.getWsMember_id().stream().map(assigneeId -> {
+      WSMember wsMember = wsMemberRepository.findById(assigneeId).orElseThrow(() ->
               new TodoException(HttpStatus.NOT_FOUND.value(), "담당자 정보를 찾을수 없습니다."));
       TodoAssignee todoAssignee = new TodoAssignee();
       todoAssignee.changeWsMember(wsMember);
@@ -187,7 +243,7 @@ public class TodoServiceImpl implements TodoService {
   @Override
   @Transactional
   public String deleteTodo(Long todoId) {
-    Todo todo = todoRepository.findById(todoId).orElseThrow(()->
+    Todo todo = todoRepository.findById(todoId).orElseThrow(() ->
             new TodoException(HttpStatus.NOT_FOUND.value(), "해당하는 할일 정보를 찾을수 없습니다."));
 
     todoRepository.deleteById(todoId);

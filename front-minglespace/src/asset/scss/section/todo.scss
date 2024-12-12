@@ -5,6 +5,16 @@
   display: flex;
   justify-content: center;
   z-index: 900;
+  .todo_item_add_button_section {
+    display: block !important;
+    button {
+      width: 100px;
+      height: 30px;
+      border: solid 1px #888;
+      border-radius: 5px;
+      background-color: aqua;
+    }
+  }
 
   .todo_list_section {
     margin: 20px;
@@ -91,6 +101,44 @@
           }
         }
       }
+    }
+  }
+  .todo_modal_container {
+    cursor: auto;
+    .todo_modal_main_title {
+      width: 150px;
+      margin: 10px auto;
+      padding-left: 20px;
+    }
+    width: 440px;
+    .todo_modal_flexarea {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+    .todo_modal_flexarea * {
+      cursor: auto;
+    }
+    span {
+      display: block;
+      width: 100px;
+      margin: 10px;
+      padding: 5px;
+      border: solid 1px blue;
+    }
+    input {
+      margin: 10px;
+      padding: 5px;
+      border: solid 1px #888;
+      border-radius: 5px;
+      width: 300px;
+    }
+  }
+  .todo_modal_button_area {
+    display: flex;
+    justify-content: space-between;
+    button {
+      margin: 10px;
     }
   }
 }

@@ -18,4 +18,5 @@ public class TodoRequestDTO {
   private boolean complete;
   private String creator_name;
   private List<Long> assignee_id;
+  private List<Long> wsMember_id;
 }

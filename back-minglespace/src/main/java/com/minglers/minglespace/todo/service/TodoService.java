@@ -8,6 +8,7 @@ import java.util.List;
 public interface TodoService {
   List<TodoResponseDTO> getTodoWithAssigneeInfo(Long workspaceId, Long userId);
   List<TodoResponseDTO> getAllTodo(Long workspaceId);
+  TodoResponseDTO postAddTodo(Long userId, Long workspaceId, TodoRequestDTO todoRequestDTO);
   TodoResponseDTO getOneTodo(Long todoId, Long workspaceId);
   TodoResponseDTO putTodoWithAssigneeInfo(Long todoId, TodoRequestDTO todoRequestDTO);
   String deleteTodo(Long todoId);

@@ -42,7 +42,7 @@ class TodoApi {
 
   static deleteTodo = async (workspaceId, todoId) => {
     const res = await api.axiosIns.delete(
-      `${TodoApi.prefix}/${workspaceId}/milestone/milestoneGroup/${todoId}`
+      `${TodoApi.prefix}/${workspaceId}/todo/${todoId}`
     );
     return res.data;
   };

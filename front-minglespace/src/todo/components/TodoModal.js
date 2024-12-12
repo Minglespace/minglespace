@@ -1,56 +1,144 @@
-import React, {useState} from "react";
+import React, { useState, useEffect } from "react";
 import Modal from "../../common/Layouts/components/Modal";
-import TodoApi from "../../api/TodoApi";
+import { useParams } from "react-router-dom";
 
-const TodoModal = ({ open, onClose, todo, onSave }) => {
-  const [title, setTitle] = useState(todo.title);
-  const [content, setContent] = useState(todo.content); 
-  const [startDate, setStartDate] = useState(new Date(todo.start_date)); 
-  const [endDate, setEndDate] = useState(new Date(todo.end_date)); 
-  const [assignee, setAssignee] = useState(todo.assignee_list[0].name);
+const initTodo = {
+  title: "",
+  content: "",
+  start_date: Date.now(),
+  end_date: Date.now(),
+  wsMember_id: "", // 필드 이름 수정
+};
 
-  const handleSave = async () => {
-     const updatedTodo = {
-       ...todo, 
-       title, 
-       content, 
-       start_date: startDate, 
-       end_date: endDate, 
-       assignee_list: [{
-         id: todo.assignee_list[0].id, 
-         name: assignee 
-        }], };
+const TodoModal = ({
+  open,
+  onClose,
+  todo,
+  onAdd,
+  onModify,
+  editingTodo,
+  onDelete,
+  onRendering,
+  role,
+}) => {
+  const [newTodo, setNewTodo] = useState({ ...initTodo });
+  const { workspaceId } = useParams("workspaceId");
 
-        const result = await TodoApi.modifyTodo(todo.id, todo.workspace_id, updatedTodo);
-        onSave(result); 
-        onClose();
-      };
-  if (!open) return null;
+  useEffect(() => {
+    if (editingTodo) {
+      const assigneeString = editingTodo.wsMember_id
+        ? editingTodo.wsMember_id.join(", ")
+        : "";
+      setNewTodo({ ...editingTodo, wsMember_id: assigneeString });
+    } else {
+      setNewTodo({ ...initTodo });
+    }
+  }, [editingTodo]);
+
+  const handleChangeNewTodo = (e) => {
+    const { name, value } = e.target;
+
+    if (name === "start_date" || name === "end_date") {
+      newTodo[name] = new Date(value).getTime();
+    } else {
+      newTodo[name] = value;
+    }
+    setNewTodo({ ...newTodo });
+  };
+
+  const handleWsMemberIdsChange = (e) => {
+    const value = e.target.value;
+    setNewTodo({ ...newTodo, wsMember_id: value });
+  };
+
+  const handleClickAdd = () => {
+    const updatedTodo = {
+      ...newTodo,
+      wsMember_id: newTodo.wsMember_id
+        .split(",")
+        .map((id) => parseInt(id.trim())),
+    };
+
+    if (editingTodo) {
+      onModify(updatedTodo);
+      onRendering(false);
+    } else {
+      onAdd(updatedTodo);
+      onRendering(false);
+    }
+  };
 
   return (
-    <div> 
-      <Modal open={open} onClose={onClose}> 
-      <div> 
-        <h2>Edit Todo</h2> 
-        <label> Title: 
-          <input type="text" value={title} onChange={(e) => setTitle(e.target.value)} /> 
-        </label> <br />
-        <label> Content:
-          <input type="text" value={content} onChange={(e) => setContent(e.target.value)} /> 
-        </label> <br />
-        <label> Start Date:
-          <input type="date" value={startDate.toISOString().split('T')[0]} onChange={(e) => setStartDate(new Date(e.target.value))} /> 
-        </label> <br />
-        <label> End Date:
-          <input type="date" value={endDate.toISOString().split('T')[0]} onChange={(e) => setEndDate(new Date(e.target.value))} /> 
-        </label> <br />
-        <label> Assignee:
-          <input type="text" value={assignee} onChange={(e) => setAssignee(e.target.value)} /> 
-        </label> <br />
-        <button onClick={handleSave}>Save</button>
-        <button onClick={onClose}>Cancel</button> 
-      </div>
-      </Modal> 
+    <div>
+      <Modal open={open} onClose={onClose}>
+        <div className="todo_modal_container">
+          <h2 className="todo_modal_main_title">
+            {editingTodo ? "Edit Todo" : "Add Todo"}
+          </h2>
+          <div className="todo_modal_flexarea">
+            <span className="todo_modal_title">제목 : </span>
+            <input
+              className="todo_modal_title_input"
+              name="title"
+              type="text"
+              value={newTodo.title}
+              onChange={handleChangeNewTodo}
+            />
+
+            <br />
+            <span className="todo_modal_content">내용 : </span>
+            <input
+              className="todo_modal_content_input"
+              name="content"
+              type="text"
+              value={newTodo.content}
+              onChange={handleChangeNewTodo}
+            />
+
+            <br />
+            <span>시작일자 : </span>
+            <input
+              name="start_date"
+              type="date"
+              value={new Date(newTodo.start_date).toISOString().split("T")[0]}
+              onChange={handleChangeNewTodo}
+            />
+
+            <br />
+            <span>종료일자 : </span>
+            <input
+              name="end_date"
+              type="date"
+              value={new Date(newTodo.end_date).toISOString().split("T")[0]}
+              onChange={handleChangeNewTodo}
+            />
+
+            <br />
+            <span>작업대상 : </span>
+            <input
+              name="wsMember_id"
+              type="text"
+              value={newTodo.wsMember_id}
+              onChange={handleWsMemberIdsChange}
+            />
+
+            <br />
+          </div>
+          <div className="todo_modal_button_area">
+            <button className="add_button_2" onClick={handleClickAdd}>
+              Save
+            </button>
+            <button className="cancle_button" onClick={onClose}>
+              Cancel
+            </button>
+            {editingTodo && (
+              <button className="exit_button" onClick={onDelete}>
+                Delete
+              </button>
+            )}
+          </div>
+        </div>
+      </Modal>
     </div>
   );
 };

@@ -48,6 +48,9 @@ public class Todo {
   }
 
   public void changeTodoAssigneeList(List<TodoAssignee> todoAssigneeList) {
+    if (this.todoAssigneeList == null) {
+      this.todoAssigneeList = new ArrayList<>();
+    }
     this.todoAssigneeList.clear();
     if (todoAssigneeList != null) {
       this.todoAssigneeList.addAll(todoAssigneeList);
@@ -56,6 +59,7 @@ public class Todo {
       }
     }
   }
+
 
   public void changeId(Long id) {
     this.id = id;
