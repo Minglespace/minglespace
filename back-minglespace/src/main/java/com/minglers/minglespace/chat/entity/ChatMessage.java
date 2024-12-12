@@ -50,6 +50,7 @@ public class ChatMessage {
                 .replyId(replyId)
                 .writerWsMemberId(this.getWsMember().getId())
                 .isAnnouncement(this.getIsAnnouncement())
+                .sender(this.getWsMember().getUser().getName())
                 .build();
     }
 }

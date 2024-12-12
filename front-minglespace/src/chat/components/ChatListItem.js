@@ -15,8 +15,6 @@ const ChatListItem = ({ chat, onReadMsg, onSelectRoom }) => {
       if (chat.notReadMsgCount > 0) {
         await onReadMsg(chat.chatRoomId);
       }
-      onSelectRoom(chat.chatRoomId);
-
       navigate(`/workspace/${workspaceId}/chat?chatRoomId=${chat.chatRoomId}`);
     } catch (e) {
       console.error("메시지 읽음 처리 중 오류 발생:", e);

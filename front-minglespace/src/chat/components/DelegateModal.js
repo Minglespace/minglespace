@@ -11,6 +11,7 @@ const DelegateModal = ({ isOpen, onClose, onDelegate, participants }) => {
 
   const handleDelegateAndExit = async () => {
     if (selectedUser) {
+      console.log("selected user :", selectedUser);
       await onDelegate(selectedUser); // 새 방장으로 위임
       alert(`${selectedUser.name}님이 방장으로 위임되었습니다.`);
       setSelectedUser(null);

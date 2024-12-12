@@ -1,6 +1,7 @@
 ﻿import React, { useState } from "react";
 import ChatListItem from "./ChatListItem";
 import CreateChatRoomModal from "./CreateChatRoomModal";
+import { IoLogoWechat } from "react-icons/io5";
 
 const ChatList = ({
   isFold,
@@ -8,7 +9,6 @@ const ChatList = ({
   onCreateRoom,
   onReadMsg,
   wsMembers,
-  onSelectRoom,
 }) => {
   const [isModalOpen, setIsModalOpen] = useState(false); //모달 열림/닫힘 상태
 
@@ -23,26 +23,23 @@ const ChatList = ({
     setIsModalOpen(false);
   };
 
-  // 채팅방을 클릭했을 때 호출되는 함수
-  const handleSelectRoom = (chatRoomId) => {
-    console.log("Selected chat room:", chatRoomId); // 로그 추가
-    onSelectRoom(chatRoomId); // 채팅방 선택 처리
-  };
-
   return (
     <div>
       <div className={`chat_list_container ${isFold ? "collapsed" : ""}`}>
         {!isFold && <h1>채팅방 목록</h1>}
         {/* isFold 상태가 false일 때만 '채팅방 목록'을 보여줌 */}
         {rooms && rooms.length === 0 ? (
-          <p>채팅방이 없습니다. </p>
+          <div className="no-chatroom-selected">
+            <IoLogoWechat />
+            <p>채팅방이 없습니다. </p>
+            <p>채팅방을 생성해주세요.</p>
+          </div>
         ) : (
           rooms.map((room) => (
             <ChatListItem
               key={room.chatRoomId}
               chat={room}
               onReadMsg={onReadMsg}
-              onSelectRoom={onSelectRoom}
             />
           ))
         )}

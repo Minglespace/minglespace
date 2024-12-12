@@ -20,7 +20,7 @@
 ```
 ---
 
-# Signup
+# Signup - 완료
 - react : /auth/signup
 - rest : /api/auth/signup <- 예정 
 
@@ -32,7 +32,7 @@
 
 ```
 
-### 5.1 이메일 인증 - 진행중
+### 5.1 이메일 인증 - 완료
 
 - Flow
   - a. 회원가입시 인증코드를 발급해서 User 테이블에 등록한다. - 완료
@@ -68,7 +68,7 @@
     - e.2. 없다면, 로그인 정상 로직을 실행
 
 ---
-# Login
+# Login - 완료
 - react : /auth/login
 - rest : /api/auth/login
 
@@ -79,7 +79,7 @@
 4. LoginPage.css 파일 -> scss로 작업 예정
 ```
 ---
-# Logout
+# Logout - 완료
 - react : /auth/logout
 - rest : /api/auth/logout
 
@@ -89,22 +89,12 @@
 ```
 ---
 
-# 회원정보 (팝업 및 수정 창)
-- email,
-- image_id,
-- introduction,
-- name,
-- password,
-- phone,
-- position,
-
-todo
-```bazaar
-UI
-    유저 정보 표시 및 변경 기능
-    유저 탈퇴 기능
-    로그 아웃 버튼 여기로 이동
-```
+# 회원정보 (팝업 및 수정 창) - 완료
+- UserInfoPopup.js
+- 유저 프로필 사진 등록 기능(디폴트 : 첫글자)
+- 이메일 변경은 미지원 : 추후 논의 필요
+- 회원 탈퇴 미지원 : 추후 논의 필요
+---
 # REACT Api 구조 변경 - 완료
 
 - Api.js 고통 모듈 제공
@@ -125,7 +115,7 @@ UI
 
 ---
 
-# 로그인 상태에 따라 접근 가능한 페이지 처리
+# 로그인 상태에 따라 접근 가능한 페이지 처리 - 완료
 - React 에서  PrivateRoute 추가하여 로그이 여부 판단
   - 로그인 : 해당 페이지 사용
   - 비로그인 : 로그인 페이지 이동
