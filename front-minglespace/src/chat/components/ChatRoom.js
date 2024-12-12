@@ -1,4 +1,4 @@
-﻿import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import ChatRoomHeader from "./ChatRoomHeader";
 import MessageList from "./MessageList";
 import MessageInput from "./MessageInput";
@@ -268,8 +268,15 @@ const ChatRoom = ({
         });
 
       },
+      // onWebSocketClose: (event) => {
+      //   console.warn(`채팅방 ${chatRoomId}번 websocket 연결이 끊겼습니다 : `, event);
+      //   alert("실시간 연결이 끊겼습니다.다시 시도");
+      //   window.location.reload();
+      // },
       onWebSocketError: (error) => {
         console.log(`채팅방 ${chatRoomId}번 websocket 연결 오류:`, error);
+        alert("실시간 연결 오류가 발생했습니다. 다시 시도");
+        window.location.reload();
       },
       reconnectDelay: 5000,  // 5초마다 자동 재연결 시도
       heartbeatIncoming: 4000,  // 서버에서 4초마다 ping

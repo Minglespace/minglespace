@@ -14,8 +14,6 @@ import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.messaging.simp.stomp.StompHeaderAccessor;
 import org.springframework.stereotype.Controller;
 
-import java.util.Set;
-
 
 @Controller
 @Log4j2
@@ -45,17 +43,17 @@ public class ChatMessageController {
     try {
       messageDTO.setChatRoomId(chatRoomId);
 
-      ChatMessage savedMsg = chatMessageService.saveMessage(messageDTO, writerUserId);
-      messageDTO.setId(savedMsg.getId());
+      ChatMessageDTO savedMsgDTO = chatMessageService.saveMessage(messageDTO, writerUserId);
+      ///안읽는 사람 정보 포함하기 //////////////////////////////
 
       //MsgReadStatus테이블에 추가
-      msgReadStatusService.createMsgForMembers(savedMsg);
+//      msgReadStatusService.createMsgForMembers(savedMsgDTO.));
 
       //안읽은 메시지 처리를 위해 채팅 목록에 보내기
-      simpMessagingTemplate.convertAndSend("/topic/workspaces/" + messageDTO.getWorkspaceId(), messageDTO);
+      simpMessagingTemplate.convertAndSend("/topic/workspaces/" + messageDTO.getWorkspaceId(), savedMsgDTO);
 
 
-      return messageDTO;
+      return savedMsgDTO;
     } catch (Exception e) {
       log.error("메시지 저장 중 오류 발생: ", e);
 //            String sessionId = stompInterceptor.getSessionForUser(writerUserId);

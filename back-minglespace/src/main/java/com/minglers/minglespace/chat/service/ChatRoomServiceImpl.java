@@ -26,6 +26,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -52,7 +53,7 @@ public class ChatRoomServiceImpl implements ChatRoomService {
     WSMember wsMember = wsMemberRepository.findByUserIdAndWorkSpaceId(userId, workspaceId).orElseThrow(() -> new ChatException(HttpStatus.FORBIDDEN.value(), "워크스페이스 참여하는 유저가 아닙니다."));
 
     // 채팅방 목록을 얻기 위한
-    List<ChatRoomMember> chatRooms = chatRoomMemberRepository.findByChatRoom_WorkSpace_IdAndWsMember_Id(workspaceId, wsMember.getId());
+    List<ChatRoomMember> chatRooms = chatRoomMemberRepository.findByChatRoom_WorkSpace_IdAndWsMember_IdOrderByChatRoom_DateDesc(workspaceId, wsMember.getId());
 
     return chatRooms.stream()
             .map(chatRoomMember -> {
@@ -62,7 +63,8 @@ public class ChatRoomServiceImpl implements ChatRoomService {
               // 마지막 메시지
               Optional<ChatMessage> lastMessage = chatMessageRepository.findLatestMessageByChatRoomId(chatRoom.getId());
               String lastMsgContent = lastMessage.map(ChatMessage::getContent).orElse("");
-              log.info("getRoomsByWsMember_lastMessage: " + lastMsgContent);
+              LocalDateTime lastMsgDate = lastMessage.map(ChatMessage::getDate).orElse(chatRoom.getDate());
+//              log.info("getRoomsByWsMember_lastMessage: " + lastMsgContent);
 
               // 참여 인원수
               int participantCount = chatRoomMemberRepository.findByChatRoomIdAndIsLeftFalse(chatRoom.getId()).size();
@@ -79,8 +81,11 @@ public class ChatRoomServiceImpl implements ChatRoomService {
                       .lastMessage(lastMsgContent)
                       .participantCount(participantCount)
                       .notReadMsgCount(notReadMsgCount)
+                      .lastLogDate(lastMsgDate)
                       .build();
-            }).collect(Collectors.toList());
+            })
+            .sorted(Comparator.comparing(ChatListResponseDTO::getLastLogDate).reversed())
+            .collect(Collectors.toList());
   }
 
   @Override
