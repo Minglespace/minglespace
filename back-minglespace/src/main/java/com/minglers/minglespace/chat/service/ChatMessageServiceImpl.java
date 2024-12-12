@@ -119,28 +119,6 @@ public class ChatMessageServiceImpl implements ChatMessageService {
 
     return messages.stream()
             .map(message -> {
-//              List<MsgReadStatus> unreadStatuses = msgReadStatusRepository.findByMessage_ChatRoom_Id(chatRoom.getId()); //채팅방에 읽지 않은 메시지 조회
-//              //읽지 않는 메시지들 중에 현 메시지가 일치하는 걸 찾아 해당 메시지를 안읽은 wsMember 정보를 가져온다.
-//              List<MemberWithUserInfoDTO> unreadMembers = unreadStatuses.stream()
-//                      .filter(status -> status.getMessage().getId().equals(message.getId())) //안읽은 메시지들 중 message에 해당하는 걸 뽑아낸다.
-//                      .map(status -> wsMemberRepository.findById(status.getWsMember().getId()) //안 읽은 멤버 한 명씩
-//                              //아래 map은 Optional 타입인 객체에 값이 존재할 때만 실행하기 때문에 결과 객체를 받자마자 작업을 하기 위해 사용함.
-//                              .map(member -> {
-//                                User user = member.getUser();
-//                                String imageUrlPath = (user.getImage() != null && user.getImage().getUripath() != null)
-//                                        ? user.getImage().getUripath(): "";
-//                                return MemberWithUserInfoDTO.builder()
-//                                        .wsMemberId(member.getId())
-//                                        .userId(user.getId())
-//                                        .email(user.getEmail())
-//                                        .name(user.getName())
-//                                        .imageUriPath(imageUrlPath)
-//                                        .position(user.getPosition())
-//                                        .build();
-//                              }).orElse(null))
-//                      .filter(Objects::nonNull)
-//                      .collect(Collectors.toList());
-//              return  message.toDTO(unreadMembers);
               List<MemberWithUserInfoDTO> unreadMembers = getUnreadMembers(chatRoom.getId(), message.getId());
               return message.toDTO(unreadMembers);
             })
@@ -149,9 +127,11 @@ public class ChatMessageServiceImpl implements ChatMessageService {
 
   private List<MemberWithUserInfoDTO> getUnreadMembers(Long chatRoomId, Long messageId) {
     List<MsgReadStatus> unreadStatuses = msgReadStatusRepository.findByMessage_ChatRoom_Id(chatRoomId);
+    //읽지 않는 메시지들 중에 현 메시지가 일치하는 걸 찾아 해당 메시지를 안읽은 wsMember 정보를 가져온다.
     return unreadStatuses.stream()
             .filter(status -> status.getMessage().getId().equals(messageId))
             .map(status -> wsMemberRepository.findById(status.getWsMember().getId())
+                    //아래 map은 Optional 타입인 객체에 값이 존재할 때만 실행하기 때문에 결과 객체를 받자마자 작업을 하기 위해 사용함.
                     .map(member -> {
                       User user = member.getUser();
                       String imageUriPath = (user.getImage() != null && user.getImage().getUripath() != null) ? user.getImage().getUripath() : "";

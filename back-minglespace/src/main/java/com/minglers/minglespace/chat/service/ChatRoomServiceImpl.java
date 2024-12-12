@@ -21,6 +21,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -46,6 +47,8 @@ public class ChatRoomServiceImpl implements ChatRoomService {
   private final ChatMessageService chatMessageService;
   private final ChatRoomMemberService chatRoomMemberService;
   private final ImageService imageService;
+
+  private final SimpMessagingTemplate simpMessagingTemplate;
 
   @Override
   public List<ChatListResponseDTO> getRoomsByWsMember(Long workspaceId, Long userId) {
@@ -176,8 +179,13 @@ public class ChatRoomServiceImpl implements ChatRoomService {
       throw new ChatException(HttpStatus.NOT_FOUND.value(), "채팅방이 존재하지 않습니다.");
     }
 
-    List<ChatMessageDTO> messages = chatMessageService.getMessagesByChatRoom(chatRoom);
+    WSMember wsMember = wsMemberRepository.findByUserIdAndWorkSpaceId(userId, workspaceId)
+                    .orElseThrow(() -> new ChatException(HttpStatus.NOT_FOUND.value(), "워크스페이스 멤버에서 찾을 수 없습니다."));
+    msgReadStatusRepository.deleteByMessage_ChatRoom_IdAndWsMemberId(chatRoomId, wsMember.getId()); //요청 유저가 안 읽은 메시지가 있다면 읽음 처리하기.
 
+    notifyReadStatus(chatRoomId, wsMember.getId()); //읽음 처리 알림보내기
+
+    List<ChatMessageDTO> messages = chatMessageService.getMessagesByChatRoom(chatRoom);
     List<ChatRoomMemberDTO> participants = chatRoomMemberService.getParticipantsByChatRoomId(chatRoomId);
 
     String imageUriPath = (chatRoom.getImage() != null && chatRoom.getImage().getUripath() != null) ? chatRoom.getImage().getUripath() : "";
@@ -190,5 +198,11 @@ public class ChatRoomServiceImpl implements ChatRoomService {
             .workSpaceId(chatRoom.getWorkSpace().getId())
             .imageUriPath(imageUriPath)
             .build();
+  }
+
+  private void notifyReadStatus(Long chatRoomId, Long wsMemberId) {
+    ReadStatusDTO readStatusDTO = new ReadStatusDTO(chatRoomId, wsMemberId);
+
+    simpMessagingTemplate.convertAndSend("/topic/chatRooms/"+chatRoomId+"/read-status", readStatusDTO);
   }
 }

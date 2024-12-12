@@ -255,7 +255,7 @@ const ChatRoom = ({
       onConnect: () => {
         console.log(`채팅방 ${chatRoomId}번 websocket 연결 완료`);
 
-        ///구독 연결 
+        ///채팅 실시간 메시지 구독
         stompClient.subscribe(`/topic/chatRooms/${chatRoomId}/msg`, (msg) => {
           const newMsg = JSON.parse(msg.body);
           console.log("chatRoom_ new msg: ", newMsg);
@@ -267,12 +267,23 @@ const ChatRoom = ({
 
         });
 
+        //메시지 읽음 실시간 구독
+        stompClient.subscribe(`/topic/chatRooms/${chatRoomId}/read-status`, (readstatus) => {
+          const readStatusData = JSON.parse(readstatus.body);
+          console.log("읽음 처리 메시지", readStatusData);
+
+          ///특정 유저가 실시간으로 읽은 메시지 상태 반영
+          setChatRoomInfo((prev) => ({
+            ...prev,
+            messages: prev.messages.map((message) => ({
+              ...message,
+              unReadMembers:message.unReadMembers.filter(
+                (member) => Number(member.wsMemberId) !== Number(readStatusData.wsMemberId)
+              ),
+            })),
+          }));
+        });
       },
-      // onWebSocketClose: (event) => {
-      //   console.warn(`채팅방 ${chatRoomId}번 websocket 연결이 끊겼습니다 : `, event);
-      //   alert("실시간 연결이 끊겼습니다.다시 시도");
-      //   window.location.reload();
-      // },
       onWebSocketError: (error) => {
         console.log(`채팅방 ${chatRoomId}번 websocket 연결 오류:`, error);
         alert("실시간 연결 오류가 발생했습니다. 다시 시도");

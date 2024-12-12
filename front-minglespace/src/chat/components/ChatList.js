@@ -33,7 +33,7 @@ const ChatList = ({
       <div className={`chat_list_container ${isFold ? "collapsed" : ""}`}>
         {!isFold && <h1>채팅방 목록</h1>}
         {/* 안읽은 메시지 총 개수 */}
-        <div className={`unread-msgCount ${totalUnreadMessages === 0 ? "zero-msgCount" : "unread-msgCount"}`}>
+        <div className={`unread-msgCount ${totalUnreadMessages === 0 ? "zero-msgCount" : "valid-msgCount"}`}>
           < p > 안 읽은 메시지: {getTotalUnreadMessages()}</p>
         </div>
         {/* isFold 상태가 false일 때만 '채팅방 목록'을 보여줌 */}
