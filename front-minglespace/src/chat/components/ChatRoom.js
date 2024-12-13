@@ -1,4 +1,4 @@
-﻿﻿import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import ChatRoomHeader from "./ChatRoomHeader";
 import MessageList from "./MessageList";
 import MessageInput from "./MessageInput";
@@ -30,6 +30,8 @@ const ChatRoom = ({
   const [isRoomOwner, setIsRoomOwner] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [currentMemberInfo, setCurrentMemberInfo] = useState(null); //participants에서 현재 유저 뽑아내기
+  const [replyToMessage, setReplyToMessage] = useState(null); //답글을 달 메시지 상태
+  const [newMessage, setNewMessage] = useState(null); //답글 관련
   const [chatRoomId, setChatRoomId] = useState(
     new URLSearchParams(useLocation().search).get("chatRoomId")
   );
@@ -311,89 +313,36 @@ const ChatRoom = ({
     };
   }, [chatRoomId]);
 
-  // 메시지 전송 처리 함수
-  // const handleSendMessage = (msg) => {
-  //   // console.log("name type: ", msg);
-  //   // console.log("wsMemberId type: ", currentMemberInfo.wsMemberId);
-  //   // if (socketRef.current) {
-  //   if (socketRef && socketRef.current) {
-  //     const newMessage = {
-  //       content: msg,
-  //       isAnnouncement: false, ////수정 필요
-  //       mentionedUserIds: [],
-  //       replyId: null,
-  //       sender: currentMemberInfo.name,
-  //       workspaceId: chatRoomInfo.workSpaceId,
-  //       writerWsMemberId: currentMemberInfo.wsMemberId,
-  //     };
 
-  //     console.log("Sending message:", JSON.stringify(newMessage));
 
-  //     socketRef.current.publish({
-  //       destination: `/app/messages/${chatRoomId}`,
-  //       body: JSON.stringify(newMessage),
-  //     });
-  //   } else {
-  //     console.warn("websocket 미연결 or 메시지 빔");
-  //   }
-  // };
 
-  const [messages, setMessages] = useState([
-    {
-      message_id: 1,
-      sender: "Alice",
-      text: "Hello!",
-      isCurrentUser: false,
-      replies: [],
-    },
-    {
-      message_id: 2,
-      sender: "Bob",
-      text: "Hi there!",
-      isCurrentUser: false,
-      replies: [],
-    },
-    {
-      message_id: 3,
-      sender: "sun",
-      text: "Hi there!",
-      replies: [],
-      isCurrentUser: false,
-    },
-  ]);
-
-  /////답글 부분
-  const [newMessage, setNewMessage] = useState("");
-  const [replyToMessage, setReplyToMessage] = useState(null); //답글을 달 메시지 상태
-  const [selectedMessageId, setSelectedMessageId] = useState(null);
-
-  // 메시지에 답글 추가하는 함수
-  const onAddReply = (messageIndex, replyText) => {
-    const updatedMessages = [...messages]; // 기존 메시지 배열 복사
-    const message = updatedMessages[messageIndex];
-
-    // 해당 메시지에 답글 추가
-    message.replies.push({
-      sender: "User",
-      text: replyText,
-      isCurrentUser: true,
-    });
-    setMessages(updatedMessages); // 업데이트된 메시지 배열로 상태 갱신
-    setNewMessage(""); // 새 메시지 입력창 비우기
-    setReplyToMessage(null); // 답글 작성 후 상태 초기화
-  };
-
-  // 메시지 전송 처리 함수
+  // 메시지 전송 처리 함수 
   const handleSendMessage = (newMessage) => {
-    const messageWithId = {
-      ...newMessage,
-      message_id: messages.length + 1, // 고유 ID 생성
-      sender: "나", // 예시로 "나"를 보낸 사람으로 설정
-      isCurrentUser: true, // 현재 사용자 메시지 여부
-    };
 
-    setMessages((prevMessages) => [...prevMessages, messageWithId]); // 메시지 추가
+    if (socketRef && socketRef.current) {
+      const sendMessage = {
+        content: newMessage.content,
+        isAnnouncement: false,
+        mentionedUserIds: [], ///구현 필요
+        replyId: newMessage.replyId,
+        sender: currentMemberInfo.name,
+        workspaceId: chatRoomInfo.workSpaceId,
+        writerWsMemberId: currentMemberInfo.wsMemberId,
+      };
+
+      console.log("Sending message:", JSON.stringify(sendMessage));
+
+      socketRef.current.publish({
+        destination: `/app/messages/${chatRoomId}`,
+        body: JSON.stringify(sendMessage),
+      });
+    } else {
+      console.warn("websocket 미연결 or 메시지 빔");
+    }
+
   };
+
+
 
   // 메시지를 클릭하면 해당 메시지를 선택
   const handleMessageClick = (messages) => {
@@ -404,36 +353,6 @@ const ChatRoom = ({
     console.log("입력창에 표시된 답장 대상:", `${messages.text}`);
   };
 
-  // 답글을 작성하는 함수
-  const handleReplyChange = (event) => {
-    setReplyToMessage(event.target.value);
-  };
-
-  const handlePostReply = () => {
-    if (
-      selectedMessageId !== null &&
-      replyToMessage &&
-      replyToMessage.trim() !== ""
-    ) {
-      const newMessages = messages.map((message) => {
-        if (message.message_id === selectedMessageId) {
-          return {
-            ...message,
-            replies: [
-              ...message.replies,
-              { user: "User3", content: replyToMessage },
-            ],
-          };
-        }
-        return message;
-      });
-
-      setMessages(newMessages);
-      setReplyToMessage(""); // 답글 입력 필드 초기화
-    } else {
-      alert("답글을 달 메시지를 선택하거나 내용을 입력하세요.");
-    }
-  };
 
   return (
     <div className={`chatroom-container ${isFold ? "folded" : ""}`}>
@@ -450,18 +369,14 @@ const ChatRoom = ({
       />
 
       <MessageList
-        messages={messages || []}
-        // messages={chatRoomInfo.messages}
-        setReplyToMessage={setReplyToMessage} // 답글 달고 싶은 메시지 설정
+        // messages={messages || []}
+        messages={chatRoomInfo.messages}
         onMessageClick={handleMessageClick}
-        currentUser="나 "
         currentMemberInfo={currentMemberInfo}
       />
 
       <MessageInput
         onSendMessage={handleSendMessage}
-        newMessage={newMessage}
-        setNewMessage={setNewMessage}
         replyToMessage={replyToMessage}
         setReplyToMessage={setReplyToMessage}
       />

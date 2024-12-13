@@ -382,7 +382,7 @@
 
 
 .message-item {
-  display: flex;
+  // display: flex;
   max-width: 70%;
   padding: 10px;
   border-radius: 20px;
@@ -405,9 +405,11 @@
     border-bottom-left-radius: 0;
     border: 1px solid #ddd; // 받은 메시지 테두리
   }
+
   .message-sender {
     font-weight: bold;
   }
+
   .message-text {
     margin-top: 5px;
     font-size: 14px;
@@ -420,11 +422,13 @@
     cursor: pointer;
     font-size: 12px;
     margin-top: 5px;
+
     &:hover {
       text-decoration: underline;
     }
   }
 }
+
 .replies {
   margin-top: 10px;
   padding-left: 15px;
@@ -436,6 +440,7 @@
     margin-bottom: 5px;
     border-radius: 5px;
   }
+
   .reply-text {
     font-size: 13px;
   }
@@ -449,6 +454,7 @@
   margin-bottom: 15px;
   display: flex;
   flex-direction: column;
+
   span {
     font-size: 12px;
     color: #888;

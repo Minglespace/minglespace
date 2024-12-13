@@ -1,14 +1,14 @@
 ﻿import React, { useEffect, useRef, useState } from "react";
 import { FiCornerDownRight } from "react-icons/fi";
 import MessageListItem from "./MessageListItem";
+
 const MessageList = ({
   messages,
   onMessageClick,
-  currentUser,
   currentMemberInfo,
 }) => {
   const messageListRef = useRef(null);
-  const safeMessages = messages || [];
+  // const safeMessages = messages || [];
 
   // 메시지 목록이 변경될 때마다 스크롤을 맨 아래로 이동시키는 effect
   useEffect(() => {
@@ -18,18 +18,25 @@ const MessageList = ({
     // console.log(messages);
   }, [messages]);
 
+  //부모 댓글 찾기
+  const findParentMessage = (replyId) => {
+    return messages.find((message) => message.id === replyId);
+  }
+
   return (
     <div className="message-list" ref={messageListRef}>
-      {safeMessages.map((message, index) => {
+      {messages.map((message) => {
         return (
           <MessageListItem
-            key={message.message_id}
+            key={message.id}
             message={message}
             isSameSender={
-              index > 0 && safeMessages[index - 1].sender === message.sender
+              // index > 0 && safeMessages[index - 1].sender === message.sender
+              message.writerWsMemberId === currentMemberInfo.wsMemberId
             }
-            currentUser={currentUser}
+            currentMemberInfo={currentMemberInfo}
             onMessageClick={onMessageClick}
+            onFindParentMessage={findParentMessage}
           />
         );
       })}

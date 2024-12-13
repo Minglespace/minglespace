@@ -68,16 +68,16 @@ public class ChatMessageServiceImpl implements ChatMessageService {
       ChatMessage savedMessage = chatMessageRepository.save(chatMessage);
 
       //답글이면 부모 댓글에게 답글 달린 알림 보내기
-      if (parentMsg != null) {
-        sendReplyNotificationToUser(parentMsg);
-      }
-
-      //멘션 알림
-      if (messageDTO.getMentionedUserIds() != null && !messageDTO.getMentionedUserIds().isEmpty()) {
-        for (Long mentionedUserId : messageDTO.getMentionedUserIds()) {
-          sendMentionNotificationToUser(wsMember, savedMessage.getChatRoom().getName(), mentionedUserId);
-        }
-      }
+//      if (parentMsg != null) {
+//        sendReplyNotificationToUser(parentMsg);
+//      }
+//
+//      //멘션 알림
+//      if (messageDTO.getMentionedUserIds() != null && !messageDTO.getMentionedUserIds().isEmpty()) {
+//        for (Long mentionedUserId : messageDTO.getMentionedUserIds()) {
+//          sendMentionNotificationToUser(wsMember, savedMessage.getChatRoom().getName(), mentionedUserId);
+//        }
+//      }
 
       ////msgReadStatus 추가
       msgReadStatusService.createMsgForMembers(savedMessage, activeUserIds);

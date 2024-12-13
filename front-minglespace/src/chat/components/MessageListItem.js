@@ -4,29 +4,32 @@ import { FiCornerDownRight } from "react-icons/fi";
 const MessageListItem = ({
   message,
   isSameSender,
-  currentUser,
+  currentMemberInfo,
   onMessageClick,
+  onFindParentMessage
 }) => {
+
+  const parentMessage = message.replyId ? onFindParentMessage(message.replyId) : null;
+
   return (
     <div
       key={message.message_id}
-      className={`message-item ${
-        message.isCurrentUser ? "sender" : "received"
-      }`}
+      className={`message-item ${isSameSender ? "sender" : "received"
+        }`}
     >
       {/* 발신자 이름 출력 */}
-      {!isSameSender && message.sender && message.sender !== "나" && (
+      {!isSameSender && (
         <span className="message-sender">{message.sender}</span>
       )}
 
       {/* 메시지 텍스트 */}
       <div className="message-text-container">
         <span className="message-text">
-          {message.replyTo
-            ? message.replyTo.sender === currentUser
+          {parentMessage
+            ? Number(parentMessage.writerWsMemberId) === Number(currentMemberInfo.wsMemberId)
               ? "나에게 답장"
-              : `${message.replyTo.sender}에게 답장`
-            : message.text}
+              : `${parentMessage.sender}에게 답장`
+            : message.content}
         </span>
       </div>
       {/* 답글 달기 버튼 */}
@@ -39,11 +42,11 @@ const MessageListItem = ({
       </button>
 
       {/* 답장 내용 추가 */}
-      {message.replyTo && (
+      {parentMessage && (
         <>
-          <div className="reply-to-text">{message.replyTo.text}</div>
+          <div className="reply-to-text">{parentMessage.content}</div>
           <div className="reply-line">--------------------------</div>
-          <div className="reply-text">{message.text}</div>
+          <div className="reply-text">{message.content}</div>
         </>
       )}
     </div>

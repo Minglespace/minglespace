@@ -24,11 +24,8 @@ const MessageInput = ({ onSendMessage, replyToMessage, setReplyToMessage }) => {
   const handleSendMessage = () => {
     if (newMessage.trim()) {
       const messageToSend = {
-        text: newMessage,
-        sender: "나",
-        isCurrentUser: true,
-        replies: [],
-        replyTo: replyToMessage || null,
+        content: newMessage,
+        replyId: replyToMessage ? replyToMessage.id : null,
       };
       onSendMessage(messageToSend);
       setNewMessage("");
@@ -53,7 +50,7 @@ const MessageInput = ({ onSendMessage, replyToMessage, setReplyToMessage }) => {
         {replyToMessage && (
           <div className="replying-to-message">
             <span>답글 대상: {replyToMessage.sender}</span>
-            <p>{replyToMessage.text}</p>
+            <p>{replyToMessage.content}</p>
             <button onClick={() => setReplyToMessage(null)}>취소</button>
           </div>
         )}
