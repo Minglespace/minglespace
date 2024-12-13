@@ -31,7 +31,6 @@ const ChatRoom = ({
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [currentMemberInfo, setCurrentMemberInfo] = useState(null); //participants에서 현재 유저 뽑아내기
   const [replyToMessage, setReplyToMessage] = useState(null); //답글을 달 메시지 상태
-  const [newMessage, setNewMessage] = useState(null); //답글 관련
   const [chatRoomId, setChatRoomId] = useState(
     new URLSearchParams(useLocation().search).get("chatRoomId")
   );
@@ -349,7 +348,6 @@ const ChatRoom = ({
     console.log("답장할 메시지:", messages);
     // setSelectedMessageId(messageId);
     setReplyToMessage(messages);
-    setNewMessage(`@${messages.text}`);
     console.log("입력창에 표시된 답장 대상:", `${messages.text}`);
   };
 
