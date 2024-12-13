@@ -11,14 +11,12 @@ const ChatList = ({
   wsMembers,
 }) => {
   const [isModalOpen, setIsModalOpen] = useState(false); //모달 열림/닫힘 상태
-
   console.log("wsmembers:", wsMembers);
-  //모달을 여는 함수
+
   const openModal = () => {
     setIsModalOpen(true);
   };
 
-  // 모달을 닫는 함수
   const closeModal = () => {
     setIsModalOpen(false);
   };
@@ -27,7 +25,6 @@ const ChatList = ({
     <div>
       <div className={`chat_list_container ${isFold ? "collapsed" : ""}`}>
         {!isFold && <h1>채팅방 목록</h1>}
-        {/* isFold 상태가 false일 때만 '채팅방 목록'을 보여줌 */}
         {rooms && rooms.length === 0 ? (
           <div className="no-chatroom-selected">
             <IoLogoWechat />
@@ -43,7 +40,6 @@ const ChatList = ({
             />
           ))
         )}
-        {/* 이슈)생성 버튼 위치 조정 필요 -> 스크롤하면 같이 올라감 + 스크롤이 토글 침범*/}
         <button className="create_button" onClick={openModal}>
           +
         </button>

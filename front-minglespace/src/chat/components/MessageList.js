@@ -1,38 +1,19 @@
-﻿// ﻿import React, { useEffect, useRef } from "react";
-
-// const MessageList = ({ messages, currentMemberInfo }) => {
-// console.log("messagelist_ mesg; ", messages);
-// const messageListRef = useRef(null);
-
-// 메시지 목록이 변경될 때마다 스크롤을 맨 아래로 이동시키는 effect
-// useEffect(() => {
-//   if (messageListRef.current) {
-//     messageListRef.current.scrollTop = messageListRef.current.scrollHeight;
-//   }
-// }, [messages]);
-
-// return (
-//   <div className="message-list" ref={messageListRef}>
-//     {messages.map((message) => (
-//       <div
-//         key={message.id}
-//         className={`message-item ${message.writerWsMemberId === currentMemberInfo.wsMemberId ? "sender" : "received"
-//           }`}
-//       >
-
-//     {/* <span className="message-sender">{message.sender}: </span>
-//     <span className="message-text">{message.content}</span>
-//   </div>
-// ))} */}
-
-import React, { useState } from "react";
+﻿import React, { useEffect, useRef } from "react";
 import { FiCornerDownRight } from "react-icons/fi";
 
-const MessageList = ({ messages, onMessageClick, currentUser }) => {
+const MessageList = ({ messages, onMessageClick, currentUser, currentMemberInfo }) => {
+  const messageListRef = useRef(null);
   const safeMessages = messages || [];
 
+  // 메시지 목록이 변경될 때마다 스크롤을 맨 아래로 이동시키는 effect
+  useEffect(() => {
+    if (messageListRef.current) {
+      messageListRef.current.scrollTop = messageListRef.current.scrollHeight;
+    }
+  }, [messages]);
+
   return (
-    <div className="message-list">
+    <div className="message-list" ref={messageListRef}>
       {safeMessages.map((message, index) => {
         const isSameSender =
           index > 0 && safeMessages[index - 1].sender === message.sender;
@@ -40,9 +21,8 @@ const MessageList = ({ messages, onMessageClick, currentUser }) => {
         return (
           <div
             key={message.message_id}
-            className={`message-item ${
-              message.isCurrentUser ? "sender" : "received"
-            }`}
+            className={`message-item ${message.isCurrentUser ? "sender" : "received"
+              }`}
           >
             {/* 발신자 이름 출력 */}
             {!isSameSender && message.sender && message.sender !== "나" && (
@@ -59,12 +39,6 @@ const MessageList = ({ messages, onMessageClick, currentUser }) => {
                   : message.text}
               </span>
             </div>
-            {/* <span className="message-text">
-              {message.replyTo
-                ? `${message.replyTo.sender}에게 답장`
-                : message.text}
-            </span> */}
-
             {/* 답글 달기 버튼 */}
             <button
               className="reply-button"
@@ -90,3 +64,14 @@ const MessageList = ({ messages, onMessageClick, currentUser }) => {
 };
 
 export default MessageList;
+
+
+//     {messages.map((message) => (
+//       <div
+//         key={message.id}
+//         className={`message-item ${message.writerWsMemberId === currentMemberInfo.wsMemberId ? "sender" : "received"
+//           }`}
+//       >
+
+//     {/* <span className="message-sender">{message.sender}: </span>
+//     <span className="message-text">{message.content}</span>

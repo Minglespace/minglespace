@@ -330,6 +330,7 @@ const ChatRoom = ({
     },
   ]);
 
+  /////답글 부분
   const [newMessage, setNewMessage] = useState("");
   const [replyToMessage, setReplyToMessage] = useState(null); //답글을 달 메시지 상태
   const [selectedMessageId, setSelectedMessageId] = useState(null);
@@ -432,8 +433,6 @@ const ChatRoom = ({
         replyToMessage={replyToMessage}
         setReplyToMessage={setReplyToMessage}
       />
-
-      {/*  메시지 전송 처리 */}
     </div>
   );
 };
