@@ -221,7 +221,7 @@ const ChatRoom = ({
       sender: "sun",
       text: "Hi there!",
       replies: [],
-      isCurrentUser: true,
+      isCurrentUser: false,
     },
   ]);
 
@@ -315,6 +315,7 @@ const ChatRoom = ({
         messages={messages || []}
         setReplyToMessage={setReplyToMessage} // 답글 달고 싶은 메시지 설정
         onMessageClick={handleMessageClick}
+        currentUser="나 "
       />
 
       <MessageInput

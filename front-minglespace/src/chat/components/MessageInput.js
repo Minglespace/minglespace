@@ -5,7 +5,7 @@ const MessageInput = ({ onSendMessage, replyToMessage, setReplyToMessage }) => {
   const [newMessage, setNewMessage] = useState("");
   // 메시지 입력을 잠그는 상태 변수
   const [isLocked, setIsLocked] = useState(false);
-  const [messages, setMessages] = useState(newMessage || "");
+  // const [messages, setMessages] = useState(newMessage || "");
 
   // 메시지 잠금 상태 변경 함수
   const toggleLock = () => {
@@ -14,9 +14,9 @@ const MessageInput = ({ onSendMessage, replyToMessage, setReplyToMessage }) => {
 
   // 메시지 입력
   const handleMessageChange = (e) => {
-    console.log("메시지:", newMessage);
+    // console.log("메시지:", e.target.value);
     if (!isLocked) {
-      setMessages(e.target.value);
+      setNewMessage(e.target.value);
     }
   };
 
@@ -25,23 +25,23 @@ const MessageInput = ({ onSendMessage, replyToMessage, setReplyToMessage }) => {
     if (newMessage.trim()) {
       const messageToSend = {
         text: newMessage,
-        sender: "현재 사용자 이름",
+        sender: "나",
         isCurrentUser: true,
         replies: [],
         replyTo: replyToMessage || null,
       };
       onSendMessage(messageToSend);
-      setMessages("");
+      setNewMessage("");
       setReplyToMessage(null);
     }
   };
 
   const handleKeyDown = (e) => {
     console.log(typeof messages);
-    if (e.key === "Enter" && !e.shiftKey && messages.trim()) {
+    if (e.key === "Enter" && !e.shiftKey && newMessage.trim()) {
       e.preventDefault();
       handleSendMessage();
-      setMessages("");
+      setNewMessage("");
     }
   };
 
