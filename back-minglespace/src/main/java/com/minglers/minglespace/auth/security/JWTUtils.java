@@ -22,16 +22,26 @@ public class JWTUtils {
     private final SecretKey Key;
 
     // ACCESS TOKEN 만료시간
-    private static final long EXPIRATION_TIME_A = 60 * 60 * 1000;           // 60 분
-    //private static final long EXPIRATION_TIME_A = 1 * 60 * 1000;            // 5 분 for test
+    public static final long EXPIRATION_TIME_A = 60 * 60 * 1000;           // 60 분
+    //public static final long EXPIRATION_TIME_A = 1 * 60 * 1000;            // 5 분 for test
 
     // REFRESH TOKEN 만료시간
-    private static final long EXPIRATION_TIME_R = 6 * 60 * 60 * 1000;       // 6 시간
+    public static final long EXPIRATION_TIME_R = 6 * 60 * 60 * 1000;       // 6 시간
     //public static final long EXPIRATION_TIME_R = 5 * 60 * 1000;             // 10 분 for test
 
     // 주기적으로 만료된 토큰을 삭제하는 메서드
     public static final long BLACKLIST_UPDATE_TIME = 60 * 60 * 1000;        // 1 시간
     //public static final long BLACKLIST_UPDATE_TIME = 2 * 60 * 1000;         // 3 분 for test
+
+    public static final String TOKEN_NAME_ACCESS = "accessToken";
+    public static final String TOKEN_NAME_REFRESH = "refreshToken";
+
+
+//    private static final String TOKE_TYPE_ACCESS = "access";
+//    private static final String TOKE_TYPE_REFRESH = "refresh";
+    private static final String ROLE_USER = "ROLE_USER";
+    private static final String ROLE_ADMIN = "ROLE_ADMIN";
+
 
 
     public JWTUtils() {
@@ -39,6 +49,26 @@ public class JWTUtils {
 //        String secreteString = "gw0U1UG3gIeaFthTwc4gyxgrFa7ZD8ci";
         byte[] keyBytes = Base64.getDecoder().decode(secreteString.getBytes(StandardCharsets.UTF_8));
         this.Key = new SecretKeySpec(keyBytes, "HmacSHA256");
+    }
+
+    private String geneToken(User userDetails, String type, String role, long expiration) {
+        return Jwts.builder()
+                .subject(userDetails.getUsername())
+                .claim("type",type)
+                .claim("userId",userDetails.getId())
+                .claim("role", role)
+                .issuedAt(new Date(System.currentTimeMillis()))
+                .expiration(new Date(System.currentTimeMillis() + expiration))
+                .signWith(Key)
+                .compact();
+    }
+
+    public String geneTokenAccess(User userDetails) {
+        return geneToken(userDetails, TOKEN_NAME_ACCESS, ROLE_USER, EXPIRATION_TIME_A);
+    }
+
+    public String geneTokenRefresh(User userDetails) {
+        return geneToken(userDetails, TOKEN_NAME_REFRESH, ROLE_USER, EXPIRATION_TIME_R);
     }
 
     public String generateToken(User userDetails) {
@@ -68,6 +98,16 @@ public class JWTUtils {
 
     public Long extractUserId(String token) { return extractClaims(token, claims -> claims.get("userId", Long.class));}
 
+    public String getTokenType(String token) {
+        return extractClaims(token, c -> c.get("type", String.class));
+    }
+
+    public boolean isAccessToken(String token){
+        return getTokenType(token).equals(TOKEN_NAME_ACCESS);
+    }
+    public boolean isRefreshToken(String token){
+        return getTokenType(token).equals(TOKEN_NAME_REFRESH);
+    }
 
     private <T> T extractClaims(String token, Function<Claims, T> claimsTFunction) {
         return claimsTFunction.apply(Jwts.parser().verifyWith(Key).build().parseSignedClaims(token).getPayload());

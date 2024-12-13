@@ -8,12 +8,16 @@ import com.minglers.minglespace.auth.repository.UserRepository;
 import com.minglers.minglespace.auth.security.JWTUtils;
 import com.minglers.minglespace.common.entity.Image;
 import com.minglers.minglespace.common.exception.CustomExceptionHandler;
+import io.jsonwebtoken.ExpiredJwtException;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.hibernate.PropertyValueException;
 import org.modelmapper.ModelMapper;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.InternalAuthenticationServiceException;
@@ -23,6 +27,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.NoSuchElementException;
 import java.util.Optional;
@@ -152,73 +157,150 @@ public class UserService {
         return res;
     }
 
-    public RefreshTokenResponse refreshToken(RefreshTokenRequest req) {
+    public RefreshTokenResponse refreshToken(HttpServletRequest req) {
 
         RefreshTokenResponse res = new RefreshTokenResponse();
 
-        try {
-            String refreshToken = req.getRefreshToken();
-
-            if(tokenBlacklistService.isBlacklisted(refreshToken)){
-                log.error("================================================");
-                log.error("");
-                log.error("");
-                log.error("어뷰저 딱걸림.");
-                log.error("");
-                log.error("");
-
-                throw new BadCredentialsException("UNAUTHORIZED 잘못된 자격 증명");
+        String refreshToken = null;
+        Cookie[] cookies = req.getCookies();
+        for (Cookie cookie : cookies) {
+            if (cookie.getName().equals(JWTUtils.TOKEN_NAME_REFRESH)) {
+                refreshToken = cookie.getValue();
             }
+        }
 
+        if (refreshToken == null) {
+            throw new BadCredentialsException("리프레시 토큰 쿠키에 없음");
+        }
+
+        try {
+            jwtUtils.isTokenExpired(refreshToken);
+        } catch (ExpiredJwtException e) {
+            throw new BadCredentialsException("리프레시 토큰도 expired");
+        }
+
+        if (!jwtUtils.isRefreshToken(refreshToken)) {
+            throw new BadCredentialsException("리프레시 토큰 invalid");
+        }
+
+        if(tokenBlacklistService.isBlacklisted(refreshToken)){
             log.error("================================================");
             log.error("");
             log.error("");
-            log.error("어뷰저 아님.");
+            log.error("어뷰저 딱걸림.");
             log.error("");
             log.error("");
 
-            String ourEmail = jwtUtils.extractUsername(refreshToken);
-            Optional<User> opt = usersRepo.findByEmail(ourEmail);
+            throw new BadCredentialsException("UNAUTHORIZED 잘못된 자격 증명");
+        }
 
-            if(opt.isPresent()){
 
-                User user = opt.get();
 
-                if (jwtUtils.isTokenValid(refreshToken, user)) {
+        String email = jwtUtils.extractUsername(refreshToken);
+        Optional<User> opt = usersRepo.findByEmail(email);
+        if(opt.isPresent()){
 
-                    String newAccessToken = jwtUtils.generateToken(user);
+            User user = opt.get();
 
-                    res.setAccessToken(newAccessToken);
+            if (jwtUtils.isTokenValid(refreshToken, user)) {
 
-                    res.setStatus(HttpStatus.OK);
-                    res.setMsg("Refreshed Token 생성 성공");
-                }else{
-                    res.setStatus(HttpStatus.UNAUTHORIZED);  // 리프레시 토큰이 유효하지 않음
-                    res.setMsg("Invalid refresh token");
-                }
 
+                // 기존 리프레시 토큰 미사용처리
+                LocalDateTime expiresAt = jwtUtils.extractExpiration(refreshToken);
+                tokenBlacklistService.addToBlacklist(refreshToken, expiresAt);
+
+
+                String newAccessToken = jwtUtils.geneTokenAccess(user);
+                String newRefreshToken = jwtUtils.geneTokenRefresh(user);
+
+
+                res.setAccessToken(newAccessToken);
+                res.setRefreshToken(newRefreshToken);
+
+
+                res.setStatus(HttpStatus.OK);
+                res.setMsg("Refreshed Token 생성 성공");
             }else{
-                res.setStatus(HttpStatus.NOT_FOUND);
+                res.setStatus(HttpStatus.UNAUTHORIZED);  // 리프레시 토큰이 유효하지 않음
+                res.setMsg("Invalid refresh token");
             }
 
-        }catch (BadCredentialsException e){
-            res.setStatus(HttpStatus.UNAUTHORIZED);  // 리프레시 토큰이 유효하지 않음
-            res.setMsg("This token is on the blacklist");
-        }
-        catch (Exception e) {
-            res.setStatus(HttpStatus.INTERNAL_SERVER_ERROR);
-            res.setMsg(e.getMessage());
+        }else{
+            res.setStatus(HttpStatus.NOT_FOUND);
         }
 
-        log.info("");
-        log.info("");
-        log.info("refreshToken");
-        log.info(res.toString());
-        log.info("");
-        log.info("");
+
 
         return res;
     }
+
+//    public RefreshTokenResponse refreshToken_old(RefreshTokenRequest req) {
+//
+//        RefreshTokenResponse res = new RefreshTokenResponse();
+//
+//        try {
+//            String refreshToken = req.getRefreshToken();
+//
+//            if(tokenBlacklistService.isBlacklisted(refreshToken)){
+//                log.error("================================================");
+//                log.error("");
+//                log.error("");
+//                log.error("어뷰저 딱걸림.");
+//                log.error("");
+//                log.error("");
+//
+//                throw new BadCredentialsException("UNAUTHORIZED 잘못된 자격 증명");
+//            }
+//
+//            log.error("================================================");
+//            log.error("");
+//            log.error("");
+//            log.error("어뷰저 아님.");
+//            log.error("");
+//            log.error("");
+//
+//            String ourEmail = jwtUtils.extractUsername(refreshToken);
+//            Optional<User> opt = usersRepo.findByEmail(ourEmail);
+//
+//            if(opt.isPresent()){
+//
+//                User user = opt.get();
+//
+//                if (jwtUtils.isTokenValid(refreshToken, user)) {
+//
+//                    String newAccessToken = jwtUtils.generateToken(user);
+//
+//                    res.setAccessToken(newAccessToken);
+//
+//                    res.setStatus(HttpStatus.OK);
+//                    res.setMsg("Refreshed Token 생성 성공");
+//                }else{
+//                    res.setStatus(HttpStatus.UNAUTHORIZED);  // 리프레시 토큰이 유효하지 않음
+//                    res.setMsg("Invalid refresh token");
+//                }
+//
+//            }else{
+//                res.setStatus(HttpStatus.NOT_FOUND);
+//            }
+//
+//        }catch (BadCredentialsException e){
+//            res.setStatus(HttpStatus.UNAUTHORIZED);  // 리프레시 토큰이 유효하지 않음
+//            res.setMsg("This token is on the blacklist");
+//        }
+//        catch (Exception e) {
+//            res.setStatus(HttpStatus.INTERNAL_SERVER_ERROR);
+//            res.setMsg(e.getMessage());
+//        }
+//
+//        log.info("");
+//        log.info("");
+//        log.info("refreshToken");
+//        log.info(res.toString());
+//        log.info("");
+//        log.info("");
+//
+//        return res;
+//    }
 
     public DefaultResponse deleteUser(Long userId) {
 

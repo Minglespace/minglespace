@@ -1,6 +1,8 @@
 package com.minglers.minglespace.auth.security;
 
 import com.minglers.minglespace.auth.exception.CustomAuthenticationEntryPoint;
+import com.minglers.minglespace.auth.repository.UserRepository;
+import com.minglers.minglespace.auth.service.TokenBlacklistService;
 import com.minglers.minglespace.auth.service.UserDetailsServiceImpl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
@@ -8,15 +10,19 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
+import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
+import org.springframework.security.config.annotation.web.configurers.CsrfConfigurer;
+import org.springframework.security.config.annotation.web.configurers.FormLoginConfigurer;
+import org.springframework.security.config.annotation.web.configurers.HttpBasicConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.web.authentication.logout.LogoutFilter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
@@ -27,10 +33,15 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 @EnableWebSecurity
 public class SecurityConfig {
 
-    private final UserDetailsServiceImpl ourUserDetailsService;
+    private final UserDetailsServiceImpl userDetailsService;
     private final JWTAuthFilter jwtAuthFilter;
     private final CustomAuthenticationEntryPoint customAuthenticationEntryPoint;
+    private final JWTUtils jwtUtils;
+    private final AuthenticationConfiguration authenticationConfiguration;
+    private final UserRepository userRepository;
+    private final TokenBlacklistService tokenBlacklistService;
 
+    // Filter용 Cors Setting
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
 
@@ -43,8 +54,9 @@ public class SecurityConfig {
         // 메서드 허용
         corsConfig.addAllowedMethod("GET");
         corsConfig.addAllowedMethod("POST");
-        corsConfig.addAllowedMethod("DELETE");
         corsConfig.addAllowedMethod("PUT");
+        corsConfig.addAllowedMethod("DELETE");
+        corsConfig.addAllowedMethod("OPTIONS");
 
         // 헤더 허용
         corsConfig.addAllowedHeader("Authorization");
@@ -67,28 +79,73 @@ public class SecurityConfig {
     }
 
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
-        httpSecurity.csrf(AbstractHttpConfigurer::disable)
-                .cors(c->c.configurationSource(corsConfigurationSource()))
-                .authorizeHttpRequests(request -> request
-                        .requestMatchers("/auth/**", "/public/**","/upload/images/**","/ws/**").permitAll()
-                        .requestMatchers("/admin/**").hasAnyAuthority("ADMIN")
-                        .requestMatchers("/user/**").hasAnyAuthority("USER")
-                        .requestMatchers("/adminuser/**").hasAnyAuthority("ADMIN", "USER")
-                        .anyRequest().authenticated())
-                .sessionManagement(manager -> manager.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .authenticationProvider(authenticationProvider()).addFilterBefore(
-                        jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
-                .exceptionHandling(c -> c.authenticationEntryPoint(customAuthenticationEntryPoint));
+    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+
+        // csrf disable
+        http.csrf(CsrfConfigurer::disable);
+
+        // From login disable
+        http.formLogin(FormLoginConfigurer::disable);
+
+        // disable
+        http.httpBasic(HttpBasicConfigurer::disable);
+
+        // cors setting
+        http.cors(c->c.configurationSource(corsConfigurationSource()));
+
+        // seesion STATELESS
+        http.sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
 
 
-        return httpSecurity.build();
+        // autho path
+        http.authorizeHttpRequests(r -> r
+                .requestMatchers("/auth/**", "/public/**","/upload/images/**","/ws/**").permitAll()
+                .requestMatchers("/admin/**").hasAnyAuthority("ADMIN")
+                .requestMatchers("/user/**").hasAnyAuthority("USER")
+                .requestMatchers("/adminuser/**").hasAnyAuthority("ADMIN", "USER")
+                .anyRequest().authenticated());
+
+
+        // OAuth2
+        // 우선 디폴트, 추후 변경
+        http.oauth2Login(Customizer.withDefaults());
+
+        // 
+        http.authenticationProvider(authenticationProvider());
+
+        // 기존
+        {
+            //http.addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
+        }
+        // 신규 MsLoginFilter, MsLogoutFilter 적용 버전
+        {
+            MsLoginFilter msLoginFilter = new MsLoginFilter(
+                    authenticationManager(authenticationConfiguration),
+                    jwtUtils,
+                    userRepository);
+            msLoginFilter.setFilterProcessesUrl("/auth/login");
+
+            MsLogoutFilter msLogoutFilter = new MsLogoutFilter(
+                    jwtUtils,
+                    tokenBlacklistService);
+
+//            http.addFilterBefore(new JWTAuthFilter(jwtUtils, userDetailsService), MsLoginFilter.class);
+            http.addFilterBefore(jwtAuthFilter, MsLoginFilter.class);
+
+            http.addFilterAt(msLoginFilter, UsernamePasswordAuthenticationFilter.class);
+            http.addFilterBefore(msLogoutFilter, LogoutFilter.class);
+        }
+
+
+        http.exceptionHandling(c -> c.authenticationEntryPoint(customAuthenticationEntryPoint));
+
+        return http.build();
     }
 
     @Bean
     public AuthenticationProvider authenticationProvider() {
         DaoAuthenticationProvider daoAuthenticationProvider = new DaoAuthenticationProvider();
-        daoAuthenticationProvider.setUserDetailsService(ourUserDetailsService);
+        daoAuthenticationProvider.setUserDetailsService(userDetailsService);
         daoAuthenticationProvider.setPasswordEncoder(passwordEncoder());
         return daoAuthenticationProvider;
     }

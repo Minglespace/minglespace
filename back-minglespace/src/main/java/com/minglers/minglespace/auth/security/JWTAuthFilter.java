@@ -1,7 +1,6 @@
 package com.minglers.minglespace.auth.security;
 
 import com.minglers.minglespace.auth.exception.JwtExceptionCode;
-import com.minglers.minglespace.auth.service.TokenBlacklistService;
 import com.minglers.minglespace.auth.service.UserDetailsServiceImpl;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.MalformedJwtException;
@@ -12,7 +11,6 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
-import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContext;
@@ -67,7 +65,7 @@ public class JWTAuthFilter extends OncePerRequestFilter {
 
             token = parseToken(request);
 
-            tokenProcessing(token, request);
+            accessTokenProcessing(token, request);
 
             filterChain.doFilter(request, response);
 
@@ -78,6 +76,7 @@ public class JWTAuthFilter extends OncePerRequestFilter {
             request.setAttribute("exception", JwtExceptionCode.INVALID_TOKEN);
             throw new BadCredentialsException("throw new invalid token exception");
         } catch (ExpiredJwtException e) {
+//            HttpServletResponse.SC_UNAUTHORIZED
             request.setAttribute("exception", JwtExceptionCode.EXPIRED_TOKEN);
             throw new BadCredentialsException("throw new expired token exception");
         } catch (UnsupportedJwtException e) {
@@ -113,34 +112,71 @@ public class JWTAuthFilter extends OncePerRequestFilter {
         }
     }
 
-    private void tokenProcessing(String token, HttpServletRequest request){
+    private void accessTokenProcessing(String token, HttpServletRequest request){
 
-        if (token != null && !token.isBlank()) {
+        if(token == null || token.isEmpty() || token.isBlank())
+            return;
 
-            final String userEmail = jwtUtils.extractUsername(token);
+        if(!jwtUtils.isAccessToken(token))
+            return;
 
-            if (userEmail != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-                UserDetails userDetails = userDetailsService.loadUserByUsername(userEmail);
+        final String userEmail = jwtUtils.extractUsername(token);
+        if(userEmail == null)
+            return;
 
-                if (jwtUtils.isTokenValid(token, userDetails)) {
+        if(SecurityContextHolder.getContext().getAuthentication() != null)
+            return;
 
-                    SecurityContext securityContext
-                            = SecurityContextHolder.createEmptyContext();
+        UserDetails userDetails = userDetailsService.loadUserByUsername(userEmail);
+        if(!jwtUtils.isTokenValid(token, userDetails))
+            return;
 
-                    UsernamePasswordAuthenticationToken UPA_token
-                            = new UsernamePasswordAuthenticationToken(
-                                userDetails,
-                            null,
-                                userDetails.getAuthorities());
+        log.info("[MIRO] : accessTokenProcessing 호출됨, SecurityContextHolder에 등록");
 
-                    UPA_token.setDetails(
-                            new WebAuthenticationDetailsSource().buildDetails(request));
+        SecurityContext securityContext
+                = SecurityContextHolder.createEmptyContext();
 
-                    securityContext.setAuthentication(UPA_token);
-                    SecurityContextHolder.setContext(securityContext);
-                }
-            }
-        }
+        UsernamePasswordAuthenticationToken UPA_token
+                = new UsernamePasswordAuthenticationToken(
+                userDetails,
+                null,
+                userDetails.getAuthorities());
+
+        UPA_token.setDetails(
+                new WebAuthenticationDetailsSource().buildDetails(request));
+
+        securityContext.setAuthentication(UPA_token);
+        SecurityContextHolder.setContext(securityContext);
+
+
+//        if (token != null && !token.isBlank()) {
+//
+//            final String userEmail = jwtUtils.extractUsername(token);
+//
+//            if (userEmail != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+//                UserDetails userDetails = userDetailsService.loadUserByUsername(userEmail);
+//
+//                if (jwtUtils.isTokenValid(token, userDetails)) {
+//
+//                    log.info("[MIRO] : tokenProcessing 호출됨, SecurityContextHolder에 등록");
+//
+//                    SecurityContext securityContext
+//                            = SecurityContextHolder.createEmptyContext();
+//
+//                    UsernamePasswordAuthenticationToken UPA_token
+//                            = new UsernamePasswordAuthenticationToken(
+//                                userDetails,
+//                            null,
+//                                userDetails.getAuthorities());
+//
+//                    UPA_token.setDetails(
+//                            new WebAuthenticationDetailsSource().buildDetails(request));
+//
+//                    securityContext.setAuthentication(UPA_token);
+//                    SecurityContextHolder.setContext(securityContext);
+//                }
+//            }
+//        }
     }
 
     private String parseToken(HttpServletRequest request) {

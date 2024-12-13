@@ -13,4 +13,7 @@ public class RefreshTokenResponse extends DefaultResponse {
 
   private String accessToken;
 
+  // 임시
+  private String refreshToken;
+
 }
