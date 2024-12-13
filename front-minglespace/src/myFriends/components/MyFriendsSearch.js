@@ -15,6 +15,7 @@ const MyFriendsSearch = ({ addFriendRequest }) => {
   //단어체크 유효성검사
   const isValidCharacter = useCallback((char) => {
     const validCharRegex = /^[a-zA-Z0-9@.]*$/;
+    if (char.trim() === ".") return false;
     return validCharRegex.test(char);
   }, []);
 

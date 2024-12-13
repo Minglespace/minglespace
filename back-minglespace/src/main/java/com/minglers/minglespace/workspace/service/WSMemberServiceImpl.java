@@ -49,7 +49,26 @@ public class WSMemberServiceImpl implements WSMemberService {
   }
 
   /////////////////////////////////
+  //리더 체크하기
+  @Override
+  @Transactional(readOnly = true)
+  public void checkLeader(Long userId, Long workSpaceId) {
 
+    WSMember wsMember = findWSMemberBy(userId,workSpaceId);
+
+    if(WSMemberRole.LEADER != wsMember.getRole())
+      throw new WorkspaceException(HttpStatus.FORBIDDEN.value(),"워크스페이스 리더가 아닙니다");
+  }
+
+  //리더+서브리더 체크하기
+  @Override
+  @Transactional(readOnly = true)
+  public void checkLeaderAndSubLeader(Long userId, Long workSpaceId) {
+    WSMember wsMember = findWSMemberBy(userId,workSpaceId);
+
+    if(WSMemberRole.LEADER != wsMember.getRole() && WSMemberRole.SUB_LEADER != wsMember.getRole())
+      throw new WorkspaceException(HttpStatus.FORBIDDEN.value(),"워크스페이스 리더,서브리더가 아닙니다");
+  }
   //ws멤버조회(유저와, workspaceId)
   @Override
   public WSMember findByUserIdAndWsId(Long userId, Long wsId) {
@@ -102,7 +121,7 @@ public class WSMemberServiceImpl implements WSMemberService {
       FriendWithWorkspaceStatusDTO friendWithWorkspaceStatusDTO =
               modelMapper.map(user, com.minglers.minglespace.workspace.dto.FriendWithWorkspaceStatusDTO.class);
       friendWithWorkspaceStatusDTO.setInWorkSpace(wsMemberRepository
-              .isFriendInWorkSpace(user.getId(), workSpaceId));
+              .existsByWorkSpaceIdAndUserId(workSpaceId,user.getId()));
       return friendWithWorkspaceStatusDTO;
     }).toList();
   }
@@ -133,27 +152,6 @@ public class WSMemberServiceImpl implements WSMemberService {
     WSMember wsMember = findById(memberId);
     wsMemberRepository.delete(wsMember);
     return wsMember.getUser().getName()+"님을 추방하였습니다.";
-  }
-
-  //리더 체크하기
-  @Override
-  @Transactional(readOnly = true)
-  public void checkLeader(Long userId, Long workSpaceId) {
-
-    WSMember wsMember = findWSMemberBy(userId,workSpaceId);
-
-    if(WSMemberRole.LEADER != wsMember.getRole())
-      throw new WorkspaceException(HttpStatus.UNAUTHORIZED.value(),"워크스페이스 리더가 아닙니다");
-  }
-
-  //리더+서브리더 체크하기
-  @Override
-  @Transactional(readOnly = true)
-  public void checkLeaderAndSubLeader(Long userId, Long workSpaceId) {
-    WSMember wsMember = findWSMemberBy(userId,workSpaceId);
-
-    if(WSMemberRole.LEADER != wsMember.getRole() && WSMemberRole.SUB_LEADER != wsMember.getRole())
-      throw new WorkspaceException(HttpStatus.UNAUTHORIZED.value(),"워크스페이스 리더,서브리더가 아닙니다");
   }
 
   //유저id+권한 가져오기
@@ -196,5 +194,11 @@ public class WSMemberServiceImpl implements WSMemberService {
 
     return savedMember.getUser().getName()+"님의 권한을 "+savedMember.getRole().name()+
             "으로 변경하였습니다";
+  }
+
+  @Override
+  public void checkWSMember(Long userId, Long workSpaceId) {
+    if(!wsMemberRepository.existsByWorkSpaceIdAndUserId(workSpaceId,userId))
+      throw new WorkspaceException(HttpStatus.FORBIDDEN.value(), "잘못된 요청입니다.");
   }
 }

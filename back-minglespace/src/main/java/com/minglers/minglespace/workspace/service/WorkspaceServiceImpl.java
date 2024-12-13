@@ -1,6 +1,7 @@
 package com.minglers.minglespace.workspace.service;
 
 import com.minglers.minglespace.auth.entity.User;
+import com.minglers.minglespace.auth.exception.UserException;
 import com.minglers.minglespace.auth.repository.UserRepository;
 import com.minglers.minglespace.workspace.dto.MemberWithUserInfoDTO;
 import com.minglers.minglespace.workspace.dto.WSMemberResponseDTO;
@@ -42,7 +43,7 @@ public class WorkspaceServiceImpl implements WorkspaceService {
   //유저 정보 가져오기
   private User findUserById(Long userId) {
     return userRepository.findById(userId)
-            .orElseThrow(() -> new IllegalArgumentException("유저정보를 찾을수 없습니다."));
+            .orElseThrow(() -> new UserException(HttpStatus.NOT_FOUND.value(),"유저정보를 찾을수 없습니다."));
   }
 
   //워크스페이스 가져오기
@@ -125,7 +126,7 @@ public class WorkspaceServiceImpl implements WorkspaceService {
   @Override
   @Transactional
   public String remove(Long workSpaceId, Long userId) {
-    //원본 가져오고 수정해서 save하기 delflag,날짜,삭제id만 바꿔주기
+        //원본 가져오고 수정해서 save하기 delflag,날짜,삭제id만 바꿔주기
     WorkSpace workSpace = findWorkSpaceById(workSpaceId);
     checkDelflag(workSpace);
 
@@ -134,18 +135,16 @@ public class WorkspaceServiceImpl implements WorkspaceService {
     workSpace.changeDeletedAt(LocalDateTime.now());
 
     WorkSpace savedWorkSpace = workspaceRepository.save(workSpace);
-
-    if (savedWorkSpace.getId() != null)
-      return "success";
-    return "fail";
+      return "워크스페이스 : "+savedWorkSpace.getName()+"을 삭제하였습니다.";
   }
 
   //하나만 조회하기
   @Override
   @Transactional(readOnly = true)
-  public WorkSpaceResponseDTO getOne(Long workSpaceId) {
-
+  public WorkSpaceResponseDTO getOne(Long userId, Long workSpaceId) {
+    User user = findUserById(userId);
     WorkSpace workSpace = findWorkSpaceById(workSpaceId);
+
     checkDelflag(workSpace);
 
     WorkSpaceResponseDTO response = workspaceDtoFromEntity(workSpace);

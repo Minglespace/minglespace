@@ -37,6 +37,7 @@ public class CustomExceptionHandler {
     return ResponseEntity.status(errorCode).body(errorResponse);
   }
 
+
   //나머지 예외처리
   @ExceptionHandler(Exception.class)
   public ResponseEntity<ErrorResponse> ExceptionHandle(Exception e) {

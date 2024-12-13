@@ -13,5 +13,5 @@ public interface WorkspaceService {
   WorkSpaceResponseDTO resister(Long userId, WorkspaceRequestDTO workspaceDTO);
   WorkSpaceResponseDTO modify(Long workSpaceId, WorkspaceRequestDTO workspaceDTO);
   String remove(Long workSpaceId, Long userId);
-  WorkSpaceResponseDTO getOne(Long workSpaceId);
+  WorkSpaceResponseDTO getOne(Long userId, Long workSpaceId);
 }

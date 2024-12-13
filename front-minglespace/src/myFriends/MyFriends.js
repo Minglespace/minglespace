@@ -31,17 +31,17 @@ const MyFriends = () => {
     });
   }, []);
   //친구 요청 조회용
-  const getFriendRequestList = useCallback(() => {
+  const getFriendRequestList = () => {
     MyFriendsApi.friendRequestList().then((data) => {
       setFriendRequest(data);
     });
-  }, []);
+  };
   //친구 대기 조회용
-  const getFriendPendingList = useCallback(() => {
+  const getFriendPendingList = () => {
     MyFriendsApi.friendPendingList().then((data) => {
       setFriendPending(data);
     });
-  }, []);
+  };
   //친구 최신화 핸들러
   const handelSetFriends = useCallback((data) => {
     setFriends(data);
@@ -51,11 +51,11 @@ const MyFriends = () => {
     getFriendList();
     getFriendRequestList();
     getFriendPendingList();
-  }, [getFriendList, getFriendRequestList, getFriendPendingList]);
+  }, [getFriendList]);
 
   const addFriendRequest = useCallback(() => {
     getFriendRequestList();
-  }, [getFriendRequestList]);
+  }, []);
 
   const refuseFriend = useCallback((data) => {
     setFriendPending(data);

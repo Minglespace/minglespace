@@ -58,8 +58,11 @@ public class WorkspaceController {
 
   //workspace 리스트에서 하나만조회
   @GetMapping("/{workspaceId}")
-  public ResponseEntity<WorkSpaceResponseDTO> getOne(@PathVariable("workspaceId") Long workspaceId){
-    return ResponseEntity.ok(workspaceService.getOne(workspaceId));
+  public ResponseEntity<WorkSpaceResponseDTO> getOne(@PathVariable("workspaceId") Long workspaceId,
+                                                     @RequestHeader("Authorization") String token){
+    Long userId = jwtUtils.extractUserId(token.substring(7));
+    checkWSMember(userId,workspaceId);
+    return ResponseEntity.ok(workspaceService.getOne(userId, workspaceId));
   }
 
   ///////////////////////////////////////////////
@@ -70,6 +73,7 @@ public class WorkspaceController {
   public ResponseEntity<WSMemberResponseDTO> getWorkSpaceRole(@RequestHeader("Authorization") String token,
                                                               @PathVariable("workspaceId") Long workspaceId){
     Long userId = jwtUtils.extractUserId(token.substring(7));
+    checkWSMember(userId,workspaceId);
     return ResponseEntity.ok(wsMemberService.getWorkSpaceRole(userId,workspaceId));
   }
 
@@ -132,12 +136,17 @@ public class WorkspaceController {
 
   //////////////////////공통 유효성검사(리더확인)
   //워크스페이스등 수정삭제시 리더인지 확인체크
-  public void checkLeader(Long userId, Long workSpaceId) {
+  private void checkLeader(Long userId, Long workSpaceId) {
     wsMemberService.checkLeader(userId, workSpaceId);
   }
 
   //리더,서브리더인지 확인체크(멤버먼 예외던짐)
-  public void checkLeaderAndSubLeader(Long userId, Long workSpaceId) {
+  private void checkLeaderAndSubLeader(Long userId, Long workSpaceId) {
     wsMemberService.checkLeaderAndSubLeader(userId, workSpaceId);
+  }
+
+  //워크스페이스에 존재하는 멤버인지 확인
+  private void checkWSMember(Long userId, Long workSpaceId){
+    wsMemberService.checkWSMember(userId, workSpaceId);
   }
 }

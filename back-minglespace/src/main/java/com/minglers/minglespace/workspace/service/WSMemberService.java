@@ -21,4 +21,6 @@ public interface WSMemberService {
 
   String transferLeader(Long userId, Long memberId, Long workspaceId);
   String transferRole(Long workspaceId, Long memberId, String role);
+
+  void checkWSMember(Long userId, Long workSpaceId);
 }
