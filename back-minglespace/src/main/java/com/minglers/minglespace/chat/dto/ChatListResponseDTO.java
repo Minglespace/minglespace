@@ -16,8 +16,9 @@ public class ChatListResponseDTO {
   private String name;
   private String imageUriPath;
   private Long workSpaceId;
-  private LocalDateTime date;
+  private LocalDateTime date; //이건 채팅방 date
   private String lastMessage;
   private int participantCount;
   private long notReadMsgCount;
+  private LocalDateTime lastLogDate; //이건 마지막 메시지 date
 }

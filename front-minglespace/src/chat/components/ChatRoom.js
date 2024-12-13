@@ -1,4 +1,4 @@
-﻿import React, { useEffect, useRef, useState } from "react";
+﻿﻿import React, { useEffect, useRef, useState } from "react";
 import ChatRoomHeader from "./ChatRoomHeader";
 import MessageList from "./MessageList";
 import MessageInput from "./MessageInput";
@@ -223,6 +223,20 @@ const ChatRoom = ({
     }
   };
 
+  const handleRegisterAnnouncement = async (message) => {
+    try {
+      await ChatApi.registerAnnouncementMsg(chatRoomId, message.id);
+
+      setChatRoomInfo((prev) => {
+        const updatedMessages = prev.messages.map((msg) =>
+          Number(msg.id) === Number(message.id) ? { ...msg, isAnnouncement: true } : { ...msg, isAnnouncement: false })
+        return { ...prev, messages: updatedMessages };
+      })
+    } catch (error) {
+      console.error("chatroom _ 공지 등록 에러: ", error);
+    }
+  }
+
   /////////////////////websocket 연결///////////////////
   useEffect(() => {
     if (!chatRoomId) {
@@ -247,7 +261,7 @@ const ChatRoom = ({
       onConnect: () => {
         console.log(`채팅방 ${chatRoomId}번 websocket 연결 완료`);
 
-        ///구독 연결
+        ///채팅 실시간 메시지 구독
         stompClient.subscribe(`/topic/chatRooms/${chatRoomId}/msg`, (msg) => {
           const newMsg = JSON.parse(msg.body);
           console.log("chatRoom_ new msg: ", newMsg);
@@ -257,9 +271,27 @@ const ChatRoom = ({
             messages: [...prev.messages, newMsg],
           }));
         });
+        //메시지 읽음 실시간 구독
+        stompClient.subscribe(`/topic/chatRooms/${chatRoomId}/read-status`, (readstatus) => {
+          const readStatusData = JSON.parse(readstatus.body);
+          console.log("읽음 처리 메시지", readStatusData);
+
+          ///특정 유저가 실시간으로 읽은 메시지 상태 반영
+          setChatRoomInfo((prev) => ({
+            ...prev,
+            messages: prev.messages.map((message) => ({
+              ...message,
+              unReadMembers: message.unReadMembers.filter(
+                (member) => Number(member.wsMemberId) !== Number(readStatusData.wsMemberId)
+              ),
+            })),
+          }));
+        });
       },
       onWebSocketError: (error) => {
         console.log(`채팅방 ${chatRoomId}번 websocket 연결 오류:`, error);
+        alert("실시간 연결 오류가 발생했습니다. 다시 시도");
+        window.location.reload();
       },
       reconnectDelay: 5000, // 5초마다 자동 재연결 시도
       heartbeatIncoming: 4000, // 서버에서 4초마다 ping

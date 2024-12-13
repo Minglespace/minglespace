@@ -11,8 +11,14 @@ const ChatList = ({
   wsMembers,
 }) => {
   const [isModalOpen, setIsModalOpen] = useState(false); //모달 열림/닫힘 상태
-  console.log("wsmembers:", wsMembers);
 
+  const getTotalUnreadMessages = () => {
+    return rooms.reduce((total, room) => total + (room.notReadMsgCount || 0), 0);
+  }
+  const totalUnreadMessages = getTotalUnreadMessages();
+
+  // console.log("wsmembers:", wsMembers);
+  //모달을 여는 함수
   const openModal = () => {
     setIsModalOpen(true);
   };
@@ -25,6 +31,11 @@ const ChatList = ({
     <div>
       <div className={`chat_list_container ${isFold ? "collapsed" : ""}`}>
         {!isFold && <h1>채팅방 목록</h1>}
+        {/* 안읽은 메시지 총 개수 */}
+        <div className={`unread-msgCount ${totalUnreadMessages === 0 ? "zero-msgCount" : "valid-msgCount"}`}>
+          < p > 안 읽은 메시지: {getTotalUnreadMessages()}</p>
+        </div>
+        {/* isFold 상태가 false일 때만 '채팅방 목록'을 보여줌 */}
         {rooms && rooms.length === 0 ? (
           <div className="no-chatroom-selected">
             <IoLogoWechat />
@@ -50,8 +61,8 @@ const ChatList = ({
           onCreate={onCreateRoom}
           wsMembers={wsMembers}
         />
-      </div>
-    </div>
+      </div >
+    </div >
   );
 };
 

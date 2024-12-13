@@ -1,4 +1,4 @@
-﻿import React, { useEffect, useRef } from "react";
+﻿import React, { useEffect, useRef, useState } from "react";
 import { FiCornerDownRight } from "react-icons/fi";
 import MessageListItem from "./MessageListItem";
 const MessageList = ({
@@ -15,6 +15,7 @@ const MessageList = ({
     if (messageListRef.current) {
       messageListRef.current.scrollTop = messageListRef.current.scrollHeight;
     }
+    // console.log(messages);
   }, [messages]);
 
   return (
@@ -37,7 +38,6 @@ const MessageList = ({
 };
 
 export default MessageList;
-
 //     {messages.map((message) => (
 //       <div
 //         key={message.id}

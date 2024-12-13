@@ -10,10 +10,10 @@ public interface ChatRoomMemberService {
   void updateIsLeftFromLeave(Long chatRoomId, Long wsMemberId);
 
   // 참여 유저 추가
-  void addUserToRoom(Long chatRoomId, Long wsMemberId);
+  String addUserToRoom(Long chatRoomId, Long wsMemberId);
 
   // 강퇴
-  void kickMemberFromRoom(Long chatRoomId, Long wsMemberId);
+  String kickMemberFromRoom(Long chatRoomId, Long wsMemberId);
 
   // 채팅방 유저들
   List<ChatRoomMemberDTO> getParticipantsByChatRoomId(Long chatRoomId);
@@ -22,7 +22,7 @@ public interface ChatRoomMemberService {
   boolean isRoomLeader(Long chatRoomId, Long wsMemberId);
 
   // 방장 위임
-  void delegateLeader(Long chatRoomId, Long newLeaderId, Long leaderId);
+  String delegateLeader(Long chatRoomId, Long newLeaderId, Long leaderId);
 
   // 방에 존재하는지 확인
   boolean existsByChatRoomIdAndWsMemberIdAndIsLeftFalse(Long chatRoomId, Long wsMemberId);
