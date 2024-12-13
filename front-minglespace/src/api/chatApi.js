@@ -16,7 +16,7 @@ class ChatApi {
 			return res.data;  // 서버 응답 데이터 반환
 		} catch (error) {
 			if (error.response && error.response.status === 403) {
-				alert(error.response.data.error);
+				alert("현재 채팅방에는 참여할 수 없습니다.");
 				window.location.href = `/workspace`;
 			} else {
 				console.error("채팅방 목록 가져오기 실패:", error);

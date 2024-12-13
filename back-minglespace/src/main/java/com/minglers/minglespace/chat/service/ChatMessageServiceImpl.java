@@ -26,6 +26,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
@@ -45,7 +46,7 @@ public class ChatMessageServiceImpl implements ChatMessageService {
   // 메시지 저장
   @Override
   @Transactional
-  public ChatMessageDTO saveMessage(ChatMessageDTO messageDTO, Long writerUserId) {
+  public ChatMessageDTO saveMessage(ChatMessageDTO messageDTO, Long writerUserId, Set<Long> activeUserIds) {
     try {
       ChatRoom chatRoom = chatRoomRepository.findById(messageDTO.getChatRoomId())
               .orElseThrow(() -> new ChatException(HttpStatus.NOT_FOUND.value(), "채팅방이 존재하지 않습니다."));
@@ -79,7 +80,7 @@ public class ChatMessageServiceImpl implements ChatMessageService {
       }
 
       ////msgReadStatus 추가
-      msgReadStatusService.createMsgForMembers(savedMessage);
+      msgReadStatusService.createMsgForMembers(savedMessage, activeUserIds);
 
       //messageDTO 정보 채우기
       messageDTO.setId(savedMessage.getId());

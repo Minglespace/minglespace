@@ -16,6 +16,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
@@ -28,7 +29,7 @@ public class MsgReadStatusServiceImpl implements MsgReadStatusService{
 
   @Override
   @Transactional
-  public void createMsgForMembers(ChatMessage saveMsg) {
+  public void createMsgForMembers(ChatMessage saveMsg, Set<Long> activeUserIds) {
     try{
       List<ChatRoomMember> members = chatRoomMemberRepository.findByChatRoomIdAndIsLeftFalse(saveMsg.getChatRoom().getId());
 
@@ -37,7 +38,8 @@ public class MsgReadStatusServiceImpl implements MsgReadStatusService{
       }
 
       List<MsgReadStatus> list = members.stream()
-              .filter(member -> !member.getWsMember().getId().equals(saveMsg.getWsMember().getId()))
+//              .filter(member -> !member.getWsMember().getId().equals(saveMsg.getWsMember().getId()))
+              .filter(member -> !activeUserIds.contains(member.getWsMember().getUser().getId()))
               .map(member -> MsgReadStatus.builder()
                       .message(saveMsg)
                       .wsMember(member.getWsMember())

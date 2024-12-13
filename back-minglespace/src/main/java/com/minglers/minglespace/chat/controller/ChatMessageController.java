@@ -14,6 +14,8 @@ import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.messaging.simp.stomp.StompHeaderAccessor;
 import org.springframework.stereotype.Controller;
 
+import java.util.Set;
+
 
 @Controller
 @Log4j2
@@ -29,25 +31,20 @@ public class ChatMessageController {
   public ChatMessageDTO saveAndSendChatMessage(@DestinationVariable Long chatRoomId,
                                                ChatMessageDTO messageDTO,
                                                StompHeaderAccessor headerAccessor) {
-//        log.info("message_Chatroomid: "+ chatRoomId);
-//        log.info("Received raw JSON message: " + messageDTO);
     Long writerUserId = (Long) headerAccessor.getSessionAttributes().get("userId");
 
     if (writerUserId == null) {
       log.error("user ID not found in websocket session");
       return null;
     }
-
     log.info("received message : " + messageDTO.getContent() + " from " + messageDTO.getWorkspaceId());
 
     try {
       messageDTO.setChatRoomId(chatRoomId);
 
-      ChatMessageDTO savedMsgDTO = chatMessageService.saveMessage(messageDTO, writerUserId);
-      ///안읽는 사람 정보 포함하기 //////////////////////////////
+      Set<Long> activeUserId = stompInterceptor.getActiveUsersForSubscription("/topic/chatRooms/"+chatRoomId+"/msg");
 
-      //MsgReadStatus테이블에 추가
-//      msgReadStatusService.createMsgForMembers(savedMsgDTO.));
+      ChatMessageDTO savedMsgDTO = chatMessageService.saveMessage(messageDTO, writerUserId, activeUserId);
 
       //안읽은 메시지 처리를 위해 채팅 목록에 보내기
       simpMessagingTemplate.convertAndSend("/topic/workspaces/" + messageDTO.getWorkspaceId(), savedMsgDTO);
