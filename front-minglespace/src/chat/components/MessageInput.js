@@ -1,11 +1,11 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { FaLock, FaLockOpen } from "react-icons/fa";
-// import Mentions from "./Mentions";
 
-const MessageInput = ({ wsMembers, tags, onSendMessage }) => {
+const MessageInput = ({ onSendMessage, replyToMessage, setReplyToMessage }) => {
+  const [newMessage, setNewMessage] = useState("");
   // 메시지 입력을 잠그는 상태 변수
   const [isLocked, setIsLocked] = useState(false);
-  const [messages, setMessages] = useState("");
+  // const [messages, setMessages] = useState(newMessage || "");
 
   // 메시지 잠금 상태 변경 함수
   const toggleLock = () => {
@@ -14,54 +14,66 @@ const MessageInput = ({ wsMembers, tags, onSendMessage }) => {
 
   // 메시지 입력
   const handleMessageChange = (e) => {
+    // console.log("메시지:", e.target.value);
     if (!isLocked) {
-      setMessages(e.target.value);
+      setNewMessage(e.target.value);
     }
   };
 
   // 메시지 전송 처리 함수
   const handleSendMessage = () => {
-    const mentionsData = messages.match(/@\w+|#\w+/g) || [];
-    if (messages.trim() !== "") {
-      onSendMessage(messages);
-      setMessages("");
+    if (newMessage.trim()) {
+      const messageToSend = {
+        text: newMessage,
+        sender: "나",
+        isCurrentUser: true,
+        replies: [],
+        replyTo: replyToMessage || null,
+      };
+      onSendMessage(messageToSend);
+      setNewMessage("");
+      setReplyToMessage(null);
     } else {
       alert("메시지를 입력해주세요");
     }
   };
 
   const handleKeyDown = (e) => {
-    // console.log(typeof messages);
-    if (e.key === "Enter" && !e.shiftKey && messages.trim()) {
+    console.log(typeof messages);
+    if (e.key === "Enter" && !e.shiftKey && newMessage.trim()) {
+      e.preventDefault();
       handleSendMessage();
-      setMessages(""); // 메시지 전송 후 입력란 초기화
+      setNewMessage("");
     }
   };
 
   return (
     <div className="message-input-container">
       <div className="message-input-wrapper">
+        {replyToMessage && (
+          <div className="replying-to-message">
+            <span>답글 대상: {replyToMessage.sender}</span>
+            <p>{replyToMessage.text}</p>
+            <button onClick={() => setReplyToMessage(null)}>취소</button>
+          </div>
+        )}
         <input
           type="text"
-          value={messages}
+          value={newMessage}
           onChange={handleMessageChange}
-          onKeyDown={handleKeyDown} // Enter 키 입력 감지
-          disabled={isLocked} // 잠금 상태에서 입력을 못 하게 함
+          onKeyDown={handleKeyDown}
+          disabled={isLocked}
           placeholder={
             isLocked ? "입력이 잠겨 있습니다." : "메시지를 입력하세요..."
           }
           className="message-input"
         />
-        {/* <Mentions
-          value={messages}
-          onChange={handleMessageChange}
-          wsMembers={wsMembers}
-          tags={tags}
-        ></Mentions> */}
         <button
           className="send-btn"
           onClick={handleSendMessage}
-          disabled={isLocked || !messages.trim()}
+          disabled={
+            isLocked || (typeof newMessage === "string" && !newMessage.trim())
+          }
         >
           전송
         </button>

@@ -288,7 +288,7 @@
 .message-input-container {
   display: flex;
   flex-direction: column;
-  height: 100%;
+  // height: 100%;
   background-color: #f4f4f8;
   margin-top: auto;
 }
@@ -363,8 +363,7 @@
 }
 
 .message-item {
-  display: flex;
-
+  disply: flex;
   max-width: 70%;
   padding: 10px;
   border-radius: 20px;
@@ -381,19 +380,87 @@
   }
 
   &.received {
+    color: #333;
     background-color: #ffffff; // 받은 메시지 배경색
     align-self: flex-start;
     border-bottom-left-radius: 0;
     border: 1px solid #ddd; // 받은 메시지 테두리
   }
+  .message-sender {
+    font-weight: bold;
+  }
+  .message-text {
+    margin-top: 5px;
+    font-size: 14px;
+  }
+
+  .reply-btn {
+    background-color: transparent;
+    border: none;
+    color: #4c8bf5;
+    cursor: pointer;
+    font-size: 12px;
+    margin-top: 5px;
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+}
+.replies {
+  margin-top: 10px;
+  padding-left: 15px;
+  border-left: 2px solid #f0f0f0;
+
+  .reply {
+    background-color: #d9eafd;
+    padding: 5px;
+    margin-bottom: 5px;
+    border-radius: 5px;
+  }
+  .reply-text {
+    font-size: 13px;
+  }
 }
 
-.message-text {
-  display: inline-block;
+.replying-to-message {
+  background-color: #f1f1f1;
+  border: 1px solid #ddd;
+  padding: 10px;
+  border-radius: 5px;
+  margin-bottom: 15px;
+  display: flex;
+  flex-direction: column;
+  span {
+    font-size: 12px;
+    color: #888;
+  }
+
+  p {
+    font-size: 14px;
+    margin-top: 5px;
+  }
+
+  button {
+    background-color: transparent;
+    border: none;
+    color: #4c8bf5;
+    cursor: pointer;
+    font-size: 12px;
+    margin-top: 5px;
+    align-self: flex-end;
+
+    &:hover {
+      text-decoration: underline;
+    }
+  }
 }
 
-.message-sender {
-  display: inline-block;
-  font-weight: bold;
-  margin-right: 5px;
-}
+// .message-text {
+//   display: inline-block;
+// }
+
+// .message-sender {
+//   display: inline-block;
+//   font-weight: bold;
+//   margin-right: 5px;
+// }

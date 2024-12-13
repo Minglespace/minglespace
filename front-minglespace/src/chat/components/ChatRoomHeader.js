@@ -2,7 +2,7 @@ import { useState } from "react";
 import ChatRoomModal from "./ChatRoomModal";
 import { FcExport } from "react-icons/fc";
 import { PiUserCirclePlusFill } from "react-icons/pi";
-import e from "cors";
+// import e from "cors";
 
 const ChatRoomHeader = ({
   chatRoomInfo,
@@ -24,14 +24,12 @@ const ChatRoomHeader = ({
     setIsModalOpen(true);
   };
 
-  const closeModal = () => {
-    setIsModalOpen(false); // 모달 닫기
-    setModalType(""); // 모달 타입 초기화
-    // if (newModalType) {
-    //   setModalType(newModalType);
-    // } else {
-    //   setIsModalOpen(false);
-    // }
+  const closeModal = (newModalType) => {
+    if (newModalType) {
+      setModalType(newModalType);
+    } else {
+      setIsModalOpen(false);
+    }
   };
 
   // 헤더 클릭 핸들러
