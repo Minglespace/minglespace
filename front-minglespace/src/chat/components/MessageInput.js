@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { FaLock, FaLockOpen } from "react-icons/fa";
 
-const MessageInput = ({ onSendMessage, replyToMessage, setReplyToMessage }) => {
+const MessageInput = ({ onSendMessage, replyToMessage, setReplyToMessage, currentMemberInfo }) => {
   const [newMessage, setNewMessage] = useState("");
   // 메시지 입력을 잠그는 상태 변수
   const [isLocked, setIsLocked] = useState(false);

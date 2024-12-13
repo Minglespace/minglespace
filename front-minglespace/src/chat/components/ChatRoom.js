@@ -313,8 +313,6 @@ const ChatRoom = ({
   }, [chatRoomId]);
 
 
-
-
   // 메시지 전송 처리 함수 
   const handleSendMessage = (newMessage) => {
 
@@ -342,7 +340,6 @@ const ChatRoom = ({
   };
 
 
-
   // 메시지를 클릭하면 해당 메시지를 선택
   const handleMessageClick = (messages) => {
     console.log("답장할 메시지:", messages);
@@ -367,10 +364,10 @@ const ChatRoom = ({
       />
 
       <MessageList
-        // messages={messages || []}
         messages={chatRoomInfo.messages}
         onMessageClick={handleMessageClick}
         currentMemberInfo={currentMemberInfo}
+        onRegisterAnnouncement={handleRegisterAnnouncement}
       />
 
       <MessageInput

@@ -1,15 +1,32 @@
-import React from "react";
+import React, { useState } from "react";
 import { FiCornerDownRight } from "react-icons/fi";
+import { HOST_URL } from "../../api/Api";
+import ProfileImage from "../../common/Layouts/components/ProfileImage";
 
 const MessageListItem = ({
   message,
   isSameSender,
   currentMemberInfo,
   onMessageClick,
-  onFindParentMessage
+  onFindParentMessage,
+  onRegisterAnnouncment
 }) => {
 
   const parentMessage = message.replyId ? onFindParentMessage(message.replyId) : null;
+  const [hoveredUnread, setHoveredUnread] = useState([]);
+
+  const handleUnreadMouseEnter = (unReadMembers) => {
+    setHoveredUnread(unReadMembers);
+  };
+
+  const handleUnreadMouseLeave = () => {
+    setHoveredUnread([]);
+  };
+
+  const imageUrlPathCheck = (src) => {
+    if (src && src.trim() !== "") return `${HOST_URL}${src}`;
+    else return null;
+  };
 
   return (
     <div
@@ -32,14 +49,7 @@ const MessageListItem = ({
             : message.content}
         </span>
       </div>
-      {/* 답글 달기 버튼 */}
-      <button
-        className="reply-button"
-        onClick={() => onMessageClick(message)} // 해당 메시지에 답글을 다는 것으로 설정
-      >
-        답글
-        <FiCornerDownRight />
-      </button>
+
 
       {/* 답장 내용 추가 */}
       {parentMessage && (
@@ -49,7 +59,40 @@ const MessageListItem = ({
           <div className="reply-text">{message.content}</div>
         </>
       )}
-    </div>
+
+
+      <div>
+        <button
+          className="reply-button"
+          onClick={() => onMessageClick(message)}
+        >
+          답글
+          <FiCornerDownRight />
+        </button>
+        <span onClick={() => onRegisterAnnouncment(message)} style={{ cursor: "pointer", color: "blue", textDecoration: "underline" }} > 공지사항 등록</span>
+        {/* 안읽은 카운트 */}
+        {message.unReadMembers && message.unReadMembers.length > 0
+          && (
+            <span
+              style={{ fontWeight: "bold", color: "#FA8072", marginLeft: "10px" }}
+              onMouseEnter={() => handleUnreadMouseEnter(message.unReadMembers)}
+              onMouseLeave={handleUnreadMouseLeave}
+            >
+              {message.unReadMembers.length}
+              {
+                hoveredUnread.length > 0 && (
+                  hoveredUnread.map((member) => (
+                    <div key={member.wsMemberId} style={{ display: "flex", marginLeft: "30px", marginBottom: "5px" }}>
+                      <ProfileImage src={imageUrlPathCheck(member.profileImagePath)} userName={member.name} size={30} />
+                      <span style={{ marginLeft: "10px" }}>{member.name}</span>
+                    </div>
+                  ))
+                )
+              }
+            </span>
+          )}
+      </div>
+    </div >
   );
 };
 

@@ -6,7 +6,9 @@ const MessageList = ({
   messages,
   onMessageClick,
   currentMemberInfo,
+  onRegisterAnnouncement
 }) => {
+  const [announcement, setannouncement] = useState(null);
   const messageListRef = useRef(null);
   // const safeMessages = messages || [];
 
@@ -18,28 +20,50 @@ const MessageList = ({
     // console.log(messages);
   }, [messages]);
 
+  useEffect(() => {
+    const newAnnouncement = messages.find((message) => message.isAnnouncement) || null;
+    setannouncement(newAnnouncement);
+    console.log("공지", newAnnouncement)
+  }, [messages]);
+
+  const registerAnnouncment = async (msg) => {
+    await onRegisterAnnouncement(msg);
+    setannouncement(msg);
+    console.log(msg);
+  }
+
   //부모 댓글 찾기
   const findParentMessage = (replyId) => {
     return messages.find((message) => message.id === replyId);
   }
 
   return (
-    <div className="message-list" ref={messageListRef}>
-      {messages.map((message) => {
-        return (
-          <MessageListItem
-            key={message.id}
-            message={message}
-            isSameSender={
-              // index > 0 && safeMessages[index - 1].sender === message.sender
-              message.writerWsMemberId === currentMemberInfo.wsMemberId
-            }
-            currentMemberInfo={currentMemberInfo}
-            onMessageClick={onMessageClick}
-            onFindParentMessage={findParentMessage}
-          />
-        );
-      })}
+    <div>
+      {announcement && (
+        <div style={{ display: "flex", justifyContent: "center" }}>
+          공지사항
+          <span className="message-sender">{announcement.sender} : </span>
+          <span className="message-text">{announcement.content} </span>
+        </div>
+      )}
+      <div className="message-list" ref={messageListRef}>
+        {messages.map((message) => {
+          return (
+            <MessageListItem
+              key={message.id}
+              message={message}
+              isSameSender={
+                // index > 0 && safeMessages[index - 1].sender === message.sender
+                message.writerWsMemberId === currentMemberInfo.wsMemberId
+              }
+              currentMemberInfo={currentMemberInfo}
+              onMessageClick={onMessageClick}
+              onFindParentMessage={findParentMessage}
+              onRegisterAnnouncment={registerAnnouncment}
+            />
+          );
+        })}
+      </div>
     </div>
   );
 };
