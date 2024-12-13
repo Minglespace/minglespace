@@ -380,39 +380,25 @@
   overflow-y: auto;
 }
 
-////혜린
-.message-wrapper {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start; //기본 왼쪽 정렬
-  margin-bottom: 10px;
-  position: relative;
-}
 
 .message-item {
-  // display: flex;
+  display: flex;
   max-width: 70%;
   padding: 10px;
   border-radius: 20px;
-  // margin-bottom: 10px;
+  margin-bottom: 10px;
   word-wrap: break-word;
   line-height: 1.5;
   font-size: 14px;
-  ////혜린 추가 공지사항과 카운트를 위함. 아래 두개 
-  // flex-direction: column;
-  // position: relative;
 
   &.sender {
-    // margin-right: 15px;
-    margin-left: auto; //혜린
+    margin-right: 15px;
     background-color: #c4d7ff; // 보낸 메시지 배경색
-    // align-self: flex-end; //혜린
     border-bottom-right-radius: 0;
   }
 
   &.received {
     background-color: #ffffff; // 받은 메시지 배경색
-    // align-self: flex-start; //혜린
     border-bottom-left-radius: 0;
     border: 1px solid #ddd; // 받은 메시지 테두리
   }
@@ -427,88 +413,3 @@
   font-weight: bold;
   margin-right: 5px;
 }
-
-//혜린 추가 아래 다 
-.unread-count {
-  color: #803939;
-  font-weight: bold;
-  // margin: 0 10px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 20px;
-  height: 20px;
-  border-radius: 50%;
-  background-color: #f0f0f0;
-  position: absolute;
-  top: 50%;
-  transform: translateY(-50%);
-
-  &.left {
-    right: 10px;
-  }
-
-  &.right {
-    left: 10px;
-  }
-}
-
-.message-notice {
-  align-self: flex-start;
-  margin-top: 5px;
-  // margin-left: 15px;
-
-  // &.left-notice {
-  //   align-self: flex-start;
-  // }
-
-  &.right-notice {
-    align-self: flex-end;
-  }
-}
-
-
-///////////기존 코드
-//  .message-list {
-//   margin-left: 15px;
-//   display: flex;
-//   flex-direction: column;
-//   padding: 10px;
-//   gap: 10px;
-//   max-height: 560px;
-//   overflow-y: auto;
-// }
-
-
-// .message-item {
-//   display: flex;
-//   max-width: 70%;
-//   padding: 10px;
-//   border-radius: 20px;
-//   margin-bottom: 10px;
-//   word-wrap: break-word;
-//   line-height: 1.5;
-//   font-size: 14px;
-
-//   &.sender {
-//     margin-right: 15px;
-//     background-color: #c4d7ff; // 보낸 메시지 배경색
-//     border-bottom-right-radius: 0;
-//   }
-
-//   &.received {
-//     background-color: #ffffff; // 받은 메시지 배경색
-//     border-bottom-left-radius: 0;
-//     border: 1px solid #ddd; // 받은 메시지 테두리
-//   }
-// }
-
-// .message-text {
-//   display: inline-block;
-// }
-
-// .message-sender {
-//   display: inline-block;
-//   font-weight: bold;
-//   margin-right: 5px;
-// }

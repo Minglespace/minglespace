@@ -277,7 +277,7 @@ const ChatRoom = ({
             ...prev,
             messages: prev.messages.map((message) => ({
               ...message,
-              unReadMembers:message.unReadMembers.filter(
+              unReadMembers: message.unReadMembers.filter(
                 (member) => Number(member.wsMemberId) !== Number(readStatusData.wsMemberId)
               ),
             })),
@@ -352,10 +352,8 @@ const ChatRoom = ({
         handleExit={handleExit}
       />
       <div className="chat_messages">
-        {/* 여기에 채팅 메시지들이 들어갑니다 */}
-        <MessageList messages={chatRoomInfo.messages} currentMemberInfo={currentMemberInfo} onAnnouncement={handleRegisterAnnouncement} /> {/* 전송된 메시지 목록 표시 */}
+        <MessageList messages={chatRoomInfo.messages} currentMemberInfo={currentMemberInfo} onAnnouncement={handleRegisterAnnouncement} />
         <MessageInput onSendMessage={handleSendMessage} />
-        {/*  메시지 전송 처리 */}
       </div>
     </div>
   );

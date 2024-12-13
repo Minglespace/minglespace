@@ -23,32 +23,18 @@ const MessageList = ({ messages, currentMemberInfo, onAnnouncement }) => {
     console.log(message);
   };
 
+
   return (
     <div>
-      {noticeMsg && (
-        <div style={{ display: "flex", justifyContent: "center" }}>
-          공지사항
-          <span className="message-sender">{noticeMsg.sender}: </span>
-          <span className="message-text">{noticeMsg.content} </span>
-        </div>
-      )}
       <div className="message-list" ref={messageListRef}>
         {messages.map((message) => (
           <div
             key={message.id}
-            className={`message-wrapper`}
+            className={`message-item ${message.writerWsMemberId === currentMemberInfo.wsMemberId ? "sender" : "received"
+              }`}
           >
-            <div className={`message-item ${message.writerWsMemberId === currentMemberInfo.wsMemberId ? "sender" : "received"}`}>
-              <span className="message-sender">{message.sender}: </span>
-              <span className="message-text">{message.content}</span>
-            </div>
-            {message.unReadMembers && message.unReadMembers.length > 0
-              && (<span className={`unread-count ${message.writerWsMemberId === currentMemberInfo.wsMemberId ? "left" : "right"}`}>
-                {message.unReadMembers.length}
-              </span>)}
-            <div className={`message-notice ${message.writerWsMemberId === currentMemberInfo.wsMemberId ? "right-notice" : "left-notice"}`}>
-              <span onClick={() => registerNotice(message)} style={{ cursor: "pointer", color: "blue", textDecoration: "underline" }} > 공지사항 등록</span>
-            </div>
+            <span className="message-sender">{message.sender}: </span>
+            <span className="message-text">{message.content}</span>
           </div>
         ))}
       </div>
@@ -59,22 +45,3 @@ const MessageList = ({ messages, currentMemberInfo, onAnnouncement }) => {
 export default MessageList;
 
 
-// {/* <div>
-//   <div className="message-list" ref={messageListRef}>
-//     {messages.map((message) => (
-//       <div
-//         key={message.id}
-//         className={`message-item ${message.writerWsMemberId === currentMemberInfo.wsMemberId ? "sender" : "received"
-//           }`}
-//       > */}
-// {/* {console.log(
-//             `Message ${message.id}:`,
-//             message,
-//             message.writerWsMemberId === currentMemberInfo.wsMemberId ? "sent" : "received"
-//           )} */}
-//         <span className="message-sender">{message.sender}: </span>
-//         <span className="message-text">{message.content}</span>
-//       </div>
-//     ))}
-//   </div>
-// </div >
