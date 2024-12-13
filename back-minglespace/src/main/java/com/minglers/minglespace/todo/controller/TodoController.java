@@ -25,18 +25,24 @@ public class TodoController {
   private final WorkspaceService workspaceService;
   private final JWTUtils jwtUtils;
 
-  @GetMapping("") //유저용 (자신이 만든것 + 자신에게 부여된것)
+  @GetMapping({"/search", "/search/{searchKeyword}"}) //유저용 (자신이 만든것 + 자신에게 부여된것)
   public ResponseEntity<List<TodoResponseDTO>> getTodo(@RequestHeader("Authorization") String token,
-          @PathVariable("workspaceId") Long workspaceId){
+                                                       @PathVariable(value = "searchKeyword", required = false) String searchKeyword,
+                                                       @PathVariable("workspaceId") Long workspaceId,
+                                                       @RequestParam(value = "sortType", defaultValue = "title") String sortType,
+                                                       @RequestParam(value = "searchType") String searchType){
     Long userId = jwtUtils.extractUserId(token.substring(7));
-    return ResponseEntity.ok(todoService.getTodoWithAssigneeInfo(workspaceId, userId));
+    return ResponseEntity.ok(todoService.getTodoWithAssigneeInfo(workspaceId, searchKeyword, userId, sortType, searchType));
   }
 
-  @GetMapping("/leader")
+  @GetMapping({"/leader", "/leader/{searchKeyword}"})
   public ResponseEntity<List<TodoResponseDTO>> getAllTodo(@RequestHeader("Authorization") String token,
-                                                       @PathVariable("workspaceId") Long workspaceId){
+                                                       @PathVariable("workspaceId") Long workspaceId,
+                                                          @PathVariable(value = "searchKeyword", required = false) String searchKeyword,
+                                                          @RequestParam(value = "sortType", defaultValue = "title") String sortType,
+                                                          @RequestParam(value = "searchType") String searchType){
     Long userId = jwtUtils.extractUserId(token.substring(7));
-    return ResponseEntity.ok(todoService.getAllTodo(workspaceId));
+    return ResponseEntity.ok(todoService.getAllTodo(workspaceId, searchKeyword, sortType, searchType));
   }
 
   @GetMapping("/{todoId}")

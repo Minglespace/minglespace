@@ -73,65 +73,97 @@ const TodoModal = ({
       <Modal open={open} onClose={onClose}>
         <div className="todo_modal_container">
           <h2 className="todo_modal_main_title">
-            {editingTodo ? "Edit Todo" : "Add Todo"}
+            {editingTodo
+              ? role === "LEADER" || role === "SUB_LEADER"
+                ? "Edit Todo"
+                : "View Todo"
+              : "Add Todo"}
           </h2>
           <div className="todo_modal_flexarea">
             <span className="todo_modal_title">제목 : </span>
-            <input
-              className="todo_modal_title_input"
-              name="title"
-              type="text"
-              value={newTodo.title}
-              onChange={handleChangeNewTodo}
-            />
-
-            <br />
-            <span className="todo_modal_content">내용 : </span>
-            <input
-              className="todo_modal_content_input"
-              name="content"
-              type="text"
-              value={newTodo.content}
-              onChange={handleChangeNewTodo}
-            />
-
-            <br />
-            <span>시작일자 : </span>
-            <input
-              name="start_date"
-              type="date"
-              value={new Date(newTodo.start_date).toISOString().split("T")[0]}
-              onChange={handleChangeNewTodo}
-            />
-
-            <br />
-            <span>종료일자 : </span>
-            <input
-              name="end_date"
-              type="date"
-              value={new Date(newTodo.end_date).toISOString().split("T")[0]}
-              onChange={handleChangeNewTodo}
-            />
-
-            <br />
-            <span>작업대상 : </span>
-            <input
-              name="wsMember_id"
-              type="text"
-              value={newTodo.wsMember_id}
-              onChange={handleWsMemberIdsChange}
-            />
-
+            {editingTodo && role !== "LEADER" && role !== "SUB_LEADER" ? (
+              <p className="todo_modal_title_input">{newTodo.title}</p>
+            ) : (
+              <input
+                className="todo_modal_title_input"
+                name="title"
+                type="text"
+                value={newTodo.title}
+                onChange={handleChangeNewTodo}
+                readOnly={
+                  editingTodo && role !== "LEADER" && role !== "SUB_LEADER"
+                }
+              />
+            )}
+            <br /> <span className="todo_modal_content">내용 : </span>
+            {editingTodo && role !== "LEADER" && role !== "SUB_LEADER" ? (
+              <p className="todo_modal_content_input">{newTodo.content}</p>
+            ) : (
+              <input
+                className="todo_modal_content_input"
+                name="content"
+                type="text"
+                value={newTodo.content}
+                onChange={handleChangeNewTodo}
+                readOnly={
+                  editingTodo && role !== "LEADER" && role !== "SUB_LEADER"
+                }
+              />
+            )}
+            <br /> <span>시작일자 : </span>
+            {editingTodo && role !== "LEADER" && role !== "SUB_LEADER" ? (
+              <p>{new Date(newTodo.start_date).toISOString().split("T")[0]}</p>
+            ) : (
+              <input
+                name="start_date"
+                type="date"
+                value={new Date(newTodo.start_date).toISOString().split("T")[0]}
+                onChange={handleChangeNewTodo}
+                readOnly={
+                  editingTodo && role !== "LEADER" && role !== "SUB_LEADER"
+                }
+              />
+            )}
+            <br /> <span>종료일자 : </span>
+            {editingTodo && role !== "LEADER" && role !== "SUB_LEADER" ? (
+              <p>{new Date(newTodo.end_date).toISOString().split("T")[0]}</p>
+            ) : (
+              <input
+                name="end_date"
+                type="date"
+                value={new Date(newTodo.end_date).toISOString().split("T")[0]}
+                onChange={handleChangeNewTodo}
+                readOnly={
+                  editingTodo && role !== "LEADER" && role !== "SUB_LEADER"
+                }
+              />
+            )}
+            <br /> <span>작업대상 : </span>
+            {editingTodo && role !== "LEADER" && role !== "SUB_LEADER" ? (
+              <p>{newTodo.wsMember_id}</p>
+            ) : (
+              <input
+                name="wsMember_id"
+                type="text"
+                value={newTodo.wsMember_id}
+                onChange={handleWsMemberIdsChange}
+                readOnly={
+                  editingTodo && role !== "LEADER" && role !== "SUB_LEADER"
+                }
+              />
+            )}
             <br />
           </div>
           <div className="todo_modal_button_area">
-            <button className="add_button_2" onClick={handleClickAdd}>
-              Save
-            </button>
+            {editingTodo && (role === "LEADER" || role === "SUB_LEADER") && (
+              <button className="add_button_2" onClick={handleClickAdd}>
+                Save
+              </button>
+            )}
             <button className="cancle_button" onClick={onClose}>
               Cancel
             </button>
-            {editingTodo && (
+            {editingTodo && (role === "LEADER" || role === "SUB_LEADER") && (
               <button className="exit_button" onClick={onDelete}>
                 Delete
               </button>

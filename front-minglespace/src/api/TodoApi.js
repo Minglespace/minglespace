@@ -1,20 +1,47 @@
 import api, { HOST_URL } from "./Api";
 
+const prefix = `${HOST_URL}/workspace`;
 class TodoApi {
-  static prefix = `${HOST_URL}/workspace`;
+  static getList = async (workspaceId, searchKeyword, sortType, searchType) => {
+    try {
+      let url = `${prefix}/${workspaceId}/todo/search`;
+      if (searchKeyword) url += `/${searchKeyword}`;
 
-  static getList = async (workspaceId) => {
-    const res = await api.axiosIns.get(`${TodoApi.prefix}/${workspaceId}/todo`);
+      const params = [];
+      if (searchType) params.push(`searchType=${searchType}`);
+      if (sortType) params.push(`sortType=${sortType}`);
+      if (params.length > 0) url += `?${params.join("&")}`;
 
-    return res.data;
+      const res = await api.axiosIns.get(url);
+      return res.data;
+    } catch (error) {
+      console.error("할일 목록 조회 실패", error);
+      throw error;
+    }
   };
 
-  static getAllList = async (workspaceId) => {
-    const res = await api.axiosIns.get(
-      `${TodoApi.prefix}/${workspaceId}/todo/leader`
-    );
+  static getAllList = async (
+    workspaceId,
+    searchKeyword,
+    sortType,
+    searchType
+  ) => {
+    try {
+      let url = `${prefix}/${workspaceId}/todo/leader`;
 
-    return res.data;
+      if (searchKeyword) url += `/${searchKeyword}`;
+
+      const params = [];
+      if (searchType) params.push(`searchType=${searchType}`);
+      if (sortType) params.push(`sortType=${sortType}`);
+      if (params.length > 0) url += `?${params.join("&")}`;
+
+      const res = await api.axiosIns.get(url);
+      return res.data;
+    } catch (error) {
+      console.error("할일 전체목록 조회 실패", error);
+      throw error;
+    }
   };
 
   static getOne = async (workspaceId, todoId) => {
@@ -25,7 +52,7 @@ class TodoApi {
 
   static postAddTodo = async (workspaceId, todoObj) => {
     const res = await api.axiosIns.post(
-      `${TodoApi.prefix}/${workspaceId}/todo`,
+      `${prefix}/${workspaceId}/todo`,
       todoObj
     );
 
@@ -34,7 +61,7 @@ class TodoApi {
 
   static modifyTodo = async (todoId, workspaceId, todoObj) => {
     const res = await api.axiosIns.put(
-      `${TodoApi.prefix}/${workspaceId}/todo/${todoId}`,
+      `${prefix}/${workspaceId}/todo/${todoId}`,
       todoObj
     );
     return res.data;
@@ -42,7 +69,7 @@ class TodoApi {
 
   static deleteTodo = async (workspaceId, todoId) => {
     const res = await api.axiosIns.delete(
-      `${TodoApi.prefix}/${workspaceId}/todo/${todoId}`
+      `${prefix}/${workspaceId}/todo/${todoId}`
     );
     return res.data;
   };

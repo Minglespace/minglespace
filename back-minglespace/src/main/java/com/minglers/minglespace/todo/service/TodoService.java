@@ -6,8 +6,8 @@ import com.minglers.minglespace.todo.dto.TodoResponseDTO;
 import java.util.List;
 
 public interface TodoService {
-  List<TodoResponseDTO> getTodoWithAssigneeInfo(Long workspaceId, Long userId);
-  List<TodoResponseDTO> getAllTodo(Long workspaceId);
+  List<TodoResponseDTO> getTodoWithAssigneeInfo(Long workspaceId, String searchKeyword, Long userId, String sortType, String searchType);
+  List<TodoResponseDTO> getAllTodo(Long workspaceId, String searchKeyword, String sortType, String searchType);
   TodoResponseDTO postAddTodo(Long userId, Long workspaceId, TodoRequestDTO todoRequestDTO);
   TodoResponseDTO getOneTodo(Long todoId, Long workspaceId);
   TodoResponseDTO putTodoWithAssigneeInfo(Long todoId, TodoRequestDTO todoRequestDTO);

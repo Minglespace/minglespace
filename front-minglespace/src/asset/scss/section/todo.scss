@@ -133,6 +133,13 @@
       border-radius: 5px;
       width: 300px;
     }
+    p {
+      display: block;
+      width: 200px;
+      margin: 10px;
+      padding: 5px;
+      border: 1px solid #000;
+    }
   }
   .todo_modal_button_area {
     display: flex;
