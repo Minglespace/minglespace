@@ -1,7 +1,12 @@
 import React, { useState, useEffect } from "react";
 import { FaLock, FaLockOpen } from "react-icons/fa";
 
-const MessageInput = ({ onSendMessage, replyToMessage, setReplyToMessage }) => {
+const MessageInput = ({
+  onSendMessage,
+  replyToMessage,
+  setReplyToMessage,
+  currentMemberInfo,
+}) => {
   const [newMessage, setNewMessage] = useState("");
   // 메시지 입력을 잠그는 상태 변수
   const [isLocked, setIsLocked] = useState(false);
@@ -46,14 +51,26 @@ const MessageInput = ({ onSendMessage, replyToMessage, setReplyToMessage }) => {
 
   return (
     <div className="message-input-container">
+      {replyToMessage && (
+        <div className="replying-to-message">
+          {/* <span>
+            {replyToMessage.sender.trim()}
+            {"에게 답장"}
+          </span> */}
+
+          {replyToMessage
+            ? Number(replyToMessage.writerWsMemberId) ===
+              Number(currentMemberInfo.wsMemberId)
+              ? "나에게 답장"
+              : `${replyToMessage.sender}에게 답장`
+            : replyToMessage.content}
+
+          <p>{replyToMessage.content}</p>
+          <button onClick={() => setReplyToMessage(null)}>취소</button>
+        </div>
+      )}
+
       <div className="message-input-wrapper">
-        {replyToMessage && (
-          <div className="replying-to-message">
-            <span>답글 대상: {replyToMessage.sender}</span>
-            <p>{replyToMessage.content}</p>
-            <button onClick={() => setReplyToMessage(null)}>취소</button>
-          </div>
-        )}
         <input
           type="text"
           value={newMessage}

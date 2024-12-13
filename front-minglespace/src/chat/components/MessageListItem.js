@@ -6,16 +6,16 @@ const MessageListItem = ({
   isSameSender,
   currentMemberInfo,
   onMessageClick,
-  onFindParentMessage
+  onFindParentMessage,
 }) => {
-
-  const parentMessage = message.replyId ? onFindParentMessage(message.replyId) : null;
+  const parentMessage = message.replyId
+    ? onFindParentMessage(message.replyId)
+    : null;
 
   return (
     <div
       key={message.message_id}
-      className={`message-item ${isSameSender ? "sender" : "received"
-        }`}
+      className={`message-item ${isSameSender ? "sender" : "received"}`}
     >
       {/* 발신자 이름 출력 */}
       {!isSameSender && (
@@ -26,7 +26,8 @@ const MessageListItem = ({
       <div className="message-text-container">
         <span className="message-text">
           {parentMessage
-            ? Number(parentMessage.writerWsMemberId) === Number(currentMemberInfo.wsMemberId)
+            ? Number(parentMessage.writerWsMemberId) ===
+              Number(currentMemberInfo.wsMemberId)
               ? "나에게 답장"
               : `${parentMessage.sender}에게 답장`
             : message.content}

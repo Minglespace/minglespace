@@ -2,11 +2,7 @@
 import { FiCornerDownRight } from "react-icons/fi";
 import MessageListItem from "./MessageListItem";
 
-const MessageList = ({
-  messages,
-  onMessageClick,
-  currentMemberInfo,
-}) => {
+const MessageList = ({ messages, onMessageClick, currentMemberInfo }) => {
   const messageListRef = useRef(null);
   // const safeMessages = messages || [];
 
@@ -21,7 +17,7 @@ const MessageList = ({
   //부모 댓글 찾기
   const findParentMessage = (replyId) => {
     return messages.find((message) => message.id === replyId);
-  }
+  };
 
   return (
     <div className="message-list" ref={messageListRef}>
