@@ -1,13 +1,15 @@
 import React, { useState, useEffect } from "react";
 import Modal from "../../common/Layouts/components/Modal";
 import { useParams } from "react-router-dom";
+import MembersApi from "../../api/membersApi";
+import Userinfo from "../../common/Layouts/components/Userinfo";
 
 const initTodo = {
   title: "",
   content: "",
   start_date: Date.now(),
   end_date: Date.now(),
-  wsMember_id: "", // 필드 이름 수정
+  wsMember_id: [], // 필드 이름 수정
 };
 
 const TodoModal = ({
@@ -23,17 +25,30 @@ const TodoModal = ({
 }) => {
   const [newTodo, setNewTodo] = useState({ ...initTodo });
   const { workspaceId } = useParams("workspaceId");
+  const [members, setMembers] = useState([]);
 
   useEffect(() => {
     if (editingTodo) {
-      const assigneeString = editingTodo.wsMember_id
-        ? editingTodo.wsMember_id.join(", ")
-        : "";
-      setNewTodo({ ...editingTodo, wsMember_id: assigneeString });
+      const wsMemberIdArray = editingTodo.assignee_list
+        ? editingTodo.assignee_list.map((member) => member.memberId)
+        : [];
+      setNewTodo({ ...editingTodo, wsMember_id: wsMemberIdArray });
     } else {
       setNewTodo({ ...initTodo });
     }
   }, [editingTodo]);
+
+  useEffect(() => {
+    const fetchMembers = async () => {
+      try {
+        const membersList = await MembersApi.getMemberList(workspaceId);
+        setMembers(membersList);
+      } catch (error) {
+        console.error("Failed", error);
+      }
+    };
+    fetchMembers();
+  }, [workspaceId]);
 
   const handleChangeNewTodo = (e) => {
     const { name, value } = e.target;
@@ -47,23 +62,27 @@ const TodoModal = ({
   };
 
   const handleWsMemberIdsChange = (e) => {
-    const value = e.target.value;
-    setNewTodo({ ...newTodo, wsMember_id: value });
+    const { value, checked } = e.target;
+    const wsMemberId = parseInt(value, 10);
+    if (checked) {
+      setNewTodo((prevTodo) => ({
+        ...prevTodo,
+        wsMember_id: [...prevTodo.wsMember_id, wsMemberId],
+      }));
+    } else {
+      setNewTodo((prevTodo) => ({
+        ...prevTodo,
+        wsMember_id: prevTodo.wsMember_id.filter((id) => id !== wsMemberId),
+      }));
+    }
   };
 
   const handleClickAdd = () => {
-    const updatedTodo = {
-      ...newTodo,
-      wsMember_id: newTodo.wsMember_id
-        .split(",")
-        .map((id) => parseInt(id.trim())),
-    };
-
     if (editingTodo) {
-      onModify(updatedTodo);
+      onModify(newTodo);
       onRendering(false);
     } else {
-      onAdd(updatedTodo);
+      onAdd(newTodo);
       onRendering(false);
     }
   };
@@ -82,7 +101,7 @@ const TodoModal = ({
           <div className="todo_modal_flexarea">
             <span className="todo_modal_title">제목 : </span>
             {editingTodo && role !== "LEADER" && role !== "SUB_LEADER" ? (
-              <p className="todo_modal_title_input">{newTodo.title}</p>
+              <p className="todo_modal_title_p">{newTodo.title}</p>
             ) : (
               <input
                 className="todo_modal_title_input"
@@ -97,7 +116,7 @@ const TodoModal = ({
             )}
             <br /> <span className="todo_modal_content">내용 : </span>
             {editingTodo && role !== "LEADER" && role !== "SUB_LEADER" ? (
-              <p className="todo_modal_content_input">{newTodo.content}</p>
+              <p className="todo_modal_content_p">{newTodo.content}</p>
             ) : (
               <input
                 className="todo_modal_content_input"
@@ -138,24 +157,37 @@ const TodoModal = ({
                 }
               />
             )}
-            <br /> <span>작업대상 : </span>
+            <br /> <span>작업대상</span>
             {editingTodo && role !== "LEADER" && role !== "SUB_LEADER" ? (
-              <p>{newTodo.wsMember_id}</p>
+              <p>{newTodo.wsMember_id.join(", ")}</p>
             ) : (
-              <input
-                name="wsMember_id"
-                type="text"
-                value={newTodo.wsMember_id}
-                onChange={handleWsMemberIdsChange}
-                readOnly={
-                  editingTodo && role !== "LEADER" && role !== "SUB_LEADER"
-                }
-              />
+              <div className="assignee_list">
+                {members.map((member) => (
+                  <div key={member.wsMemberId} className="userinfo_item">
+                    <Userinfo
+                      name={member.name}
+                      role={member.role}
+                      email={member.email}
+                      src={member.imageUriPath}
+                    />
+                    <input
+                      type="checkbox"
+                      value={member.wsMemberId}
+                      checked={
+                        newTodo.wsMember_id &&
+                        newTodo.wsMember_id.includes(member.wsMemberId)
+                      }
+                      onChange={handleWsMemberIdsChange}
+                      className="userinfo_checkbox"
+                    />
+                  </div>
+                ))}
+              </div>
             )}
             <br />
           </div>
           <div className="todo_modal_button_area">
-            {editingTodo && (role === "LEADER" || role === "SUB_LEADER") && (
+            {(role === "LEADER" || role === "SUB_LEADER") && (
               <button className="add_button_2" onClick={handleClickAdd}>
                 Save
               </button>
@@ -163,7 +195,7 @@ const TodoModal = ({
             <button className="cancle_button" onClick={onClose}>
               Cancel
             </button>
-            {editingTodo && (role === "LEADER" || role === "SUB_LEADER") && (
+            {(role === "LEADER" || role === "SUB_LEADER") && (
               <button className="exit_button" onClick={onDelete}>
                 Delete
               </button>

@@ -1,5 +1,5 @@
 import React, { useContext, useCallback } from "react";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import TodoApi from "../../api/TodoApi";
 import { useParams } from "react-router-dom";
 import TodoItem from "./TodoItem";
@@ -12,46 +12,69 @@ const TodoComponent = () => {
   const [modalOpen, setModalOpen] = useState(false);
   const [rendering, setRendering] = useState(false);
   const [sortType, setSortType] = useState("title");
+  const [page, setPage] = useState(0);
+  const [hasMore, setHasMore] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [searchType, setSearchType] = useState("title");
   const { workspaceId } = useParams("workspaceId");
   const {
     wsMemberData: { role },
   } = useContext(WSMemberRoleContext);
 
+  const observer = useRef();
+
   const fetchData = useCallback(
-    async (searchKeyword, sortType, searchType) => {
+    async (searchKeyword, sortType, searchType, page) => {
       let data;
+      setLoading(true);
+      const limit = page === 0 ? 12 : 8;
       if (role === "LEADER" || role === "SUB_LEADER") {
         data = await TodoApi.getAllList(
           workspaceId,
           searchKeyword,
           sortType,
-          searchType
+          searchType,
+          page,
+          limit
         );
       } else {
         data = await TodoApi.getList(
           workspaceId,
           searchKeyword,
           sortType,
-          searchType
+          searchType,
+          page,
+          limit
         );
       }
-      setTodoItem(data);
+      if (data.length === 0) {
+        setHasMore(false);
+      } else {
+        setTodoItem((prevItems) =>
+          page === 0 ? data : [...prevItems, ...data]
+        );
+        setHasMore(true);
+      }
       setRendering(false);
+      setLoading(false);
     },
-    [workspaceId, role, sortType, searchType]
+    [workspaceId, role]
   );
+
+  useEffect(() => {
+    fetchData(searchKeyword, sortType, searchType, page);
+  }, [workspaceId, role, rendering, fetchData, sortType, searchType, page]);
+
+  useEffect(() => {
+    if (page === 0) {
+      setTodoItem([]);
+    }
+  }, [page]);
 
   //아이템 목록 렌더링 핸들러
   const handleRendering = () => {
     setRendering(true);
   };
-
-  //
-  useEffect(() => {
-    fetchData(searchKeyword, sortType, searchType);
-  }, [workspaceId, role, rendering, fetchData, sortType, searchType]);
-
   //Modal창 켜고 닫는 핸들러
   const handleModalOpen = () => {
     setModalOpen(true);
@@ -66,6 +89,7 @@ const TodoComponent = () => {
       setTodoItem((prevTodo) => [...prevTodo, newTodo]);
       setModalOpen(false);
       handleRendering();
+      setPage(0);
     });
   };
 
@@ -84,8 +108,8 @@ const TodoComponent = () => {
         e.preventDefault();
         const changeTrim = e.target.value.trim().toLowerCase();
         setSearchKeyword(changeTrim);
-        fetchData(changeTrim, sortType, searchType);
-        console.log("handleSearch fetchData : ", changeTrim);
+        setPage(0);
+        fetchData(changeTrim, sortType, searchType, 0);
       }
     },
     [fetchData, sortType, searchType]
@@ -97,57 +121,82 @@ const TodoComponent = () => {
       setSearchType(value);
     } else if (name === "sort_type") {
       setSortType(value);
-      fetchData(searchKeyword, value, searchType);
+      setPage(0);
+      fetchData(searchKeyword, value, searchType, 0);
     }
   };
 
+  const lastTodoElementRef = useCallback(
+    (node) => {
+      if (loading || !hasMore) return;
+      if (observer.current) observer.current.disconnect();
+      observer.current = new IntersectionObserver((entries) => {
+        if (entries[0].isIntersecting && hasMore) {
+          setPage((prevPage) => prevPage + 1);
+        }
+      });
+      if (node) observer.current.observe(node);
+    },
+    [loading, hasMore]
+  );
+
   return (
-    <div className="todo_item_container">
-      {role === "LEADER" || role === "SUB_LEADER" ? (
-        <div className="todo_item_add_button_section">
-          <button className="todo_item_add_button" onClick={handleModalOpen}>
-            할일 추가
-          </button>
+    <div>
+      <div className="todo_search_and_button">
+        {role === "LEADER" || role === "SUB_LEADER" ? (
+          <div className="todo_item_add_button_section">
+            <button className="todo_item_add_button" onClick={handleModalOpen}>
+              할일 추가
+            </button>
+          </div>
+        ) : (
+          <></>
+        )}
+        <div className="todo_item_search">
+          <select name="search_type" onChange={handleChangeType}>
+            <option value="title">제목 및 내용</option>
+            <option value="assignee">작업자</option>
+          </select>
+          <input
+            type="text"
+            placeholder="검색어를 입력하세요"
+            onKeyDown={handleSearch}
+          />
+          <select name="sort_type" onChange={handleChangeType}>
+            <option value="title_asc">제목순</option>
+            <option value="content_asc">내용순</option>
+            <option value="start_date_asc">오래된순</option>
+            <option value="start_date_desc">최신순</option>
+          </select>
         </div>
-      ) : (
-        <></>
-      )}
-      <div className="todo_item_search">
-        <select name="search_type" onChange={handleChangeType}>
-          <option value="title">제목 및 내용</option>
-          <option value="assignee">작업자</option>
-        </select>
-        <input
-          type="text"
-          placeholder="검색어를 입력하세요"
-          onKeyDown={handleSearch}
-        />
-        <select name="sort_type" onChange={handleChangeType}>
-          <option value="title_asc">제목순</option>
-          <option value="content_asc">내용순</option>
-          <option value="start_date_asc">오래된순</option>
-          <option value="start_date_desc">최신순</option>
-        </select>
       </div>
-      {todoItem.map((todo) => (
-        <div key={todo.id} className="todo_item_contents">
-          <TodoItem
-            todo={todo}
-            onDelete={handleDeleteTodo}
+      <div className="todo_list_section">
+        <div className="todo_item_container">
+          {todoItem.map((todo, index) => (
+            <div
+              key={todo.id}
+              className="todo_item_contents"
+              ref={index === todoItem.length - 1 ? lastTodoElementRef : null}
+            >
+              <TodoItem
+                todo={todo}
+                onDelete={handleDeleteTodo}
+                onRendering={handleRendering}
+                role={role}
+              />
+            </div>
+          ))}
+        </div>
+        {modalOpen && (
+          <TodoModal
+            open={modalOpen}
+            onClose={handleModalClose}
+            onAdd={handleAddTodo}
             onRendering={handleRendering}
             role={role}
           />
-        </div>
-      ))}
-      {modalOpen && (
-        <TodoModal
-          open={modalOpen}
-          onClose={handleModalClose}
-          onAdd={handleAddTodo}
-          onRendering={handleRendering}
-          role={role}
-        />
-      )}
+        )}
+      </div>
     </div>
   );
 };
