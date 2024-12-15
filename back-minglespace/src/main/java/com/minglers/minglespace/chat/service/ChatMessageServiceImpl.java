@@ -2,7 +2,9 @@ package com.minglers.minglespace.chat.service;
 
 import com.minglers.minglespace.auth.entity.User;
 import com.minglers.minglespace.chat.config.interceptor.CustomHandShakeInterceptor;
-import com.minglers.minglespace.chat.dto.ChatMessageDTO;
+import com.minglers.minglespace.chat.dto.ChatMsgRequestDTO;
+import com.minglers.minglespace.chat.dto.ChatMsgResponseDTO;
+import com.minglers.minglespace.chat.dto.MessageStatusDTO;
 import com.minglers.minglespace.chat.entity.ChatMessage;
 import com.minglers.minglespace.chat.entity.ChatRoom;
 import com.minglers.minglespace.chat.entity.MsgReadStatus;
@@ -11,6 +13,8 @@ import com.minglers.minglespace.chat.repository.ChatMessageRepository;
 import com.minglers.minglespace.chat.repository.ChatRoomRepository;
 import com.minglers.minglespace.chat.repository.MsgReadStatusRepository;
 import com.minglers.minglespace.chat.repository.specification.ChatMessageSpecification;
+import com.minglers.minglespace.common.entity.Image;
+import com.minglers.minglespace.common.repository.ImageRepository;
 import com.minglers.minglespace.workspace.dto.MemberWithUserInfoDTO;
 import com.minglers.minglespace.workspace.entity.WSMember;
 import com.minglers.minglespace.workspace.repository.WSMemberRepository;
@@ -42,20 +46,18 @@ public class ChatMessageServiceImpl implements ChatMessageService {
   //알림
   private final CustomHandShakeInterceptor customHandShakeInterceptor;
   private final SimpMessagingTemplate simpMessagingTemplate;
+  private final ImageRepository imageRepository;
 
   // 메시지 저장
   @Override
   @Transactional
-  public ChatMessageDTO saveMessage(ChatMessageDTO messageDTO, Long writerUserId, Set<Long> activeUserIds) {
+  public ChatMsgResponseDTO saveMessage(ChatMsgRequestDTO messageDTO, Long writerUserId, Set<Long> activeUserIds) {
     try {
       ChatRoom chatRoom = chatRoomRepository.findById(messageDTO.getChatRoomId())
               .orElseThrow(() -> new ChatException(HttpStatus.NOT_FOUND.value(), "채팅방이 존재하지 않습니다."));
 
       WSMember wsMember = wsMemberRepository.findByUserIdAndWorkSpaceId(writerUserId, messageDTO.getWorkspaceId())
               .orElseThrow(() -> new ChatException(HttpStatus.NOT_FOUND.value(), "워크스페이스에 해당 유저가 존재하지 않습니다."));
-
-      messageDTO.setWriterWsMemberId(wsMember.getId());
-      messageDTO.setDate(LocalDateTime.now());
 
       // 답글이 있는 경우 처리
       ChatMessage parentMsg = null;
@@ -64,7 +66,23 @@ public class ChatMessageServiceImpl implements ChatMessageService {
                 .orElseThrow(() -> new ChatException(HttpStatus.NOT_FOUND.value(), "답글단 댓글 메시지가 존재하지 않습니다."));
       }
 
-      ChatMessage chatMessage = messageDTO.toEntity(chatRoom, wsMember, parentMsg);
+      //파일 조회
+      List<Image> images = imageRepository.findAllById(messageDTO.getImageIds());
+
+      List<String> imageUris = new ArrayList<>();
+      List<String> documentUris = new ArrayList<>();
+      for(Image image : images) {
+        String fileName = image.getOriginalname();
+        String fileExtension = getFileExtension(fileName);
+
+        if(isImage(fileExtension)){
+          imageUris.add(image.getUripath());
+        }else{
+          documentUris.add(image.getUripath());
+        }
+      }
+
+      ChatMessage chatMessage = messageDTO.toEntity(chatRoom, wsMember, parentMsg, images);
       ChatMessage savedMessage = chatMessageRepository.save(chatMessage);
 
       //답글이면 부모 댓글에게 답글 달린 알림 보내기
@@ -83,11 +101,21 @@ public class ChatMessageServiceImpl implements ChatMessageService {
       msgReadStatusService.createMsgForMembers(savedMessage, activeUserIds);
 
       //messageDTO 정보 채우기
-      messageDTO.setId(savedMessage.getId());
+      ChatMsgResponseDTO resDTO = ChatMsgResponseDTO.builder()
+              .id(savedMessage.getId())
+              .content(messageDTO.getContent())
+              .writerWsMemberId(wsMember.getId())
+              .chatRoomId(messageDTO.getChatRoomId())
+              .replyId(messageDTO.getReplyId())
+              .date(savedMessage.getDate())
+              .isAnnouncement(messageDTO.getIsAnnouncement())
+              .imageUriPaths(imageUris)
+              .documentUriPaths(documentUris)
+              .build();
       List<MemberWithUserInfoDTO> unreadMembers = getUnreadMembers(messageDTO.getChatRoomId(), savedMessage.getId());
-      messageDTO.setUnReadMembers(unreadMembers);
+      resDTO.setUnReadMembers(unreadMembers);
 
-      return messageDTO;
+      return resDTO;
     } catch (ChatException e) {
       throw e;
     } catch (RuntimeException e) {
@@ -112,10 +140,10 @@ public class ChatMessageServiceImpl implements ChatMessageService {
 
   // 방 메시지 가져오기
   @Override
-  public List<ChatMessageDTO> getMessagesByChatRoom(ChatRoom chatRoom) {
+  public List<ChatMsgResponseDTO> getMessagesByChatRoom(ChatRoom chatRoom) {
     log.info("getMessagesByChatRoom_chatRoomId : " + chatRoom.getId());
     //채팅방 메시지 가져오기
-    List<ChatMessage> messages = chatMessageRepository.findByChatRoomId(chatRoom.getId());
+    List<ChatMessage> messages = chatMessageRepository.findByChatRoomIdAndIsDeletedFalse(chatRoom.getId());
     log.info("getMessagesByChatRoom_ msg : " + messages.size());
 
     return messages.stream()
@@ -207,5 +235,38 @@ public class ChatMessageServiceImpl implements ChatMessageService {
     } catch (Exception e) {
       throw new ChatException(HttpStatus.INTERNAL_SERVER_ERROR.value(), "공지 등록 중 오류 발생");
     }
+  }
+
+  @Override
+  @Transactional
+  public String deleteMessage(Long chatRoomId, Long messageId) {
+    try {
+      int deleted = chatMessageRepository.softDeleteById(messageId);
+      if (deleted == 0) {
+        throw new ChatException(HttpStatus.NOT_FOUND.value(), "삭제할 메시지가 존재하지 않습니다.");
+      }
+
+      MessageStatusDTO messageStatusDTO = MessageStatusDTO.builder()
+              .chatRoomId(chatRoomId)
+              .messageId(messageId)
+              .type("READ")
+              .build();
+
+      simpMessagingTemplate.convertAndSend("/topic/chatRooms/" + chatRoomId + "/message-status", messageStatusDTO);
+    } catch (Exception e) {
+      throw new ChatException(HttpStatus.INTERNAL_SERVER_ERROR.value(), "메시지 삭제 중 오류 발생: " + e.getMessage());
+    }
+    return messageId + "번 메시지 삭제 완료";
+  }
+
+  private boolean isImage(String fileExtension){
+    return fileExtension != null && (fileExtension.equalsIgnoreCase("jpg") || fileExtension.equalsIgnoreCase("jpeg") || fileExtension.equalsIgnoreCase("png"));
+  }
+
+  private String getFileExtension(String fileName) {
+    if(fileName != null && fileName.contains(".")){
+      return fileName.substring(fileName.lastIndexOf('.')+1);
+    }
+    return "";
   }
 }

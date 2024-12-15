@@ -9,7 +9,8 @@ const MessageListItem = ({
   currentMemberInfo,
   onMessageClick,
   onFindParentMessage,
-  onRegisterAnnouncment
+  onRegisterAnnouncment,
+  onDeleteMessage
 }) => {
 
   const parentMessage = message.replyId ? onFindParentMessage(message.replyId) : null;

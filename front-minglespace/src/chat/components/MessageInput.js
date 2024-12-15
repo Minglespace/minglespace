@@ -3,8 +3,8 @@ import { FaLock, FaLockOpen } from "react-icons/fa";
 
 const MessageInput = ({ onSendMessage, replyToMessage, setReplyToMessage, currentMemberInfo }) => {
   const [newMessage, setNewMessage] = useState("");
-  // 메시지 입력을 잠그는 상태 변수
   const [isLocked, setIsLocked] = useState(false);
+  const [files, setFiles] = useState([]);
   // const [messages, setMessages] = useState(newMessage || "");
 
   // 메시지 잠금 상태 변경 함수
@@ -20,6 +20,11 @@ const MessageInput = ({ onSendMessage, replyToMessage, setReplyToMessage, curren
     }
   };
 
+  const handleFileChange = (e) => {
+    const selectedFiles = Array.from(e.target.files);
+    setFiles(selectedFiles);
+  };
+
   // 메시지 전송 처리 함수
   const handleSendMessage = () => {
     if (newMessage.trim()) {
@@ -27,7 +32,7 @@ const MessageInput = ({ onSendMessage, replyToMessage, setReplyToMessage, curren
         content: newMessage,
         replyId: replyToMessage ? replyToMessage.id : null,
       };
-      onSendMessage(messageToSend);
+      onSendMessage(messageToSend, files);
       setNewMessage("");
       setReplyToMessage(null);
     } else {
@@ -79,6 +84,7 @@ const MessageInput = ({ onSendMessage, replyToMessage, setReplyToMessage, curren
         <div className="lock-icon" onClick={toggleLock}>
           {isLocked ? <FaLock /> : <FaLockOpen />}
         </div>
+        <input type="file" multiple onChange={handleFileChange}/>
       </div>
     </div>
   );

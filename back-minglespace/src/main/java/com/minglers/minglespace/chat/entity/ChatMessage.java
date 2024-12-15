@@ -1,7 +1,8 @@
 package com.minglers.minglespace.chat.entity;
 
-import com.minglers.minglespace.chat.dto.ChatMessageDTO;
+import com.minglers.minglespace.chat.dto.ChatMsgResponseDTO;
 import com.minglers.minglespace.common.converter.LocalDateTimeAttributeConverter;
+import com.minglers.minglespace.common.entity.Image;
 import com.minglers.minglespace.workspace.dto.MemberWithUserInfoDTO;
 import com.minglers.minglespace.workspace.entity.WSMember;
 import jakarta.persistence.*;
@@ -35,16 +36,21 @@ public class ChatMessage {
     @JoinColumn(name = "replyid")
     private ChatMessage parentMessage;
 
-//    private Timestamp date;
     @Convert(converter = LocalDateTimeAttributeConverter.class)
     private LocalDateTime date;
 
     @Builder.Default
     private Boolean isAnnouncement = false;
 
-    public ChatMessageDTO toDTO(List<MemberWithUserInfoDTO> unReadMembers){
+    @Builder.Default
+    private Boolean isDeleted = false;
+
+    @OneToMany(mappedBy = "chatMessage",fetch = FetchType.EAGER)
+    private List<Image> images;
+
+    public ChatMsgResponseDTO toDTO(List<MemberWithUserInfoDTO> unReadMembers){
         Long replyId = (this.getParentMessage() != null) ? this.getParentMessage().getId() : null;
-        return ChatMessageDTO.builder()
+        return ChatMsgResponseDTO.builder()
                 .id(this.getId())
                 .chatRoomId(this.getChatRoom().getId())
                 .date(this.getDate())

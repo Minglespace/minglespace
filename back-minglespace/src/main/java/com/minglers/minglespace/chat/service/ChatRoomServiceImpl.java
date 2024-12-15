@@ -13,14 +13,12 @@ import com.minglers.minglespace.chat.role.ChatRole;
 import com.minglers.minglespace.common.entity.Image;
 import com.minglers.minglespace.common.service.ImageService;
 import com.minglers.minglespace.workspace.entity.WSMember;
-import com.minglers.minglespace.workspace.entity.WorkSpace;
 import com.minglers.minglespace.workspace.repository.WSMemberRepository;
 import com.minglers.minglespace.workspace.repository.WorkspaceRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -108,7 +106,7 @@ public class ChatRoomServiceImpl implements ChatRoomService {
       try {
         saveFile = imageService.uploadImage(image);
       } catch (RuntimeException | IOException e) {
-        throw new ChatException(HttpStatus.INTERNAL_SERVER_ERROR.value(), "채팅방 이미지 업로드 실패 : "+ e.getMessage());  // 업로드 실패 시 처리
+        throw new ChatException(HttpStatus.INTERNAL_SERVER_ERROR.value(), "채팅방 이미지 업로드 실패 : " + e.getMessage());  // 업로드 실패 시 처리
       }
     }
 
@@ -175,17 +173,17 @@ public class ChatRoomServiceImpl implements ChatRoomService {
   @Override
   public ChatRoomResponseDTO getChatRoomWithMsgAndParticipants(Long chatRoomId, Long workspaceId, Long userId) {
     ChatRoom chatRoom = findRoomById(chatRoomId);
-    if (chatRoom == null){
+    if (chatRoom == null) {
       throw new ChatException(HttpStatus.NOT_FOUND.value(), "채팅방이 존재하지 않습니다.");
     }
 
     WSMember wsMember = wsMemberRepository.findByUserIdAndWorkSpaceId(userId, workspaceId)
-                    .orElseThrow(() -> new ChatException(HttpStatus.NOT_FOUND.value(), "워크스페이스 멤버에서 찾을 수 없습니다."));
+            .orElseThrow(() -> new ChatException(HttpStatus.NOT_FOUND.value(), "워크스페이스 멤버에서 찾을 수 없습니다."));
     msgReadStatusRepository.deleteByMessage_ChatRoom_IdAndWsMemberId(chatRoomId, wsMember.getId()); //요청 유저가 안 읽은 메시지가 있다면 읽음 처리하기.
 
     notifyReadStatus(chatRoomId, wsMember.getId()); //읽음 처리 알림보내기
 
-    List<ChatMessageDTO> messages = chatMessageService.getMessagesByChatRoom(chatRoom);
+    List<ChatMsgResponseDTO> messages = chatMessageService.getMessagesByChatRoom(chatRoom);
     List<ChatRoomMemberDTO> participants = chatRoomMemberService.getParticipantsByChatRoomId(chatRoomId);
 
     String imageUriPath = (chatRoom.getImage() != null && chatRoom.getImage().getUripath() != null) ? chatRoom.getImage().getUripath() : "";
@@ -201,8 +199,12 @@ public class ChatRoomServiceImpl implements ChatRoomService {
   }
 
   private void notifyReadStatus(Long chatRoomId, Long wsMemberId) {
-    ReadStatusDTO readStatusDTO = new ReadStatusDTO(chatRoomId, wsMemberId);
+    MessageStatusDTO messageStatusDTO = MessageStatusDTO.builder()
+            .chatRoomId(chatRoomId)
+            .wsMemberId(wsMemberId)
+            .type("READ")
+            .build();
 
-    simpMessagingTemplate.convertAndSend("/topic/chatRooms/"+chatRoomId+"/read-status", readStatusDTO);
+    simpMessagingTemplate.convertAndSend("/topic/chatRooms/" + chatRoomId + "/message-status", messageStatusDTO);
   }
 }

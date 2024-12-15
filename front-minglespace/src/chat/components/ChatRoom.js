@@ -224,6 +224,8 @@ const ChatRoom = ({
     }
   };
 
+
+  /////message
   const handleRegisterAnnouncement = async (message) => {
     try {
       await ChatApi.registerAnnouncementMsg(chatRoomId, message.id);
@@ -234,6 +236,20 @@ const ChatRoom = ({
         return { ...prev, messages: updatedMessages };
       })
     } catch (error) {
+      console.error("chatroom _ 공지 등록 에러: ", error);
+    }
+  }
+
+  const handleDeleteMessage = async (message) => {
+    try{
+      await ChatApi.deleteMessage(chatRoomId, message.id);
+
+      setChatRoomInfo((prev) => {
+        const updatedMessages = prev.messages.filter((msg) =>
+          Number(msg.id) !== Number(message.id))
+        return { ...prev, messages: updatedMessages };
+      })
+    }catch (error) {
       console.error("chatroom _ 공지 등록 에러: ", error);
     }
   }
@@ -272,22 +288,33 @@ const ChatRoom = ({
             messages: [...prev.messages, newMsg],
           }));
         });
-        //메시지 읽음 실시간 구독
-        stompClient.subscribe(`/topic/chatRooms/${chatRoomId}/read-status`, (readstatus) => {
-          const readStatusData = JSON.parse(readstatus.body);
-          console.log("읽음 처리 메시지", readStatusData);
 
-          ///특정 유저가 실시간으로 읽은 메시지 상태 반영
-          setChatRoomInfo((prev) => ({
-            ...prev,
-            messages: prev.messages.map((message) => ({
-              ...message,
-              unReadMembers: message.unReadMembers.filter(
-                (member) => Number(member.wsMemberId) !== Number(readStatusData.wsMemberId)
-              ),
-            })),
-          }));
+        //메시지 읽음/삭제 실시간 구독
+        stompClient.subscribe(`/topic/chatRooms/${chatRoomId}/message-status`, (status) => {
+          const statusData = JSON.parse(status.body);
+          console.log("읽음 처리 메시지", statusData);
+
+          if(status.type === "READ"){
+            ///특정 유저가 실시간으로 읽은 메시지 상태 반영
+            setChatRoomInfo((prev) => ({
+              ...prev,
+              messages: prev.messages.map((message) => ({
+                ...message,
+                unReadMembers: message.unReadMembers.filter(
+                  (member) => Number(member.wsMemberId) !== statusData.wsMemberId
+                ),
+              })),
+            }));
+          }else if(status.type === "DELETE"){
+            setChatRoomInfo((prev) => {
+              const updatedMessages = prev.messages.filter((msg) => Number(msg.id) !== status.messageId);
+              return {...prev, messages:updatedMessages};
+            });
+          }
+          
         });
+
+
       },
       onWebSocketError: (error) => {
         console.log(`채팅방 ${chatRoomId}번 websocket 연결 오류:`, error);
@@ -314,32 +341,42 @@ const ChatRoom = ({
 
 
   // 메시지 전송 처리 함수 
-  const handleSendMessage = (newMessage) => {
-
-    if (socketRef && socketRef.current) {
+  const handleSendMessage = async (newMessage, files) => {
+    try{
+      let uploadedFileIds = [];
+      if(files && files.length > 0){
+        const uploadRes = await ChatApi.uploadChatFile(files);
+        uploadedFileIds = uploadRes.imageIds;
+      }
+      
       const sendMessage = {
         content: newMessage.content,
         isAnnouncement: false,
         mentionedUserIds: [], ///구현 필요
         replyId: newMessage.replyId,
-        sender: currentMemberInfo.name,
+        // sender: currentMemberInfo.name,
         workspaceId: chatRoomInfo.workSpaceId,
-        writerWsMemberId: currentMemberInfo.wsMemberId,
+        // writerWsMemberId: currentMemberInfo.wsMemberId,
+        imageIds: uploadedFileIds,
       };
 
       console.log("Sending message:", JSON.stringify(sendMessage));
-
-      socketRef.current.publish({
-        destination: `/app/messages/${chatRoomId}`,
-        body: JSON.stringify(sendMessage),
-      });
-    } else {
-      console.warn("websocket 미연결 or 메시지 빔");
+      if (socketRef && socketRef.current) {
+        socketRef.current.publish({
+          destination: `/app/messages/${chatRoomId}`,
+          body: JSON.stringify(sendMessage),
+        });
+      } else {
+        console.warn("websocket 미연결 or 메시지 빔");
+      }
+    }catch (error) {
+      console.error("메시지 전송 실패:", error);
     }
+    
 
   };
 
-
+  
   // 메시지를 클릭하면 해당 메시지를 선택
   const handleMessageClick = (messages) => {
     console.log("답장할 메시지:", messages);
@@ -368,6 +405,7 @@ const ChatRoom = ({
         onMessageClick={handleMessageClick}
         currentMemberInfo={currentMemberInfo}
         onRegisterAnnouncement={handleRegisterAnnouncement}
+        onDeleteMessage = {handleDeleteMessage}
       />
 
       <MessageInput

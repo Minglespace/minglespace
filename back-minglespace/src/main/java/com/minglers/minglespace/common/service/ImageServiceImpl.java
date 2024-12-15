@@ -13,7 +13,6 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.MalformedURLException;
 import java.net.URLConnection;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
@@ -34,30 +33,25 @@ public class ImageServiceImpl implements ImageService{
   //폴더 없으면 생성
   @PostConstruct
   public void init(){
-    File tempFolder = new File(uploadPath);
+    File uploadFolder = new File(uploadPath);
 
-    if (!tempFolder.exists()){
-      boolean folderCreated = tempFolder.mkdirs();
-      if (folderCreated){
-        System.out.println("upload folder created at: "+ tempFolder.getAbsolutePath());
-      }else{
-        System.out.println("failed to create upload folder at: "+tempFolder.getAbsolutePath());
-      }
-    }
-
-    //이미지 폴더 생성
     File imagesFolder = new File(uploadPath + File.separator + "images");
-    if(!imagesFolder.exists()){
-      boolean folderCreated = imagesFolder.mkdirs();
-      if(folderCreated){
-        log.info("images folder created at: ", imagesFolder.getAbsolutePath());
-      }else{
-        log.error("failed to create images folder at: " + imagesFolder.getAbsolutePath());
-      }
+    File filesFolder = new File(uploadPath + File.separator + "files");
+
+    if (!imagesFolder.exists() && imagesFolder.mkdirs()) {
+      log.info("images folder created at: " + imagesFolder.getAbsolutePath());
+    } else if (!imagesFolder.exists()) {
+      log.error("failed to create images folder at: " + imagesFolder.getAbsolutePath());
     }
 
-    System.out.println("upload path: "+ tempFolder.getAbsolutePath());
-    uploadPath = tempFolder.getAbsolutePath();
+    if (!filesFolder.exists() && filesFolder.mkdirs()) {
+      log.info("files folder created at: " + filesFolder.getAbsolutePath());
+    } else if (!filesFolder.exists()) {
+      log.error("failed to create files folder at: " + filesFolder.getAbsolutePath());
+    }
+
+    System.out.println("upload path: "+ uploadFolder.getAbsolutePath());
+    uploadPath = uploadFolder.getAbsolutePath();
   }
 
   //단일 파일 처리
@@ -88,19 +82,6 @@ public class ImageServiceImpl implements ImageService{
 
     // 이미지 정보를 DB에 저장
     return imageRepository.save(image);
-  }
-
-
-  //여러 파일 처리 - test 필요
-  @Override
-  public List<Image> uploadImages(List<MultipartFile> files) throws IOException{
-    List<Image> imageList = new ArrayList<>();
-
-    for (MultipartFile file : files){
-      imageList.add(uploadImage(file));
-    }
-
-    return imageList;
   }
 
 
@@ -136,4 +117,34 @@ public class ImageServiceImpl implements ImageService{
     return URLConnection.guessContentTypeFromName(imageName) != null ?
             URLConnection.guessContentTypeFromName(imageName) : "application/octet-stream";
   }
+
+  @Override
+  public Image uploadChatFile(MultipartFile file) throws IOException {
+    String originalName = file.getOriginalFilename();
+    String updatedName = System.currentTimeMillis() + "_" + originalName;
+    String localPath = uploadPath + File.separator + "files" + File.separator + updatedName;
+    String uriPath = "/upload/files/" + updatedName;
+
+    File destFile = new File(localPath);
+    file.transferTo(destFile);
+
+    Image image = new Image();
+    image.setOriginalname(originalName);
+    image.setUpdatename(updatedName);
+    image.setLocalpath(localPath);
+    image.setUripath(uriPath);
+
+    // 이미지 정보를 DB에 저장
+    return imageRepository.save(image);
+  }
+
+  @Override
+  public List<Image> uploadChatFiles(List<MultipartFile> files) throws IOException{
+    List<Image> imageList = new ArrayList<>();
+    for (MultipartFile file : files){
+      imageList.add(uploadChatFile(file));
+    }
+    return imageList;
+  }
+
 }

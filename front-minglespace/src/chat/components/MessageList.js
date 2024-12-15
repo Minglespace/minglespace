@@ -6,7 +6,8 @@ const MessageList = ({
   messages,
   onMessageClick,
   currentMemberInfo,
-  onRegisterAnnouncement
+  onRegisterAnnouncement,
+  onDeleteMessage
 }) => {
   const [announcement, setannouncement] = useState(null);
   const messageListRef = useRef(null);
@@ -60,6 +61,7 @@ const MessageList = ({
               onMessageClick={onMessageClick}
               onFindParentMessage={findParentMessage}
               onRegisterAnnouncment={registerAnnouncment}
+              onDeleteMessage={onDeleteMessage}
             />
           );
         })}
