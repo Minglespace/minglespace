@@ -107,8 +107,8 @@ public class UserService {
 
             if(user.getVerificationCode().isEmpty()){
                 // 토큰 생성
-                String accessToken = jwtUtils.generateToken(user);
-                String refreshToken = jwtUtils.generateRefreshToken(new HashMap<>(), user);
+                String accessToken = jwtUtils.geneTokenAccess(user);
+                String refreshToken = jwtUtils.geneTokenRefresh(user);
 
                 // 응답 세팅
                 modelMapper.map(user, res);
@@ -186,7 +186,7 @@ public class UserService {
 
                 if (jwtUtils.isTokenValid(refreshToken, user)) {
 
-                    String newAccessToken = jwtUtils.generateToken(user);
+                    String newAccessToken = jwtUtils.geneTokenAccess(user);
 
                     res.setAccessToken(newAccessToken);
 

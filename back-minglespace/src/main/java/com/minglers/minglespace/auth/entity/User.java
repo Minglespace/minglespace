@@ -28,9 +28,6 @@ public class User implements UserDetails {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(unique = true)
-    private String email;
-
     @OneToOne(fetch = FetchType.LAZY)
     private Image image;
 
@@ -39,6 +36,23 @@ public class User implements UserDetails {
 
     @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
     private List<UserFriend> userFriends;
+
+    @Column(nullable = false)
+    private String role;
+
+    @CreationTimestamp
+    private LocalDateTime regDate;
+
+    private boolean deleteFlag;
+
+    private String verificationCode;
+
+    private String provider;
+
+    //=============================================================
+    // 유저 입력 필드
+    @Column(unique = true)
+    private String email;
 
     @JsonIgnore
     @Column(nullable = false)
@@ -50,18 +64,10 @@ public class User implements UserDetails {
     @Column(nullable = false)
     private String phone;
 
-    @Column(nullable = false)
-    private String role;
-
-    @CreationTimestamp
-    private LocalDateTime regDate;
-
     private String position;
+
     private String introduction;
-    private boolean deleteFlag;
-
-    private String verificationCode;
-
+    //=============================================================
 
 
     @Override

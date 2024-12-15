@@ -1,7 +1,9 @@
 package com.minglers.minglespace.auth.security;
 
 import com.minglers.minglespace.auth.exception.CustomAuthenticationEntryPoint;
+import com.minglers.minglespace.auth.oauth2.UserServiceOAuth2;
 import com.minglers.minglespace.auth.service.UserDetailsServiceImpl;
+import com.minglers.minglespace.auth.oauth2.SuccessHandlerOAuth2;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -11,7 +13,9 @@ import org.springframework.security.authentication.dao.DaoAuthenticationProvider
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
+import org.springframework.security.config.annotation.web.configurers.CsrfConfigurer;
+import org.springframework.security.config.annotation.web.configurers.FormLoginConfigurer;
+import org.springframework.security.config.annotation.web.configurers.HttpBasicConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -30,6 +34,8 @@ public class SecurityConfig {
     private final UserDetailsServiceImpl ourUserDetailsService;
     private final JWTAuthFilter jwtAuthFilter;
     private final CustomAuthenticationEntryPoint customAuthenticationEntryPoint;
+    private final UserServiceOAuth2 userServiceOAuth2;
+    private final SuccessHandlerOAuth2 successHandlerOAuth2;
 
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
@@ -43,11 +49,13 @@ public class SecurityConfig {
         // 메서드 허용
         corsConfig.addAllowedMethod("GET");
         corsConfig.addAllowedMethod("POST");
+        corsConfig.addAllowedMethod("OPTIONS");
         corsConfig.addAllowedMethod("DELETE");
         corsConfig.addAllowedMethod("PUT");
 
         // 헤더 허용
         corsConfig.addAllowedHeader("Authorization");
+        corsConfig.addAllowedHeader("Set-Cookie");
         corsConfig.addAllowedHeader("Cache-Control");
         corsConfig.addAllowedHeader("Content-Type");
 
@@ -67,22 +75,39 @@ public class SecurityConfig {
     }
 
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
-        httpSecurity.csrf(AbstractHttpConfigurer::disable)
-                .cors(c->c.configurationSource(corsConfigurationSource()))
-                .authorizeHttpRequests(request -> request
+    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+
+        http.csrf(CsrfConfigurer::disable);
+
+        http.formLogin(FormLoginConfigurer::disable);
+
+        http.httpBasic(HttpBasicConfigurer::disable);
+
+        http.oauth2Login(o->o
+                .userInfoEndpoint(c->c
+                        .userService(userServiceOAuth2))
+                .successHandler(successHandlerOAuth2)
+        );
+
+
+        http.cors(c->c.configurationSource(corsConfigurationSource()));
+
+        http.authorizeHttpRequests(request -> request
                         .requestMatchers("/auth/**", "/public/**","/upload/images/**","/ws/**").permitAll()
                         .requestMatchers("/admin/**").hasAnyAuthority("ADMIN")
                         .requestMatchers("/user/**").hasAnyAuthority("USER")
                         .requestMatchers("/adminuser/**").hasAnyAuthority("ADMIN", "USER")
-                        .anyRequest().authenticated())
-                .sessionManagement(manager -> manager.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .authenticationProvider(authenticationProvider()).addFilterBefore(
-                        jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
-                .exceptionHandling(c -> c.authenticationEntryPoint(customAuthenticationEntryPoint));
+                        .anyRequest().authenticated());
 
+        http.sessionManagement(manager -> manager.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
 
-        return httpSecurity.build();
+        http.authenticationProvider(authenticationProvider());
+
+        http.addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
+
+        http.exceptionHandling(c -> c.authenticationEntryPoint(customAuthenticationEntryPoint));
+
+        return http.build();
     }
 
     @Bean

@@ -8,6 +8,7 @@ import io.jsonwebtoken.MalformedJwtException;
 import io.jsonwebtoken.UnsupportedJwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -39,27 +40,8 @@ public class JWTAuthFilter extends OncePerRequestFilter {
             HttpServletResponse response,
             FilterChain filterChain) throws ServletException, IOException {
 
-        String scheme = request.getScheme();
-        String serverName = request.getServerName();
-        int serverPort = request.getServerPort();
-
-        String contextPath = request.getContextPath();
-        String servletPath = request.getServletPath();
-        String queryString = request.getQueryString();
-
-        String fullURL = scheme + "://" + serverName + ":" + serverPort + contextPath + servletPath + (queryString != null ? "?" + queryString : "");
-
-        log.info("");
-        log.info("");
-        log.info("");
         log.info("==================================================");
-        log.info("Full URL: {}", fullURL);
-        log.info("Request URI: {}", request.getRequestURI());
-        log.info("Query String: {}", queryString);
-        log.info("~end");
-        log.info("");
-        log.info("");
-        log.info("");
+        log.info("[MIRO] 필터 들어옴 URI: {}", request.getRequestURI());
 
         String token = "";
 
@@ -85,14 +67,6 @@ public class JWTAuthFilter extends OncePerRequestFilter {
             throw new BadCredentialsException("throw new unsupported token exception");
         } catch (Exception e){
 
-            log.error("");
-            log.error("");
-            log.error("");
-            log.error("========================================================");
-
-            // 스택 트레이스를 콘솔에 출력
-            e.printStackTrace();
-
             // 에러 메시지를 로그로 출력
             log.error("Exception occurred in doFilterInternal: {}", e.getMessage());
 
@@ -106,10 +80,6 @@ public class JWTAuthFilter extends OncePerRequestFilter {
             }
             // 예외 타입 출력
             log.error("Exception type: {}", e.getClass().getName());
-            log.error("~end");
-            log.error("");
-            log.error("");
-            log.error("");
         }
     }
 
@@ -120,6 +90,7 @@ public class JWTAuthFilter extends OncePerRequestFilter {
             final String userEmail = jwtUtils.extractUsername(token);
 
             if (userEmail != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+
                 UserDetails userDetails = userDetailsService.loadUserByUsername(userEmail);
 
                 if (jwtUtils.isTokenValid(token, userDetails)) {
@@ -144,9 +115,25 @@ public class JWTAuthFilter extends OncePerRequestFilter {
     }
 
     private String parseToken(HttpServletRequest request) {
+
+        Cookie[] cookies = request.getCookies();
+        if(cookies != null){
+            for (Cookie cookie : cookies) {
+                System.out.println(cookie.getName());
+                if (cookie.getName().equals("Authorization")) {
+                    String authorization = cookie.getValue();
+                    if(authorization != null){
+                        log.info("[MIRO] 쿠키에서 토큰 찾음 : {}", authorization);
+                        return authorization;
+                    }
+                }
+            }
+        }
+
         String authorization = request.getHeader("Authorization");
         if (StringUtils.hasText(authorization) && authorization.startsWith("Bearer")){
             String[] arr = authorization.split(" ");
+            log.info("[MIRO] 헤더에서 토큰 찾음 : {}", arr[1]);
             return arr[1];
         }
         return null;

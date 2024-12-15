@@ -3,6 +3,8 @@ package com.minglers.minglespace.auth.security;
 import com.minglers.minglespace.auth.entity.User;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
+import lombok.extern.log4j.Log4j2;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
@@ -13,52 +15,53 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.Base64;
 import java.util.Date;
-import java.util.Map;
 import java.util.function.Function;
 
+@Log4j2
 @Component
 public class JWTUtils {
 
-    private final SecretKey Key;
+
+    private final SecretKey secretKey;
 
     // ACCESS TOKEN 만료시간
-    private static final long EXPIRATION_TIME_A = 60 * 60 * 1000;           // 60 분
-    //private static final long EXPIRATION_TIME_A = 1 * 60 * 1000;            // 5 분 for test
+    public static final long EXPIRATION_ACCESS = 60 * 60 * 1000;           // 60 분
 
     // REFRESH TOKEN 만료시간
-    private static final long EXPIRATION_TIME_R = 6 * 60 * 60 * 1000;       // 6 시간
-    //public static final long EXPIRATION_TIME_R = 5 * 60 * 1000;             // 10 분 for test
+    public static final long EXPIRATION_REFRESH = 6 * 60 * 60 * 1000;       // 6 시간
 
     // 주기적으로 만료된 토큰을 삭제하는 메서드
     public static final long BLACKLIST_UPDATE_TIME = 60 * 60 * 1000;        // 1 시간
-    //public static final long BLACKLIST_UPDATE_TIME = 2 * 60 * 1000;         // 3 분 for test
 
 
-    public JWTUtils() {
-        String secreteString = "843567893696976453275974432697R634976R738467TR678T34865R6834R8763T478378637664538745673865783678548735687R3";
-//        String secreteString = "gw0U1UG3gIeaFthTwc4gyxgrFa7ZD8ci";
-        byte[] keyBytes = Base64.getDecoder().decode(secreteString.getBytes(StandardCharsets.UTF_8));
-        this.Key = new SecretKeySpec(keyBytes, "HmacSHA256");
+    public static final String ACCESS_TOKEN = "accessToken";
+    public static final String REFRESH_TOKEN = "refreshToken";
+
+
+    public JWTUtils(@Value("${spring.jwt.secret}") String secreteString) {
+        //log.info("[MIRO] JWT secret 로드 : {}", secreteString);
+        this.secretKey = new SecretKeySpec(
+                secreteString.getBytes(StandardCharsets.UTF_8),
+                Jwts.SIG.HS256.key().build().getAlgorithm());
     }
 
-    public String generateToken(User userDetails) {
-        return Jwts.builder()
-                .subject(userDetails.getUsername())
-                .claim("userId",userDetails.getId())
-                .issuedAt(new Date(System.currentTimeMillis()))
-                .expiration(new Date(System.currentTimeMillis() + EXPIRATION_TIME_A))
-                .signWith(Key)
-                .compact();
+    public String geneTokenAccess(User user){
+        return geneToken(user, ACCESS_TOKEN, EXPIRATION_ACCESS);
     }
 
-    public String generateRefreshToken(Map<String, Object> claims, User userDetails) {
+    public String geneTokenRefresh(User user){
+        return geneToken(user, REFRESH_TOKEN, EXPIRATION_REFRESH);
+    }
+
+    private String geneToken(User user, String type, Long expiration){
         return Jwts.builder()
-                .claims(claims)
-                .subject(userDetails.getUsername())
-                .claim("userId",userDetails.getId())
+                .subject(user.getEmail())
+                .claim("type",type)
+                .claim("userId",user.getId())
+                .claim("role", user.getRole())
                 .issuedAt(new Date(System.currentTimeMillis()))
-                .expiration(new Date(System.currentTimeMillis() + EXPIRATION_TIME_R))
-                .signWith(Key)
+                .expiration(new Date(System.currentTimeMillis() + expiration))
+                .signWith(secretKey)
                 .compact();
     }
 
@@ -70,7 +73,7 @@ public class JWTUtils {
 
 
     private <T> T extractClaims(String token, Function<Claims, T> claimsTFunction) {
-        return claimsTFunction.apply(Jwts.parser().verifyWith(Key).build().parseSignedClaims(token).getPayload());
+        return claimsTFunction.apply(Jwts.parser().verifyWith(secretKey).build().parseSignedClaims(token).getPayload());
     }
 
     public boolean isTokenValid(String token, UserDetails userDetails) {

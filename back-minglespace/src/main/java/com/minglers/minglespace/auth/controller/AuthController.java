@@ -15,6 +15,7 @@ import com.minglers.minglespace.common.entity.Image;
 import com.minglers.minglespace.common.service.ImageService;
 import com.minglers.minglespace.workspace.entity.WSMember;
 import jakarta.mail.MessagingException;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -107,6 +108,31 @@ class AuthController {
     public ResponseEntity<RefreshTokenResponse> refreshToken(@RequestBody RefreshTokenRequest req) {
         return ResponseEntity.ok(usersManagementService.refreshToken(req));
     }
+
+    @GetMapping("/auth/token")
+    private ResponseEntity<RefreshTokenResponse> token(HttpServletRequest request){
+        String token = null;
+        Cookie[] cookies = request.getCookies();
+        if(cookies != null){
+            for (Cookie cookie : cookies) {
+                System.out.println(cookie.getName());
+                if (cookie.getName().equals("Authorization")) {
+                    token = cookie.getValue();
+                    break;
+                }
+            }
+        }
+
+        RefreshTokenResponse res = new RefreshTokenResponse();
+
+        res.setAccessToken(token);
+
+        res.setStatus(HttpStatus.OK);
+        res.setMsg("Token cookie -> body 성공");
+
+        return ResponseEntity.ok(res);
+    }
+
 
     @GetMapping("/auth/user")
     public ResponseEntity<UserResponse> getMyProfile() {

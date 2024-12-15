@@ -8,8 +8,13 @@ import { Link, useNavigate, useParams } from "react-router-dom";
 import Repo from "./Repo";
 import AuthApi from "../api/AuthApi";
 import Modal from "../common/Layouts/components/Modal";
+import { HOST_URL } from "../api/Api";
 
 const LoginPage = () => {
+  //================================================================================================
+  //================================================================================================
+  //================================================================================================
+  //================================================================================================
   const [showPassword, setShowPassword] = useState(false);
   const [formData, setFormData] = useState({
     email: "codejay2018@gmail.com",
@@ -23,10 +28,10 @@ const LoginPage = () => {
   const [isOpenPopup, setIsOpenPopup] = useState(false);
   const [isOpenPopupCheck, setIsOpenPopupCheck] = useState(false);
   const {code, encodedEmail} = useParams();
-
-  // ===============================================================
-  // ===============================================================
-
+  //================================================================================================
+  //================================================================================================
+  //================================================================================================
+  //================================================================================================
   useEffect(()=>{
 
     if(code && encodedEmail){
@@ -65,7 +70,10 @@ const LoginPage = () => {
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
-
+  //================================================================================================
+  //================================================================================================
+  //================================================================================================
+  //================================================================================================
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (validate()) {
@@ -105,19 +113,23 @@ const LoginPage = () => {
     setIsOpenPopup(false);
   }
 
-  // for test
-  const handleClickAbuser = async()=>{
-
-    console.log("abuse test");
-
-    Repo.setAccessToken(Repo.getAccessTokenForAbuse());
-    Repo.setRefreshToken(Repo.getRefreshTokenForAbuse());
-
-    navigate("/workspace/");
-
-    
+  const handleClickGoogle = () => {
+    const url = `${HOST_URL}/oauth2/authorization/google`;
+    window.location.href = url;
+  }
+  const handleClickNaver = () => {
+    const url = `${HOST_URL}/oauth2/authorization/naver`;
+    window.location.href = url;
+  }
+  const handleClicKakao = () => {
+    const url = `${HOST_URL}/oauth2/authorization/kakao`;
+    window.location.href = url;
   }
 
+  //================================================================================================
+  //================================================================================================
+  //================================================================================================
+  //================================================================================================
   return (
     <div className="modal-overlay_login_page">
       <div className="modal-container_login_page">
@@ -195,7 +207,7 @@ const LoginPage = () => {
               </div>
 
               <div className="social-buttons">
-                <button className="google-button">
+              <button className="google-button" onClick={handleClickGoogle}>
                   <img
                     src="https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_272x92dp.png"
                     alt="Google"
@@ -203,8 +215,7 @@ const LoginPage = () => {
                   />
                   Google로 계속하기
                 </button>
-
-                <button className="kakao-button">
+                <button className="kakao-button" onClick={handleClicKakao}>
                   <img
                     src="https://developers.kakao.com/static/images/pc/product/icon/kakaoTalk.png"
                     alt="Kakao"
@@ -212,8 +223,7 @@ const LoginPage = () => {
                   />
                   카카오로 계속하기
                 </button>
-
-                <button className="naver-button">
+                <button className="naver-button" onClick={handleClickNaver}>
                   <img
                     src="https://www.naver.com/favicon.ico"
                     alt="Naver"

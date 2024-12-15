@@ -13,12 +13,20 @@ class Api{
       return Api.instance;
     }
 
+    this.axiosPure = axios.create({
+      headers:{"Content-Type": "application/json"},
+      baseURL: HOST_URL,
+      withCredentials: true,
+    });
+
+
     // Axios 인스턴스 생성
     this.axiosIns = axios.create({
       headers:{
           "Content-Type": "application/json"
       },
       baseURL: HOST_URL,
+      withCredentials: true,
     });
 
     // // 확인을 위한 로그 추가
