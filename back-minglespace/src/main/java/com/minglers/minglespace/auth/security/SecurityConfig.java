@@ -7,6 +7,7 @@ import com.minglers.minglespace.auth.service.UserDetailsServiceImpl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
@@ -35,11 +36,11 @@ public class SecurityConfig {
 
     private final UserDetailsServiceImpl userDetailsService;
     private final JWTAuthFilter jwtAuthFilter;
-    private final CustomAuthenticationEntryPoint customAuthenticationEntryPoint;
+//    private final CustomAuthenticationEntryPoint customAuthenticationEntryPoint;
     private final JWTUtils jwtUtils;
     private final AuthenticationConfiguration authenticationConfiguration;
-    private final UserRepository userRepository;
     private final TokenBlacklistService tokenBlacklistService;
+    private final UserRepository userRepository;
 
     // Filter용 Cors Setting
     @Bean
@@ -99,7 +100,9 @@ public class SecurityConfig {
 
         // autho path
         http.authorizeHttpRequests(r -> r
+
                 .requestMatchers("/auth/**", "/public/**","/upload/images/**","/ws/**").permitAll()
+                .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                 .requestMatchers("/admin/**").hasAnyAuthority("ADMIN")
                 .requestMatchers("/user/**").hasAnyAuthority("USER")
                 .requestMatchers("/adminuser/**").hasAnyAuthority("ADMIN", "USER")
@@ -108,7 +111,7 @@ public class SecurityConfig {
 
         // OAuth2
         // 우선 디폴트, 추후 변경
-        http.oauth2Login(Customizer.withDefaults());
+//        http.oauth2Login(Customizer.withDefaults());
 
         // 
         http.authenticationProvider(authenticationProvider());
@@ -122,7 +125,9 @@ public class SecurityConfig {
             MsLoginFilter msLoginFilter = new MsLoginFilter(
                     authenticationManager(authenticationConfiguration),
                     jwtUtils,
-                    userRepository);
+                    userRepository
+            );
+
             msLoginFilter.setFilterProcessesUrl("/auth/login");
 
             MsLogoutFilter msLogoutFilter = new MsLogoutFilter(
@@ -133,11 +138,11 @@ public class SecurityConfig {
             http.addFilterBefore(jwtAuthFilter, MsLoginFilter.class);
 
             http.addFilterAt(msLoginFilter, UsernamePasswordAuthenticationFilter.class);
-            http.addFilterBefore(msLogoutFilter, LogoutFilter.class);
+//            http.addFilterBefore(msLogoutFilter, LogoutFilter.class);
         }
 
 
-        http.exceptionHandling(c -> c.authenticationEntryPoint(customAuthenticationEntryPoint));
+//        http.exceptionHandling(c -> c.authenticationEntryPoint(customAuthenticationEntryPoint));
 
         return http.build();
     }

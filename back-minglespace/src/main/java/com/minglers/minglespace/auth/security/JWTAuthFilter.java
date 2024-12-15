@@ -37,27 +37,31 @@ public class JWTAuthFilter extends OncePerRequestFilter {
             HttpServletResponse response,
             FilterChain filterChain) throws ServletException, IOException {
 
-        String scheme = request.getScheme();
-        String serverName = request.getServerName();
-        int serverPort = request.getServerPort();
+        String requestUri = request.getRequestURI();
 
-        String contextPath = request.getContextPath();
-        String servletPath = request.getServletPath();
-        String queryString = request.getQueryString();
+        log.info("[MIRO] JWT 필터 들어옴 requestUri : {}",requestUri);
 
-        String fullURL = scheme + "://" + serverName + ":" + serverPort + contextPath + servletPath + (queryString != null ? "?" + queryString : "");
-
-        log.info("");
-        log.info("");
-        log.info("");
-        log.info("==================================================");
-        log.info("Full URL: {}", fullURL);
-        log.info("Request URI: {}", request.getRequestURI());
-        log.info("Query String: {}", queryString);
-        log.info("~end");
-        log.info("");
-        log.info("");
-        log.info("");
+//        String scheme = request.getScheme();
+//        String serverName = request.getServerName();
+//        int serverPort = request.getServerPort();
+//
+//        String contextPath = request.getContextPath();
+//        String servletPath = request.getServletPath();
+//        String queryString = request.getQueryString();
+//
+//        String fullURL = scheme + "://" + serverName + ":" + serverPort + contextPath + servletPath + (queryString != null ? "?" + queryString : "");
+//
+//        log.info("");
+//        log.info("");
+//        log.info("");
+//        log.info("==================================================");
+//        log.info("Full URL: {}", fullURL);
+//        log.info("Request URI: {}", request.getRequestURI());
+//        log.info("Query String: {}", queryString);
+//        log.info("~end");
+//        log.info("");
+//        log.info("");
+//        log.info("");
 
         String token = "";
 

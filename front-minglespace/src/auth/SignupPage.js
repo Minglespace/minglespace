@@ -3,6 +3,8 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import AuthApi from "../api/AuthApi";
 import Modal from "../common/Layouts/components/Modal";
+import api, { HOST_URL } from "../api/Api";
+import axios from "axios";
 
 //========================================================================
 /**
@@ -27,6 +29,8 @@ const SignupPage = () => {
   const [errors, setErrors] = useState({});
   const navigate = useNavigate();
   const [isOpenPopup, setIsOpenPopup] = useState(false);
+  const [isOpenErrorPopup, setIsOpenErrorPopup] = useState(false);
+  const [errorMsg, setErrorMsg] = useState("");
 
   //========================================================================
   //========================================================================
@@ -61,21 +65,29 @@ const SignupPage = () => {
     e.preventDefault();
 
     if (validate()) {
-      console.log("Form submitted:", formData);
-      await AuthApi.signup(formData).then((data) => {
-        console.log("Form submitted data : ", data);
-        if (data.code === 200) {
-          setIsOpenPopup(true);
-        }else{
-
+      try {
+        console.log("회원가입 요청 내용 :", formData);
+        const response = await AuthApi.signup(formData);      
+        if (response.code === 200) {
+          setIsOpenPopup(true);  // 팝업 열기
         }
-      });
+      } catch (err) {
+        console.error("회원가입 에러 : ", err);
+        setErrorMsg(err.message); 
+        setIsOpenErrorPopup(true);
+      }
     }
   };
 
   const handlePopupClose = () => {
     navigate("/auth/login");
   };
+
+  
+  const handleErrorPopupClose = () => {
+    setIsOpenErrorPopup(false);
+  };
+
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -109,6 +121,21 @@ const SignupPage = () => {
           </div>
         </div>
       </Modal>
+
+
+      <Modal open={isOpenErrorPopup} onClose={handleErrorPopupClose}>
+        <div className="workspace_add_modal_container">
+          <h2>회원가입</h2>
+          <p className="input_label1">
+              { errorMsg }
+          </p>
+          <div className="workspace_button_container">
+            <button className="add_button"  onClick={handleErrorPopupClose}>
+              확인</button>
+          </div>
+        </div>
+      </Modal>
+
 
 
       <div className="signup-page-container">

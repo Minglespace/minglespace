@@ -6,59 +6,55 @@ import axios from "axios";
 
 class AuthApi{
 
-  static signup = async (userData) => {
+   static signup = async (userData) => {
     try {
       const response = await api.axiosIns.post("/auth/signup", userData);
-
-      if (response.data.code === 200) {
-        console.log("회원가입 성공");
-      } else {
-        console.log("회원가입 실패");
-      }
-
       return response.data;
     } catch (err) {
-      console.error("회원가입 에러 : ", err);
-      throw err;
+      let errorMessage = "회원가입 중 문제가 발생했습니다.";
+      if (err.response && err.response.data) {
+        errorMessage = err.response.data.message || errorMessage;
+      }
+      throw new Error(errorMessage);
     }
   };
 
   static login = async (email, password) => {
     try {
       const response = await api.axiosIns.post("/auth/login", { email, password });
-
-      if (response.data.code === 200) {
-        console.log("로그인 성공 : ", response.data);
-
-        Repo.setItem(response.data);
+      if (response.status === 200) {
+        return response;
       } else {
-        console.log("로그인 실패 : ");
+        throw new Error(response.data.message || "알 수 없는 오류가 발생했습니다.");
       }
-
-      return response.data;
     } catch (err) {
-      console.error("로그인 에러 : ", err);
-      throw err;
+      console.error("로그인 요청 중 오류 발생: ", err);
+      throw new Error(err.response ? err.response.data.message : "서버와의 연결이 실패했습니다.");
     }
   };
 
 
+
   static logout = async () => {
     try {
-      const refreshToken = Repo.getRefreshToken();
-      console.log("refreshToken", refreshToken);
-      const reqRes = { refreshToken: refreshToken };
 
-      const response = await api.axiosIns.post("/auth/logout", reqRes);
+      // const refreshToken = Repo.getRefreshToken();
+      // console.log("refreshToken", refreshToken);
+
+      // 응답결과와 상관없이 클라에서는 제거한다.
+      Repo.clearItem();
+
+      
+      // const reqRes = { refreshToken: refreshToken };
+      const response = await api.axiosIns.post("/auth/logout");
+
 
       if (response.data.code === 200) {
         console.error("로그아웃 성공 : ");
-        Repo.clearItem();
       } else {
         console.error("로그아웃 실패 : ");
       }
-
-      return response.data;
+      return response;
     } catch (err) {
       console.error("로그아웃 에러 : ", err);
       throw err;
@@ -67,7 +63,7 @@ class AuthApi{
 
   static verify = async (code, encodedEmail) => {
     try{
-      return await api.axiosIns.get(`/auth/verify/${ code }/${encodedEmail}`);
+      return await api.axiosPure.get(`/auth/verify/${ code }/${encodedEmail}`);
     }catch(err){
       throw err;
     }

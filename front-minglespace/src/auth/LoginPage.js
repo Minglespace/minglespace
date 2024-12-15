@@ -20,10 +20,11 @@ const LoginPage = () => {
   
   const navigate = useNavigate();
 
+  const [errorMsg, setErrorMsg] = useState("");
   const [isOpenPopup, setIsOpenPopup] = useState(false);
   const [isOpenPopupCheck, setIsOpenPopupCheck] = useState(false);
   const {code, encodedEmail} = useParams();
-
+   
   // ===============================================================
   // ===============================================================
 
@@ -66,23 +67,43 @@ const LoginPage = () => {
     return Object.keys(newErrors).length === 0;
   };
 
+  const handleErrorMsgCLose = (e) => {
+    setErrorMsg("");
+  }
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (validate()) {
 
-      console.log("Form submitted:", formData.email);
 
-      const {email, password} = formData;
+      try {
+      
+        console.log("로그인 요청 내용 :", formData);
+      
+        const { email, password } = formData;
+        const response = await AuthApi.login(email, password);     
+      
+        console.log("로그인 응답 내용 :", response);
+        
+        if (response.data.code === 200) {
 
-      const data = await AuthApi.login(email, password);
-      console.log("AuthApi.login : {}", data);
-      if(data.code === 200){
-        navigate("/main");
-      } else if(data.code === 425){
-        setIsOpenPopupCheck(true);
-      } else{
-        // 뭘할까?
-      }   
+          const accessToken = response.data.accessToken;
+
+          console.log("accessToken : ", accessToken);
+          if (accessToken) {
+            Repo.setAccessToken(accessToken);
+          }
+
+          navigate("/main");
+        
+        } else {
+          console.error("로그인 실패:", response.data.message);
+          setErrorMsg(response.data.message); 
+        }
+      } catch (err) {
+        console.error("로그인 에러 : ", err);
+        setErrorMsg("로그인 중 문제가 발생했습니다. 다시 시도해 주세요.");  
+      }
     }
   };
 
@@ -105,18 +126,18 @@ const LoginPage = () => {
     setIsOpenPopup(false);
   }
 
-  // for test
-  const handleClickAbuser = async()=>{
+  // // for test
+  // const handleClickAbuser = async()=>{
 
-    console.log("abuse test");
+  //   console.log("abuse test");
 
-    Repo.setAccessToken(Repo.getAccessTokenForAbuse());
-    Repo.setRefreshToken(Repo.getRefreshTokenForAbuse());
+  //   Repo.setAccessToken(Repo.getAccessTokenForAbuse());
+  //   Repo.setRefreshToken(Repo.getRefreshTokenForAbuse());
 
-    navigate("/workspace/");
+  //   navigate("/workspace/");
 
     
-  }
+  // }
 
   return (
     <div className="modal-overlay_login_page">
@@ -145,6 +166,18 @@ const LoginPage = () => {
           </div>
         </Modal>  
         
+        <Modal open={errorMsg !== ""} onClose={handleErrorMsgCLose}>
+        <div className="workspace_add_modal_container">
+          <h2>로그인</h2>
+          <p className="input_label1">
+              { errorMsg }
+          </p>
+          <div className="workspace_button_container">
+            <button className="add_button"  onClick={handleErrorMsgCLose}>
+              확인</button>
+          </div>
+        </div>
+      </Modal>
 
         <div className="form-container">
           <div className="form-wrapper">

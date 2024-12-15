@@ -2,8 +2,8 @@
 import axios from "axios";
 import Repo from "../auth/Repo";
 
-const HOST_URL = "http://localhost:8080";
-// const HOST_URL = "http://localhost:8081";
+// const HOST_URL = "http://localhost:8080";
+const HOST_URL = "http://localhost:8081";
 
 class Api{
 
@@ -13,11 +13,15 @@ class Api{
       return Api.instance;
     }
 
+    // 토큰 보내지 않는 인스턴스
+    this.axiosPure = axios.create({
+      headers:{"Content-Type": "application/json"},
+      baseURL: HOST_URL,
+    });
+
     // Axios 인스턴스 생성
     this.axiosIns = axios.create({
-      headers:{
-          "Content-Type": "application/json"
-      },
+      headers:{"Content-Type": "application/json"},
       baseURL: HOST_URL,
     });
 
@@ -40,7 +44,7 @@ class Api{
           config.headers["Authorization"] = `Bearer ${accessToken}`;
           console.log("accessToken : ", accessToken)
         }else{
-          console.log("토큰이 불필요한 패킷이라 같이 안보내요 : ", accessToken)
+          // console.log("토큰이 불필요한 패킷이라 같이 안보내요 : ", accessToken)
         } 
         
         return config;
@@ -54,13 +58,13 @@ class Api{
     // 응답 인터셉터 설정
     this.axiosIns.interceptors.response.use(
       (response) => {
-          if(response.data){
-            if(response.data.code === 200){
-                console.log("응답 성공: ", response.data);
-            }else{
-                console.log("응답 실패: ", response.data);
-            }
-          }
+          // if(response.data){
+          //   if(response.data.code === 200){
+          //       console.log("응답 성공: ", response.data);
+          //   }else{
+          //       console.log("응답 실패: ", response.data);
+          //   }
+          // }
           return response;
       },
       async (error) => {
@@ -75,10 +79,10 @@ class Api{
                     console.log("토큰이 만료되었습니다. 리프레시 토큰을 요청합니다.");
 
                     // RefreshToken을 이용해 새로운 AccessToken 요청
-                    const refreshToken = Repo.getRefreshToken();
-                    console.log("refreshToken", refreshToken);
+                    // const refreshToken = Repo.getRefreshToken();
+                    // console.log("refreshToken", refreshToken);
                     const reqRes = {
-                        refreshToken: refreshToken,
+                        // refreshToken: refreshToken,
                         // 여기에 필요한 다른 필드도 추가할 수 있음, 예: email, password 등
                     };
                     const res = await axios.post( `${HOST_URL}/auth/refresh`, reqRes);
@@ -98,21 +102,22 @@ class Api{
                         console.log("넌 어뷰저야 꺼정~")
                     }
                 }
-            } else if (status === 500) {
-                // 500 서버 오류
-                console.log("서버 오류가 발생했습니다.");
-            } else {
-                console.log(`응답 오류 발생: ${data.message}`);
-            }
+            } 
+            // else if (status === 500) {
+            //     // 500 서버 오류
+            //     console.log("서버 오류가 발생했습니다.");
+            // } else {
+            //     console.log(`응답 오류 발생: ${data.message}`);
+            // }
 
-            // 사용자 정의 에러 코드에 따른 추가 처리 (예: EXPIRED_TOKEN 등)
-            if (data.code === "EXPIRED_TOKEN") {
-                console.log("리프레시 토큰을 요청하세요.");
+            // // 사용자 정의 에러 코드에 따른 추가 처리 (예: EXPIRED_TOKEN 등)
+            // if (data.code === "EXPIRED_TOKEN") {
+            //     console.log("리프레시 토큰을 요청하세요.");
 
-              // 어떤 패킷을 보내든 토큰 에러가 났을경우
-              // 공통에러처리가 필요하다
+            //   // 어떤 패킷을 보내든 토큰 에러가 났을경우
+            //   // 공통에러처리가 필요하다
 
-            }
+            // }
 
             return Promise.reject(error); // 계속해서 오류를 처리할 수 있도록 반환
         } else {

@@ -13,7 +13,7 @@ import java.io.IOException;
 import java.util.HashMap;
 
 @Slf4j
-@Component
+//@Component
 public class CustomAuthenticationEntryPoint implements AuthenticationEntryPoint {
 
     @Override
@@ -22,34 +22,34 @@ public class CustomAuthenticationEntryPoint implements AuthenticationEntryPoint 
             HttpServletResponse response,
             AuthenticationException authException) throws IOException, ServletException {
 
-        JwtExceptionCode exception = (JwtExceptionCode) request.getAttribute("exception");
-
-        if(exception != null) {
-            log.error("=====================================================");
-            log.error("=====================================================");
-            log.error("=====================================================");
-            log.error("CustomAuthenticationEntryPoint");
-            log.error("JwtExceptionCode : {}", exception);
-
-            setResponse(response, exception);
-
-
-        }
+//        JwtExceptionCode exception = (JwtExceptionCode) request.getAttribute("exception");
+//
+//        if(exception != null) {
+//            log.error("=====================================================");
+//            log.error("=====================================================");
+//            log.error("=====================================================");
+//            log.error("CustomAuthenticationEntryPoint");
+//            log.error("JwtExceptionCode : {}", exception);
+//
+//            setResponse(response, exception);
+//
+//
+//        }
     }
 
     private void setResponse(HttpServletResponse response, JwtExceptionCode exceptionCode) throws IOException {
 
-        response.setContentType("application/json;charset=UTF-8");
-        response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-
-        HashMap<String, Object> errorInfo = new HashMap<>();
-
-        errorInfo.put("message", exceptionCode.getMessage());
-        errorInfo.put("code", exceptionCode.getCode());
-
-        Gson gson = new Gson();
-        String responseJson = gson.toJson(errorInfo);
-
-        response.getWriter().print(responseJson);
+//        response.setContentType("application/json;charset=UTF-8");
+//        response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+//
+//        HashMap<String, Object> errorInfo = new HashMap<>();
+//
+//        errorInfo.put("message", exceptionCode.getMessage());
+//        errorInfo.put("code", exceptionCode.getCode());
+//
+//        Gson gson = new Gson();
+//        String responseJson = gson.toJson(errorInfo);
+//
+//        response.getWriter().print(responseJson);
     }
 }

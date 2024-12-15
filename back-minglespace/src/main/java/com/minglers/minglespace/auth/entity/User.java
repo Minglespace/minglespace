@@ -15,7 +15,6 @@ import java.util.*;
 
 @Entity
 @Table(name = "user")
-//@Data
 @Getter
 @Setter
 @Builder
@@ -27,17 +26,29 @@ public class User implements UserDetails {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(unique = true)
-    private String email;
-
     @OneToOne(fetch = FetchType.LAZY)
     private Image image;
 
-    @OneToMany(mappedBy = "user", fetch =FetchType.LAZY)
+    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
     private List<WSMember> wsMembers;
 
     @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
     private List<UserFriend> userFriends;
+
+    @CreationTimestamp
+    private LocalDateTime regDate;
+
+    private boolean deleteFlag;
+
+    private String verificationCode;
+
+    @Column(nullable = false)
+    private String role;
+    //
+    //=========================================================================
+    // 회원가입창에서 유저가 입력하는 정보들
+    @Column(unique = true, nullable = false)
+    private String email;
 
     @JsonIgnore
     @Column(nullable = false)
@@ -49,19 +60,12 @@ public class User implements UserDetails {
     @Column(nullable = false)
     private String phone;
 
-    @Column(nullable = false)
-    private String role;
-
-    @CreationTimestamp
-    private LocalDateTime regDate;
-
     private String position;
+
     private String introduction;
-    private boolean deleteFlag;
-
-    private String verificationCode;
-
-
+    //
+    //=========================================================================
+    //
     @Override
     public String toString() {
         return "User{" +
