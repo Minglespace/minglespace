@@ -95,7 +95,13 @@ public class TodoServiceImpl implements TodoService {
       return new SliceImpl<>(Collections.emptyList(), sortedPageable, false);
     }
 
-    List<TodoResponseDTO> resultTodoList = pageResult.getContent().stream().map(todo -> {
+    List<Todo> filteredTodos = pageResult.getContent().stream() .filter(todo -> {
+              boolean isCreator = todo.getWsMember().getUser().getId().equals(userId);
+              boolean isAssignee = todo.getTodoAssigneeList().stream() .anyMatch(assignee -> assignee.getWsMember().getUser().getId().equals(userId));
+              return !isCreator || isAssignee; })
+            .collect(Collectors.toList());
+
+    List<TodoResponseDTO> resultTodoList = filteredTodos.stream().map(todo -> {
       String creatorname = todo.getWsMember() != null ? todo.getWsMember().getUser().getName() : "unknown";
 
       List<WSMemberResponseDTO> assigneeList = todo.getTodoAssigneeList().stream()
