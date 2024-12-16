@@ -6,6 +6,7 @@ import UserInfoDetail from "../common/Layouts/components/UserInfoDetail";
 import { WSMemberRoleContext } from "../workspace/context/WSMemberRoleContext";
 import MemberInvite from "./components/MemberInvite";
 import { HOST_URL } from "../api/Api";
+import { getErrorMessage } from "../common/Exception/errorUtils";
 
 const memberInitData = [
   {
@@ -46,15 +47,23 @@ const Member = () => {
 
   //멤버 목록조회
   const getMemberList = useCallback(() => {
-    MembersApi.getMemberList(workspaceId).then((data) => {
-      setMembers(data);
-    });
+    MembersApi.getMemberList(workspaceId)
+      .then((data) => {
+        setMembers(data);
+      })
+      .catch((error) => {
+        alert(`멤버 목록 조회 실패 : \n원인:+${getErrorMessage(error)}`);
+      });
   }, [workspaceId]);
   //워크스페이스 참여중 구분한 친구목록조회
   const getFriendList = useCallback(() => {
-    MembersApi.getFriendList(workspaceId).then((data) => {
-      setMyFreinds(data);
-    });
+    MembersApi.getFriendList(workspaceId)
+      .then((data) => {
+        setMyFreinds(data);
+      })
+      .catch((error) => {
+        alert(`친구 목록 조회 실패 : \n원인:+${getErrorMessage(error)}`);
+      });
   }, [workspaceId]);
 
   useEffect(() => {
@@ -96,12 +105,16 @@ const Member = () => {
   //리더 위임
   const handleTransferLeader = useCallback(
     (memberId) => {
-      MembersApi.transferLeader(workspaceId, memberId).then((data) => {
-        getMemberList();
-        setSelectedMember(null);
-        refreshMemberContext();
-        alert(data);
-      });
+      MembersApi.transferLeader(workspaceId, memberId)
+        .then((data) => {
+          getMemberList();
+          setSelectedMember(null);
+          refreshMemberContext();
+          alert(data);
+        })
+        .catch((error) => {
+          alert(`리더 위임 실패 : \n원인:+${getErrorMessage(error)}`);
+        });
     },
     [workspaceId, getMemberList, refreshMemberContext]
   );
@@ -109,11 +122,15 @@ const Member = () => {
   //멤버 권한 바꾸기
   const handleTransferRole = useCallback(
     (memberId, role) => {
-      MembersApi.transferRole(workspaceId, memberId, role).then((data) => {
-        getMemberList();
-        setSelectedMember(null);
-        alert(data);
-      });
+      MembersApi.transferRole(workspaceId, memberId, role)
+        .then((data) => {
+          getMemberList();
+          setSelectedMember(null);
+          alert(data);
+        })
+        .catch((error) => {
+          alert(`멤버 권한 바꾸기 실패 : \n원인:+${getErrorMessage(error)}`);
+        });
     },
     [workspaceId, getMemberList]
   );
@@ -123,6 +140,8 @@ const Member = () => {
     if (src && src.trim() !== "") return `${HOST_URL}${src}`;
     else return null;
   };
+
+  //컨텐츠 보여주기위한 랜더링컨텐츠
   const renderContent = () => {
     if (loading) {
       return <p>로딩 중입니다....</p>;

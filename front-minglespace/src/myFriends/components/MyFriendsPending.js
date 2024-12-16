@@ -1,25 +1,29 @@
 import React, { useCallback } from "react";
 import MyFriendsApi from "../../api/myFriendsApi";
+import { getErrorMessage } from "../../common/Exception/errorUtils";
 
 const MyFriendsPending = ({ friendPending, refuseFriend, acceptFriend }) => {
   //친구 거절핸들러
-  const handleFriendRefuse = useCallback(
-    (friendId) => {
-      MyFriendsApi.refuseFriend(friendId).then((data) => {
+  const handleFriendRefuse = (friendId) => {
+    MyFriendsApi.refuseFriend(friendId)
+      .then((data) => {
         refuseFriend(data);
+      })
+      .catch((error) => {
+        alert(`친구거절 실패 : \n원인:+${getErrorMessage(error)}`);
       });
-    },
-    [refuseFriend]
-  );
+  };
+
   //친구 수락핸들러
-  const handleFriendAccept = useCallback(
-    (friendId) => {
-      MyFriendsApi.acceptFriend(friendId).then((data) => {
+  const handleFriendAccept = (friendId) => {
+    MyFriendsApi.acceptFriend(friendId)
+      .then((data) => {
         acceptFriend(data);
+      })
+      .catch((error) => {
+        alert(`친구수락 실패 : \n원인:+${getErrorMessage(error)}`);
       });
-    },
-    [acceptFriend]
-  );
+  };
 
   return (
     <div className="section_container myFriends_container_item myFriends_friendStatus_item">

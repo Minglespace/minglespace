@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from "react";
-import MyFriendsApi from "../../api/myFriendsApi";
 
 const MyFriendsRequest = ({ friendRequest }) => {
   return (

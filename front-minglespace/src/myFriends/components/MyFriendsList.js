@@ -5,6 +5,7 @@ import myFriendsApi from "../../api/myFriendsApi";
 import Modal from "../../common/Layouts/components/Modal";
 import UserInfoDetail from "../../common/Layouts/components/UserInfoDetail";
 import api, { HOST_URL } from "../../api/Api";
+import { getErrorMessage } from "../../common/Exception/errorUtils";
 
 const MyFriendsList = ({ friends, getFriendList, handelSetFriends }) => {
   const [searchKeyword, setSearchKeyword] = useState("");
@@ -12,10 +13,10 @@ const MyFriendsList = ({ friends, getFriendList, handelSetFriends }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   //자음체크
-  const isValidKoreanCharacter = useCallback((char) => {
+  const isValidKoreanCharacter = (char) => {
     const validCharRegex = /^[가-힣a-zA-Z]+$/;
     return validCharRegex.test(char);
-  }, []);
+  };
 
   useEffect(() => {
     if (isValidKoreanCharacter(searchKeyword) || searchKeyword === "") {
@@ -24,7 +25,7 @@ const MyFriendsList = ({ friends, getFriendList, handelSetFriends }) => {
       }, 1000);
       return () => clearTimeout(timer);
     }
-  }, [isValidKoreanCharacter, getFriendList, searchKeyword]);
+  }, [getFriendList, searchKeyword]);
 
   //검색 핸들러
   const handleSearch = useCallback((event) => {
@@ -36,7 +37,11 @@ const MyFriendsList = ({ friends, getFriendList, handelSetFriends }) => {
     (event) => {
       if (event.key === "Enter") {
         event.preventDefault();
-        getFriendList(searchKeyword);
+        if (isValidKoreanCharacter(searchKeyword) || searchKeyword === "") {
+          getFriendList(searchKeyword);
+        } else {
+          alert("한글/영어만 조회하세요");
+        }
       }
     },
     [getFriendList, searchKeyword]
@@ -45,9 +50,14 @@ const MyFriendsList = ({ friends, getFriendList, handelSetFriends }) => {
   //친구삭제 핸들러
   const handleDeleteFriend = useCallback(
     (friendId) => {
-      myFriendsApi.remove(friendId).then((data) => {
-        handelSetFriends(data);
-      });
+      myFriendsApi
+        .remove(friendId)
+        .then((data) => {
+          handelSetFriends(data);
+        })
+        .catch((error) => {
+          alert(`친구삭제 실패 : \n원인:+${getErrorMessage(error)}`);
+        });
     },
     [handelSetFriends]
   );
