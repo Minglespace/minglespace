@@ -10,7 +10,7 @@ const MemberInvite = ({ friends, handleInviteMember }) => {
   };
 
   return (
-    <div className="section_container myFriends_container_item">
+    <div className="section_container myFriends_container_item member_inviteItem">
       <h2 className="section_container_title">
         워크스페이스 멤버를 <br />내 친구 목록에서 초대해보세요.
       </h2>

@@ -6,9 +6,12 @@ import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.mail.MailSendException;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
+
+import java.util.UUID;
 
 @Log4j2
 @RequiredArgsConstructor
@@ -22,7 +25,6 @@ public class EmailService {
 
 
     public void send(String to, String subject, String emailContent) throws MessagingException {
-
         MimeMessage message = mailSender.createMimeMessage();
         MimeMessageHelper helper = new MimeMessageHelper(message, true);
 
@@ -31,11 +33,15 @@ public class EmailService {
             helper.setTo(to);
             helper.setSubject(subject);
             helper.setText(emailContent, true);  // true로 설정하여 HTML로 전송
-
             mailSender.send(message);
         } catch (MessagingException e) {
             log.error("MessagingException : {}", e);
             e.printStackTrace();
+            throw e;
+        } catch (MailSendException e) {
+            log.error("MailSendException: {}", e.getMessage());
+            e.printStackTrace();
+            throw e;
         }
     }
 

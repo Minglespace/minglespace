@@ -12,6 +12,7 @@ import com.minglers.minglespace.workspace.entity.WSMember;
 import com.minglers.minglespace.workspace.entity.WorkSpace;
 import com.minglers.minglespace.workspace.exception.WorkspaceException;
 import com.minglers.minglespace.workspace.repository.WSMemberRepository;
+import com.minglers.minglespace.workspace.repository.WorkspaceInviteRepository;
 import com.minglers.minglespace.workspace.repository.WorkspaceRepository;
 import com.minglers.minglespace.workspace.role.WSMemberRole;
 import lombok.RequiredArgsConstructor;
@@ -23,6 +24,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
 
 @Service
 @RequiredArgsConstructor
@@ -31,12 +34,26 @@ public class WSMemberServiceImpl implements WSMemberService {
 
   private final WorkspaceRepository workspaceRepository;
   private final WSMemberRepository wsMemberRepository;
+  private final WorkspaceInviteRepository workspaceInviteRepository;
   private final UserRepository userRepository;
   private final UserFriendRepository userFriendRepository;
   private final ModelMapper modelMapper;
+  private final EmailInviteService emailInviteService;
 
 
   ///////////공통 메서드
+  //유저정보 가져오기
+  private User findUserById(Long userId) {
+    return userRepository.findById(userId)
+            .orElseThrow(() -> new UserException(HttpStatus.NOT_FOUND.value(),"유저정보를 찾을수 없습니다."));
+  }
+
+  //워크스페이스 가져오기
+  private WorkSpace findWorkSpaceById(Long workSpaceId) {
+    return workspaceRepository.findById(workSpaceId)
+            .orElseThrow(() -> new WorkspaceException(HttpStatus.NOT_FOUND.value(), "워크스페이스 정보를 찾을수 없습니다."));
+  }
+
   //워크스페이스멤버 가져오기
   private WSMember findWSMemberBy(Long userId, Long workSpaceId){
     return wsMemberRepository.findByUserIdAndWorkSpaceId(userId,workSpaceId)
@@ -129,10 +146,8 @@ public class WSMemberServiceImpl implements WSMemberService {
   @Override
   @Transactional
   public String inviteMember(Long friendId, Long workSpaceId) {
-    User user = userRepository.findById(friendId)
-            .orElseThrow(() -> new UserException(HttpStatus.NOT_FOUND.value(), "유저가 존재하지 않습니다"));
-    WorkSpace workSpace = workspaceRepository.findById(workSpaceId)
-            .orElseThrow(() -> new WorkspaceException(HttpStatus.NOT_FOUND.value(), "워크스페이스가 존재하지 않습니다"));
+    User user = findUserById(friendId);
+    WorkSpace workSpace = findWorkSpaceById(workSpaceId);
     if (!wsMemberRepository.existsByWorkSpaceIdAndUserId(friendId, workSpaceId)) {
       WSMember wsMember = WSMember.builder()
               .role(WSMemberRole.MEMBER)
@@ -200,5 +215,33 @@ public class WSMemberServiceImpl implements WSMemberService {
   public void checkWSMember(Long userId, Long workSpaceId) {
     if(!wsMemberRepository.existsByWorkSpaceIdAndUserId(workSpaceId,userId))
       throw new WorkspaceException(HttpStatus.FORBIDDEN.value(), "잘못된 요청입니다.");
+  }
+
+  //링크방식 초대하기
+  @Override
+  public String linkInviteMember(Long workspaceId, String email) {
+    WorkSpace workSpace = findWorkSpaceById(workspaceId);
+    Optional<User> targetUser = userRepository.findByEmail(email);
+    //1. 이메일을 보낸다.
+    CompletableFuture<String> emailResult = emailInviteService.sendEmail(workSpace.getName(),email);
+    String returnString = emailResult.thenApply((result) ->{
+      if("success".equals(result)){
+        return "success";
+      }else{
+        return "fail";
+      }
+    }).join();
+    //2. 실패시 실패응답을 한다.
+    if("fail".equals(returnString))
+      return "이메일 전송에 실패하였습니다";
+
+    //3. 전송완료시 db에 저장한다.
+    if(targetUser.isEmpty()){//가입 되어있지않은 유저
+      log.info("가입되지않은유저~");
+    }else{//가입된유저
+      log.info("가입한 유저~");
+    }
+
+    return "";
   }
 }

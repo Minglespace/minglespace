@@ -10,6 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @Slf4j
 @RestController
@@ -127,12 +128,20 @@ public class WorkspaceController {
                                              @PathVariable("workspaceId") Long workspaceId,
                                              @PathVariable("memberId") Long memberId,
                                              @RequestBody WSMemberRoleRequestDTO role){
-    System.out.println("롤"+role.getRole());
     Long userId = jwtUtils.extractUserId(token.substring(7));
     checkLeader(userId, workspaceId);
     return ResponseEntity.ok(wsMemberService.transferRole(workspaceId,memberId,role.getRole()));
   }
+  //링크 초대방식
+  @PostMapping("/{workspaceId}/linkInvite")
+  public ResponseEntity<String> linkInviteMember(@RequestHeader("Authorization") String token,
+                                                 @PathVariable("workspaceId") Long workspaceId,
+                                                 @RequestBody Map<String, String> requestEmail){
+    Long userId = jwtUtils.extractUserId(token.substring(7));
+    checkLeaderAndSubLeader(userId,workspaceId);
 
+    return ResponseEntity.ok(wsMemberService.linkInviteMember(workspaceId,requestEmail.get("email")));
+  }
 
   //////////////////////공통 유효성검사(리더확인)
   //워크스페이스등 수정삭제시 리더인지 확인체크

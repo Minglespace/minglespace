@@ -1,9 +1,8 @@
 import React, { useEffect, useState } from "react";
 
-
 import { X, Eye, EyeOff } from "lucide-react";
 
-import { Link, useNavigate, useParams } from "react-router-dom";
+import { Link, useLocation, useNavigate, useParams } from "react-router-dom";
 
 import Repo from "./Repo";
 import AuthApi from "../api/AuthApi";
@@ -17,35 +16,35 @@ const LoginPage = () => {
   });
 
   const [errors, setErrors] = useState({});
-  
+
   const navigate = useNavigate();
+  const location = useLocation();
+  const locationFrom = location.state?.from || "/main";
 
   const [isOpenPopup, setIsOpenPopup] = useState(false);
   const [isOpenPopupCheck, setIsOpenPopupCheck] = useState(false);
-  const {code, encodedEmail} = useParams();
+  const { code, encodedEmail } = useParams();
 
   // ===============================================================
   // ===============================================================
 
-  useEffect(()=>{
-
-    if(code && encodedEmail){
-
+  useEffect(() => {
+    if (code && encodedEmail) {
       console.log("code : ", code);
       console.log("encodedEmail : ", encodedEmail);
 
-      // 
-      setTimeout(()=>{
+      //
+      setTimeout(() => {
         AuthApi.verify(code, encodedEmail).then((response) => {
-           if (response.data.code === 200) {
+          if (response.data.code === 200) {
             setIsOpenPopup(true);
-          } else{
+          } else {
             console.log("AuthApi.verify error");
             setIsOpenPopup(false);
           }
-        });  
+        });
       }, 1000);
-    }else{
+    } else {
       // 정상
       setIsOpenPopup(false);
       console.log("nomail login");
@@ -69,20 +68,19 @@ const LoginPage = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (validate()) {
-
       console.log("Form submitted:", formData.email);
 
-      const {email, password} = formData;
+      const { email, password } = formData;
 
       const data = await AuthApi.login(email, password);
       console.log("AuthApi.login : {}", data);
-      if(data.code === 200){
-        navigate("/main");
-      } else if(data.code === 425){
+      if (data.code === 200) {
+        navigate(locationFrom, { replace: true });
+      } else if (data.code === 425) {
         setIsOpenPopupCheck(true);
-      } else{
+      } else {
         // 뭘할까?
-      }   
+      }
     }
   };
 
@@ -100,28 +98,23 @@ const LoginPage = () => {
     }
   };
 
-  const handleClickPopup = () =>{
-
+  const handleClickPopup = () => {
     setIsOpenPopup(false);
-  }
+  };
 
   // for test
-  const handleClickAbuser = async()=>{
-
+  const handleClickAbuser = async () => {
     console.log("abuse test");
 
     Repo.setAccessToken(Repo.getAccessTokenForAbuse());
     Repo.setRefreshToken(Repo.getRefreshTokenForAbuse());
 
     navigate("/workspace/");
-
-    
-  }
+  };
 
   return (
     <div className="modal-overlay_login_page">
       <div className="modal-container_login_page">
-
         <div className="image-container">
           <img
             src="https://images.unsplash.com/photo-1522071820081-009f0129c71c?auto=format&fit=crop&w=800"
@@ -134,17 +127,35 @@ const LoginPage = () => {
           <div className="workspace_add_modal_container">
             <p className="form-title">이메일 인증완료</p>
             <p>회원가입이 완료 되었습니다.</p>
-            <button type="submit" className="add_button" onClick={handleClickPopup}>확인</button>
+            <button
+              type="submit"
+              className="add_button"
+              onClick={handleClickPopup}
+            >
+              확인
+            </button>
           </div>
-        </Modal>  
-        <Modal open={isOpenPopupCheck} onClose={()=>{setIsOpenPopupCheck(false)}}>
+        </Modal>
+        <Modal
+          open={isOpenPopupCheck}
+          onClose={() => {
+            setIsOpenPopupCheck(false);
+          }}
+        >
           <div className="workspace_add_modal_container">
             <p className="form-title">이메일 인증</p>
             <p>이메일 인증해야 회원가입이 완료 됩니다.</p>
-            <button type="submit" className="add_button" onClick={()=>{setIsOpenPopupCheck(false)}}>확인</button>
+            <button
+              type="submit"
+              className="add_button"
+              onClick={() => {
+                setIsOpenPopupCheck(false);
+              }}
+            >
+              확인
+            </button>
           </div>
-        </Modal>  
-        
+        </Modal>
 
         <div className="form-container">
           <div className="form-wrapper">
@@ -160,7 +171,9 @@ const LoginPage = () => {
                   className={`input-field ${errors.email ? "input-error" : ""}`}
                   placeholder="이메일을 입력하세요"
                 />
-                {errors.email && <span className="error-message">{errors.email}</span>}
+                {errors.email && (
+                  <span className="error-message">{errors.email}</span>
+                )}
               </div>
 
               <div className="input-group">
@@ -171,7 +184,9 @@ const LoginPage = () => {
                     name="password"
                     value={formData.password}
                     onChange={handleChange}
-                    className={`input-field ${errors.password ? "input-error" : ""}`}
+                    className={`input-field ${
+                      errors.password ? "input-error" : ""
+                    }`}
                     placeholder="비밀번호를 입력하세요"
                   />
                   <button
@@ -182,10 +197,14 @@ const LoginPage = () => {
                     {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
                   </button>
                 </div>
-                {errors.password && <span className="error-message">{errors.password}</span>}
+                {errors.password && (
+                  <span className="error-message">{errors.password}</span>
+                )}
               </div>
 
-              <button type="submit" className="submit-button">로그인</button>
+              <button type="submit" className="submit-button">
+                로그인
+              </button>
             </form>
 
             <div className="social-login">
@@ -230,7 +249,6 @@ const LoginPage = () => {
 
               {/* // for tset */}
               {/* <button onClick={handleClickAbuser}>Abser Token Test</button> */}
-
             </div>
           </div>
         </div>
@@ -239,9 +257,7 @@ const LoginPage = () => {
   );
 };
 
-export default LoginPage
-
-
+export default LoginPage;
 
 // export default Modal;
 // render(<Modal />, document.getElementById("root"));

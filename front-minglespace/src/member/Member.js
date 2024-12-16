@@ -7,6 +7,7 @@ import { WSMemberRoleContext } from "../workspace/context/WSMemberRoleContext";
 import MemberInvite from "./components/MemberInvite";
 import { HOST_URL } from "../api/Api";
 import { getErrorMessage } from "../common/Exception/errorUtils";
+import MemberLinkInvite from "./components/MemberLinkInvite";
 
 const memberInitData = [
   {
@@ -178,10 +179,13 @@ const Member = () => {
     } else if (role === "LEADER") {
       return (
         <>
-          <MemberInvite
-            friends={myFriends}
-            handleInviteMember={handleInviteMember}
-          />
+          <div className="member_inviteBox">
+            <MemberInvite
+              friends={myFriends}
+              handleInviteMember={handleInviteMember}
+            />
+            <MemberLinkInvite />
+          </div>
           <div className="section_container myFriends_container_item">
             {selectedMember && (
               <UserInfoDetail
