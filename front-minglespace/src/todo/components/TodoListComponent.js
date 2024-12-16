@@ -31,13 +31,6 @@ const TodoComponent = () => {
     async (searchKeyword, sortType, searchType, page) => {
       setLoading(true);
       let data;
-      console.log("Fetching data : ", {
-        searchKeyword,
-        sortType,
-        searchType,
-        page,
-      });
-      console.log("role : ", role);
       try {
         if (role === "LEADER" || role === "SUB_LEADER") {
           data = await TodoApi.getAllList(
@@ -47,7 +40,6 @@ const TodoComponent = () => {
             searchType,
             page
           );
-          console.log("TodoListComponent getAll", data);
         } else {
           data = await TodoApi.getList(
             workspaceId,
@@ -56,7 +48,6 @@ const TodoComponent = () => {
             searchType,
             page
           );
-          console.log("TodoListComponent getList", data);
         }
         if (page === 0) {
           setTodoItem(data.content);
