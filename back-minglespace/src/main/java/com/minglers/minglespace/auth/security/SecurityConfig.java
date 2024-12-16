@@ -1,9 +1,10 @@
 package com.minglers.minglespace.auth.security;
 
 import com.minglers.minglespace.auth.exception.CustomAuthenticationEntryPoint;
+import com.minglers.minglespace.auth.oauth2.SuccessHandlerOAuth2;
 import com.minglers.minglespace.auth.oauth2.UserServiceOAuth2;
 import com.minglers.minglespace.auth.service.UserDetailsServiceImpl;
-import com.minglers.minglespace.auth.oauth2.SuccessHandlerOAuth2;
+import com.minglers.minglespace.common.util.Info;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -43,21 +44,28 @@ public class SecurityConfig {
         CorsConfiguration corsConfig = new CorsConfiguration();
 
         // 허용할 오리진
-        corsConfig.addAllowedOrigin("http://localhost:3000");
-        corsConfig.addAllowedOrigin("http://localhost:3001");
+        corsConfig.addAllowedOrigin(Info.CLIENT_URL);
 
-        // 메서드 허용
-        corsConfig.addAllowedMethod("GET");
-        corsConfig.addAllowedMethod("POST");
-        corsConfig.addAllowedMethod("OPTIONS");
-        corsConfig.addAllowedMethod("DELETE");
-        corsConfig.addAllowedMethod("PUT");
+//        // 메서드 허용
+//        corsConfig.addAllowedMethod("GET");
+//        corsConfig.addAllowedMethod("POST");
+//        corsConfig.addAllowedMethod("OPTIONS");
+//        corsConfig.addAllowedMethod("DELETE");
+//        corsConfig.addAllowedMethod("PUT");
+//
+//        // 헤더 허용
+//        corsConfig.addAllowedHeader("Authorization");
+//        corsConfig.addAllowedHeader("Set-Cookie");
+//        corsConfig.addAllowedHeader("Cache-Control");
+//        corsConfig.addAllowedHeader("Content-Type");
 
-        // 헤더 허용
-        corsConfig.addAllowedHeader("Authorization");
-        corsConfig.addAllowedHeader("Set-Cookie");
-        corsConfig.addAllowedHeader("Cache-Control");
-        corsConfig.addAllowedHeader("Content-Type");
+        corsConfig.addAllowedOriginPattern("*");	// 모든 IP에 응답을 허용 allowedOrigins true 일때 addAllowedOrigin *값 사용 불가능
+        corsConfig.addAllowedMethod("*");			// 모든 HTTP METHOD 허용
+        corsConfig.addAllowedHeader("*");			// 모든 HTTP HEADER 허용
+        corsConfig.addExposedHeader("Authorization");
+        corsConfig.addExposedHeader("authorization");
+
+
 
         // Preflight 캐시 타임
         corsConfig.setMaxAge(3600L);
@@ -72,6 +80,9 @@ public class SecurityConfig {
         source.registerCorsConfiguration("/**", corsConfig);
 
         return source;
+
+
+
     }
 
     @Bean

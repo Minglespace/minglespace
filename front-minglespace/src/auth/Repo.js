@@ -7,22 +7,15 @@ class Repo{
   static USER_ID = "userId";
 
   static setItem(data){
-    this.setAccessToken(data.accessToken);
-    this.setRefreshToken(data.refreshToken);
+
     this.setRole(data.role);
     this.setUserId(data.id);
-
-
-    this.setAccessTokenForAbuse(data.accessToken);
-    this.setRefreshTokenForAbuse(data.refreshToken);
     
-
   }
 
   static clearItem(){
 
     localStorage.removeItem(this.ACCESS_TOKEN);
-    localStorage.removeItem(this.REFRESH_TOKEN);
     localStorage.removeItem(this.USER_ROLE);
     localStorage.removeItem(this.USER_ID);
 
@@ -31,11 +24,6 @@ class Repo{
   static setAccessToken(accessToken){
     if(accessToken)
       localStorage.setItem(this.ACCESS_TOKEN, accessToken)
-  }
-  
-  static setRefreshToken(refreshToken){
-    if(refreshToken)
-      localStorage.setItem(this.REFRESH_TOKEN, refreshToken)
   }
   
   static setRole(role){
@@ -98,25 +86,6 @@ class Repo{
     localStorage.removeItem("profileColor");
   }
 
-
-  // for test
-  static setAccessTokenForAbuse(accessToken){
-    if(accessToken)
-      localStorage.setItem("accessToken_for_abuse", accessToken)
-  }
-  
-  static setRefreshTokenForAbuse(refreshToken){
-    if(refreshToken)
-      localStorage.setItem("refreshToken_for_abuse", refreshToken)
-  }
-  
-  static getAccessTokenForAbuse(){
-    return localStorage.getItem("accessToken_for_abuse");
-  }
-
-  static getRefreshTokenForAbuse(){
-    return localStorage.getItem("refreshToken_for_abuse");
-  }
 
 };
 

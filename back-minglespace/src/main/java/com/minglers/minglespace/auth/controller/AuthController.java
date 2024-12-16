@@ -1,6 +1,5 @@
 package com.minglers.minglespace.auth.controller;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.minglers.minglespace.auth.dto.*;
 import com.minglers.minglespace.auth.entity.User;
@@ -9,14 +8,12 @@ import com.minglers.minglespace.auth.security.JWTUtils;
 import com.minglers.minglespace.auth.service.AuthEmailService;
 import com.minglers.minglespace.auth.service.TokenBlacklistService;
 import com.minglers.minglespace.auth.service.UserService;
-import com.minglers.minglespace.chat.dto.ChatListResponseDTO;
-import com.minglers.minglespace.chat.dto.CreateChatRoomRequestDTO;
 import com.minglers.minglespace.common.entity.Image;
 import com.minglers.minglespace.common.service.ImageService;
-import com.minglers.minglespace.workspace.entity.WSMember;
+import com.minglers.minglespace.common.util.CookieManager;
 import jakarta.mail.MessagingException;
-import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
@@ -29,7 +26,6 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
-import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
@@ -83,17 +79,21 @@ class AuthController {
     }
 
     @PostMapping("/auth/login")
-    public ResponseEntity<LoginResponse> login(@RequestBody LoginRequest req) {
-        return ResponseEntity.ok(usersManagementService.login(req));
+    public ResponseEntity<LoginResponse> login(@RequestBody LoginRequest req, HttpServletResponse response) {
+        return ResponseEntity.ok(usersManagementService.login(req, response));
     }
 
     @PostMapping("auth/logout")
-    public ResponseEntity<DefaultResponse> logout(@RequestBody RefreshTokenRequest req){
+    public ResponseEntity<DefaultResponse> logout(
+            @RequestBody RefreshTokenRequest req,
+            HttpServletRequest request,
+            HttpServletResponse response){
+
         DefaultResponse res = new DefaultResponse();
         log.info("auth/logout");
-        log.info("req : {}", req.toString());
 
-        String refreshToken = req.getRefreshToken();
+        String refreshToken = CookieManager.get(JWTUtils.REFRESH_TOKEN, request);
+        CookieManager.clear(JWTUtils.REFRESH_TOKEN, response);
 
         LocalDateTime expiresAt = jwtUtils.extractExpiration(refreshToken);
         log.info("Token expires at: {}", expiresAt);
@@ -104,32 +104,29 @@ class AuthController {
         return ResponseEntity.ok(res);
     }
 
-    @PostMapping("/auth/refresh")
-    public ResponseEntity<RefreshTokenResponse> refreshToken(@RequestBody RefreshTokenRequest req) {
-        return ResponseEntity.ok(usersManagementService.refreshToken(req));
-    }
+//    @PostMapping("/auth/refresh")
+//    public ResponseEntity<RefreshTokenResponse> refreshToken(
+//            @RequestBody RefreshTokenRequest req, HttpServletResponse response) {
+//        return ResponseEntity.ok(usersManagementService.refreshToken(req, response));
+//    }
 
     @GetMapping("/auth/token")
-    private ResponseEntity<RefreshTokenResponse> token(HttpServletRequest request){
-        String token = null;
-        Cookie[] cookies = request.getCookies();
-        if(cookies != null){
-            for (Cookie cookie : cookies) {
-                System.out.println(cookie.getName());
-                if (cookie.getName().equals("Authorization")) {
-                    token = cookie.getValue();
-                    break;
-                }
-            }
+    private ResponseEntity<DefaultResponse> token(
+            HttpServletRequest request,
+            HttpServletResponse response){
+
+        DefaultResponse res = new DefaultResponse();
+        String accessToken = CookieManager.get("Authorization", request);
+        if(accessToken == null){
+            res.setStatus(HttpStatus.NOT_FOUND);
+            res.setMsg("토큰 관련 오류가 발생했습니다.");
+        }else{
+            // accessToken은 쿠키에서 빼서, 헤더에 넣어 준다.
+            CookieManager.clear("Authorization", response);
+            response.setHeader("Authorization", "Bearer " + accessToken);
+            res.setStatus(HttpStatus.OK);
+            res.setMsg("Token cookie -> header 성공");
         }
-
-        RefreshTokenResponse res = new RefreshTokenResponse();
-
-        res.setAccessToken(token);
-
-        res.setStatus(HttpStatus.OK);
-        res.setMsg("Token cookie -> body 성공");
-
         return ResponseEntity.ok(res);
     }
 

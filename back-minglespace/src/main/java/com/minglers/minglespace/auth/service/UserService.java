@@ -3,11 +3,11 @@ package com.minglers.minglespace.auth.service;
 import com.minglers.minglespace.auth.dto.*;
 import com.minglers.minglespace.auth.entity.User;
 import com.minglers.minglespace.auth.exception.AuthException;
-import com.minglers.minglespace.auth.exception.JwtExceptionCode;
 import com.minglers.minglespace.auth.repository.UserRepository;
 import com.minglers.minglespace.auth.security.JWTUtils;
 import com.minglers.minglespace.common.entity.Image;
-import com.minglers.minglespace.common.exception.CustomExceptionHandler;
+import com.minglers.minglespace.common.util.CookieManager;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.hibernate.PropertyValueException;
@@ -23,7 +23,6 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.util.HashMap;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 
@@ -89,7 +88,7 @@ public class UserService {
         }
     }
 
-    public LoginResponse login(LoginRequest req) {
+    public LoginResponse login(LoginRequest req, HttpServletResponse response) {
 
         LoginResponse res = new LoginResponse();
 
@@ -112,11 +111,17 @@ public class UserService {
 
                 // 응답 세팅
                 modelMapper.map(user, res);
-                res.setAccessToken(accessToken);
-                res.setRefreshToken(refreshToken);
+
+                // accessToken은 헤더에 넣어 준다.
+                response.setHeader("Authorization", "Bearer " + accessToken);
+
+                // refreshToken은 cookie에 넣어 준다.
+                CookieManager.add(JWTUtils.REFRESH_TOKEN, refreshToken, JWTUtils.EXPIRATION_REFRESH, response);
 
                 res.setStatus(HttpStatus.OK);
                 res.setMsg("유저 로그인 성공 : " + user.getEmail());
+
+                log.info("[MIRO] 유저 로그인 성공 accessToken : {}", accessToken);
 
             }else{
                 res.setStatus(HttpStatus.TOO_EARLY);
@@ -142,83 +147,66 @@ public class UserService {
             throw new AuthException(HttpStatus.INTERNAL_SERVER_ERROR.value(), "로그인 중 예기치 못한 오류가 발생했습니다.");
         }
 
-        log.info("");
-        log.info("");
-        log.info("login");
-        log.info(res.toString());
-        log.info("");
-        log.info("");
-
         return res;
     }
 
-    public RefreshTokenResponse refreshToken(RefreshTokenRequest req) {
-
-        RefreshTokenResponse res = new RefreshTokenResponse();
-
-        try {
-            String refreshToken = req.getRefreshToken();
-
-            if(tokenBlacklistService.isBlacklisted(refreshToken)){
-                log.error("================================================");
-                log.error("");
-                log.error("");
-                log.error("어뷰저 딱걸림.");
-                log.error("");
-                log.error("");
-
-                throw new BadCredentialsException("UNAUTHORIZED 잘못된 자격 증명");
-            }
-
-            log.error("================================================");
-            log.error("");
-            log.error("");
-            log.error("어뷰저 아님.");
-            log.error("");
-            log.error("");
-
-            String ourEmail = jwtUtils.extractUsername(refreshToken);
-            Optional<User> opt = usersRepo.findByEmail(ourEmail);
-
-            if(opt.isPresent()){
-
-                User user = opt.get();
-
-                if (jwtUtils.isTokenValid(refreshToken, user)) {
-
-                    String newAccessToken = jwtUtils.geneTokenAccess(user);
-
-                    res.setAccessToken(newAccessToken);
-
-                    res.setStatus(HttpStatus.OK);
-                    res.setMsg("Refreshed Token 생성 성공");
-                }else{
-                    res.setStatus(HttpStatus.UNAUTHORIZED);  // 리프레시 토큰이 유효하지 않음
-                    res.setMsg("Invalid refresh token");
-                }
-
-            }else{
-                res.setStatus(HttpStatus.NOT_FOUND);
-            }
-
-        }catch (BadCredentialsException e){
-            res.setStatus(HttpStatus.UNAUTHORIZED);  // 리프레시 토큰이 유효하지 않음
-            res.setMsg("This token is on the blacklist");
-        }
-        catch (Exception e) {
-            res.setStatus(HttpStatus.INTERNAL_SERVER_ERROR);
-            res.setMsg(e.getMessage());
-        }
-
-        log.info("");
-        log.info("");
-        log.info("refreshToken");
-        log.info(res.toString());
-        log.info("");
-        log.info("");
-
-        return res;
-    }
+//    public RefreshTokenResponse refreshToken(RefreshTokenRequest req, HttpServletResponse response) {
+//
+//        RefreshTokenResponse res = new RefreshTokenResponse();
+//
+//        try {
+//            String refreshToken = req.getRefreshToken();
+//
+//            if(tokenBlacklistService.isBlacklisted(refreshToken)){
+//                log.error("================================================");
+//                log.error("어뷰저 딱걸림.");
+//                throw new BadCredentialsException("UNAUTHORIZED 잘못된 자격 증명");
+//            }
+//
+//            String ourEmail = jwtUtils.extractUsername(refreshToken);
+//            Optional<User> opt = usersRepo.findByEmail(ourEmail);
+//
+//            if(opt.isPresent()){
+//
+//                User user = opt.get();
+//
+//                if (jwtUtils.isTokenValid(refreshToken, user)) {
+//
+//                    String newAccessToken = jwtUtils.geneTokenAccess(user);
+//
+//                    // accessToken은 헤더에 넣어 준다.
+//                    response.setHeader("Authorization", "Bearer " + newAccessToken);
+//                    //res.setAccessToken(newAccessToken);
+//
+//                    res.setStatus(HttpStatus.OK);
+//                    res.setMsg("Refreshed Token 생성 성공");
+//                }else{
+//                    res.setStatus(HttpStatus.UNAUTHORIZED);  // 리프레시 토큰이 유효하지 않음
+//                    res.setMsg("Invalid refresh token");
+//                }
+//
+//            }else{
+//                res.setStatus(HttpStatus.NOT_FOUND);
+//            }
+//
+//        }catch (BadCredentialsException e){
+//            res.setStatus(HttpStatus.UNAUTHORIZED);  // 리프레시 토큰이 유효하지 않음
+//            res.setMsg("This token is on the blacklist");
+//        }
+//        catch (Exception e) {
+//            res.setStatus(HttpStatus.INTERNAL_SERVER_ERROR);
+//            res.setMsg(e.getMessage());
+//        }
+//
+//        log.info("");
+//        log.info("");
+//        log.info("refreshToken");
+//        log.info(res.toString());
+//        log.info("");
+//        log.info("");
+//
+//        return res;
+//    }
 
     public DefaultResponse deleteUser(Long userId) {
 

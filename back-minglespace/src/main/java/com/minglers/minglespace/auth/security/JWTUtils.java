@@ -21,7 +21,6 @@ import java.util.function.Function;
 @Component
 public class JWTUtils {
 
-
     private final SecretKey secretKey;
 
     // ACCESS TOKEN 만료시간
@@ -30,16 +29,14 @@ public class JWTUtils {
     // REFRESH TOKEN 만료시간
     public static final long EXPIRATION_REFRESH = 6 * 60 * 60 * 1000;       // 6 시간
 
-    // 주기적으로 만료된 토큰을 삭제하는 메서드
+    // 블랙리스트의 만료된 토큰을 삭제 주기
     public static final long BLACKLIST_UPDATE_TIME = 60 * 60 * 1000;        // 1 시간
-
 
     public static final String ACCESS_TOKEN = "accessToken";
     public static final String REFRESH_TOKEN = "refreshToken";
 
 
     public JWTUtils(@Value("${spring.jwt.secret}") String secreteString) {
-        //log.info("[MIRO] JWT secret 로드 : {}", secreteString);
         this.secretKey = new SecretKeySpec(
                 secreteString.getBytes(StandardCharsets.UTF_8),
                 Jwts.SIG.HS256.key().build().getAlgorithm());
@@ -91,6 +88,17 @@ public class JWTUtils {
 
     public boolean isTokenExpired(String token) {
         return extractClaims(token, Claims::getExpiration).before(new Date());
+    }
+
+    public String getTokenType(String token) {
+        return extractClaims(token, c -> c.get("type", String.class));
+    }
+
+    public boolean isAccessToken(String token){
+        return getTokenType(token).equals(ACCESS_TOKEN);
+    }
+    public boolean isRefreshToken(String token){
+        return getTokenType(token).equals(REFRESH_TOKEN);
     }
 
 }

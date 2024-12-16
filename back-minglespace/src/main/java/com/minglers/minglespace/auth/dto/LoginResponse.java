@@ -13,8 +13,6 @@ import lombok.ToString;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class LoginResponse extends DefaultResponse {
 
-  private String accessToken;
-  private String refreshToken;
   private String role;
   private String id;
 
