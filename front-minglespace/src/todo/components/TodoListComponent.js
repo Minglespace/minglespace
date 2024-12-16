@@ -4,6 +4,7 @@ import TodoApi from "../../api/TodoApi";
 import { useParams } from "react-router-dom";
 import TodoItem from "./TodoItem";
 import TodoModal from "./TodoModal";
+import MembersApi from "../../api/membersApi";
 import { WSMemberRoleContext } from "../../workspace/context/WSMemberRoleContext";
 
 const TodoComponent = () => {
@@ -15,6 +16,9 @@ const TodoComponent = () => {
   const [page, setPage] = useState(0);
   const [hasMore, setHasMore] = useState(true);
   const [loading, setLoading] = useState(false);
+  const [members, setMembers] = useState([]);
+  const [selecetedTodo, setSelectedTodo] = useState(null);
+
   const [searchType, setSearchType] = useState("title");
   const { workspaceId } = useParams("workspaceId");
   const {
@@ -25,81 +29,125 @@ const TodoComponent = () => {
 
   const fetchData = useCallback(
     async (searchKeyword, sortType, searchType, page) => {
-      let data;
       setLoading(true);
-      const limit = page === 0 ? 12 : 8;
-      if (role === "LEADER" || role === "SUB_LEADER") {
-        data = await TodoApi.getAllList(
-          workspaceId,
-          searchKeyword,
-          sortType,
-          searchType,
-          page,
-          limit
-        );
-      } else {
-        data = await TodoApi.getList(
-          workspaceId,
-          searchKeyword,
-          sortType,
-          searchType,
-          page,
-          limit
-        );
+      let data;
+      console.log("Fetching data : ", {
+        searchKeyword,
+        sortType,
+        searchType,
+        page,
+      });
+      console.log("role : ", role);
+      try {
+        if (role === "LEADER" || role === "SUB_LEADER") {
+          data = await TodoApi.getAllList(
+            workspaceId,
+            searchKeyword,
+            sortType,
+            searchType,
+            page
+          );
+          console.log("TodoListComponent getAll", data);
+        } else {
+          data = await TodoApi.getList(
+            workspaceId,
+            searchKeyword,
+            sortType,
+            searchType,
+            page
+          );
+          console.log("TodoListComponent getList", data);
+        }
+        if (page === 0) {
+          setTodoItem(data.content);
+        } else {
+          setTodoItem((prevTodo) => [...prevTodo, ...data.content]);
+        }
+        setHasMore(!data.last);
+        setLoading(false);
+      } finally {
+        setRendering(false);
+        setLoading(false);
       }
-      if (data.length === 0) {
-        setHasMore(false);
-      } else {
-        setTodoItem((prevItems) =>
-          page === 0 ? data : [...prevItems, ...data]
-        );
-        setHasMore(true);
-      }
-      setRendering(false);
-      setLoading(false);
     },
     [workspaceId, role]
   );
 
   useEffect(() => {
-    fetchData(searchKeyword, sortType, searchType, page);
-  }, [workspaceId, role, rendering, fetchData, sortType, searchType, page]);
+    const fetchMembers = async () => {
+      try {
+        const membersList = await MembersApi.getMemberList(workspaceId);
+        setMembers(membersList);
+      } catch (error) {
+        console.error("Failed", error);
+      }
+    };
+    fetchMembers();
+  }, [workspaceId]);
 
   useEffect(() => {
-    if (page === 0) {
-      setTodoItem([]);
-    }
-  }, [page]);
+    fetchData(searchKeyword, sortType, searchType, page);
+  }, [workspaceId, role, fetchData, sortType, searchType, page]);
 
   //아이템 목록 렌더링 핸들러
-  const handleRendering = () => {
+  const handleRendering = useCallback(() => {
     setRendering(true);
-  };
+  }, []);
   //Modal창 켜고 닫는 핸들러
-  const handleModalOpen = () => {
+  const handleModalOpen = useCallback((todo) => {
+    setSelectedTodo(todo);
     setModalOpen(true);
-  };
-  const handleModalClose = () => {
+  }, []);
+  const handleModalClose = useCallback(() => {
     setModalOpen(false);
-  };
+    setSelectedTodo(null);
+  }, []);
 
   //현재 컴포넌트에서 ADD버튼 클릭 시 실행되는 핸들러
-  const handleAddTodo = (newTodo) => {
-    TodoApi.postAddTodo(workspaceId, newTodo).then((addedTodo) => {
-      setTodoItem((prevTodo) => [...prevTodo, newTodo]);
-      setModalOpen(false);
-      handleRendering();
-      setPage(0);
-    });
-  };
+  const handleAddTodo = useCallback(
+    (newTodo) => {
+      TodoApi.postAddTodo(workspaceId, newTodo).then((addedTodo) => {
+        setTodoItem((prevTodo) => [...prevTodo, addedTodo]);
+        setModalOpen(false);
+        setSortType(sortType);
+        setPage(0);
+      });
+    },
+    [workspaceId, sortType]
+  );
+
+  const handleModifyTodo = useCallback(
+    (updatedTodo) => {
+      // 문자열을 배열로 변경 또는 빈배열로 초기화
+      const modifiedTodo = {
+        ...updatedTodo,
+        wsMember_id: Array.isArray(updatedTodo.wsMember_id)
+          ? updatedTodo.wsMember_id
+          : [],
+      };
+
+      // API 호출로 Todo를 수정
+      TodoApi.modifyTodo(updatedTodo.id, workspaceId, updatedTodo).then(
+        (result) => {
+          setTodoItem((prevTodos) =>
+            prevTodos.map((todo) =>
+              todo.id === result.id ? { ...todo, ...result } : todo
+            )
+          );
+          setModalOpen(false);
+        }
+      );
+    },
+    [workspaceId]
+  );
 
   //Delete할 Todo의 ID를 자식에게 Props로 넘겨 이벤트로 받는 핸들러
-  const handleDeleteTodo = (id) => {
+  const handleDeleteTodo = useCallback((id) => {
     setTodoItem((prevTodoItems) =>
       prevTodoItems.filter((todo) => todo.id !== id)
     );
     setModalOpen(false);
-  };
+  }, []);
 
   //엔터 눌러서 검색하는 핸들러
   const handleSearch = useCallback(
@@ -115,29 +163,34 @@ const TodoComponent = () => {
     [fetchData, sortType, searchType]
   );
 
-  const handleChangeType = (e) => {
-    const { name, value } = e.target;
-    if (name === "search_type") {
-      setSearchType(value);
-    } else if (name === "sort_type") {
-      setSortType(value);
-      setPage(0);
-      fetchData(searchKeyword, value, searchType, 0);
-    }
-  };
+  const handleChangeType = useCallback(
+    (e) => {
+      const { name, value } = e.target;
+      if (name === "search_type") {
+        setSearchType(value);
+      } else if (name === "sort_type") {
+        setSortType(value);
+        setPage(0);
+        fetchData(searchKeyword, value, searchType, 0);
+        handleRendering();
+      }
+    },
+    [fetchData, searchKeyword, searchType]
+  );
 
   const lastTodoElementRef = useCallback(
     (node) => {
-      if (loading || !hasMore) return;
+      if (loading || !hasMore || modalOpen) return;
       if (observer.current) observer.current.disconnect();
       observer.current = new IntersectionObserver((entries) => {
-        if (entries[0].isIntersecting && hasMore) {
+        if (entries[0].isIntersecting) {
+          console.log("loading more");
           setPage((prevPage) => prevPage + 1);
         }
       });
       if (node) observer.current.observe(node);
     },
-    [loading, hasMore]
+    [loading, hasMore, modalOpen]
   );
 
   return (
@@ -172,26 +225,35 @@ const TodoComponent = () => {
       </div>
       <div className="todo_list_section">
         <div className="todo_item_container">
-          {todoItem.map((todo, index) => (
-            <div
-              key={todo.id}
-              className="todo_item_contents"
-              ref={index === todoItem.length - 1 ? lastTodoElementRef : null}
-            >
-              <TodoItem
-                todo={todo}
-                onDelete={handleDeleteTodo}
-                onRendering={handleRendering}
-                role={role}
-              />
-            </div>
-          ))}
+          {todoItem.length <= 0 ? (
+            <div>검색결과 없음</div>
+          ) : (
+            todoItem.map((todo, index) => (
+              <div
+                key={todo.id}
+                className="todo_item_contents"
+                ref={todoItem.length === index + 1 ? lastTodoElementRef : null}
+              >
+                <TodoItem
+                  todo={todo}
+                  members={members}
+                  onDelete={handleDeleteTodo}
+                  onModify={handleModifyTodo}
+                  onModalOpen={handleModalOpen}
+                  onRendering={handleRendering}
+                  role={role}
+                />
+              </div>
+            ))
+          )}
         </div>
         {modalOpen && (
           <TodoModal
             open={modalOpen}
+            members={members}
             onClose={handleModalClose}
             onAdd={handleAddTodo}
+            onModify={handleModifyTodo}
             onRendering={handleRendering}
             role={role}
           />

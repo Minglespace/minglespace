@@ -19,12 +19,14 @@ import com.minglers.minglespace.workspace.repository.WorkspaceRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
+import org.springframework.data.domain.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -42,118 +44,125 @@ public class TodoServiceImpl implements TodoService {
 
   @Override
   @Transactional(readOnly = true)
-  public List<TodoResponseDTO> getTodoWithAssigneeInfo(Long workspaceId, String searchKeyword, Long userId, String sortType, String searchType) {
-
+  public Slice<TodoResponseDTO> getTodoWithAssigneeInfo(Long workspaceId, String searchKeyword, Long userId, String sortType, String searchType, Pageable pageable) {
     WSMember wsMember = wsMemberRepository.findByUserIdAndWorkSpaceId(userId, workspaceId)
-            .orElseThrow();
-    List<Todo> todoList = todoRepository.findTodosByAssigneeWsMemberId(wsMember.getId());
+            .orElseThrow(() -> new RuntimeException("Workspace member not found"));
 
-    List<Todo> filterTodoList;
-    if (searchKeyword != null && !searchKeyword.isEmpty()) {
-      switch(searchType){
-        case "title" :
-        filterTodoList = todoRepository.findByWorkspaceIdAndTitleOrContent(workspaceId, searchKeyword);
+//    List<Todo> todoList = todoRepository.findTodosByAssigneeWsMemberId(wsMember.getId());
+
+//    Slice<Todo> pageResult = null; // 초기화
+    Sort sort;
+    switch(sortType.toLowerCase()){
+      case "content_asc":
+        sort = Sort.by("content").ascending();
+        log.info("내용순");
         break;
-        case "assignee" :
-          filterTodoList = todoList.stream()
-                  .filter(todo -> todo.getTodoAssigneeList().stream()
-                          .anyMatch(assignee -> assignee.getWsMember().getUser().getName().toLowerCase().contains(searchKeyword.toLowerCase())))
-                          .collect(Collectors.toList());
-                  break;
+      case "start_date_asc":
+        sort = Sort.by("startDate").ascending();
+        log.info("시간오름차순");
+        break;
+      case "start_date_desc":
+        sort = Sort.by("startDate").descending();
+        log.info("시간내림차순");
+        break;
+      default:
+        sort = Sort.by("title").ascending();
+        log.info("제목순");
+        break;
+    }
+
+    Pageable sortedPageable = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), sort);
+    Slice<Todo> pageResult;
+    if (searchKeyword != null && !searchKeyword.isEmpty()) {
+      switch (searchType.toLowerCase()) {
+        case "title":
+          pageResult = todoRepository.findByWorkspaceIdAndTitleOrContent(workspaceId, searchKeyword, sortType, sortedPageable);
+          break;
+        case "assignee":
+          pageResult = todoRepository.findByWorkspaceIdAndAssigneeName(workspaceId, searchKeyword, sortedPageable);
+          break;
         default:
-          filterTodoList = todoList.stream().filter(todo -> todo.getWorkSpace().getId().equals(workspaceId))
-                  .collect(Collectors.toList());
+          pageResult = todoRepository.findAllTodoByWorkSpaceId(workspaceId, sortedPageable);
           break;
       }
     } else {
-      filterTodoList = todoList.stream().filter(todo -> todo.getWorkSpace().getId().equals(workspaceId))
-              .collect(Collectors.toList());
+      pageResult = todoRepository.findAllTodoByWorkSpaceId(workspaceId, sortedPageable);
     }
 
-
-    if (sortType.equals("title_asc")) {
-      filterTodoList.sort(Comparator.comparing(Todo::getTitle));
-    } else if
-    (sortType.equals("content_asc")) {
-      filterTodoList.sort(Comparator.comparing(Todo::getContent));
-    } else if (sortType.equals("start_date_asc")) {
-      filterTodoList.sort(Comparator.comparing(Todo::getStart_date));
-    } else if (sortType.equals("start_date_desc")) {
-      filterTodoList.sort(Comparator.comparing(Todo::getStart_date).reversed());
-    }
-    else{
-      filterTodoList.sort(Comparator.comparing(Todo::getTitle));
+    // pageResult가 초기화되지 않은 경우를 방지하도록 수정
+    if (pageResult == null || pageResult.getContent().isEmpty()) {
+      // 기본적으로 빈 Slice를 리턴하거나 예외를 처리하도록 합니다.
+      return new SliceImpl<>(Collections.emptyList(), sortedPageable, false);
     }
 
-    List<TodoResponseDTO> resultTodoList = filterTodoList.stream().map(todo -> {
-      if (todo.getWsMember() == null) {
-        todo.changeWsMember(wsMember);
-      }
-      String creatorname = todo.getWsMember().getUser().getName();
+    List<TodoResponseDTO> resultTodoList = pageResult.getContent().stream().map(todo -> {
+      String creatorname = todo.getWsMember() != null ? todo.getWsMember().getUser().getName() : "unknown";
 
       List<WSMemberResponseDTO> assigneeList = todo.getTodoAssigneeList().stream()
               .map(assignee -> new WSMemberResponseDTO(
                       assignee.getWsMember().getId(),
                       assignee.getWsMember().getUser().getName(),
-                      assignee.getWsMember().getRole().toString()
-              )).collect(Collectors.toList());
+                      assignee.getWsMember().getRole().toString()))
+              .collect(Collectors.toList());
 
       return TodoResponseDTO.builder()
               .id(todo.getId())
               .title(todo.getTitle())
               .content(todo.getContent())
-              .start_date(todo.getStart_date())
-              .end_date(todo.getEnd_date())
+              .start_date(todo.getStartDate())
+              .end_date(todo.getEndDate())
               .complete(todo.isComplete())
               .creator_name(creatorname)
               .assignee_list(assigneeList)
               .build();
     }).collect(Collectors.toList());
 
-    return resultTodoList;
+    // Slice는 페이지네이션을 위해 TotalCount와 hasNextPage를 필요로 합니다.
+    boolean hasNext = pageResult.hasNext();
+    return new SliceImpl<>(resultTodoList, sortedPageable, hasNext);
   }
+
 
   @Override
   @Transactional(readOnly = true)
-  public List<TodoResponseDTO> getAllTodo(Long workspaceId, String searchKeyword, String sortType, String searchType) {
-    log.info("==========All Todo searchType============");
-    log.info(searchType);
-    log.info("==========All Todo sortType============");
-    log.info(sortType);
+  public Slice<TodoResponseDTO> getAllTodo(Long workspaceId, String searchKeyword, String sortType, String searchType, Pageable pageable) {
     WorkSpace workSpace = workspaceRepository.findById(workspaceId)
             .orElseThrow(() -> new WorkspaceException(HttpStatus.NOT_FOUND.value(), "워크스페이스를 찾을 수 없습니다."));
+    Sort sort;
+    switch(sortType.toLowerCase()){
+      case "content_asc":
+        sort = Sort.by("content").ascending();
+        break;
+      case "start_date_asc":
+        sort = Sort.by("startDate").ascending();
+        break;
+      case "start_date_desc":
+        sort = Sort.by("startDate").descending();
+        break;
+      default:
+        sort = Sort.by("title").ascending();
+        break;
+    }
 
-    List<Todo> todoList;
-
+    Pageable sortedPageable = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), sort);
+    Slice<Todo> pageResult;
     if (searchKeyword != null && !searchKeyword.isEmpty()) {
       switch (searchType.toLowerCase()) {
         case "title":
-          todoList = todoRepository.findByWorkspaceIdAndTitleOrContent(workspaceId, searchKeyword);
+          pageResult = todoRepository.findByWorkspaceIdAndTitleOrContent(workspaceId, searchKeyword, sortType, sortedPageable);
           break;
         case "assignee":
-          todoList = todoRepository.findByWorkspaceIdAndAssigneeName(workspaceId, searchKeyword);
+          pageResult = todoRepository.findByWorkspaceIdAndAssigneeName(workspaceId, searchKeyword, sortedPageable);
           break;
         default:
-          todoList = todoRepository.findAllTodoByWorkSpaceId(workspaceId);
+          pageResult = todoRepository.findAllTodoByWorkSpaceId(workspaceId, sortedPageable);
           break;
       }
     } else {
-      todoList = todoRepository.findAllTodoByWorkSpaceId(workspaceId);
-    }
+      pageResult = todoRepository.findAllTodoByWorkSpaceId(workspaceId, sortedPageable);
 
-    if (sortType.equals("title_asc")) {
-      todoList.sort(Comparator.comparing(Todo::getTitle));
-    } else if (sortType.equals("content_asc")) {
-      todoList.sort(Comparator.comparing(Todo::getContent));
-    } else if (sortType.equals("start_date_asc")) {
-      todoList.sort(Comparator.comparing(Todo::getStart_date));
-    } else if (sortType.equals("start_date_desc")) {
-      todoList.sort(Comparator.comparing(Todo::getStart_date).reversed());
-    } else{
-      todoList.sort(Comparator.comparing(Todo::getTitle));
     }
-
-    List<TodoResponseDTO> todoResponseDTOList = todoList.stream().map(todo -> {
+    List<TodoResponseDTO> todoResponseDTOList = pageResult.getContent().stream().map(todo -> {
       String creatorName = todo.getWsMember().getUser().getName();
       List<WSMemberResponseDTO> assigneeList = todo.getTodoAssigneeList().stream()
               .map(assignee -> new WSMemberResponseDTO(
@@ -166,15 +175,16 @@ public class TodoServiceImpl implements TodoService {
               .id(todo.getId())
               .title(todo.getTitle())
               .content(todo.getContent())
-              .start_date(todo.getStart_date())
-              .end_date(todo.getEnd_date())
+              .start_date(todo.getStartDate())
+              .end_date(todo.getEndDate())
               .complete(todo.isComplete())
               .creator_name(creatorName)
               .assignee_list(assigneeList)
               .build();
     }).collect(Collectors.toList());
 
-    return todoResponseDTOList;
+    boolean hasNext = pageResult.hasNext();
+    return new SliceImpl<>(todoResponseDTOList, pageable, hasNext);
   }
 
 
@@ -195,8 +205,8 @@ public class TodoServiceImpl implements TodoService {
     Todo newTodo = Todo.builder()
             .title(todoRequestDTO.getTitle())
             .content(todoRequestDTO.getContent())
-            .start_date(todoRequestDTO.getStart_date())
-            .end_date(todoRequestDTO.getEnd_date())
+            .startDate(todoRequestDTO.getStart_date())
+            .endDate(todoRequestDTO.getEnd_date())
             .wsMember(wsMember)
             .workSpace(workSpace).build();
 
@@ -211,8 +221,6 @@ public class TodoServiceImpl implements TodoService {
 
       assignees.add(todoAssignee);
     }
-    log.info("===========newTodo============");
-    log.info(newTodo.toString());
     newTodo.changeTodoAssigneeList(assignees);
     todoRepository.save(newTodo);
 
@@ -225,8 +233,8 @@ public class TodoServiceImpl implements TodoService {
             .id(newTodo.getId())
             .title(newTodo.getTitle())
             .content(newTodo.getContent())
-            .start_date(newTodo.getStart_date())
-            .end_date(newTodo.getEnd_date())
+            .start_date(newTodo.getStartDate())
+            .end_date(newTodo.getEndDate())
             .creator_name(newTodo.getWsMember().getUser().getName())
             .assignee_list(assigneeList).build();
   }
@@ -251,8 +259,8 @@ public class TodoServiceImpl implements TodoService {
             .id(filterTodo.getId())
             .title(filterTodo.getTitle())
             .content(filterTodo.getContent())
-            .start_date(filterTodo.getStart_date())
-            .end_date(filterTodo.getEnd_date())
+            .start_date(filterTodo.getStartDate())
+            .end_date(filterTodo.getEndDate())
             .complete(filterTodo.isComplete())
             .creator_name(creatorname)
             .assignee_list(assigneeList)
@@ -296,8 +304,8 @@ public class TodoServiceImpl implements TodoService {
             .id(todo.getId())
             .title(todo.getTitle())
             .content(todo.getContent())
-            .start_date(todo.getStart_date())
-            .end_date(todo.getEnd_date())
+            .start_date(todo.getStartDate())
+            .end_date(todo.getEndDate())
             .complete(todo.isComplete())
             .creator_name(todo.getWsMember().getUser().getName())
             .assignee_list(assigneeList).build();

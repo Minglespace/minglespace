@@ -9,6 +9,10 @@ import com.minglers.minglespace.workspace.repository.WorkspaceRepository;
 import com.minglers.minglespace.workspace.service.WorkspaceService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
 import org.springframework.http.RequestEntity;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -26,23 +30,32 @@ public class TodoController {
   private final JWTUtils jwtUtils;
 
   @GetMapping({"/search", "/search/{searchKeyword}"}) //유저용 (자신이 만든것 + 자신에게 부여된것)
-  public ResponseEntity<List<TodoResponseDTO>> getTodo(@RequestHeader("Authorization") String token,
-                                                       @PathVariable(value = "searchKeyword", required = false) String searchKeyword,
-                                                       @PathVariable("workspaceId") Long workspaceId,
-                                                       @RequestParam(value = "sortType", defaultValue = "title") String sortType,
-                                                       @RequestParam(value = "searchType") String searchType){
+  public ResponseEntity<Slice<TodoResponseDTO>> getTodo(@RequestHeader("Authorization") String token,
+                                                        @PathVariable(value = "searchKeyword", required = false) String searchKeyword,
+                                                        @PathVariable("workspaceId") Long workspaceId,
+                                                        @RequestParam(value = "sortType", defaultValue = "title") String sortType,
+                                                        @RequestParam(value = "searchType") String searchType,
+                                                        @RequestParam(defaultValue = "0") int page,
+                                                        @RequestParam(defaultValue = "16") int size){
     Long userId = jwtUtils.extractUserId(token.substring(7));
-    return ResponseEntity.ok(todoService.getTodoWithAssigneeInfo(workspaceId, searchKeyword, userId, sortType, searchType));
+    Pageable pageable = PageRequest.of(page, size);
+    return ResponseEntity.ok(todoService.getTodoWithAssigneeInfo(workspaceId, searchKeyword, userId, sortType, searchType, pageable));
   }
 
   @GetMapping({"/leader", "/leader/{searchKeyword}"})
-  public ResponseEntity<List<TodoResponseDTO>> getAllTodo(@RequestHeader("Authorization") String token,
-                                                       @PathVariable("workspaceId") Long workspaceId,
-                                                          @PathVariable(value = "searchKeyword", required = false) String searchKeyword,
-                                                          @RequestParam(value = "sortType", defaultValue = "title") String sortType,
-                                                          @RequestParam(value = "searchType") String searchType){
+  public ResponseEntity<Slice<TodoResponseDTO>> getAllTodo(
+          @RequestHeader("Authorization") String token,
+          @PathVariable("workspaceId") Long workspaceId,
+          @PathVariable(value = "searchKeyword", required = false) String searchKeyword,
+          @RequestParam(value = "sortType", defaultValue = "title") String sortType,
+          @RequestParam(value = "searchType") String searchType,
+          @RequestParam(defaultValue = "0") int page,
+          @RequestParam(defaultValue = "16") int size) {
+
     Long userId = jwtUtils.extractUserId(token.substring(7));
-    return ResponseEntity.ok(todoService.getAllTodo(workspaceId, searchKeyword, sortType, searchType));
+    Pageable pageable = PageRequest.of(page, size);
+
+    return ResponseEntity.ok(todoService.getAllTodo(workspaceId, searchKeyword, sortType, searchType, pageable));
   }
 
   @GetMapping("/{todoId}")

@@ -23,8 +23,10 @@ public class Todo {
 
   private String title;
   private String content;
-  private Long start_date;
-  private Long end_date;
+  @Column(name ="start_date")
+  private Long startDate;
+  @Column(name="end_date")
+  private Long endDate;
   @ColumnDefault("false")
   private boolean complete;
 
@@ -74,11 +76,11 @@ public class Todo {
   }
 
   public void changeStart_date(Long start_date) {
-    this.start_date = start_date;
+    this.startDate = start_date;
   }
 
   public void changeEnd_date(Long end_date) {
-    this.end_date = end_date;
+    this.endDate = end_date;
   }
 
   public void changeComplete(boolean complete) {

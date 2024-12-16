@@ -2,7 +2,14 @@ import api, { HOST_URL } from "./Api";
 
 const prefix = `${HOST_URL}/workspace`;
 class TodoApi {
-  static getList = async (workspaceId, searchKeyword, sortType, searchType) => {
+  static getList = async (
+    workspaceId,
+    searchKeyword,
+    sortType,
+    searchType,
+    page,
+    size
+  ) => {
     try {
       let url = `${prefix}/${workspaceId}/todo/search`;
       if (searchKeyword) url += `/${searchKeyword}`;
@@ -12,7 +19,12 @@ class TodoApi {
       if (sortType) params.push(`sortType=${sortType}`);
       if (params.length > 0) url += `?${params.join("&")}`;
 
-      const res = await api.axiosIns.get(url);
+      const res = await api.axiosIns.get(url, {
+        params: {
+          page: page,
+          size: size,
+        },
+      });
       return res.data;
     } catch (error) {
       console.error("할일 목록 조회 실패", error);
@@ -24,7 +36,9 @@ class TodoApi {
     workspaceId,
     searchKeyword,
     sortType,
-    searchType
+    searchType,
+    page,
+    size
   ) => {
     try {
       let url = `${prefix}/${workspaceId}/todo/leader`;
@@ -36,7 +50,9 @@ class TodoApi {
       if (sortType) params.push(`sortType=${sortType}`);
       if (params.length > 0) url += `?${params.join("&")}`;
 
-      const res = await api.axiosIns.get(url);
+      const res = await api.axiosIns.get(url, {
+        params: { page: page, size: size },
+      });
       return res.data;
     } catch (error) {
       console.error("할일 전체목록 조회 실패", error);
