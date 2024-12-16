@@ -21,7 +21,7 @@ public class Image {
     private String localpath;  // 로컬경로(수정 삭제시 실제 저장되는 경로)
     private String uripath;  // 파일 불러올때 src에 사용하는 경로
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "chatMessage_id")
     private ChatMessage chatMessage;
 

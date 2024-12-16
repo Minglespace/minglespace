@@ -2,6 +2,7 @@ package com.minglers.minglespace.common.controller;
 
 import com.minglers.minglespace.common.entity.Image;
 import com.minglers.minglespace.common.service.ImageService;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpStatus;
@@ -11,12 +12,9 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import java.net.MalformedURLException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 @RestController
 @RequiredArgsConstructor
@@ -26,13 +24,15 @@ public class ImageController {
 
   //클라이언트에서 통하는 이미지 경로.
   @CrossOrigin(origins = "http://localhost:3000")
-  @GetMapping("/images/{imageName}")
-  public ResponseEntity<Resource> getImage(@PathVariable String imageName) {
+  @GetMapping({"/images/{fileName}", "/files/{fileName}"})
+  public ResponseEntity<Resource> getImage(@PathVariable String fileName, HttpServletRequest request) {
+    String requestURI = request.getRequestURI();
+    String directory = requestURI.contains("/images/") ? "images" : "files";
     try {
-      Resource resource = imageService.getImage(imageName);
+      Resource resource = imageService.getFile(fileName, directory);
 
       if (resource.exists() || resource.isReadable()) {
-        String mimeType = imageService.getMimeType(imageName);
+        String mimeType = imageService.getMimeType(fileName);
         return ResponseEntity.ok()
                 .contentType(MediaType.parseMediaType(mimeType)) // 또는 적절한 이미지 타입으로 설정
                 .body(resource);

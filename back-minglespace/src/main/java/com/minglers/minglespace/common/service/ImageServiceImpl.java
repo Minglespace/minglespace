@@ -105,10 +105,10 @@ public class ImageServiceImpl implements ImageService{
   }
 
   @Override
-  public Resource getImage(String imageName) throws IOException {
-    String decodedImageName = URLDecoder.decode(imageName, StandardCharsets.UTF_8);
+  public Resource getFile(String fileName, String directory) throws IOException {
+    String decodedImageName = URLDecoder.decode(fileName, StandardCharsets.UTF_8);
 
-    Path path = Paths.get(uploadPath + File.separator + "images" + File.separator + decodedImageName);
+    Path path = Paths.get(uploadPath + File.separator + directory + File.separator + decodedImageName);
     return new UrlResource(path.toUri());
   }
 

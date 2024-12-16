@@ -27,7 +27,7 @@ public class ChatMsgRequestDTO {
   private List<Long> mentionedUserIds;
   private List<Long> imageIds; //request
 
-  public ChatMessage toEntity(ChatRoom chatRoom, WSMember wsMember, ChatMessage parentMsg, List<Image> images){
+  public ChatMessage toEntity(ChatRoom chatRoom, WSMember wsMember, ChatMessage parentMsg){
     return ChatMessage.builder()
             .content(this.getContent())
             .wsMember(wsMember)
@@ -35,7 +35,7 @@ public class ChatMsgRequestDTO {
             .parentMessage(parentMsg)
             .date(LocalDateTime.now())
             .isAnnouncement(this.getIsAnnouncement())
-            .images(images)
+//            .images(images)
             .build();
   }
 }

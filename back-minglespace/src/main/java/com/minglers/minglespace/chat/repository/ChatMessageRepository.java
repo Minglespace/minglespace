@@ -14,10 +14,10 @@ import java.util.Optional;
 
 @Repository
 public interface ChatMessageRepository extends JpaRepository<ChatMessage, Long>, JpaSpecificationExecutor<ChatMessage> {
-
+  @Query("SELECT cm FROM ChatMessage cm LEFT JOIN FETCH cm.images WHERE cm.chatRoom.id = :chatRoomId AND cm.isDeleted = FALSE")
   List<ChatMessage> findByChatRoomIdAndIsDeletedFalse(Long chatRoomId);
   List<ChatMessage> findByChatRoom(ChatRoom chatRoom);
-  List<ChatMessage> findByChatRoomIdAndContentContaining(Long chatRoomId, String keyword);
+  List<ChatMessage> findByChatRoomIdAndContentContaining(Long chatRoomId, String keyword); //search
 
   // 채팅방의 마지막 메시지 조회
   @Query(value = "SELECT * FROM chatmessage WHERE chatroom_id = :chatRoomId ORDER BY date DESC LIMIT 1", nativeQuery = true)

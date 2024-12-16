@@ -241,7 +241,7 @@ const ChatRoom = ({
   }
 
   const handleDeleteMessage = async (message) => {
-    try{
+    try {
       await ChatApi.deleteMessage(chatRoomId, message.id);
 
       setChatRoomInfo((prev) => {
@@ -249,7 +249,7 @@ const ChatRoom = ({
           Number(msg.id) !== Number(message.id))
         return { ...prev, messages: updatedMessages };
       })
-    }catch (error) {
+    } catch (error) {
       console.error("chatroom _ 공지 등록 에러: ", error);
     }
   }
@@ -294,7 +294,7 @@ const ChatRoom = ({
           const statusData = JSON.parse(status.body);
           console.log("읽음 처리 메시지", statusData);
 
-          if(status.type === "READ"){
+          if (status.type === "READ") {
             ///특정 유저가 실시간으로 읽은 메시지 상태 반영
             setChatRoomInfo((prev) => ({
               ...prev,
@@ -305,13 +305,13 @@ const ChatRoom = ({
                 ),
               })),
             }));
-          }else if(status.type === "DELETE"){
+          } else if (status.type === "DELETE") {
             setChatRoomInfo((prev) => {
               const updatedMessages = prev.messages.filter((msg) => Number(msg.id) !== status.messageId);
-              return {...prev, messages:updatedMessages};
+              return { ...prev, messages: updatedMessages };
             });
           }
-          
+
         });
 
 
@@ -342,13 +342,13 @@ const ChatRoom = ({
 
   // 메시지 전송 처리 함수 
   const handleSendMessage = async (newMessage, files) => {
-    try{
+    try {
       let uploadedFileIds = [];
-      if(files && files.length > 0){
+      if (files && files.length > 0) {
         const uploadRes = await ChatApi.uploadChatFile(files);
         uploadedFileIds = uploadRes.imageIds;
       }
-      
+
       const sendMessage = {
         content: newMessage.content,
         isAnnouncement: false,
@@ -369,14 +369,12 @@ const ChatRoom = ({
       } else {
         console.warn("websocket 미연결 or 메시지 빔");
       }
-    }catch (error) {
+    } catch (error) {
       console.error("메시지 전송 실패:", error);
     }
-    
-
   };
 
-  
+
   // 메시지를 클릭하면 해당 메시지를 선택
   const handleMessageClick = (messages) => {
     console.log("답장할 메시지:", messages);
@@ -405,7 +403,7 @@ const ChatRoom = ({
         onMessageClick={handleMessageClick}
         currentMemberInfo={currentMemberInfo}
         onRegisterAnnouncement={handleRegisterAnnouncement}
-        onDeleteMessage = {handleDeleteMessage}
+        onDeleteMessage={handleDeleteMessage}
       />
 
       <MessageInput

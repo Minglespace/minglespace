@@ -59,10 +59,10 @@ class ChatApi {
 			const res = await api.axiosIns.get(`${chatroomPrefix}/${workspaceId}/chatRooms/${chatRoomId}`);
 			return res.data;
 		} catch (error) {
-			if(error.response && error.response.status === 404){
+			if (error.response && error.response.status === 404) {
 				alert("채팅방 정보 겟 실패:", error.response.data.message);
-				window.location.href=`/workspace/${workspaceId}/chat`;
-			}else{
+				window.location.href = `/workspace/${workspaceId}/chat`;
+			} else {
 				console.error("채팅방 정보 겟 실패:", error.message);
 			}
 		}
@@ -74,12 +74,12 @@ class ChatApi {
 			const res = await api.axiosIns.post(`${chatroomPrefix}/${workspaceId}/chatRooms/${chatRoomId}/members/${addMemberId}`);
 			return res.data;
 		} catch (error) {
-			if(error.response && error.response.status === 403){
+			if (error.response && error.response.status === 403) {
 				alert("채팅방 멤버 추가 실패:", error.response.data.message);
-			}else{
+			} else {
 				console.error("채팅방 멤버 추가 실패:", error.message);
 			}
-			
+
 		}
 	};
 
@@ -123,33 +123,44 @@ class ChatApi {
 		try {
 			await api.axiosIns.put(`${messagePrefix}/${chatRoomId}/messages/${messageId}/announcement`);
 		} catch (error) {
-			console.log("공지 등록에 실패: ",error.message);
+			console.log("공지 등록에 실패: ", error.message);
 		}
 	}
 
 	static deleteMessage = async (chatRoomId, messageId) => {
-		try{
+		try {
 			await api.axiosIns.delete(`${messagePrefix}/${chatRoomId}/messages/${messageId}`);
-		}catch(error){
+		} catch (error) {
 			console.log("메시지 삭제 실패: ", error.message);
 		}
 	}
 
-	static uploadChatFile = async(files) => {
-		try{
+	static uploadChatFile = async (files) => {
+		try {
 			const formData = new FormData();
 			files.forEach(file => {
 				formData.append("files", file);
 			});
 
 			const res = await api.axiosIns.post("/upload/files", formData, {
-				headers:{
-					"Content-Type" : "multipart/form-data",
+				headers: {
+					"Content-Type": "multipart/form-data",
 				},
 			});
 			return res.data;
-		}catch(error){
+		} catch (error) {
 			console.error("채팅 파일 업로드 실패: ", error.message);
+		}
+	}
+
+	static downloadFile = async (url) => {
+		try {
+			const res = await api.axiosIns.get(url, {
+				responseType: 'blob',
+			});
+			return res.data;
+		} catch (error) {
+			console.error("파일 다운로드 실패: ", error.message);
 		}
 	}
 

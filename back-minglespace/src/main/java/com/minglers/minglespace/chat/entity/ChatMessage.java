@@ -9,7 +9,9 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Entity
 @Getter
@@ -45,11 +47,39 @@ public class ChatMessage {
     @Builder.Default
     private Boolean isDeleted = false;
 
-    @OneToMany(mappedBy = "chatMessage",fetch = FetchType.EAGER)
-    private List<Image> images;
+    @OneToMany(mappedBy = "chatMessage", orphanRemoval = true)
+    @Builder.Default
+    private List<Image> images = new ArrayList<>();
+
+    public void addImage(Image image) {
+        images.add(image);
+        image.setChatMessage(this);
+    }
+
+    private boolean isImage(String fileExtension){
+        return fileExtension != null && (fileExtension.equalsIgnoreCase("jpg") || fileExtension.equalsIgnoreCase("jpeg") || fileExtension.equalsIgnoreCase("png"));
+    }
+
+    private String getFileExtension(String fileName) {
+        if(fileName != null && fileName.contains(".")){
+            return fileName.substring(fileName.lastIndexOf('.')+1);
+        }
+        return "";
+    }
 
     public ChatMsgResponseDTO toDTO(List<MemberWithUserInfoDTO> unReadMembers){
         Long replyId = (this.getParentMessage() != null) ? this.getParentMessage().getId() : null;
+
+        List<String> imageUriPaths = this.getImages().stream()
+                .filter(image -> isImage(getFileExtension(image.getOriginalname())))
+                .map(Image::getUripath)
+                .toList();
+
+        List<String> documentUriPaths = this.getImages().stream()
+                .filter(image -> !isImage(getFileExtension(image.getOriginalname())))
+                .map(Image::getUripath)
+                .toList();
+
         return ChatMsgResponseDTO.builder()
                 .id(this.getId())
                 .chatRoomId(this.getChatRoom().getId())
@@ -60,6 +90,8 @@ public class ChatMessage {
                 .isAnnouncement(this.getIsAnnouncement())
                 .sender(this.getWsMember().getUser().getName())
                 .unReadMembers(unReadMembers)
+                .imageUriPaths(imageUriPaths)
+                .documentUriPaths(documentUriPaths)
                 .build();
     }
 }

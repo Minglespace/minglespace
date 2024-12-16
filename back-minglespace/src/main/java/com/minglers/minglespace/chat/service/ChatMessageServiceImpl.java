@@ -69,20 +69,10 @@ public class ChatMessageServiceImpl implements ChatMessageService {
       //파일 조회
       List<Image> images = imageRepository.findAllById(messageDTO.getImageIds());
 
-      List<String> imageUris = new ArrayList<>();
-      List<String> documentUris = new ArrayList<>();
-      for(Image image : images) {
-        String fileName = image.getOriginalname();
-        String fileExtension = getFileExtension(fileName);
-
-        if(isImage(fileExtension)){
-          imageUris.add(image.getUripath());
-        }else{
-          documentUris.add(image.getUripath());
-        }
+      ChatMessage chatMessage = messageDTO.toEntity(chatRoom, wsMember, parentMsg);
+      for(Image image: images){
+        chatMessage.addImage(image);
       }
-
-      ChatMessage chatMessage = messageDTO.toEntity(chatRoom, wsMember, parentMsg, images);
       ChatMessage savedMessage = chatMessageRepository.save(chatMessage);
 
       //답글이면 부모 댓글에게 답글 달린 알림 보내기
@@ -101,18 +91,20 @@ public class ChatMessageServiceImpl implements ChatMessageService {
       msgReadStatusService.createMsgForMembers(savedMessage, activeUserIds);
 
       //messageDTO 정보 채우기
-      ChatMsgResponseDTO resDTO = ChatMsgResponseDTO.builder()
-              .id(savedMessage.getId())
-              .content(messageDTO.getContent())
-              .writerWsMemberId(wsMember.getId())
-              .chatRoomId(messageDTO.getChatRoomId())
-              .replyId(messageDTO.getReplyId())
-              .date(savedMessage.getDate())
-              .isAnnouncement(messageDTO.getIsAnnouncement())
-              .imageUriPaths(imageUris)
-              .documentUriPaths(documentUris)
-              .build();
+//      ChatMsgResponseDTO resDTO = ChatMsgResponseDTO.builder()
+//              .id(savedMessage.getId())
+//              .content(messageDTO.getContent())
+//              .writerWsMemberId(wsMember.getId())
+//              .chatRoomId(messageDTO.getChatRoomId())
+//              .replyId(messageDTO.getReplyId())
+//              .date(savedMessage.getDate())
+//              .isAnnouncement(messageDTO.getIsAnnouncement())
+//              .imageUriPaths(imageUris)
+//              .documentUriPaths(documentUris)
+//              .build();
       List<MemberWithUserInfoDTO> unreadMembers = getUnreadMembers(messageDTO.getChatRoomId(), savedMessage.getId());
+      ChatMsgResponseDTO resDTO = savedMessage.toDTO(unreadMembers);
+
       resDTO.setUnReadMembers(unreadMembers);
 
       return resDTO;
@@ -144,7 +136,7 @@ public class ChatMessageServiceImpl implements ChatMessageService {
     log.info("getMessagesByChatRoom_chatRoomId : " + chatRoom.getId());
     //채팅방 메시지 가져오기
     List<ChatMessage> messages = chatMessageRepository.findByChatRoomIdAndIsDeletedFalse(chatRoom.getId());
-    log.info("getMessagesByChatRoom_ msg : " + messages.size());
+    log.info("getMessagesByChatRoom_ msg : " + messages.get(messages.size() -1 ).getImages().size());
 
     return messages.stream()
             .map(message -> {
@@ -257,16 +249,5 @@ public class ChatMessageServiceImpl implements ChatMessageService {
       throw new ChatException(HttpStatus.INTERNAL_SERVER_ERROR.value(), "메시지 삭제 중 오류 발생: " + e.getMessage());
     }
     return messageId + "번 메시지 삭제 완료";
-  }
-
-  private boolean isImage(String fileExtension){
-    return fileExtension != null && (fileExtension.equalsIgnoreCase("jpg") || fileExtension.equalsIgnoreCase("jpeg") || fileExtension.equalsIgnoreCase("png"));
-  }
-
-  private String getFileExtension(String fileName) {
-    if(fileName != null && fileName.contains(".")){
-      return fileName.substring(fileName.lastIndexOf('.')+1);
-    }
-    return "";
   }
 }
