@@ -215,7 +215,7 @@ const MessageListItem = ({
                   hoveredUnread.map((member) => (
                     <div key={member.wsMemberId} style={{ display: "flex", marginLeft: "30px", marginBottom: "5px" }}>
                       <ProfileImage src={imageUrlPathCheck(member.profileImagePath)} userName={member.name} size={30} />
-                      <span style={{ marginLeft: "10px" }}>{member.name}</span>
+                      <span style={{ marginLeft: "10px", fontSize:"18px" }}>{member.name}</span>
                     </div>
                   ))
                 )
@@ -229,6 +229,7 @@ const MessageListItem = ({
           nextSrc={`${HOST_URL}${message.imageUriPaths[(photoIndex + 1) % message.imageUriPaths.length]}`}
           prevSrc={`${HOST_URL}${message.imageUriPaths[(photoIndex + message.imageUriPaths.length - 1) % message.imageUriPaths.length]}`}
           onCloseRequest={() => setIsImageOpen(false)}
+          // animationDuration={0}
           onMovePrevRequest={() =>
             setPhotoIndex((photoIndex + message.imageUriPaths.length - 1) % message.imageUriPaths.length)
           }
