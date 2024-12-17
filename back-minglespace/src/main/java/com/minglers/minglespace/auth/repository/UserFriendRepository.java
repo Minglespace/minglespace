@@ -14,7 +14,7 @@ public interface UserFriendRepository extends JpaRepository<UserFriend, Long> {
 
     @Query("SELECT u FROM UserFriend uf JOIN uf.friend u " +
             "WHERE uf.user.id = :userId AND uf.friendshipStatus = :friendshipStatus " +
-            "AND (:searchKeyword IS NULL OR u.name LIKE %:searchKeyword%) " +
+            "AND (:searchKeyword IS NULL OR u.name LIKE CONCAT('%', :searchKeyword, '%') ESCAPE '\\') " +
             "ORDER BY u.name ASC")
     List<User> findAllByUserIdAndStatus(@Param("userId") Long userId,
                                         @Param("friendshipStatus") FriendshipStatus friendshipStatus,

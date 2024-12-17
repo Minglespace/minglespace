@@ -3,6 +3,7 @@ import Search from "../../common/Layouts/components/Search";
 import MyFriendsApi from "../../api/myFriendsApi";
 import Userinfo from "../../common/Layouts/components/Userinfo";
 import api, { HOST_URL } from "../../api/Api";
+import { getErrorMessage } from "../../common/Exception/errorUtils";
 
 const MyFriendsSearch = ({ addFriendRequest }) => {
   const [user, setUser] = useState([]);
@@ -15,20 +16,24 @@ const MyFriendsSearch = ({ addFriendRequest }) => {
   //단어체크 유효성검사
   const isValidCharacter = useCallback((char) => {
     const validCharRegex = /^[a-zA-Z0-9@.]*$/;
+    if (char.trim() === ".") return false;
     return validCharRegex.test(char);
   }, []);
 
   //유저리스트 조회용
   const getUserList = useCallback(async (keyword, pageNum) => {
     setLoading(true);
-    const response = await MyFriendsApi.getUserList(keyword, pageNum, 10);
-    if (pageNum === 0) {
-      setUser(response.content);
-    } else {
-      setUser((prevUsers) => [...prevUsers, ...response.content]);
+    try {
+      const response = await MyFriendsApi.getUserList(keyword, pageNum, 10);
+      if (pageNum === 0) {
+        setUser(response.content);
+      } else {
+        setUser((prevUsers) => [...prevUsers, ...response.content]);
+      }
+      setHasMore(!response.last);
+    } catch (error) {
+      alert(`유저 조회 실패 : \n원인:+${getErrorMessage(error)}`);
     }
-
-    setHasMore(!response.last);
     setLoading(false);
   }, []);
 
@@ -78,10 +83,16 @@ const MyFriendsSearch = ({ addFriendRequest }) => {
   //친구신청 핸들러
   const handleFriendRequest = useCallback(
     (friendId) => {
-      MyFriendsApi.friendRequest(friendId).then((data) => {
-        setUser((prevUsers) => prevUsers.filter((user) => user.id !== data.id));
-        addFriendRequest();
-      });
+      MyFriendsApi.friendRequest(friendId)
+        .then((data) => {
+          setUser((prevUsers) =>
+            prevUsers.filter((user) => user.id !== data.id)
+          );
+          addFriendRequest();
+        })
+        .catch((error) => {
+          alert(`친구신청 실패 : \n원인:+${getErrorMessage(error)}`);
+        });
     },
     [addFriendRequest]
   );

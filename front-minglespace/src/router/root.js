@@ -1,5 +1,5 @@
-﻿import { Suspense, lazy } from "react";
-import { createBrowserRouter } from "react-router-dom";
+﻿﻿import { Suspense, lazy } from "react";
+import { createBrowserRouter, Navigate } from "react-router-dom";
 import SuspenseWithPrivateRoute from "./SuspenseWithPrivateRoute";
 
 const Loading = <div>Loading....</div>;
@@ -80,6 +80,12 @@ const root = createBrowserRouter([
         <Signup />
       </Suspense>
     ),
+  },
+
+  //잘못된 경로
+  {
+    path: "*",
+    element: <Navigate to="/main" />,
   },
 ]);
 export default root;

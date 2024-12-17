@@ -39,7 +39,7 @@ public class Todo {
   private WSMember wsMember;
 
   @OneToMany(mappedBy = "todo", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
-  private List<TodoAssignee> todoAssigneeList = new ArrayList<>();
+  private List<TodoAssignee> todoAssigneeList;
 
   public void changeWorkSpace(WorkSpace workSpace) {
     this.workSpace = workSpace;

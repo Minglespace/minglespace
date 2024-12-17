@@ -6,7 +6,7 @@ import WorkspaceApi from "../api/workspaceApi";
 
 import WorkspaceAdd from "./components/WorkspaceAdd";
 import { FaPlus } from "react-icons/fa6";
-import Repo from "../auth/Repo";
+import { getErrorStaus, getErrorMessage } from "../common/Exception/errorUtils";
 
 const Workspace = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -17,14 +17,18 @@ const Workspace = () => {
   //onClick으로 상세보기 페이지 이동을 위한 navigate 지정
 
   useEffect(() => {
-    WorkspaceApi.getList().then((data) => {
-      setWorkspaceData(data); //useState 상태에 저장
-    });
+    WorkspaceApi.getList()
+      .then((data) => {
+        setWorkspaceData(data); //useState 상태에 저장
+      })
+      .catch((error) => {
+        alert(
+          `워크스페이스 목록 조회 중 에러가 발생했습니다.\n원인:${getErrorMessage(
+            error
+          )}`
+        );
+      });
   }, []);
-
-  // useEffect(() => {
-
-  // }, [workspaceData])
 
   const moveToRead = (workspace) => {
     //클릭 시 worspaceId를 매개변수로 받음
@@ -52,39 +56,6 @@ const Workspace = () => {
     setWorkspaceData((prevData) => [...prevData, newWorkspace]);
   };
 
-  const handleEditWorkspace = (id) => {
-    const workspaceToEdit = workspaceData.find(
-      (workspace) => workspace.id === id
-    );
-    setEditingWorkspace(workspaceToEdit);
-    setIsModalOpen(true);
-  };
-
-  const handleUpdateWorkspace = (updatedWorkspace) => {
-    WorkspaceApi.modifyOne(updatedWorkspace.id, updatedWorkspace)
-      .then((result) => {
-        setWorkspaceData((prevData) =>
-          prevData.map((workspace) =>
-            workspace.id === result.id
-              ? { ...result, count: updatedWorkspace.count }
-              : workspace
-          )
-        );
-        setIsModalOpen(false);
-        setEditingWorkspace(null);
-      })
-      .catch((error) => {
-        console.error("Error:", error);
-      });
-  };
-  const handleDeleteWorkspace = (workspaceId) => {
-    WorkspaceApi.deleteOne(workspaceId).then(() => {
-      setWorkspaceData((prevData) =>
-        prevData.filter((workspace) => workspace.id !== workspaceId)
-      );
-    });
-  };
-
   return (
     <div>
       <div className="create_workspace">
@@ -110,8 +81,6 @@ const Workspace = () => {
             onClick={() => moveToRead(workspace)}
             // 클릭 시 현재 id정보를 매개변수로 url을 지정하여 이동함
             // WorkspaceItem은 워크스페이스에 대한 모든 정보를 props로 가지도록 함
-            onDelete={() => handleDeleteWorkspace(workspace.id)}
-            onEdit={handleEditWorkspace}
           />
         ))}
       </div>
@@ -119,7 +88,6 @@ const Workspace = () => {
         open={isModalOpen}
         onClose={handleCloseModal}
         onAddWorkspace={handleAddWorkspace}
-        onUpdateWorkspace={handleUpdateWorkspace}
         editingWorkspace={editingWorkspace}
       />
     </div>

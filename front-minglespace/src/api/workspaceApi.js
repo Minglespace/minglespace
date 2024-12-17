@@ -4,44 +4,78 @@ class WorkspaceApi {
   static prefix = `${HOST_URL}/workspace`;
 
   static getList = async () => {
-    const res = await api.axiosIns.get(`${WorkspaceApi.prefix}`);
+    try {
+      const res = await api.axiosIns.get(`${WorkspaceApi.prefix}`);
 
-    return res.data;
+      return res.data;
+    } catch (error) {
+      console.error("워크스페이스 목록조회 실패", error);
+      throw error;
+    }
   };
 
   static getOne = async (workspaceId) => {
-    const res = await api.axiosIns.get(`${WorkspaceApi.prefix}/${workspaceId}`);
-
-    return res.data;
+    try {
+      const res = await api.axiosIns.get(
+        `${WorkspaceApi.prefix}/${workspaceId}`
+      );
+      return res.data;
+    } catch (error) {
+      console.error("워크스페이스 조회 실패", error);
+      throw error;
+    }
   };
 
   static getWsMemberRole = async (workspaceId) => {
-    const res = await api.axiosIns.get(
-      `${WorkspaceApi.prefix}/${workspaceId}/role`
-    );
+    try {
+      const res = await api.axiosIns.get(
+        `${WorkspaceApi.prefix}/${workspaceId}/role`
+      );
 
-    return res.data;
+      return res.data;
+    } catch (error) {
+      console.error("권한 조회 실패", error);
+      throw error;
+    }
   };
 
   static postAdd = async (workspaceObj) => {
-    const res = await api.axiosIns.post(`${WorkspaceApi.prefix}`, workspaceObj);
+    try {
+      const res = await api.axiosIns.post(
+        `${WorkspaceApi.prefix}`,
+        workspaceObj
+      );
 
-    return res.data;
+      return res.data;
+    } catch (error) {
+      console.error("워크스페이스 작성 실패", error);
+      throw error;
+    }
   };
 
   static modifyOne = async (workspaceId, workspaceObj) => {
-    const res = await api.axiosIns.put(
-      `${WorkspaceApi.prefix}/${workspaceId}`,
-      workspaceObj
-    );
-    return res.data;
+    try {
+      const res = await api.axiosIns.put(
+        `${WorkspaceApi.prefix}/${workspaceId}`,
+        workspaceObj
+      );
+      return res.data;
+    } catch (error) {
+      console.error("워크스페이스 수정 실패", error);
+      throw error;
+    }
   };
 
   static deleteOne = async (workspaceId) => {
-    const res = await api.axiosIns.delete(
-      `${WorkspaceApi.prefix}/${workspaceId}`
-    );
-    return res.data;
+    try {
+      const res = await api.axiosIns.delete(
+        `${WorkspaceApi.prefix}/${workspaceId}`
+      );
+      return res.data;
+    } catch (error) {
+      console.error("워크스페이스 삭제 실패", error);
+      throw error;
+    }
   };
 }
 

@@ -4,6 +4,7 @@ import MyFriendsRequest from "./components/MyFriendsRequest";
 import MyFriendsPending from "./components/MyFriendsPending";
 import { useCallback, useEffect, useState } from "react";
 import MyFriendsApi from "../api/myFriendsApi";
+import { getErrorMessage } from "../common/Exception/errorUtils";
 
 const friendInit = [
   {
@@ -25,23 +26,35 @@ const MyFriends = () => {
 
   //친구리스트 조회용
   const getFriendList = useCallback((searchKeyword) => {
-    MyFriendsApi.getList(searchKeyword).then((data) => {
-      setFriends(data);
-      setLoading(false);
-    });
+    MyFriendsApi.getList(searchKeyword)
+      .then((data) => {
+        setFriends(data);
+        setLoading(false);
+      })
+      .catch((error) => {
+        alert(`친구리스트 조회 실패 : \n원인:+${getErrorMessage(error)}`);
+      });
   }, []);
   //친구 요청 조회용
-  const getFriendRequestList = useCallback(() => {
-    MyFriendsApi.friendRequestList().then((data) => {
-      setFriendRequest(data);
-    });
-  }, []);
+  const getFriendRequestList = () => {
+    MyFriendsApi.friendRequestList()
+      .then((data) => {
+        setFriendRequest(data);
+      })
+      .catch((error) => {
+        alert(`친구요청리스트 조회 실패 : \n원인:+${getErrorMessage(error)}`);
+      });
+  };
   //친구 대기 조회용
-  const getFriendPendingList = useCallback(() => {
-    MyFriendsApi.friendPendingList().then((data) => {
-      setFriendPending(data);
-    });
-  }, []);
+  const getFriendPendingList = () => {
+    MyFriendsApi.friendPendingList()
+      .then((data) => {
+        setFriendPending(data);
+      })
+      .catch((error) => {
+        alert(`친구대기리스트 조회 실패 : \n원인:+${getErrorMessage(error)}`);
+      });
+  };
   //친구 최신화 핸들러
   const handelSetFriends = useCallback((data) => {
     setFriends(data);
@@ -51,11 +64,11 @@ const MyFriends = () => {
     getFriendList();
     getFriendRequestList();
     getFriendPendingList();
-  }, [getFriendList, getFriendRequestList, getFriendPendingList]);
+  }, [getFriendList]);
 
   const addFriendRequest = useCallback(() => {
     getFriendRequestList();
-  }, [getFriendRequestList]);
+  }, []);
 
   const refuseFriend = useCallback((data) => {
     setFriendPending(data);

@@ -2,33 +2,32 @@ import React, { useCallback, useEffect, useState } from "react";
 import Sidebar from "./section/SideBar";
 import Footer from "./section/Footer";
 import Header from "./section/Header";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 
 import WorkspaceApi from "../../api/workspaceApi";
 import { WSMemberRoleContext } from "../../workspace/context/WSMemberRoleContext";
+import { getErrorMessage, getErrorStatus } from "../Exception/errorUtils";
 
-const initData = {
-  id: "",
-  name: "Mingle Space에 오신것을 환영합니다.",
-  wsdesc: "",
-  count: "",
-};
 const BasicLayout = ({ children }) => {
   const { workspaceId } = useParams();
-  const [workspaceData, setWorkspaceData] = useState({ ...initData });
+  const navigate = useNavigate();
   const [wsMemberData, setWsMEmberData] = useState({ memberId: "", role: "" });
 
-  const getWsMemberRole = useCallback(() => {
-    WorkspaceApi.getWsMemberRole(workspaceId).then((wsMemberServiceData) => {
-      setWsMEmberData(wsMemberServiceData);
-    });
-  }, [workspaceId, setWsMEmberData]);
+  const getWsMemberRole = useCallback(async () => {
+    try {
+      const wsMemberRoleData = await WorkspaceApi.getWsMemberRole(workspaceId);
+      setWsMEmberData(wsMemberRoleData);
+    } catch (error) {
+      if (getErrorStatus(error) === 403) {
+        navigate("/workspace");
+      } else {
+        alert(`권한 조회에 실패하였습니다.\n원인:${getErrorMessage(error)}`);
+      }
+    }
+  }, [workspaceId, navigate]);
 
   useEffect(() => {
     if (workspaceId) {
-      WorkspaceApi.getOne(workspaceId).then((workspaceServerData) => {
-        setWorkspaceData(workspaceServerData);
-      });
       getWsMemberRole();
     }
   }, [workspaceId, getWsMemberRole]);
@@ -42,7 +41,7 @@ const BasicLayout = ({ children }) => {
       <WSMemberRoleContext.Provider
         value={{ wsMemberData, refreshMemberContext }}
       >
-        <Header workspaceData={workspaceData} />
+        <Header />
         <div className="midcontainer">
           <Sidebar />
           <div className="main_container">{children}</div>

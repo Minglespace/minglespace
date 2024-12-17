@@ -2,43 +2,56 @@ import React, { useEffect, useState } from "react";
 import Modal from "../../common/Layouts/components/Modal"; // Modal 컴포넌트 임포트
 import WorkspaceApi from "../../api/workspaceApi";
 import { getErrorMessage } from "../../common/Exception/errorUtils";
+import { useParams } from "react-router-dom";
+
 const initState = {
+  id: "",
   name: "",
   wsdesc: "",
+  conunt: "",
 };
 
-const WorkspaceAdd = ({ open, onClose, onAddWorkspace, editingWorkspace }) => {
-  const [newWorkspace, setNewWorkspace] = useState({ ...initState });
+const WorkspaceModify = ({
+  open,
+  onClose,
+  onModifyWorkspace,
+  workspaceData,
+}) => {
+  const { workspaceId } = useParams();
+  const [updateWorkspace, setUpdateWorkspace] = useState({ ...initState });
 
   useEffect(() => {
-    if (editingWorkspace) {
-      setNewWorkspace(editingWorkspace);
-    } else {
-      setNewWorkspace({ ...initState });
-    }
-  }, [editingWorkspace]);
+    setUpdateWorkspace(workspaceData);
+  }, [workspaceData]);
 
   const handleChangeNewWorkspace = (e) => {
-    newWorkspace[e.target.name] = e.target.value;
-    setNewWorkspace({ ...newWorkspace });
+    const { name, value } = e.target;
+    setUpdateWorkspace((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
   };
 
-  const handleClickAdd = () => {
-    WorkspaceApi.postAdd(newWorkspace)
-      .then((result) => {
-        setNewWorkspace({ ...initState });
-        onAddWorkspace(result);
-        onClose();
-      })
-      .catch((error) =>
-        alert(
-          `워크스페이스 추가 중 에러가 발생했습니다 \n원인:${getErrorMessage(
-            error
-          )}`
-        )
+  //워크스페이스 수정
+  const workspaceModify = async () => {
+    try {
+      const result = await WorkspaceApi.modifyOne(workspaceId, updateWorkspace);
+      setUpdateWorkspace(result);
+    } catch (error) {
+      alert(
+        `워크스페이스 수정 중 에러가 발생했습니다\n원인:${getErrorMessage(
+          error
+        )}`
       );
+    }
   };
 
+  const handleClickModify = () => {
+    workspaceModify();
+    alert("워크스페이스 수정에 성공하였습니다.");
+    onModifyWorkspace(updateWorkspace);
+    onClose();
+  };
   return (
     <Modal open={open} onClose={onClose}>
       <div className="workspace_add_modal_container">
@@ -48,7 +61,7 @@ const WorkspaceAdd = ({ open, onClose, onAddWorkspace, editingWorkspace }) => {
           className="workspace_name_input"
           name="name"
           type={"text"}
-          value={newWorkspace.name}
+          value={updateWorkspace.name}
           onChange={handleChangeNewWorkspace}
           placeholder="워크스페이스 제목을 기입하세요"
         />
@@ -56,7 +69,7 @@ const WorkspaceAdd = ({ open, onClose, onAddWorkspace, editingWorkspace }) => {
         <textarea
           className="workspace_desc_input"
           name="wsdesc"
-          value={newWorkspace.wsdesc}
+          value={updateWorkspace.wsdesc}
           onChange={handleChangeNewWorkspace}
           placeholder="워크스페이스 설명을 기입하세요"
         />
@@ -64,8 +77,8 @@ const WorkspaceAdd = ({ open, onClose, onAddWorkspace, editingWorkspace }) => {
           <button className="cancle_button" onClick={onClose}>
             취소
           </button>
-          <button className="add_button" onClick={handleClickAdd}>
-            추가
+          <button className="add_button" onClick={handleClickModify}>
+            수정
           </button>
         </div>
       </div>
@@ -73,4 +86,4 @@ const WorkspaceAdd = ({ open, onClose, onAddWorkspace, editingWorkspace }) => {
   );
 };
 
-export default WorkspaceAdd;
+export default WorkspaceModify;

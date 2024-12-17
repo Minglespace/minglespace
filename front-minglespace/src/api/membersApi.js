@@ -1,3 +1,4 @@
+import e from "cors";
 import api, { HOST_URL } from "./Api";
 
 const prefix = `${HOST_URL}/workspace`;
@@ -25,11 +26,24 @@ class MembersApi {
     }
   };
 
-  //멤버 초대
+  //멤버 초대(친구목록에서)
   static inviteMember = async (workspaceId, friendId) => {
     try {
       const res = await api.axiosIns.post(
         `${prefix}/${workspaceId}/invite/${friendId}`
+      );
+      return res.data;
+    } catch (error) {
+      console.error("멤버 초대 실패", error);
+      throw error;
+    }
+  };
+  //멤버 초대(링크방식으로)
+  static linkInviteMember = async (workspaceId, email) => {
+    try {
+      const res = await api.axiosIns.post(
+        `${prefix}/${workspaceId}/linkInvite`,
+        { email: email }
       );
       return res.data;
     } catch (error) {
