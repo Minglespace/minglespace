@@ -31,31 +31,26 @@ public class ChatMessageController {
   public ChatMessageDTO saveAndSendChatMessage(@DestinationVariable Long chatRoomId,
                                                ChatMessageDTO messageDTO,
                                                StompHeaderAccessor headerAccessor) {
-//        log.info("message_Chatroomid: "+ chatRoomId);
-//        log.info("Received raw JSON message: " + messageDTO);
     Long writerUserId = (Long) headerAccessor.getSessionAttributes().get("userId");
 
     if (writerUserId == null) {
       log.error("user ID not found in websocket session");
       return null;
     }
-
     log.info("received message : " + messageDTO.getContent() + " from " + messageDTO.getWorkspaceId());
 
     try {
       messageDTO.setChatRoomId(chatRoomId);
 
-      ChatMessage savedMsg = chatMessageService.saveMessage(messageDTO, writerUserId);
-      messageDTO.setId(savedMsg.getId());
+      Set<Long> activeUserId = stompInterceptor.getActiveUsersForSubscription("/topic/chatRooms/"+chatRoomId+"/msg");
 
-      //MsgReadStatus테이블에 추가
-      msgReadStatusService.createMsgForMembers(savedMsg);
+      ChatMessageDTO savedMsgDTO = chatMessageService.saveMessage(messageDTO, writerUserId, activeUserId);
 
       //안읽은 메시지 처리를 위해 채팅 목록에 보내기
-      simpMessagingTemplate.convertAndSend("/topic/workspaces/" + messageDTO.getWorkspaceId(), messageDTO);
+      simpMessagingTemplate.convertAndSend("/topic/workspaces/" + messageDTO.getWorkspaceId(), savedMsgDTO);
 
 
-      return messageDTO;
+      return savedMsgDTO;
     } catch (Exception e) {
       log.error("메시지 저장 중 오류 발생: ", e);
 //            String sessionId = stompInterceptor.getSessionForUser(writerUserId);

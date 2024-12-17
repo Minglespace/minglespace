@@ -30,22 +30,25 @@ const ChatRoom = ({
   const [isRoomOwner, setIsRoomOwner] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [currentMemberInfo, setCurrentMemberInfo] = useState(null); //participants에서 현재 유저 뽑아내기
-  const [chatRoomId, setChatRoomId] = useState(new URLSearchParams(useLocation().search).get("chatRoomId"));
+  const [replyToMessage, setReplyToMessage] = useState(null); //답글을 달 메시지 상태
+  const [chatRoomId, setChatRoomId] = useState(
+    new URLSearchParams(useLocation().search).get("chatRoomId")
+  );
 
   const location = useLocation();
   const navigate = useNavigate();
   const socketRef = useRef(null);
 
   useEffect(() => {
-    const newchatRoomId = new URLSearchParams(location.search).get("chatRoomId");
+    const newchatRoomId = new URLSearchParams(location.search).get(
+      "chatRoomId"
+    );
     setChatRoomId(newchatRoomId);
   }, [location.search]);
 
-
   useEffect(() => {
-    console.log("Updated chatRoomInfo:", chatRoomInfo);  // 상태가 바뀔 때마다 콘솔로 확인
+    console.log("Updated chatRoomInfo:", chatRoomInfo); // 상태가 바뀔 때마다 콘솔로 확인
   }, [chatRoomInfo]);
-
 
   useEffect(() => {
     if (!chatRoomId) {
@@ -96,11 +99,14 @@ const ChatRoom = ({
     setIsModalOpen(false);
   }, [workSpaceId, chatRoomId, wsMembers]);
 
-
   const handleInvite = async (addMember) => {
     try {
       // console.log("add member wsmemberId: ", addMember.wsMemberId);
-      await ChatApi.addMemberToRoom(workSpaceId, chatRoomId, addMember.wsMemberId);
+      await ChatApi.addMemberToRoom(
+        workSpaceId,
+        chatRoomId,
+        addMember.wsMemberId
+      );
 
       //참여자 갱신
       const newParticipant = {
@@ -218,6 +224,20 @@ const ChatRoom = ({
     }
   };
 
+  const handleRegisterAnnouncement = async (message) => {
+    try {
+      await ChatApi.registerAnnouncementMsg(chatRoomId, message.id);
+
+      setChatRoomInfo((prev) => {
+        const updatedMessages = prev.messages.map((msg) =>
+          Number(msg.id) === Number(message.id) ? { ...msg, isAnnouncement: true } : { ...msg, isAnnouncement: false })
+        return { ...prev, messages: updatedMessages };
+      })
+    } catch (error) {
+      console.error("chatroom _ 공지 등록 에러: ", error);
+    }
+  }
+
   /////////////////////websocket 연결///////////////////
   useEffect(() => {
     if (!chatRoomId) {
@@ -226,7 +246,8 @@ const ChatRoom = ({
     }
 
     // 이전 연결 있으면 제거
-    if (socketRef.current) { //&& socketRef.current.active
+    if (socketRef.current) {
+      //&& socketRef.current.active
       socketRef.current.deactivate();
       socketRef.current = null;
     }
@@ -241,25 +262,41 @@ const ChatRoom = ({
       onConnect: () => {
         console.log(`채팅방 ${chatRoomId}번 websocket 연결 완료`);
 
-        ///구독 연결 
+        ///채팅 실시간 메시지 구독
         stompClient.subscribe(`/topic/chatRooms/${chatRoomId}/msg`, (msg) => {
           const newMsg = JSON.parse(msg.body);
           console.log("chatRoom_ new msg: ", newMsg);
 
-          setChatRoomInfo(prev => ({
+          setChatRoomInfo((prev) => ({
             ...prev,
-            messages: [...prev.messages, newMsg]
+            messages: [...prev.messages, newMsg],
           }));
-
         });
+        //메시지 읽음 실시간 구독
+        stompClient.subscribe(`/topic/chatRooms/${chatRoomId}/read-status`, (readstatus) => {
+          const readStatusData = JSON.parse(readstatus.body);
+          console.log("읽음 처리 메시지", readStatusData);
 
+          ///특정 유저가 실시간으로 읽은 메시지 상태 반영
+          setChatRoomInfo((prev) => ({
+            ...prev,
+            messages: prev.messages.map((message) => ({
+              ...message,
+              unReadMembers: message.unReadMembers.filter(
+                (member) => Number(member.wsMemberId) !== Number(readStatusData.wsMemberId)
+              ),
+            })),
+          }));
+        });
       },
       onWebSocketError: (error) => {
         console.log(`채팅방 ${chatRoomId}번 websocket 연결 오류:`, error);
+        alert("실시간 연결 오류가 발생했습니다. 다시 시도");
+        window.location.reload();
       },
-      reconnectDelay: 5000,  // 5초마다 자동 재연결 시도
-      heartbeatIncoming: 4000,  // 서버에서 4초마다 ping
-      heartbeatOutgoing: 4000,  // 클라이언트에서 4초마다 pong
+      reconnectDelay: 5000, // 5초마다 자동 재연결 시도
+      heartbeatIncoming: 4000, // 서버에서 4초마다 ping
+      heartbeatOutgoing: 4000, // 클라이언트에서 4초마다 pong
       withCredentials: true, //쿠키, 인증정보 포함
     });
 
@@ -273,36 +310,42 @@ const ChatRoom = ({
         socketRef.current = null;
       }
     };
-
   }, [chatRoomId]);
 
 
-  // 메시지 전송 처리 함수
-  const handleSendMessage = (msg) => {
-    // console.log("name type: ", msg);
-    // console.log("wsMemberId type: ", currentMemberInfo.wsMemberId);
-    // if (socketRef.current) {
+  // 메시지 전송 처리 함수 
+  const handleSendMessage = (newMessage) => {
+
     if (socketRef && socketRef.current) {
-      const newMessage = {
-        content: msg,
-        isAnnouncement: false,  ////수정 필요
-        mentionedUserIds: [],
-        replyId: null,
+      const sendMessage = {
+        content: newMessage.content,
+        isAnnouncement: false,
+        mentionedUserIds: [], ///구현 필요
+        replyId: newMessage.replyId,
         sender: currentMemberInfo.name,
         workspaceId: chatRoomInfo.workSpaceId,
-        writerWsMemberId: currentMemberInfo.wsMemberId
+        writerWsMemberId: currentMemberInfo.wsMemberId,
       };
 
-      console.log("Sending message:", JSON.stringify(newMessage));
-
+      console.log("Sending message:", JSON.stringify(sendMessage));
 
       socketRef.current.publish({
         destination: `/app/messages/${chatRoomId}`,
-        body: JSON.stringify(newMessage),
+        body: JSON.stringify(sendMessage),
       });
     } else {
       console.warn("websocket 미연결 or 메시지 빔");
     }
+
+  };
+
+
+  // 메시지를 클릭하면 해당 메시지를 선택
+  const handleMessageClick = (messages) => {
+    console.log("답장할 메시지:", messages);
+    // setSelectedMessageId(messageId);
+    setReplyToMessage(messages);
+    console.log("입력창에 표시된 답장 대상:", `${messages.text}`);
   };
 
 
@@ -319,12 +362,19 @@ const ChatRoom = ({
         handleDelegate={handleDelegate}
         handleExit={handleExit}
       />
-      <div className="chat_messages">
-        {/* 여기에 채팅 메시지들이 들어갑니다 */}
-        <MessageList messages={chatRoomInfo.messages} currentMemberInfo={currentMemberInfo} /> {/* 전송된 메시지 목록 표시 */}
-        <MessageInput onSendMessage={handleSendMessage} />
-        {/*  메시지 전송 처리 */}
-      </div>
+
+      <MessageList
+        messages={chatRoomInfo.messages}
+        onMessageClick={handleMessageClick}
+        currentMemberInfo={currentMemberInfo}
+        onRegisterAnnouncement={handleRegisterAnnouncement}
+      />
+
+      <MessageInput
+        onSendMessage={handleSendMessage}
+        replyToMessage={replyToMessage}
+        setReplyToMessage={setReplyToMessage}
+      />
     </div>
   );
 };

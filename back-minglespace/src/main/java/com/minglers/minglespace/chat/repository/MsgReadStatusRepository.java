@@ -11,5 +11,7 @@ public interface MsgReadStatusRepository extends JpaRepository<MsgReadStatus, Lo
 
   long countByMessage_ChatRoom_IdAndWsMemberId(Long chatRoomId, Long wsMemberId); //안읽은 메시지 카운트
   long deleteByMessage_ChatRoom_IdAndWsMemberId(Long chatRoomId, Long wsMemberId);
+
   List<MsgReadStatus> findByMessage_Id(Long chatMessageId);
+  List<MsgReadStatus> findByMessage_ChatRoom_Id(Long chatRoomId);
 }

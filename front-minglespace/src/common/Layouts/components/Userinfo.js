@@ -2,10 +2,10 @@
 import ProfileImage from "./ProfileImage";
 import Button from "./Button";
 
-const Userinfo = ({ name, role, email, src, title }) => {
+const Userinfo = ({ name, role, email, src, size }) => {
   return (
     <div className="userInfo_box">
-      <ProfileImage src={src} userName={name} />
+      <ProfileImage src={src} userName={name} size={size} />
       <div className="userInfo_context">
         <div>
           <h2>{name}</h2>
