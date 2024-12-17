@@ -11,3 +11,28 @@
 // .rct-item {
 //   background-color: red;
 // }
+.fc-day-sun a {
+  color: red;
+}
+.fc-day-sun {
+  background-color: #fa9a9a;
+}
+
+/* 토요일 날짜: 파란색 */
+.fc-day-sat {
+  background-color: #9a9aff;
+}
+.fc-day-sat a {
+  color: blue;
+}
+
+.calendar-container {
+  width: 90%;
+  height: 90%;
+}
+.fc-media-screen {
+  margin: 0 auto;
+  height: 100%;
+  width: 90%;
+  background-color: white;
+}
