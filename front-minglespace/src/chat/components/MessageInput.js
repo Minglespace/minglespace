@@ -1,11 +1,14 @@
 import React, { useState, useEffect } from "react";
 import { FaLock, FaLockOpen } from "react-icons/fa";
+import { MentionsInput, Mention } from "react-mentions";
+import Mentions from "./Mentions";
 
 const MessageInput = ({
   onSendMessage,
   replyToMessage,
   setReplyToMessage,
   currentMemberInfo,
+  wsMembers,
 }) => {
   const [newMessage, setNewMessage] = useState("");
   // 메시지 입력을 잠그는 상태 변수
@@ -18,7 +21,7 @@ const MessageInput = ({
   };
 
   // 메시지 입력
-  const handleMessageChange = (e) => {
+  const handleMessageChange = (e, newValue) => {
     // console.log("메시지:", e.target.value);
     if (!isLocked) {
       setNewMessage(e.target.value);
@@ -82,6 +85,12 @@ const MessageInput = ({
           }
           className="message-input"
         />
+        <Mentions
+          value={newMessage}
+          onChange={handleMessageChange}
+          wsMembers={wsMembers}
+        />
+
         <button
           className="send-btn"
           onClick={handleSendMessage}

@@ -12,6 +12,15 @@ const MessageListItem = ({
     ? onFindParentMessage(message.replyId)
     : null;
 
+  const formatMessage = (message) => {
+    const regex = /@(\w+)/g;
+    return message
+      .split(regex)
+      .map((part, index) =>
+        regex.test(`@${part}`) ? <strong key={index}>@{part}</strong> : part
+      );
+  };
+
   return (
     <div
       key={message.message_id}
@@ -30,7 +39,7 @@ const MessageListItem = ({
               Number(currentMemberInfo.wsMemberId)
               ? "나에게 답장"
               : `${parentMessage.sender}에게 답장`
-            : message.content}
+            : formatMessage(message.content)}
         </span>
       </div>
       {/* 답글 달기 버튼 */}

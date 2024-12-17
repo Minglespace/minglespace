@@ -25,6 +25,8 @@ const ChatRoom = ({
   updateRoomParticipantCount,
   removeRoom,
 }) => {
+  const [message, setMessages] = useState("");
+
   const [chatRoomInfo, setChatRoomInfo] = useState(initChatRoomInfo);
   const [inviteMembers, setInviteMembers] = useState([]);
   const [isRoomOwner, setIsRoomOwner] = useState(false);
@@ -322,12 +324,18 @@ const ChatRoom = ({
   }, [chatRoomId]);
 
   // 메시지 전송 처리 함수
-  const handleSendMessage = (newMessage) => {
+  const handleSendMessage = (newMessage, messageContent) => {
+    console.log("메시지 전송:", messageContent);
     if (socketRef && socketRef.current) {
+      const mentionedUserIds =
+        newMessage.content
+          .match(/@\{(\d+)\|\|.+?\}/g)
+          ?.map((id) => id.match(/\d+/)[0]) || [];
+
       const sendMessage = {
         content: newMessage.content,
         isAnnouncement: false,
-        mentionedUserIds: [], ///구현 필요
+        mentionedUserIds,
         replyId: newMessage.replyId,
         sender: currentMemberInfo.name,
         workspaceId: chatRoomInfo.workSpaceId,
@@ -352,6 +360,10 @@ const ChatRoom = ({
     setReplyToMessage(messages);
     setNewMessage(`@${messages.text}`);
     console.log("입력창에 표시된 답장 대상:", `${messages.text}`);
+  };
+
+  const handleChange = (e, newValue) => {
+    setMessages(newValue);
   };
 
   return (
@@ -380,6 +392,7 @@ const ChatRoom = ({
         replyToMessage={replyToMessage}
         setReplyToMessage={setReplyToMessage}
         currentMemberInfo={currentMemberInfo}
+        wsMembers={wsMembers}
       />
     </div>
   );
