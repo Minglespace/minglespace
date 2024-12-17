@@ -2,6 +2,8 @@ package com.minglers.minglespace.chat.repository;
 
 import com.minglers.minglespace.chat.entity.ChatMessage;
 import com.minglers.minglespace.chat.entity.ChatRoom;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Modifying;
@@ -14,8 +16,8 @@ import java.util.Optional;
 
 @Repository
 public interface ChatMessageRepository extends JpaRepository<ChatMessage, Long>, JpaSpecificationExecutor<ChatMessage> {
-  @Query("SELECT cm FROM ChatMessage cm LEFT JOIN FETCH cm.images WHERE cm.chatRoom.id = :chatRoomId AND cm.isDeleted = FALSE")
-  List<ChatMessage> findByChatRoomIdAndIsDeletedFalse(Long chatRoomId);
+  @Query("SELECT cm FROM ChatMessage cm LEFT JOIN FETCH cm.images WHERE cm.chatRoom.id = :chatRoomId AND cm.isDeleted = FALSE ORDER BY cm.date DESC")
+  Page<ChatMessage> findByChatRoomIdAndIsDeletedFalse(Long chatRoomId, Pageable pageable);
   List<ChatMessage> findByChatRoom(ChatRoom chatRoom);
   List<ChatMessage> findByChatRoomIdAndContentContaining(Long chatRoomId, String keyword); //search
 

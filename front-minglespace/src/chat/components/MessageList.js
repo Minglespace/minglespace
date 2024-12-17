@@ -1,26 +1,72 @@
 ﻿import React, { useEffect, useRef, useState } from "react";
 import MessageListItem from "./MessageListItem";
 import Modal from "../../common/Layouts/components/Modal";
+import InfiniteScroll from "react-infinite-scroll-component";
+import { useSpring, animated } from "@react-spring/web";
 
 const MessageList = ({
   messages,
   onMessageClick,
   currentMemberInfo,
   onRegisterAnnouncement,
-  onDeleteMessage
+  onDeleteMessage,
+  fetchMoreMessages,
+  msgHasMore,
+  currentChatRoomId
 }) => {
   const [announcement, setAnnouncement] = useState(null);
-  const messageListRef = useRef(null);
   const [isAnnouncementModalOpen, setIsAnnouncementModalOpen] = useState(false);
   const [selectedAnnounce, setSelectedAnnounce] = useState(null);
+  const [newMessageVisible, setNewMessageVisible] = useState(null); //새 메시지 미리보기
+  const messageListRef = useRef(null);
+  const isAtBottom = useRef(true);
+  const lastMessageTimestamp = useRef(0);
+
+
+  const scrollAnimaion = useSpring({
+    transform: 'translateY(0)',
+    from: { transform: 'translateY(20px)' },
+    config: { tension: 150, friction: 15 },
+  });
 
   useEffect(() => {
-    if (messageListRef.current) {
-      messageListRef.current.scrollTop = messageListRef.current.scrollHeight;
+    console.log("currentChatRoomId: ", currentChatRoomId);
+    // console.log("lastMessageCount: ", lastMessageCount);
+    setNewMessageVisible(false);
+    isAtBottom.current = true;
+    lastMessageTimestamp.current = 0;
+
+    // messageListRef.current.scrollTop = messageListRef.current.scrollHeight;
+  }, [currentChatRoomId]);
+
+
+  //메시지 갱신되면 
+  useEffect(() => {
+    const latestMessageTimestamp = messages[messages.length - 1]?.date;
+
+    if (latestMessageTimestamp > lastMessageTimestamp.current) {
+      if (!isAtBottom.current) {
+        const newMessageContent = messages[messages.length - 1]?.content;
+
+        if (!newMessageContent || newMessageContent.trim() === "") {
+          setNewMessageVisible("(파일)");
+        } else {
+          setNewMessageVisible(newMessageContent);
+        }
+      } else {
+        setNewMessageVisible(null);
+        messageListRef.current.scrollTop = messageListRef.current.scrollHeight;
+      }
     }
-    // console.log(messages);
+
+    if (latestMessageTimestamp < lastMessageTimestamp.current) {
+      setNewMessageVisible(null);
+    }
+
+    lastMessageTimestamp.current = latestMessageTimestamp;
   }, [messages]);
 
+  ///공지사항
   useEffect(() => {
     const newAnnouncement = messages.find((message) => message.isAnnouncement) || null;
     setAnnouncement(newAnnouncement);
@@ -57,6 +103,37 @@ const MessageList = ({
     setIsAnnouncementModalOpen(false);
   };
 
+  const handleScroll = () => {
+    if (messageListRef.current) {
+      const scrollTop = messageListRef.current.scrollTop;
+      const scrollHeight = messageListRef.current.scrollHeight;
+      const clientHeight = messageListRef.current.clientHeight;
+
+      // 사용자가 하단에 있으면 true
+      isAtBottom.current = scrollHeight - scrollTop === clientHeight;
+
+    }
+
+    if (messageListRef.current.scrollTop === 0 && msgHasMore) {
+      console.log("Fetching more messages...");
+      fetchMoreMessages();
+    }
+  };
+
+  const handleNewMessageClick = () => {
+    messageListRef.current.scrollTop = messageListRef.current.scrollHeight;
+    setNewMessageVisible(null);
+  };
+
+  const getMessagePreview = (messageContent) => {
+    console.log("msg preview: ", messageContent);
+    // if (!messageContent || messageContent.trim() === "") {
+    //   return "(파일)";
+    // }
+    return messageContent.length > 10 ? `${messageContent.slice(0, 10)}...` : messageContent;
+  }
+
+
   return (
     <div>
       {announcement && (
@@ -66,9 +143,30 @@ const MessageList = ({
           <span className="message-text">{announcement.content} </span>
         </div>
       )}
-      <div className="message-list" ref={messageListRef}>
+
+      <div className="message-list" onScroll={handleScroll} ref={messageListRef}>
+        {newMessageVisible && (
+          <div
+            className="new-messages-preview"
+            onClick={handleNewMessageClick}
+            style={{
+              position: "absolute",
+              bottom: "100px",
+              background: "#f0f0f0",
+              textAlign: "center",
+              padding: "10px",
+              cursor: "pointer"
+            }}
+          >
+            새 메시지가 도착했습니다. :
+            <span style={{ fontWeight: "bold" }}>{getMessagePreview(newMessageVisible)}</span>
+            <br />
+            클릭하여 메시지로 이동
+          </div>
+        )}
         {messages.map((message) => {
           return (
+            // <animated.div style={scrollAnimaion} key={message.id}>
             <MessageListItem
               key={message.id}
               message={message}
@@ -81,10 +179,10 @@ const MessageList = ({
               openAnnounceMentModal={openAnnouncementModal}
               onDeleteMessage={onDeleteMessage}
             />
+            // </animated.div>
           );
         })}
       </div>
-
       <Modal open={isAnnouncementModalOpen} onClose={handleAnnounceCancel}>
         <div>
           <p style={{ fontSize: "18px", margin: "10px", padding: "10px" }}>공지사항은 하나만 등록 가능합니다.</p>
@@ -105,7 +203,7 @@ const MessageList = ({
           </div>
         </div>
       </Modal>
-    </div>
+    </div >
   );
 };
 

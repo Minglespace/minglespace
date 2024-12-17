@@ -21,16 +21,15 @@ import com.minglers.minglespace.workspace.repository.WSMemberRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -132,18 +131,25 @@ public class ChatMessageServiceImpl implements ChatMessageService {
 
   // 방 메시지 가져오기
   @Override
-  public List<ChatMsgResponseDTO> getMessagesByChatRoom(ChatRoom chatRoom) {
-    log.info("getMessagesByChatRoom_chatRoomId : " + chatRoom.getId());
+  public Map<String, Object> getMessagesByChatRoom(Long chatRoomId, int page, int size) {
+    log.info("getMessagesByChatRoom_chatRoomId : " + chatRoomId);
     //채팅방 메시지 가져오기
-    List<ChatMessage> messages = chatMessageRepository.findByChatRoomIdAndIsDeletedFalse(chatRoom.getId());
-    log.info("getMessagesByChatRoom_ msg : " + messages.get(messages.size() -1 ).getImages().size());
+    PageRequest pageRequest = PageRequest.of(page, size);
+    Page<ChatMessage> messagesPage = chatMessageRepository.findByChatRoomIdAndIsDeletedFalse(chatRoomId, pageRequest);
+    log.info("getMessagesByChatRoom_ msg : " + messagesPage.getNumberOfElements());
 
-    return messages.stream()
+    List<ChatMsgResponseDTO> messages = messagesPage.getContent().stream()
             .map(message -> {
-              List<MemberWithUserInfoDTO> unreadMembers = getUnreadMembers(chatRoom.getId(), message.getId());
+              List<MemberWithUserInfoDTO> unreadMembers = getUnreadMembers(chatRoomId, message.getId());
               return message.toDTO(unreadMembers);
             })
             .collect(Collectors.toList());
+    boolean msgHasMore = messagesPage.getTotalElements() > (page + 1) * size;
+
+    Map<String, Object> response = new HashMap<>();
+    response.put("messages", messages);
+    response.put("msgHasMore", msgHasMore);
+    return response;
   }
 
   private List<MemberWithUserInfoDTO> getUnreadMembers(Long chatRoomId, Long messageId) {

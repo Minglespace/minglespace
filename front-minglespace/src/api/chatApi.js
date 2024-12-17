@@ -119,6 +119,17 @@ class ChatApi {
 	}
 
 	/////////message///////////
+	static getMoreMessages = async (chatRoomId, page, size) => {
+		try {
+			const response = await api.axiosIns.get(`${messagePrefix}/${chatRoomId}/messages`, {
+				params: { page, size },
+			});
+			return response.data;
+		} catch (error) {
+			console.log("메시지 가져오기 실패: ", error.message);
+		}
+	}
+
 	static registerAnnouncementMsg = async (chatRoomId, messageId) => {
 		try {
 			await api.axiosIns.put(`${messagePrefix}/${chatRoomId}/messages/${messageId}/announcement`);

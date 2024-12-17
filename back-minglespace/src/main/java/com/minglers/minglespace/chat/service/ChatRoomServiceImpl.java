@@ -27,6 +27,7 @@ import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -183,7 +184,9 @@ public class ChatRoomServiceImpl implements ChatRoomService {
 
     notifyReadStatus(chatRoomId, wsMember.getId()); //읽음 처리 알림보내기
 
-    List<ChatMsgResponseDTO> messages = chatMessageService.getMessagesByChatRoom(chatRoom);
+    Map<String, Object> messagesResponse = chatMessageService.getMessagesByChatRoom(chatRoomId,0,50);
+    List<ChatMsgResponseDTO> messages = (List<ChatMsgResponseDTO>)messagesResponse.get("messages");
+    boolean msgHasMore = (boolean)messagesResponse.get("msgHasMore");
     List<ChatRoomMemberDTO> participants = chatRoomMemberService.getParticipantsByChatRoomId(chatRoomId);
 
     String imageUriPath = (chatRoom.getImage() != null && chatRoom.getImage().getUripath() != null) ? chatRoom.getImage().getUripath() : "";
@@ -195,6 +198,7 @@ public class ChatRoomServiceImpl implements ChatRoomService {
             .messages(messages)
             .workSpaceId(chatRoom.getWorkSpace().getId())
             .imageUriPath(imageUriPath)
+            .msgHasMore(msgHasMore)
             .build();
   }
 

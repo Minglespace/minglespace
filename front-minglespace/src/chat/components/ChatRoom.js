@@ -16,6 +16,7 @@ const initChatRoomInfo = {
   workSpaceId: 0,
   messages: [],
   participants: [],
+  msgHasMore: false,
 };
 
 const ChatRoom = ({
@@ -34,6 +35,8 @@ const ChatRoom = ({
   const [chatRoomId, setChatRoomId] = useState(
     new URLSearchParams(useLocation().search).get("chatRoomId")
   );
+  //messagelist 무한 스크롤
+  const [page, setPage] = useState(0);
 
   const location = useLocation();
   const navigate = useNavigate();
@@ -62,6 +65,7 @@ const ChatRoom = ({
       try {
         const roomInfo = await ChatApi.getChatRoom(workSpaceId, chatRoomId);
         console.log("chatRoom_ get info: ", roomInfo);
+        roomInfo.messages.reverse();
         setChatRoomInfo(roomInfo);
 
         const participantsIds = roomInfo.participants.map((participant) =>
@@ -254,6 +258,28 @@ const ChatRoom = ({
     }
   }
 
+  const fetchMoreMessages = async () => {
+    if (!chatRoomInfo.msgHasMore) return;
+    try {
+      const res = await ChatApi.getMoreMessages(chatRoomId, page + 1, 50);
+      if (res.messages.length > 0) {
+        setChatRoomInfo((prev) => ({
+          ...prev,
+          messages: [...res.messages.reverse(), ...prev.messages],
+          msgHasMore: Boolean(res.msgHasMore),
+        }))
+        setPage(page + 1);
+      } else {
+        setChatRoomInfo((prev) => ({
+          ...prev,
+          msgHasMore: false,
+        }));
+      }
+    } catch (error) {
+      console.error("추가 메시지 로드 실패: ", error);
+    }
+  }
+
   /////////////////////websocket 연결///////////////////
   useEffect(() => {
     if (!chatRoomId) {
@@ -404,6 +430,9 @@ const ChatRoom = ({
         currentMemberInfo={currentMemberInfo}
         onRegisterAnnouncement={handleRegisterAnnouncement}
         onDeleteMessage={handleDeleteMessage}
+        fetchMoreMessages={fetchMoreMessages}
+        msgHasMore={chatRoomInfo.msgHasMore}
+        currentChatRoomId={chatRoomId}
       />
 
       <MessageInput

@@ -7,6 +7,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequiredArgsConstructor
@@ -31,5 +32,12 @@ public class ChatMessageController {
   public ResponseEntity<String> deleteMessage(@PathVariable("chatRoomId") Long chatRoomId,
                                               @PathVariable("messageId") Long messageId){
     return ResponseEntity.ok().body(chatMessageService.deleteMessage(chatRoomId, messageId));
+  }
+
+  @GetMapping
+  public ResponseEntity<Map<String, Object>> getMessages(@PathVariable("chatRoomId") Long chatRoomId,
+                                                         @RequestParam("page") int page,
+                                                         @RequestParam("size") int size){
+    return ResponseEntity.ok(chatMessageService.getMessagesByChatRoom(chatRoomId,page, size));
   }
 }

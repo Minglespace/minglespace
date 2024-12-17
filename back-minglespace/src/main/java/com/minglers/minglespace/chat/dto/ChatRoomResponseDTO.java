@@ -18,4 +18,5 @@ public class ChatRoomResponseDTO {
   private Long workSpaceId;
   private List<ChatMsgResponseDTO> messages;
   private List<ChatRoomMemberDTO> participants;
+  private boolean msgHasMore;
 }
