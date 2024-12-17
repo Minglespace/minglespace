@@ -1,4 +1,4 @@
-import React, { useContext } from "react";
+﻿import React, { useContext } from "react";
 import { Link, useParams } from "react-router-dom";
 
 const SideBar = () => {
@@ -27,6 +27,9 @@ const SideBar = () => {
             </li>
             <li>
               <Link to={`/workspace/${workspaceId}/member`}>Member</Link>
+            </li>
+            <li>
+              <Link to={`/workspace/${workspaceId}/todo`}>Todo</Link>
             </li>
           </>
         )}

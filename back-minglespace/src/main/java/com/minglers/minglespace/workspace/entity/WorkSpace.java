@@ -2,6 +2,7 @@ package com.minglers.minglespace.workspace.entity;
 
 import com.minglers.minglespace.common.entity.Image;
 import com.minglers.minglespace.milestone.entity.MilestoneGroup;
+import com.minglers.minglespace.todo.entity.Todo;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -40,6 +41,9 @@ public class WorkSpace {
 
     @OneToMany(mappedBy = "workspace", fetch = FetchType.LAZY)
     private List<MilestoneGroup> milestoneGroupList;
+
+    @OneToMany(mappedBy = "workSpace", fetch = FetchType.LAZY)
+    private List<Todo> Todolist;
 
     public void changeName(String name) {
         this.name = name;
