@@ -8,6 +8,7 @@ import com.minglers.minglespace.auth.security.JWTUtils;
 import com.minglers.minglespace.auth.service.AuthEmailService;
 import com.minglers.minglespace.auth.service.TokenBlacklistService;
 import com.minglers.minglespace.auth.service.UserService;
+import com.minglers.minglespace.common.apitype.MsStatus;
 import com.minglers.minglespace.common.entity.Image;
 import com.minglers.minglespace.common.service.ImageService;
 import com.minglers.minglespace.common.util.CookieManager;
@@ -53,14 +54,16 @@ class AuthController {
 
         // 회원가입 서비스 진행
         DefaultResponse res = usersManagementService.signup(reg);
+        if(res.equals(MsStatus.Ok)){
 
-        if(res.getCode() == HttpStatus.OK.value()){
             log.info("비동기 이메일 전송 - Before");
             CompletableFuture<String> emailResult = authEmailService.sendEmail(code, reg.getEmail(), request);
+
             // 비동기 작업이 완료된 후 결과를 기다림
             emailResult.thenAccept(result -> {
                 log.info("비동기 이메일 전송 결과: {}", result);
             });
+
             log.info("비동기 이메일 전송 - After : {}", emailResult.toString());
         }
 
@@ -100,7 +103,7 @@ class AuthController {
 
         tokenBlacklistService.addToBlacklist(refreshToken, expiresAt);
 
-        res.setStatus(HttpStatus.OK);
+        res.setStatus(MsStatus.Ok);
         return ResponseEntity.ok(res);
     }
 
@@ -118,14 +121,12 @@ class AuthController {
         DefaultResponse res = new DefaultResponse();
         String accessToken = CookieManager.get("Authorization", request);
         if(accessToken == null){
-            res.setStatus(HttpStatus.NOT_FOUND);
-            res.setMsg("토큰 관련 오류가 발생했습니다.");
+            res.setStatus(MsStatus.NotFoundAccessTokenInCookie);
         }else{
             // accessToken은 쿠키에서 빼서, 헤더에 넣어 준다.
             CookieManager.clear("Authorization", response);
             response.setHeader("Authorization", "Bearer " + accessToken);
-            res.setStatus(HttpStatus.OK);
-            res.setMsg("Token cookie -> header 성공");
+            res.setStatus(MsStatus.Ok);
         }
         return ResponseEntity.ok(res);
     }
@@ -148,7 +149,7 @@ class AuthController {
             response.setProfileImagePath(image.getUripath());
         }
 
-        response.setStatus(HttpStatus.OK);
+        response.setStatus(MsStatus.Ok);
         return ResponseEntity.ok(response);
     }
 

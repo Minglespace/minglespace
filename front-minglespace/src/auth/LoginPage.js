@@ -9,7 +9,7 @@ import Repo from "./Repo";
 import AuthApi from "../api/AuthApi";
 import Modal from "../common/Layouts/components/Modal";
 import { HOST_URL } from "../api/Api";
-import { Status } from "../api/ApiType";
+import { MsStatus, MsStatusEquals, MsStatusOk } from "../api/ApiType";
 
 
 const LoginPage = () => {
@@ -29,7 +29,6 @@ const LoginPage = () => {
   const navigate = useNavigate();
 
   const [isOpenPopup, setIsOpenPopup] = useState(false);
-  const [isOpenPopupCheck, setIsOpenPopupCheck] = useState(false);
   const {code, encodedEmail} = useParams();
   const {msg} = useParams();
   
@@ -39,13 +38,13 @@ const LoginPage = () => {
   //================================================================================================
   useEffect(()=>{
 
-    if(msg && Status[msg]){
+    if(msg && MsStatus[msg]){
       
       console.log("msg : ", msg);
       
       setMessage({
         title: "확인", 
-        content: Status[msg].desc,
+        content: MsStatus[msg].desc,
      });
 
 
@@ -99,13 +98,15 @@ const LoginPage = () => {
 
       const data = await AuthApi.login(email, password);
       console.log("AuthApi.login : {}", data);
-      if(data.code === 200){
+      if(MsStatusOk(data.msStatus)){
         navigate("/main");
-      } else if(data.code === 425){
-        setIsOpenPopupCheck(true);
-      } else{
-        // 뭘할까?
-      }   
+      }else if(data.msStatus && MsStatus[data.msStatus]){
+        setMessage({
+          title: "확인", 
+          content: MsStatus[data.msStatus].desc,  
+        });
+      }
+
     }
   };
 
@@ -179,14 +180,6 @@ const LoginPage = () => {
           </div>
         </Modal>
           
-        <Modal open={isOpenPopupCheck} onClose={()=>{setIsOpenPopupCheck(false)}}>
-          <div className="workspace_add_modal_container">
-            <p className="form-title">이메일 인증</p>
-            <p>이메일 인증해야 회원가입이 완료 됩니다.</p>
-            <button type="submit" className="add_button" onClick={()=>{setIsOpenPopupCheck(false)}}>확인</button>
-          </div>
-        </Modal>  
-        
 
         <div className="form-container">
           <div className="form-wrapper">

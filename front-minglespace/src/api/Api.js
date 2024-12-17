@@ -54,9 +54,9 @@ class Api{
 
         if (!skipToken && accessToken) {
           config.headers["Authorization"] = `Bearer ${accessToken}`;
-          console.log("요청 헤더에 같이 보내요, accessToken : ", accessToken)
+          // console.log("요청 헤더에 같이 보내요, accessToken : ", accessToken)
         }else{
-          console.log("토큰이 불필요한 패킷이라 안보내요 : ", config.url)
+          // console.log("토큰이 불필요한 패킷이라 안보내요 : ", config.url)
         } 
         
         return config;
@@ -82,13 +82,13 @@ class Api{
         }
         
         // body처리
-        if(response.data){
-          if(response.data.code === 200){
-              console.log("응답 성공: ", response.data);
-          }else{
-              console.log("응답 실패: ", response.data);
-          }
-        }
+        // if(response.data){
+        //   if(response.data.code === 200){
+        //       console.log("응답 성공: ", response.data);
+        //   }else{
+        //       console.log("응답 실패: ", response.data);
+        //   }
+        // }
         return response;
       },
       async (error) => {

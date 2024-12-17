@@ -9,13 +9,6 @@ class AuthApi{
   static signup = async (userData) => {
     try {
       const response = await api.axiosIns.post("/auth/signup", userData);
-
-      if (response.data.code === 200) {
-        console.log("회원가입 성공");
-      } else {
-        console.log("회원가입 실패");
-      }
-
       return response.data;
     } catch (err) {
       console.error("회원가입 에러 : ", err);

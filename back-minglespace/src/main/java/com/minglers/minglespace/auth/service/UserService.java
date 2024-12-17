@@ -5,6 +5,7 @@ import com.minglers.minglespace.auth.entity.User;
 import com.minglers.minglespace.auth.exception.AuthException;
 import com.minglers.minglespace.auth.repository.UserRepository;
 import com.minglers.minglespace.auth.security.JWTUtils;
+import com.minglers.minglespace.common.apitype.MsStatus;
 import com.minglers.minglespace.common.entity.Image;
 import com.minglers.minglespace.common.util.CookieManager;
 import jakarta.servlet.http.HttpServletResponse;
@@ -42,7 +43,7 @@ public class UserService {
         try {
             // 이메일 중복 확인
             if (usersRepo.existsByEmail(req.getEmail())) {
-                throw new AuthException(HttpStatus.BAD_REQUEST.value(), "이미 존재하는 이메일입니다.");
+                return new DefaultResponse().setStatus(MsStatus.AlreadyJoinedEmail);
             }else{
                 User user = new User();
 
@@ -56,36 +57,25 @@ public class UserService {
                 User userResult = usersRepo.save(user);
 
                 if (userResult.getId() > 0) {
-                    DefaultResponse res = new DefaultResponse();
-                    res.setStatus(HttpStatus.OK);
-                    res.setMsg("회원 가입 성공 : " + userResult.getEmail());
-                    return res;
+                    return new DefaultResponse().setStatus(MsStatus.Ok);
                 }else{
-                    throw new AuthException(HttpStatus.INTERNAL_SERVER_ERROR.value(), "회원 가입 실패.");
+                    return new DefaultResponse().setStatus(MsStatus.DbInsertError);
                 }
             }
-
         }catch (DataIntegrityViolationException e) {
-            // 데이터 무결성 위반 예외 처리 (예: not-null 필드가 null인 경우)
-            if (e.getCause() instanceof PropertyValueException) {
-                PropertyValueException cause = (PropertyValueException) e.getCause();
+            if (e.getCause() instanceof PropertyValueException cause) { // 데이터 무결성 위반 예외 처리 (예: not-null 필드가 null인 경우)
                 String message = cause.getMessage();
-
-                // "not-null" 제약 조건 위반 메시지를 찾음
                 if (message != null && message.contains("not-null property references a null or transient value")) {
-                    // 예외 메시지에서 필드 이름을 추출 (예: "com.minglers.minglespace.auth.entity.User.role"에서 "role" 추출)
                     String fieldName = message.substring(message.lastIndexOf('.') + 1);
-                    throw new AuthException(HttpStatus.BAD_REQUEST.value(), fieldName + " 필드는 반드시 지정되어야 합니다.");
+                    return new DefaultResponse().setStatus(MsStatus.NullProperty, fieldName);
                 } else {
-                    // 그 외 데이터 무결성 위반 예외 처리
-                    throw new AuthException(HttpStatus.INTERNAL_SERVER_ERROR.value(), "데이터베이스 오류가 발생했습니다.");
+                    return new DefaultResponse().setStatus(MsStatus.DbError);// 그 외 데이터 무결성 위반 예외 처리
                 }
             } else {
-                // DataIntegrityViolationException 발생 시 다른 경우 처리
-                throw new AuthException(HttpStatus.INTERNAL_SERVER_ERROR.value(), "데이터 무결성 오류가 발생했습니다.");
+                return new DefaultResponse().setStatus(MsStatus.DbDataIntegrityViolation);// DataIntegrityViolationException 발생 시 다른 경우 처리
             }
         } catch (Exception e) {
-            throw new AuthException(HttpStatus.INTERNAL_SERVER_ERROR.value(), "회원 가입 중 예기치 못한 오류가 발생했습니다.");
+            return new DefaultResponse().setStatus(MsStatus.Exception);
         }
     }
 
@@ -119,33 +109,20 @@ public class UserService {
                 // refreshToken은 cookie에 넣어 준다.
                 CookieManager.add(JWTUtils.REFRESH_TOKEN, refreshToken, JWTUtils.EXPIRATION_REFRESH, response);
 
-                res.setStatus(HttpStatus.OK);
-                res.setMsg("유저 로그인 성공 : " + user.getEmail());
-
-                log.info("[MIRO] 유저 로그인 성공 accessToken : {}", accessToken);
-
+                res.setStatus(MsStatus.Ok, accessToken);
             }else{
-                res.setStatus(HttpStatus.TOO_EARLY);
-                res.setMsg("먼저, 이메일 인증을 완료하세요.");
+                res.setStatus(MsStatus.EmailVerificationFirst);
             }
-
         } catch (InternalAuthenticationServiceException e) {
-            // 인증 서비스 예외 처리
             if (e.getCause() instanceof NoSuchElementException) {
-                // 사용자가 존재하지 않는 경우
-                res.setStatus(HttpStatus.NOT_FOUND); // 404 Not Found
-                res.setMsg("사용자가 존재하지 않습니다.");
+                res.setStatus(MsStatus.NotFoundAccount);// 사용자가 존재하지 않는 경우
             } else {
-                // 인증 서비스 내부 오류
-                res.setStatus(HttpStatus.INTERNAL_SERVER_ERROR); // 500 Internal Server Error
-                res.setMsg("인증 서비스 오류");
+                res.setStatus(MsStatus.AuthInternalError);// 인증 서비스 내부 오류
             }
         } catch (BadCredentialsException e) {
-            // 잘못된 자격 증명 (비밀번호 틀림)
-            res.setStatus(HttpStatus.UNAUTHORIZED); // 401 Unauthorized
-            res.setMsg("비밀번호가 틀렸습니다.");
+            res.setStatus(MsStatus.MismatchPw); // 잘못된 자격 증명 (비밀번호 틀림)
         } catch (Exception e) {
-            throw new AuthException(HttpStatus.INTERNAL_SERVER_ERROR.value(), "로그인 중 예기치 못한 오류가 발생했습니다.");
+            res.setStatus(MsStatus.Exception);
         }
 
         return res;
@@ -217,26 +194,14 @@ public class UserService {
             Optional<User> opt = usersRepo.findById(userId);
 
             if (opt.isPresent()) {
-
                 usersRepo.deleteById(userId);
-
-                res.setStatus(HttpStatus.OK);
-                res.setMsg("유저 삭제 성공 : " + userId);
+                res.setStatus(MsStatus.Ok);
             } else {
-                res.setStatus(HttpStatus.NOT_FOUND);
-                res.setMsg("User not found : " + userId);
+                res.setStatus(MsStatus.NotFoundAccount);
             }
         } catch (Exception e) {
-            res.setStatus(HttpStatus.INTERNAL_SERVER_ERROR);
-            res.setMsg("INTERNAL_SERVER_ERROR : " + userId);
+            res.setStatus(MsStatus.Exception);
         }
-
-        log.info("");
-        log.info("");
-        log.info("deleteUser");
-        log.info(res.toString());
-        log.info("");
-        log.info("");
 
         return res;
     }
@@ -274,23 +239,13 @@ public class UserService {
 
                 modelMapper.map(savedUser, res);
 
-                res.setStatus(HttpStatus.OK);
-                res.setMsg("유저 정보 변경 성공 : " + savedUser.getId());
+                res.setStatus(MsStatus.Ok);
             } else {
-                res.setStatus(HttpStatus.NOT_FOUND);
-                res.setMsg("User not found : " + userId);
+                res.setStatus(MsStatus.NotFoundAccount);
             }
         } catch (Exception e) {
-            res.setStatus(HttpStatus.INTERNAL_SERVER_ERROR);
-            res.setMsg("INTERNAL_SERVER_ERROR : " + userId);
+            res.setStatus(MsStatus.Exception);
         }
-
-        log.info("");
-        log.info("");
-        log.info("updateUser");
-        log.info(res.toString());
-        log.info("");
-        log.info("");
 
         return res;
     }
