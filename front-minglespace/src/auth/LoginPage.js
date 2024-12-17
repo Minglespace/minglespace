@@ -9,6 +9,8 @@ import Repo from "./Repo";
 import AuthApi from "../api/AuthApi";
 import Modal from "../common/Layouts/components/Modal";
 import { HOST_URL } from "../api/Api";
+import { Status } from "../api/ApiType";
+
 
 const LoginPage = () => {
   //================================================================================================
@@ -20,6 +22,7 @@ const LoginPage = () => {
     email: "codejay2018@gmail.com",
     password: "Aa!1Aa!1",
   });
+  const [message, setMessage] = useState(null);
 
   const [errors, setErrors] = useState({});
   
@@ -28,13 +31,25 @@ const LoginPage = () => {
   const [isOpenPopup, setIsOpenPopup] = useState(false);
   const [isOpenPopupCheck, setIsOpenPopupCheck] = useState(false);
   const {code, encodedEmail} = useParams();
+  const {msg} = useParams();
+  
   //================================================================================================
   //================================================================================================
   //================================================================================================
   //================================================================================================
   useEffect(()=>{
 
-    if(code && encodedEmail){
+    if(msg && Status[msg]){
+      
+      console.log("msg : ", msg);
+      
+      setMessage({
+        title: "확인", 
+        content: Status[msg].desc,
+     });
+
+
+    }else if(code && encodedEmail){
 
       console.log("code : ", code);
       console.log("encodedEmail : ", encodedEmail);
@@ -108,8 +123,12 @@ const LoginPage = () => {
     }
   };
 
-  const handleClickPopup = () =>{
+  const handleClickMsgPopup = () =>{
+    setMessage(null);
+    navigate("/auth/login");
+  }
 
+  const handleClickPopup = () =>{
     setIsOpenPopup(false);
   }
 
@@ -142,13 +161,24 @@ const LoginPage = () => {
           />
         </div>
 
+        <Modal open={message !== null} onClose={handleClickMsgPopup}>
+          {(message) && (
+            <div className="workspace_add_modal_container">
+              <p className="form-title">{message.title}</p>
+              <p>{message.content}</p>
+              <button type="submit" className="add_button" onClick={handleClickMsgPopup}>확인</button>
+            </div>
+          )}
+        </Modal>
+          
         <Modal open={isOpenPopup} onClose={handleClickPopup}>
           <div className="workspace_add_modal_container">
             <p className="form-title">이메일 인증완료</p>
             <p>회원가입이 완료 되었습니다.</p>
             <button type="submit" className="add_button" onClick={handleClickPopup}>확인</button>
           </div>
-        </Modal>  
+        </Modal>
+          
         <Modal open={isOpenPopupCheck} onClose={()=>{setIsOpenPopupCheck(false)}}>
           <div className="workspace_add_modal_container">
             <p className="form-title">이메일 인증</p>

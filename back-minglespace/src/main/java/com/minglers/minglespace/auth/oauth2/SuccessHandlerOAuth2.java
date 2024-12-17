@@ -1,10 +1,10 @@
 package com.minglers.minglespace.auth.oauth2;
 
 import com.minglers.minglespace.auth.entity.User;
-import com.minglers.minglespace.auth.repository.UserRepository;
 import com.minglers.minglespace.auth.security.JWTUtils;
+import com.minglers.minglespace.common.apitype.MsStatus;
 import com.minglers.minglespace.common.util.CookieManager;
-import com.minglers.minglespace.common.util.Info;
+import com.minglers.minglespace.common.util.MsConfig;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -21,33 +21,37 @@ import java.io.IOException;
 @Component
 public class SuccessHandlerOAuth2 extends SimpleUrlAuthenticationSuccessHandler {
 
-    private final JWTUtils jwtUtils;
-    private final UserRepository userRepository;
+  private final JWTUtils jwtUtils;
 
-    @Override
-    public void onAuthenticationSuccess(
-            HttpServletRequest request,
-            HttpServletResponse response,
-            Authentication authentication) throws IOException, ServletException {
+  @Override
+  public void onAuthenticationSuccess(
+          HttpServletRequest request,
+          HttpServletResponse response,
+          Authentication authentication) throws IOException, ServletException {
 
-        OAuth2UserMs oAuth2UserMs = (OAuth2UserMs) authentication.getPrincipal();
+    OAuth2UserMs oAuth2UserMs = (OAuth2UserMs) authentication.getPrincipal();
 
-
-        User user = oAuth2UserMs.getUser();
-
-        log.info("[MIRO] 로그인 성공, user : {}", user.getEmail());
-
-        // 토큰 생성
-        String accessToken = jwtUtils.geneTokenAccess(user);
-        String refreshToken = jwtUtils.geneTokenRefresh(user);
-
-        // accessToken은 소셜 로그인시 최초 1회는 쿠키에 넣어 준다
-        CookieManager.add("Authorization", accessToken, JWTUtils.EXPIRATION_ACCESS, response);
-
-        // refreshToken은 계속 쿠키에서 관리된다.
-        CookieManager.add(JWTUtils.REFRESH_TOKEN, refreshToken, JWTUtils.EXPIRATION_REFRESH, response);
-
-        // sendRedirect
-        response.sendRedirect(Info.ClientUrl("/auth/token"));
+    if(oAuth2UserMs.getStatus() == MsStatus.AlreadyJoinedEmail){
+      log.info("[MIRO] 돌려 보내는 사유 : {}", oAuth2UserMs.getStatus().getDesc());
+      response.sendRedirect(MsConfig.getClientUrl("/auth/login/" +  oAuth2UserMs.getStatus()));
+      return;
     }
+
+    User user = oAuth2UserMs.getUser();
+
+    log.info("[MIRO] 로그인 성공, user : {}", user.getEmail());
+
+    // 토큰 생성
+    String accessToken = jwtUtils.geneTokenAccess(user);
+    String refreshToken = jwtUtils.geneTokenRefresh(user);
+
+    // accessToken은 소셜 로그인시 최초 1회는 쿠키에 넣어 준다
+    CookieManager.add("Authorization", accessToken, JWTUtils.EXPIRATION_ACCESS, response);
+
+    // refreshToken은 계속 쿠키에서 관리된다.
+    CookieManager.add(JWTUtils.REFRESH_TOKEN, refreshToken, JWTUtils.EXPIRATION_REFRESH, response);
+
+    // sendRedirect
+    response.sendRedirect(MsConfig.getClientUrl("/auth/token"));
+  }
 }

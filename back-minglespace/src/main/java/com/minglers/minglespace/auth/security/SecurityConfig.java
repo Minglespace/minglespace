@@ -4,7 +4,7 @@ import com.minglers.minglespace.auth.exception.CustomAuthenticationEntryPoint;
 import com.minglers.minglespace.auth.oauth2.SuccessHandlerOAuth2;
 import com.minglers.minglespace.auth.oauth2.UserServiceOAuth2;
 import com.minglers.minglespace.auth.service.UserDetailsServiceImpl;
-import com.minglers.minglespace.common.util.Info;
+import com.minglers.minglespace.common.util.MsConfig;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -44,7 +44,7 @@ public class SecurityConfig {
         CorsConfiguration corsConfig = new CorsConfiguration();
 
         // 허용할 오리진
-        corsConfig.addAllowedOrigin(Info.CLIENT_URL);
+        corsConfig.addAllowedOrigin(MsConfig.getClientUrl());
 
 //        // 메서드 허용
 //        corsConfig.addAllowedMethod("GET");

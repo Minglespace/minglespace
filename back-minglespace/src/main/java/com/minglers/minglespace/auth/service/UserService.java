@@ -50,6 +50,7 @@ public class UserService {
                 modelMapper.map(req, user);
                 user.setPassword(passwordEncoder.encode(req.getPassword()));
                 user.setRole(req.getRole());
+                user.setProvider("minglespace");
 
                 // 디비 저장
                 User userResult = usersRepo.save(user);

@@ -3,8 +3,8 @@ import { createBrowserRouter } from "react-router-dom";
 import SuspenseWithPrivateRoute from "./SuspenseWithPrivateRoute";
 
 const Loading = <div>Loading....</div>;
-const Login = lazy(() => import("../auth/LoginPage"));
-const Signup = lazy(() => import("../auth/SignupPage"));
+const LoginPage = lazy(() => import("../auth/LoginPage"));
+const SignupPage = lazy(() => import("../auth/SignupPage"));
 const TokenPage = lazy(() => import("../auth/TokenPage"));
 const Main = lazy(() => import("../page/MainPage"));
 const Chat = lazy(() => import("../page/ChatPage"));
@@ -55,15 +55,19 @@ const root = createBrowserRouter([
   // 로그인 유무 체크하지 않는 대상 페이지들
   {
     path: "/auth/login",
-    element: (<Suspense fallback={Loading}><Login /></Suspense>),
+    element: (<Suspense fallback={Loading}><LoginPage /></Suspense>),
   },
   {
     path: "/auth/login/:code/:encodedEmail",
-    element: (<Suspense fallback={Loading}><Login /></Suspense>),
+    element: (<Suspense fallback={Loading}><LoginPage /></Suspense>),
+  },
+  {
+    path: "/auth/login/:msg",
+    element: (<Suspense fallback={Loading}><LoginPage /></Suspense>),
   },
   {
     path: "/auth/signup",
-    element: (<Suspense fallback={Loading}><Signup /></Suspense>),
+    element: (<Suspense fallback={Loading}><SignupPage /></Suspense>),
   },
   {
     path: "/auth/token",
