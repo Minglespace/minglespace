@@ -21,6 +21,7 @@ public interface ChatMessageRepository extends JpaRepository<ChatMessage, Long>,
   // 채팅방의 마지막 메시지 조회
   @Query(value = "SELECT * FROM chatmessage WHERE chatroom_id = :chatRoomId ORDER BY date DESC LIMIT 1", nativeQuery = true)
   Optional<ChatMessage> findLatestMessageByChatRoomId(@Param("chatRoomId") Long chatRoomId);
+  Optional<ChatMessage> findByChatRoomIdAndIsAnnouncementTrue(Long chatRoomId);
 
   void deleteByChatRoomId(Long chatRoomId);
 }

@@ -41,7 +41,7 @@ public class WebSocketEventListener {
     Long userId = (Long) accessor.getSessionAttributes().get("userId");
     if (userId != null) {
       System.out.println("websocket disconnected : userId = " + userId);
-      stompInterceptor.removeSession(userId, sessionId);
+//      stompInterceptor.removeSession(userId, sessionId);
     }
   }
 

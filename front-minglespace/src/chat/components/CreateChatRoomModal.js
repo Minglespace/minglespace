@@ -91,6 +91,11 @@ const CreateChatRoomModal = ({ isOpen, onClose, onCreate, wsMembers }) => {
     onClose(); // 부모 컴포넌트에게 모달을 닫을 것을 알림
   };
 
+  const imageUrlPathCheck = (src) => {
+    if (src && src.trim() !== "") return `${HOST_URL}${src}`;
+    else return null;
+  };
+
   if (!isOpen) return null;
 
   return (
@@ -152,8 +157,8 @@ const CreateChatRoomModal = ({ isOpen, onClose, onCreate, wsMembers }) => {
                       name={member.name}
                       role={member.position}
                       email={member.email}
-                      src={`${HOST_URL}${member.imageUriPath}`}
-                      title="친구 정보"
+                      src={imageUrlPathCheck(member.profileImagePath)}
+                      size={50}
                     />
                   </label>
                 </li>

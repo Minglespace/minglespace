@@ -2,11 +2,13 @@ package com.minglers.minglespace.chat.entity;
 
 import com.minglers.minglespace.chat.dto.ChatMessageDTO;
 import com.minglers.minglespace.common.converter.LocalDateTimeAttributeConverter;
+import com.minglers.minglespace.workspace.dto.MemberWithUserInfoDTO;
 import com.minglers.minglespace.workspace.entity.WSMember;
 import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Entity
 @Getter
@@ -40,7 +42,7 @@ public class ChatMessage {
     @Builder.Default
     private Boolean isAnnouncement = false;
 
-    public ChatMessageDTO toDTO(){
+    public ChatMessageDTO toDTO(List<MemberWithUserInfoDTO> unReadMembers){
         Long replyId = (this.getParentMessage() != null) ? this.getParentMessage().getId() : null;
         return ChatMessageDTO.builder()
                 .id(this.getId())
@@ -51,6 +53,7 @@ public class ChatMessage {
                 .writerWsMemberId(this.getWsMember().getId())
                 .isAnnouncement(this.getIsAnnouncement())
                 .sender(this.getWsMember().getUser().getName())
+                .unReadMembers(unReadMembers)
                 .build();
     }
 }

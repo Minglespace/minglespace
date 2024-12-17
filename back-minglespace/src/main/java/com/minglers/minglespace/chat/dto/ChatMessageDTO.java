@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.minglers.minglespace.chat.entity.ChatMessage;
 import com.minglers.minglespace.chat.entity.ChatRoom;
+import com.minglers.minglespace.workspace.dto.MemberWithUserInfoDTO;
 import com.minglers.minglespace.workspace.entity.WSMember;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -28,6 +29,7 @@ public class ChatMessageDTO {
   private String sender; //response
   private Long workspaceId; //request_url에 포함하도록 수정?
   private List<Long> mentionedUserIds; //request
+  private List<MemberWithUserInfoDTO> unReadMembers;//response_안읽은 사람 목록
   //파일
 
   public ChatMessage toEntity(ChatRoom chatRoom, WSMember wsMember, ChatMessage parentMsg){

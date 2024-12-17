@@ -22,15 +22,8 @@ public class MsgReadStatusController {
   @DeleteMapping("/readMsg")
   public ResponseEntity<String> deleteMsgReadStatus(@PathVariable("workspaceId") Long workspaceId,
                                                     @PathVariable("chatRoomId") Long chatRoomId,
-                                                    @RequestHeader("Authorization") String authorizationHeader) {
-    String token = authorizationHeader.replace("Bearer ", "");
-
-    Long userId = jwtUtils.extractUserId(token);
-
-    WSMember wsMember = wsMemberService.findByUserIdAndWsId(userId, workspaceId);
-
-    msgReadStatusService.deleteMsgReadStatus(chatRoomId, wsMember.getId());
-
-    return ResponseEntity.ok("OK");
+                                                    @RequestHeader("Authorization") String token) {
+    Long userId = jwtUtils.extractUserId(token.substring(7));
+    return ResponseEntity.ok(msgReadStatusService.deleteMsgReadStatus(chatRoomId, userId, workspaceId));
   }
 }

@@ -5,7 +5,7 @@ import { HOST_URL } from "../../api/Api";
 import { useNavigate, useParams } from "react-router-dom";
 import { TbPencil } from "react-icons/tb";
 
-const ChatListItem = ({ chat, onReadMsg, onSelectRoom }) => {
+const ChatListItem = ({ chat, onReadMsg }) => {
   const navigate = useNavigate();
   const { workspaceId } = useParams();
 

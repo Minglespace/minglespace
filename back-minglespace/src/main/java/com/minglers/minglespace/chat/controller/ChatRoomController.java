@@ -29,7 +29,6 @@ import java.util.List;
 public class ChatRoomController {
   private final ChatRoomService chatRoomService;
   private final ChatRoomMemberService chatRoomMemberService;
-  private final ChatMessageService chatMessageService;
   private final WSMemberService wsMemberService;
   private final ImageService imageService;
   private final JWTUtils jwtUtils;
@@ -40,15 +39,7 @@ public class ChatRoomController {
   public ResponseEntity<?> getRoomsByMember(@PathVariable Long workspaceId,
                                             @RequestHeader("Authorization") String token) {
     Long userId = jwtUtils.extractUserId(token.substring(7));
-//    log.info("chatRoom_getRoomByMember - requestUserId : " + userId);
-
-    WSMember wsMember = wsMemberService.findByUserIdAndWsId(userId, workspaceId);
-    if (wsMember == null) {
-      return ResponseEntity.status(HttpStatus.FORBIDDEN).body("워크스페이스에 참여하는 유저가 아닙니다.");
-    }
-
-    List<ChatListResponseDTO> chatRooms = chatRoomService.getRoomsByWsMember(workspaceId, wsMember.getId());
-    return ResponseEntity.ok(chatRooms);
+    return ResponseEntity.ok(chatRoomService.getRoomsByWsMember(workspaceId, userId));
   }
 
   //방 생성
@@ -58,22 +49,9 @@ public class ChatRoomController {
                                                              @RequestPart(value = "image", required = false) MultipartFile image,
                                                              @RequestHeader("Authorization") String token) {
     Long userId = jwtUtils.extractUserId(token.substring(7));
-    WSMember createMember = wsMemberService.findByUserIdAndWsId(userId, workspaceId);
-
     requestDTO.setWorkspaceId(workspaceId);
-    Image saveFile = null;
-    if (image != null) {
-      try {
-        saveFile = imageService.uploadImage(image);
-      } catch (RuntimeException | IOException e) {
-        log.error("Image upload failed: " + e.getMessage(), e);
-        throw new RuntimeException("채팅방 이미지 업로드 실패 : ", e);  // 업로드 실패 시 처리
-      }
-    }
 
-//    requestDTO.setImage(image);
-    ChatListResponseDTO chatRoomdto = chatRoomService.createRoom(requestDTO, createMember, saveFile);
-    return ResponseEntity.ok(chatRoomdto);
+    return ResponseEntity.ok(chatRoomService.createRoom(requestDTO, userId, image));
   }
 
 
@@ -83,8 +61,6 @@ public class ChatRoomController {
                                               @RequestHeader("Authorization") String token) {
 
     Long userId = jwtUtils.extractUserId(token.substring(7));
-//    log.info("chatRoom _ getChatRoomWithMsg - requestUserId : " + userId);
-
     try{
       ChatRoomResponseDTO chatRoomResponseDTO = chatRoomService.getChatRoomWithMsgAndParticipants(chatRoomId, workspaceId, userId);
       return ResponseEntity.ok(chatRoomResponseDTO);
@@ -107,8 +83,8 @@ public class ChatRoomController {
       return ResponseEntity.status(HttpStatus.FORBIDDEN).body("방장만 멤버를 추가할 수 있습니다.");
     }
 
-    chatRoomMemberService.addUserToRoom(chatRoomId, addMemberId);
-    return ResponseEntity.ok("참여자 추가 완료");
+
+    return ResponseEntity.ok(chatRoomMemberService.addUserToRoom(chatRoomId, addMemberId));
   }
 
 
@@ -125,8 +101,7 @@ public class ChatRoomController {
       return ResponseEntity.status(HttpStatus.FORBIDDEN).body("방장만 멤버를 강퇴할 수 있습니다.");
     }
 
-    chatRoomMemberService.kickMemberFromRoom(chatRoomId, kickMemberId);
-    return ResponseEntity.ok("참여자 강퇴 완료");
+    return ResponseEntity.ok(chatRoomMemberService.kickMemberFromRoom(chatRoomId, kickMemberId));
   }
 
   //자진 방 나가기
@@ -155,12 +130,7 @@ public class ChatRoomController {
     Long userId = jwtUtils.extractUserId(token.substring(7));
     Long currentMemberId = wsMemberService.findByUserIdAndWsId(userId, workspaceId).getId();
 
-    try {
-      chatRoomMemberService.delegateLeader(chatRoomId, newLeaderId, currentMemberId);
-      return ResponseEntity.ok("방장 위임 완료");
-    } catch (Exception e) {
-      return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
-    }
+    return ResponseEntity.ok(chatRoomMemberService.delegateLeader(chatRoomId, newLeaderId, currentMemberId));
   }
 
 }

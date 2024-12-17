@@ -78,6 +78,7 @@ const ChatApp = () => {
       },
       onConnect: () => {
         console.log("chatapp _ websocket 연결 성공");
+        
         stompClient.subscribe(`/topic/workspaces/${workspaceId}`, (msg) => {
           const newMsg = JSON.parse(msg.body);
           console.log("chatapp에 새 메시지 도착", newMsg);
