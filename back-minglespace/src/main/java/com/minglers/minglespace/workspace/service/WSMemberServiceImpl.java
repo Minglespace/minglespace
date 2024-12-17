@@ -235,7 +235,7 @@ public class WSMemberServiceImpl implements WSMemberService {
     if("fail".equals(returnString))
       return "이메일 전송에 실패하였습니다";
 
-    //3. 전송완료시 db에 저장한다.
+    //3. 전송완료시 db에 저장한다.(일단 기존이메일이 db에 있는지 확인후 기존꺼가 있으면 지워버린다.)
     if(targetUser.isEmpty()){//가입 되어있지않은 유저
       log.info("가입되지않은유저~");
     }else{//가입된유저
