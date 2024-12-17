@@ -1,37 +1,42 @@
 .add_button {
-    background-color: #5c6ac4;
-    border: solid 1px;
-    border-radius: 10px;
-    padding: 5px;
+  background-color: #5c6ac4;
+  border: solid 1px;
+  border-radius: 10px;
+  padding: 5px;
 }
 
 .add_button_2 {
-    background-color: #7f8Fdf;
-    color: #fff;
-    width: 80px;
-    border-radius: 10px;
-    padding: 5px;
-    cursor: pointer;
-    &:hover{
-        background-color: #5c6ac4;
-    }
+  background-color: #7f8fdf;
+  color: #fff;
+  width: 80px;
+  border-radius: 10px;
+  padding: 5px;
+  cursor: pointer;
+  &:hover {
+    background-color: #5c6ac4;
+  }
 }
 
 .exit_button {
-    background-color: red;
-    border: solid 1px;
-    width: 80px;
-    border-radius: 10px;
-    padding: 5px;
+  background-color: red;
+  border: solid 1px;
+  width: 80px;
+  border-radius: 10px;
+  padding: 5px;
+  color: whitesmoke;
+  cursor: pointer;
+  &:hover {
+    background-color: #ff5555;
+  }
 }
 
 .cancle_button {
-    background-color: lightgray;
-    width: 80px;
-    border-radius: 10px;
-    padding: 5px;
-    cursor: pointer;
-    &:hover{
-        background-color: gray;
-    }
+  background-color: lightgray;
+  width: 80px;
+  border-radius: 10px;
+  padding: 5px;
+  cursor: pointer;
+  &:hover {
+    background-color: gray;
+  }
 }

@@ -1,4 +1,4 @@
-import { Suspense, lazy } from "react";
+﻿import { Suspense, lazy } from "react";
 import { createBrowserRouter } from "react-router-dom";
 import SuspenseWithPrivateRoute from "./SuspenseWithPrivateRoute";
 
@@ -7,6 +7,7 @@ const Login = lazy(() => import("../auth/LoginPage"));
 const Signup = lazy(() => import("../auth/SignupPage"));
 const Main = lazy(() => import("../page/MainPage"));
 const Chat = lazy(() => import("../page/ChatPage"));
+const Todo = lazy(() => import("../page/TodoPage"));
 // const Calendar = lazy(() => import("../page/Calendar"));
 // const Milestone = lazy(() => import("../page/Milestone"));
 const Workspace = lazy(() => import("../page/WorkspacePage"));
@@ -44,6 +45,10 @@ const root = createBrowserRouter([
   {
     path: "/workspace/:workspaceId/chat",
     element: <SuspenseWithPrivateRoute page={Chat} />,
+  },
+  {
+    path: "/workspace/:workspaceId/todo",
+    element: <SuspenseWithPrivateRoute page={Todo} />,
   },
   {
     path: "/workspace/:workspaceId/member",

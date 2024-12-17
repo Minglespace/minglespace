@@ -9,5 +9,6 @@ import lombok.*;
 @ToString
 public class WSMemberResponseDTO {
   private Long memberId;
+  private String name;
   private String role;
 }

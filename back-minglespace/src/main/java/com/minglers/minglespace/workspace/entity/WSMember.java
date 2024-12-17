@@ -2,6 +2,7 @@ package com.minglers.minglespace.workspace.entity;
 
 import com.minglers.minglespace.auth.entity.User;
 import com.minglers.minglespace.chat.entity.ChatRoomMember;
+import com.minglers.minglespace.todo.entity.Todo;
 import com.minglers.minglespace.workspace.role.WSMemberRole;
 import jakarta.persistence.*;
 import lombok.*;
@@ -14,7 +15,7 @@ import java.util.List;
 @Table(name = "wsmember", uniqueConstraints = { @UniqueConstraint(columnNames = {"workspace_id", "user_id"}) })
 @NoArgsConstructor
 @AllArgsConstructor
-@ToString
+@ToString(exclude = {"workSpace", "todoList"})
 @Getter
 @Builder
 public class WSMember {
@@ -38,6 +39,9 @@ public class WSMember {
     @OneToMany(mappedBy = "wsMember", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default
     private List<ChatRoomMember> chatRoomMembers = new ArrayList<>();
+
+    @OneToMany(mappedBy = "wsMember", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Todo> todoList = new ArrayList<>();
 
     public void addChatRoomMember(ChatRoomMember chatRoomMember){
         chatRoomMembers.add(chatRoomMember);

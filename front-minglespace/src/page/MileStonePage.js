@@ -4,7 +4,7 @@ import MileStone from "../milestone/MileStone";
 
 const MileStonePage = () => {
   return (
-    <BasicLayout props="1">
+    <BasicLayout>
       <MileStone />
     </BasicLayout>
   );
