@@ -7,6 +7,7 @@ const MessageListItem = ({
   currentMemberInfo,
   onMessageClick,
   onFindParentMessage,
+  parsedMessage,
 }) => {
   const parentMessage = message.replyId
     ? onFindParentMessage(message.replyId)
@@ -14,6 +15,7 @@ const MessageListItem = ({
 
   const formatMessage = (message) => {
     const regex = /@(\w+)/g;
+    console.log("Formatting message: ", message); // 메시지 형식화 확인
     return message
       .split(regex)
       .map((part, index) =>

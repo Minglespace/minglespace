@@ -1,5 +1,4 @@
 ﻿import React, { useEffect, useRef, useState } from "react";
-import { FiCornerDownRight } from "react-icons/fi";
 import MessageListItem from "./MessageListItem";
 
 const MessageList = ({ messages, onMessageClick, currentMemberInfo }) => {
@@ -19,6 +18,22 @@ const MessageList = ({ messages, onMessageClick, currentMemberInfo }) => {
     return messages.find((message) => message.id === replyId);
   };
 
+  // @username 형식으로 멘션을 인식하고 표시하는 함수
+  const parseMessage = (message) => {
+    const regex = /@(\w+)/g;
+    console.log("Parsing message: ", message); // 메시지 파싱 확인
+    // @username 형식으로 멘션을 인식하고 표시
+    return message.split(regex).map((part, index) =>
+      regex.test(`@${part}`) ? (
+        <strong key={index} style={{ color: "blue", fontWeight: "bold" }}>
+          @{part}
+        </strong>
+      ) : (
+        part
+      )
+    );
+  };
+
   return (
     <div className="message-list" ref={messageListRef}>
       {messages.map((message) => {
@@ -33,6 +48,7 @@ const MessageList = ({ messages, onMessageClick, currentMemberInfo }) => {
             currentMemberInfo={currentMemberInfo}
             onMessageClick={onMessageClick}
             onFindParentMessage={findParentMessage}
+            parsedMessage={parseMessage(message.content)}
           />
         );
       })}
