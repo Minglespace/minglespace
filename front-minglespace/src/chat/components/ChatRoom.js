@@ -26,8 +26,6 @@ const ChatRoom = ({
   updateRoomParticipantCount,
   removeRoom,
 }) => {
-  const [message, setMessages] = useState("");
-
   const [chatRoomInfo, setChatRoomInfo] = useState(initChatRoomInfo);
   const [inviteMembers, setInviteMembers] = useState([]);
   const [isRoomOwner, setIsRoomOwner] = useState(false);
@@ -416,10 +414,6 @@ const ChatRoom = ({
     // setSelectedMessageId(messageId);
     setReplyToMessage(messages);
     console.log("입력창에 표시된 답장 대상:", `${messages.text}`);
-  };
-
-  const handleChange = (e, newValue) => {
-    setMessages(newValue);
   };
 
   return (

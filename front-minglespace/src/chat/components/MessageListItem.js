@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { FiCornerDownRight, FiDownload } from "react-icons/fi";
+import { FiCornerDownRight, FiDownload, FiTrash2 } from "react-icons/fi";
 import { HOST_URL } from "../../api/Api";
 import ProfileImage from "../../common/Layouts/components/ProfileImage";
 import Lightbox from "react-18-image-lightbox";
@@ -18,7 +18,7 @@ const MessageListItem = ({
   onFindParentMessage,
   parsedMessage,
   openAnnounceMentModal,
-  onDeleteMessage
+  openDeleteModal
 }) => {
   const parentMessage = message.replyId
     ? onFindParentMessage(message.replyId)
@@ -232,6 +232,20 @@ const MessageListItem = ({
               }
             </span>
           )}
+        {/* 삭제 아이콘 */}
+        <button
+          className="delete-button"
+          onClick={() => openDeleteModal(message)}
+          style={{
+            backgroundColor: "transparent",
+            border: "none",
+            color: "red",
+            cursor: "pointer",
+            fontSize: "20px",
+          }}
+        >
+          <FiTrash2 />
+        </button>
       </div>
       {isImageOpen && (
         <Lightbox
@@ -258,7 +272,6 @@ const MessageListItem = ({
           ]}
         />
       )}
-
     </div >
   );
 };
