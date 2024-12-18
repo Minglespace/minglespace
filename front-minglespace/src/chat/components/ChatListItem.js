@@ -51,10 +51,8 @@ const ChatListItem = ({ chat, onReadMsg }) => {
         <div className="chat_footer">
           <p className="last_message">
             {chat.lastMessage === null
-              ? "" 
-              : chat.lastMessage.trim() === "" 
-                ? "(파일)" 
-                : chat.lastMessage
+              ? ""
+              : chat.lastMessage
             }
           </p>
           {chat.notReadMsgCount > 0 && (

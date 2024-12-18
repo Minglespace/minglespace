@@ -66,8 +66,8 @@ public class ChatRoomServiceImpl implements ChatRoomService {
               Optional<ChatMessage> lastMessage = chatMessageRepository.findLatestMessageByChatRoomId(chatRoom.getId());
               String lastMsgContent = lastMessage
                       .map(ChatMessage::getContent) // 메시지가 있으면 content 가져옴
-                      .filter(content -> !content.isEmpty()) // content가 ""인지 확인
-                      .orElse(null); // ""이면 null 반환, 메시지가 없으면 기본값 null
+                      .map(content -> content.isEmpty() ? "(파일)" : content)
+                      .orElse(null);
               LocalDateTime lastMsgDate = lastMessage.map(ChatMessage::getDate).orElse(chatRoom.getDate());
 //              log.info("getRoomsByWsMember_lastMessage: " + lastMsgContent);
 
