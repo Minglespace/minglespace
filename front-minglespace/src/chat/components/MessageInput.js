@@ -1,6 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
-import { MentionsInput, Mention } from "react-mentions";
-import Mentions from "./Mentions";
+import React, { useState, useRef, useEffect } from "react";
 import { FaLock, FaLockOpen, FaTrashAlt } from "react-icons/fa";
 import Modal from "../../common/Layouts/components/Modal";
 import ProfileImage from "../../common/Layouts/components/ProfileImage";
@@ -26,9 +24,37 @@ const MessageInput = ({
 
   //멘션 관리 상태
   const [mentioning, setMentioning] = useState(false);//멘션 활성화
-  const [mentionQuery, setMentionQuery] = useState(""); //@뒤 텍스트
+  // const [mentionQuery, setMentionQuery] = useState(""); //@뒤 텍스트
   const [filteredMembers, setFilteredMembers] = useState([]); //필터링된 멤버
-  const [selectedMention, setSelectedMention] = useState(""); //선택된 멤버
+  const [selectedIndex, setSelectedIndex] = useState(-1); //선택된 목록
+  const mentionRef = useRef(null);
+
+  useEffect(() => {
+    if (newMessage.includes("@")) {
+      const mentionMatch = newMessage.match(/@(\S*)$/);
+      if (mentionMatch) {
+        const query = mentionMatch[1];
+        const filteredList = query
+          ? wsMembers.filter((member) =>
+              member.name.toLowerCase().includes(query.toLowerCase())
+            )
+          : wsMembers;
+        setMentioning(true);
+        setFilteredMembers(filteredList);
+      }
+    } else {
+      setMentioning(false);
+      setFilteredMembers([]);
+    }
+  }, [newMessage, wsMembers]);
+
+
+  //멘션 선택 유저가 있다면 목록 스크롤 조정
+  useEffect(() => {
+    if(mentionRef.current && selectedIndex >= 0){
+      mentionRef.current.scrollTop = selectedIndex * 40;
+    }
+  }, [selectedIndex]);
 
   // 메시지 잠금 상태 변경 함수
   const toggleLock = () => {
@@ -38,63 +64,12 @@ const MessageInput = ({
 
   // 메시지 입력 < ----------- mention
   const handleMessageChange = (e) => {
-    // console.log("메시지:", e.target.innerHTML);
     if (!isLocked) {
       const value = e.target.value;
-
       setNewMessage(value);
-      // 멘션 처리
-      const mentionMatch = value.match(/@(\S*)$/);
-
-      if (mentionMatch) {
-        const query = mentionMatch[1]; //@뒤 텍스트
-        setMentioning(true);
-        setMentionQuery(query);
-
-        if (query) {
-          const filteredList = wsMembers.filter((member) =>
-            member.name.toLowerCase().includes(query.toLowerCase())
-          );
-          setFilteredMembers(filteredList);
-        } else {
-          setFilteredMembers(wsMembers);
-        }
-
-      } else {
-        setMentioning(false);
-        setFilteredMembers([]);
-        // console.log("No mention found"); // 멘션이 없을 경우
-      }
-
     }
   };
 
-  const handleFileChange = (e) => {
-    const selectedFiles = Array.from(e.target.files);
-    let validFiles = [];
-    let totalSize = 0;
-    for (let file of selectedFiles) {
-      if (file.size > MAX_FILE_SIZE) {
-        setModalMessage(`${file.name} 파일이 너무 큽니다. 최대 파일 크기를 10MB 입니다.`);
-        setIsModalOpen(true);
-        continue;
-      }
-      totalSize += file.size;
-      if (totalSize > MAX_TOTAL_SIZE) {
-        setModalMessage(`총 파일 크기가 100MB를 초과했습니다.`);
-        setIsModalOpen(true);
-        break;
-      }
-      validFiles.push(file);
-      if (validFiles.length >= MAX_FILE_COUNT) {
-        setModalMessage(`최대 ${MAX_FILE_COUNT}개의 파일만 업로드할 수 있습니다. `);
-        setIsModalOpen(true);
-        break;
-      }
-    }
-
-    setFiles(validFiles);
-  };
 
   // 메시지 전송 처리 함수  <<--------- 멘션 정보 같이 보내기 / 보내고 멘션 상태 초기화
   const handleSendMessage = () => {
@@ -131,10 +106,19 @@ const MessageInput = ({
   };
 
   const handleKeyDown = (e) => {
-    console.log(typeof messages);
-    if (e.key === "Enter" && !e.shiftKey && (newMessage.trim() || files.length > 0)) {
-      // e.preventDefault();
-      handleSendMessage();
+    if(mentioning){
+      if(e.key === "ArrowDown"){
+        setSelectedIndex((prev) => (prev + 1) % filteredMembers.length);
+      }else if(e.key === "ArrowUp"){
+        setSelectedIndex((prev) => (prev - 1 + filteredMembers.length) % filteredMembers.length);
+      }else if(e.key === "Enter" && selectedIndex >= 0){
+        handleMentionSelect(filteredMembers[selectedIndex]);
+      }
+    }else{
+      if (e.key === "Enter" && !e.shiftKey && (newMessage.trim() || files.length > 0)) {
+        // e.preventDefault();
+        handleSendMessage();
+      }
     }
   };
 
@@ -158,11 +142,41 @@ const MessageInput = ({
     console.log("클릭된 멤버 멘션: ", member);
     const updatedMessage = newMessage.replace(
       /@(\S*)$/,
-      `@${member.name}`
+      `@${member.name} `
     );
     setNewMessage(updatedMessage);
     setMentioning(false);
     setFilteredMembers([]);
+    setSelectedIndex(-1);
+
+    document.querySelector('input').focus();
+  };
+
+  const handleFileChange = (e) => {
+    const selectedFiles = Array.from(e.target.files);
+    let validFiles = [];
+    let totalSize = 0;
+    for (let file of selectedFiles) {
+      if (file.size > MAX_FILE_SIZE) {
+        setModalMessage(`${file.name} 파일이 너무 큽니다. 최대 파일 크기를 10MB 입니다.`);
+        setIsModalOpen(true);
+        continue;
+      }
+      totalSize += file.size;
+      if (totalSize > MAX_TOTAL_SIZE) {
+        setModalMessage(`총 파일 크기가 100MB를 초과했습니다.`);
+        setIsModalOpen(true);
+        break;
+      }
+      validFiles.push(file);
+      if (validFiles.length >= MAX_FILE_COUNT) {
+        setModalMessage(`최대 ${MAX_FILE_COUNT}개의 파일만 업로드할 수 있습니다. `);
+        setIsModalOpen(true);
+        break;
+      }
+    }
+
+    setFiles(validFiles);
   };
 
   //파일 제한 모달
@@ -245,7 +259,7 @@ const MessageInput = ({
           <div className="mention-suggestions"
             style={{
               position: "absolute",
-              background: "#fff",
+              background: "#ffffff",
               border: "1px solid #ccc",
               borderRadius: "5px",
               width: "15%",
@@ -253,16 +267,17 @@ const MessageInput = ({
               overflowY: "auto",
               bottom: "28px"
             }}
+            ref={mentionRef}
           >
             <ul>
-              {filteredMembers.map((member) => (
+              {filteredMembers.map((member, index) => (
                 <li
                   key={member.wsMemberId}
                   onClick={() => handleMentionSelect(member)}
                   style={{
                     padding: "10px",
                     cursor: "pointer",
-                    backgroundColor: "#f0f0f0",
+                    backgroundColor: selectedIndex === index ? '#f2cfd3' : '#ffffff',
                     display: "flex",
                   }}
                 >

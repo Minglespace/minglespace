@@ -16,9 +16,9 @@ const MessageListItem = ({
   currentMemberInfo,
   onMessageClick,
   onFindParentMessage,
-  parsedMessage,
   openAnnounceMentModal,
-  openDeleteModal
+  openDeleteModal,
+  wsMembers
 }) => {
   const parentMessage = message.replyId
     ? onFindParentMessage(message.replyId)
@@ -44,12 +44,12 @@ const MessageListItem = ({
 
   const formatMessage = (message) => {
     const regex = /@(\w+)/g;
-    // console.log("Formatting message: ", message); // 메시지 형식화 확인
     return message
       .split(regex)
-      .map((part, index) =>
-        regex.test(`@${part}`) ? <strong key={index}>@{part}</strong> : part
-      );
+      .map((part, index) =>{
+        const isMention = wsMembers.some((member) => member.name === part);
+        return isMention ? <span style={{fontWeight:"bold", color:"#405580"}} key={index}>@{part}</span> : part;
+      });
   };
 
   const openLightbox = (index) => {
@@ -156,9 +156,9 @@ const MessageListItem = ({
       {/* 답장 내용 추가 */}
       {parentMessage && (
         <>
-          <div className="reply-to-text">{parentMessage.content}</div>
+          <div className="reply-to-text">{formatMessage(parentMessage.content)}</div>
           <div className="reply-line">--------------------------</div>
-          <div className="reply-text">{message.content}</div>
+          <div className="reply-text">{formatMessage(message.content)}</div>
         </>
       )}
 

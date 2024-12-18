@@ -21,6 +21,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequiredArgsConstructor
@@ -45,9 +46,9 @@ public class ChatRoomController {
   //방 생성
   @PostMapping("")
   public ResponseEntity<ChatListResponseDTO> createRoom(@PathVariable Long workspaceId,
-                                                             @RequestPart("requestDTO") CreateChatRoomRequestDTO requestDTO,
-                                                             @RequestPart(value = "image", required = false) MultipartFile image,
-                                                             @RequestHeader("Authorization") String token) {
+                                                        @RequestPart("requestDTO") CreateChatRoomRequestDTO requestDTO,
+                                                        @RequestPart(value = "image", required = false) MultipartFile image,
+                                                        @RequestHeader("Authorization") String token) {
     Long userId = jwtUtils.extractUserId(token.substring(7));
     requestDTO.setWorkspaceId(workspaceId);
 
@@ -61,12 +62,22 @@ public class ChatRoomController {
                                               @RequestHeader("Authorization") String token) {
 
     Long userId = jwtUtils.extractUserId(token.substring(7));
-    try{
+    try {
       ChatRoomResponseDTO chatRoomResponseDTO = chatRoomService.getChatRoomWithMsgAndParticipants(chatRoomId, workspaceId, userId);
       return ResponseEntity.ok(chatRoomResponseDTO);
-    }catch (RuntimeException e){
+    } catch (RuntimeException e) {
       return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
     }
+  }
+
+  //채팅방 정보 수정
+  @PutMapping("/{chatRoomId}")
+  public ResponseEntity<Map<String, Object>> updateChatRoom(@PathVariable Long workspaceId,
+                                                            @PathVariable Long chatRoomId,
+                                                            @RequestPart(value = "name", required = false) String name,
+                                                            @RequestPart(value = "isImageDelete") String isImageDelete,
+                                                            @RequestPart(value = "image", required = false) MultipartFile image) {
+    return ResponseEntity.ok(chatRoomService.updateChatRoom(chatRoomId, name, image, isImageDelete));
   }
 
 

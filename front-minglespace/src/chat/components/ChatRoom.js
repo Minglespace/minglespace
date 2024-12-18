@@ -438,6 +438,7 @@ const ChatRoom = ({
         fetchMoreMessages={fetchMoreMessages}
         msgHasMore={chatRoomInfo.msgHasMore}
         currentChatRoomId={chatRoomId}
+        wsMembers={wsMembers}
       />
 
       <MessageInput

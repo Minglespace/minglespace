@@ -11,7 +11,8 @@ const MessageList = ({
   onDeleteMessage,
   fetchMoreMessages,
   msgHasMore,
-  currentChatRoomId
+  currentChatRoomId,
+  wsMembers
 }) => {
   const [announcement, setAnnouncement] = useState(null);
   const [isAnnouncementModalOpen, setIsAnnouncementModalOpen] = useState(false);
@@ -53,21 +54,6 @@ const MessageList = ({
     return messages.find((message) => message.id === replyId);
   };
 
-  // @username 형식으로 멘션을 인식하고 표시하는 함수 <<----------멘션 보일 때 
-  const parseMessage = (message) => {
-    const regex = /@(\w+)/g;
-    // console.log("Parsing message: ", message); // 메시지 파싱 확인
-    // @username 형식으로 멘션을 인식하고 표시
-    return message.split(regex).map((part, index) =>
-      regex.test(`@${part}`) ? (
-        <strong key={index} style={{ color: "blue", fontWeight: "bold" }}>
-          @{part}
-        </strong>
-      ) : (
-        part
-      )
-    );
-  };
 
   const openAnnouncementModal = (message) => {
     // console.log("openAnnounce_msg: ", message);
@@ -147,15 +133,13 @@ const MessageList = ({
             <MessageListItem
               key={message.id}
               message={message}
-              isSameSender={
-                message.writerWsMemberId === currentMemberInfo.wsMemberId
-              }
+              isSameSender={message.writerWsMemberId === currentMemberInfo.wsMemberId}
               currentMemberInfo={currentMemberInfo}
               onMessageClick={onMessageClick}
               onFindParentMessage={findParentMessage}
-              parsedMessage={parseMessage(message.content)}
               openAnnounceMentModal={openAnnouncementModal}
               openDeleteModal={openDeleteModal}
+              wsMembers = {wsMembers}
             />
           );
         })}
