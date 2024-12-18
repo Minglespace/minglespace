@@ -26,7 +26,7 @@ const ProfileImage = ({ src, userName, size = 70 }) => {
       );
     } else {
       // 이미지가 없으면 이름의 첫 글자로 기본 이미지를 생성
-      const firstLetter = userName.charAt(0).toUpperCase();
+      const firstLetter = (userName) ? userName.charAt(0).toUpperCase() : "A";
       const backgroundColor = getRandomColor();
 
       return (
