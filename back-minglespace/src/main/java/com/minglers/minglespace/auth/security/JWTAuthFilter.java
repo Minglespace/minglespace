@@ -1,10 +1,13 @@
 package com.minglers.minglespace.auth.security;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.minglers.minglespace.auth.dto.DefaultResponse;
 import com.minglers.minglespace.auth.entity.User;
-import com.minglers.minglespace.auth.exception.AuthException;
 import com.minglers.minglespace.auth.exception.JwtExceptionCode;
 import com.minglers.minglespace.auth.repository.UserRepository;
+import com.minglers.minglespace.auth.service.TokenBlacklistService;
 import com.minglers.minglespace.auth.service.UserDetailsServiceImpl;
+import com.minglers.minglespace.common.apitype.MsStatus;
 import com.minglers.minglespace.common.util.CookieManager;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.MalformedJwtException;
@@ -15,7 +18,6 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
-import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContext;
@@ -37,6 +39,7 @@ public class JWTAuthFilter extends OncePerRequestFilter {
   private final JWTUtils jwtUtils;
   private final UserDetailsServiceImpl userDetailsService;
   private final UserRepository userRepository;
+  private final TokenBlacklistService tokenBlacklistService;
 
   @Override
   protected void doFilterInternal(
@@ -44,13 +47,21 @@ public class JWTAuthFilter extends OncePerRequestFilter {
           HttpServletResponse response,
           FilterChain filterChain) throws ServletException, IOException {
 
-    String token = "";
+    String accessToken = "";
 
     try {
 
-      token = parseToken(request);
+      accessToken = parseToken(request);
 
-      tokenProcessing(token, request, response);
+      if(accessToken != null && !accessToken.isEmpty() && !accessToken.isBlank()){
+        if(!checkAccessTokenValidation(accessToken, request, response)){
+          accessToken = updateAccessToken(request, response);
+          if(accessToken == null){
+            return;
+          }
+        }
+        addTokenToContext(accessToken, request, response);
+      }
 
       filterChain.doFilter(request, response);
 
@@ -60,43 +71,87 @@ public class JWTAuthFilter extends OncePerRequestFilter {
     } catch (SecurityException | MalformedJwtException e) {
       request.setAttribute("exception", JwtExceptionCode.INVALID_TOKEN);
       throw new BadCredentialsException("throw new invalid token exception");
-    } catch (ExpiredJwtException e) {
-      request.setAttribute("exception", JwtExceptionCode.EXPIRED_TOKEN);
-      throw new BadCredentialsException("throw new expired token exception");
     } catch (UnsupportedJwtException e) {
       request.setAttribute("exception", JwtExceptionCode.UNSUPPORTED_TOKEN);
       throw new BadCredentialsException("throw new unsupported token exception");
     } catch (Exception e){
 
-      // 에러 메시지를 로그로 출력
+      log.error("Exception type: {}", e.getClass().getName());
       log.error("Exception occurred in doFilterInternal: {}", e.getMessage());
-
-      // 예외의 원인 (다른 예외가 있을 수 있는 경우)
       Throwable cause = e.getCause();
       if (cause != null) {
         log.error("!!! Cause of the exception: {}", cause.getMessage());
       }
-      // 예외 타입 출력
-      log.error("Exception type: {}", e.getClass().getName());
     }
   }
 
-  private void tokenProcessing(String token, HttpServletRequest request, HttpServletResponse response){
+  private String parseToken(HttpServletRequest request) {
+    String authorization = request.getHeader("Authorization");
+    if (StringUtils.hasText(authorization) && authorization.startsWith("Bearer")){
+      String[] arr = authorization.split(" ");
+      return arr[1];
+    }
+    return null;
+  }
 
-    if(token == null || token.isEmpty() || token.isBlank())
-      return;
+  private boolean checkAccessTokenValidation(String accessToken, HttpServletRequest request, HttpServletResponse response){
+    try {
+      if(!jwtUtils.isTokenExpired(accessToken)){
+        return true;
+      }
+    } catch (ExpiredJwtException e){
+      log.info("액세스 토큰을 갱신하세요.");
+      return false;
+    }
 
-    if(!jwtUtils.isAccessToken(token))
-      return;
+    return false;
+  }
 
-    log.info("==================================================");
-    log.info("[MIRO] 필터 들어옴 URI: {}", request.getRequestURI());
+  private String updateAccessToken(HttpServletRequest request, HttpServletResponse response) throws IOException {
 
-    // 액세스 토큰 만료 체크,
-    // 만료시 리프레시 토큰을 사용해서 액세스 토큰을 갱신한다.
-    // 리프레시 토큰 만료시 예외 발생
-    // 로그아웃 처리해야한다.
-    token = checkExpiredToken(token, request, response);
+    String refreshToken = CookieManager.get(JWTUtils.REFRESH_TOKEN, request);
+    if(refreshToken == null) {
+
+      log.info("리프레시도 만료 되었어요");
+
+      response.setStatus(HttpServletResponse.SC_OK);
+      response.setContentType("application/json");
+
+      ObjectMapper objectMapper = new ObjectMapper();
+      String jsonResponse = objectMapper.writeValueAsString(new DefaultResponse(MsStatus.ExpiredRefreshToken));
+
+      response.getWriter().write(jsonResponse);
+      return null;
+    }
+
+    if(tokenBlacklistService.isBlacklisted(refreshToken)){
+      log.error("================================================");
+      log.error("어뷰저 딱걸림.");
+      throw new BadCredentialsException("UNAUTHORIZED 잘못된 자격 증명");
+    }
+
+    if(jwtUtils.isTokenExpired(refreshToken)){
+      request.setAttribute("exception", JwtExceptionCode.EXPIRED_TOKEN);
+      throw new BadCredentialsException("리프레시 토큰도 만료 되었습니다.");
+    }
+
+    String userEmail = jwtUtils.extractUsername(refreshToken);
+    Optional<User> userOpt = userRepository.findByEmail(userEmail);
+    if(!userOpt.isPresent()){
+      request.setAttribute("exception", JwtExceptionCode.NOT_FOUND_USER);
+      throw new BadCredentialsException("유저를 찾을 수 없습니다.");
+    }
+
+    log.info("[MIRO] accessToken 토큰이 만료되어 갱신했어요.");
+
+    String accessToken = jwtUtils.geneTokenAccess(userOpt.get());
+
+    response.setHeader("Authorization", "Bearer " + accessToken);
+
+    return accessToken;
+  }
+
+  private void addTokenToContext(String token, HttpServletRequest request, HttpServletResponse response){
 
     final String userEmail = jwtUtils.extractUsername(token);
     if (userEmail != null && SecurityContextHolder.getContext().getAuthentication() == null) {
@@ -121,47 +176,6 @@ public class JWTAuthFilter extends OncePerRequestFilter {
     }
   }
 
-  private String checkExpiredToken(String accessToken, HttpServletRequest request, HttpServletResponse response){
-    if(!jwtUtils.isTokenExpired(accessToken))
-      return accessToken;
 
-    String refreshToken = CookieManager.get(JWTUtils.REFRESH_TOKEN, request);
-    if(refreshToken == null) {
-      request.setAttribute("exception", JwtExceptionCode.NOT_FOUND);
-      throw new BadCredentialsException("토큰을 찾을 수 없습니다.");
-    }
 
-    if(jwtUtils.isTokenExpired(refreshToken)){
-      request.setAttribute("exception", JwtExceptionCode.EXPIRED_TOKEN);
-      throw new BadCredentialsException("리프레시 토큰도 만료 되었습니다.");
-    }
-
-    String userEmail = jwtUtils.extractUsername(accessToken);
-    Optional<User> userOpt = userRepository.findByEmail(userEmail);
-    if(!userOpt.isPresent()){
-      request.setAttribute("exception", JwtExceptionCode.NOT_FOUND_USER);
-      throw new BadCredentialsException("유저를 찾을 수 없습니다.");
-    }
-
-    log.info("[MIRO] accessToken 토큰이 만료되어 갱신했어요.");
-
-    // 갱신한 accessToken 토큰으로 계속해서 요청을 진행한다.
-    accessToken = jwtUtils.geneTokenAccess(userOpt.get());
-
-    // 갱신한 accessToken은 헤더에 넣어준다.
-    response.setHeader("Authorization", "Bearer " + accessToken);
-
-    return accessToken;
-  }
-
-  private String parseToken(HttpServletRequest request) {
-    // 헤더에서 토큰을 찾는다
-    String authorization = request.getHeader("Authorization");
-    if (StringUtils.hasText(authorization) && authorization.startsWith("Bearer")){
-      String[] arr = authorization.split(" ");
-      log.info("[MIRO] 헤더에서 토큰 찾음 : {}", arr[1]);
-      return arr[1];
-    }
-    return null;
-  }
 }

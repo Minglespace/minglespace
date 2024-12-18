@@ -36,7 +36,6 @@ public class UserService {
   private final JWTUtils jwtUtils;
   private final AuthenticationManager authenticationManager;
   private final PasswordEncoder passwordEncoder;
-  private final TokenBlacklistService tokenBlacklistService;
   private final ModelMapper modelMapper;
 
   public DefaultResponse signup(SignupRequest req) {
@@ -127,64 +126,6 @@ public class UserService {
 
     return res;
   }
-
-//    public RefreshTokenResponse refreshToken(RefreshTokenRequest req, HttpServletResponse response) {
-//
-//        RefreshTokenResponse res = new RefreshTokenResponse();
-//
-//        try {
-//            String refreshToken = req.getRefreshToken();
-//
-//            if(tokenBlacklistService.isBlacklisted(refreshToken)){
-//                log.error("================================================");
-//                log.error("어뷰저 딱걸림.");
-//                throw new BadCredentialsException("UNAUTHORIZED 잘못된 자격 증명");
-//            }
-//
-//            String ourEmail = jwtUtils.extractUsername(refreshToken);
-//            Optional<User> opt = usersRepo.findByEmail(ourEmail);
-//
-//            if(opt.isPresent()){
-//
-//                User user = opt.get();
-//
-//                if (jwtUtils.isTokenValid(refreshToken, user)) {
-//
-//                    String newAccessToken = jwtUtils.geneTokenAccess(user);
-//
-//                    // accessToken은 헤더에 넣어 준다.
-//                    response.setHeader("Authorization", "Bearer " + newAccessToken);
-//                    //res.setAccessToken(newAccessToken);
-//
-//                    res.setStatus(HttpStatus.OK);
-//                    res.setMsg("Refreshed Token 생성 성공");
-//                }else{
-//                    res.setStatus(HttpStatus.UNAUTHORIZED);  // 리프레시 토큰이 유효하지 않음
-//                    res.setMsg("Invalid refresh token");
-//                }
-//
-//            }else{
-//                res.setStatus(HttpStatus.NOT_FOUND);
-//            }
-//
-//        }catch (BadCredentialsException e){
-//            res.setStatus(HttpStatus.UNAUTHORIZED);  // 리프레시 토큰이 유효하지 않음
-//            res.setMsg("This token is on the blacklist");
-//        }
-//        catch (Exception e) {
-//            res.setStatus(HttpStatus.INTERNAL_SERVER_ERROR);
-//            res.setMsg(e.getMessage());
-//        }
-//
-//        log.info("");
-//        log.info("");
-//        log.info("refreshToken");
-//        log.info(res.toString());
-//        log.info("");
-//        log.info("");
-//
-//        return res;
-//    }
 
   public DefaultResponse deleteUser(Long userId) {
 
