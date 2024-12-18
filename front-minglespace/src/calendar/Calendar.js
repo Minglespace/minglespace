@@ -27,12 +27,10 @@ const Calendar = () => {
   const [calendarData, setCalendarData] = useState([...initData]);
   const [modalOpen, setModalOpen] = useState(false);
   const [calendarType, setCalendarType] = useState("NOTICE");
-  const [formData, setFormData] = useState([]);
+  const [formData, setFormData] = useState({});
   const {
     wsMemberData: { role },
   } = useContext(WSMemberRoleContext);
-  console.log("role : ", role);
-  console.log("carlendar Data : ", calendarData);
   //캘린더 NOTICE 조회
   const getCalendarNotice = useCallback(async () => {
     try {
@@ -168,18 +166,7 @@ const Calendar = () => {
     setFormData([]);
     calendarType === "NOTICE" ? getCalendarNotice() : getCalendarPrivate();
   };
-  const getEventTimeFormat = (event) => {
-    // end 시간이 없으면 시간 표시, end 시간이 있으면 시간 표시 안 함
-    console.log("event", event);
-    return event.end == null
-      ? false
-      : {
-          hour: "numeric",
-          minute: "2-digit",
-          meridiem: true,
-          hour12: true,
-        };
-  };
+
   const fullcalendarRender = () => {
     if (
       role === "LEADER" ||
@@ -188,6 +175,7 @@ const Calendar = () => {
     ) {
       return (
         <FullCalendar
+          key={calendarData.length + new Date().getTime()}
           plugins={[dayGridPlugin, interactionPlugin]}
           initialView="dayGridMonth"
           events={calendarData}
@@ -201,7 +189,25 @@ const Calendar = () => {
             });
           }}
           dayMaxEventRows={5}
-          eventTimeFormat={getEventTimeFormat}
+          eventContent={(info) => {
+            const { start, end, title } = info.event;
+            const date = new Date(start);
+            const startTime = date.toLocaleTimeString("ko-KR", {
+              hour: "2-digit",
+              minute: "2-digit",
+              hour12: false, // 24시간 형식
+            });
+
+            const timeString = end ? "" : `-${startTime}`;
+            return (
+              <div>
+                <p>
+                  {timeString}
+                  <b> {title}</b>
+                </p>
+              </div>
+            );
+          }}
         />
       );
     } else {
@@ -218,7 +224,25 @@ const Calendar = () => {
             });
           }}
           dayMaxEventRows={5}
-          eventTimeFormat={getEventTimeFormat}
+          eventContent={(info) => {
+            const { start, end, title } = info.event;
+            const date = new Date(start);
+            const startTime = date.toLocaleTimeString("ko-KR", {
+              hour: "2-digit",
+              minute: "2-digit",
+              hour12: false, // 24시간 형식
+            });
+
+            const timeString = end ? "" : `-${startTime}`;
+            return (
+              <div>
+                <p>
+                  {timeString}
+                  <b> {title}</b>
+                </p>
+              </div>
+            );
+          }}
         />
       );
     }
