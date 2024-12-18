@@ -88,8 +88,7 @@ const MessageInput = ({
   };
 
   // 메시지 전송 처리 함수
-  const handleSendMessage = (e) => {
-    e.preventDefault();
+  const handleSendMessage = () => {
     if (newMessage.trim() || files.length > 0) {
       const messageToSend = {
         content: newMessage,
