@@ -2,6 +2,7 @@
 import MessageListItem from "./MessageListItem";
 import Modal from "../../common/Layouts/components/Modal";
 import useMessageListScroll from "../hooks/useMessageListScroll";
+import { FaBell } from "react-icons/fa";
 
 const MessageList = ({
   messages,
@@ -11,7 +12,7 @@ const MessageList = ({
   onDeleteMessage,
   fetchMoreMessages,
   msgHasMore,
-  currentChatRoomId
+  currentChatRoomId,
 }) => {
   const [announcement, setAnnouncement] = useState(null);
   const [isAnnouncementModalOpen, setIsAnnouncementModalOpen] = useState(false);
@@ -28,22 +29,22 @@ const MessageList = ({
     currentMemberInfo,
     msgHasMore,
     fetchMoreMessages,
-    currentChatRoomId
+    currentChatRoomId,
   });
-
 
   ///공지사항
   useEffect(() => {
-    const newAnnouncement = messages.find((message) => message.isAnnouncement) || null;
+    const newAnnouncement =
+      messages.find((message) => message.isAnnouncement) || null;
     setAnnouncement(newAnnouncement);
-    console.log("공지", newAnnouncement)
+    console.log("공지", newAnnouncement);
   }, [messages]);
 
   const registerAnnouncment = async (msg) => {
     await onRegisterAnnouncement(msg);
     setAnnouncement(msg);
     console.log(msg);
-  }
+  };
 
   //부모 댓글 찾기
   const findParentMessage = (replyId) => {
@@ -87,35 +88,38 @@ const MessageList = ({
 
   const getMessagePreview = (messageContent) => {
     console.log("msg preview: ", messageContent);
-    return messageContent.length > 10 ? `${messageContent.slice(0, 10)}...` : messageContent;
-  }
+    return messageContent.length > 10
+      ? `${messageContent.slice(0, 10)}...`
+      : messageContent;
+  };
 
   return (
     <div>
       {announcement && (
-        <div style={{ display: "flex", justifyContent: "center" }}>
-          공지사항
+        <div className="announcement">
+          <FaBell className="announcement-icon" />
+          <div className="announcement-content">
+            <span className="announcement-text">
+              공지사항: {/*{announcement.sender}*/} {announcement.content}
+            </span>
+          </div>
+          {/* 공지사항
           <span className="message-sender">{announcement.sender} : </span>
-          <span className="message-text">{announcement.content} </span>
+          <span className="message-text">{announcement.content} </span> */}
         </div>
       )}
 
-      <div className="message-list" onScroll={handleScroll} ref={messageListRef}>
+      <div
+        className="message-list"
+        onScroll={handleScroll}
+        ref={messageListRef}
+      >
         {newMessageVisible && (
-          <div
-            className="new-messages-preview"
-            onClick={handleNewMessageClick}
-            style={{
-              position: "absolute",
-              bottom: "100px",
-              background: "#f0f0f0",
-              textAlign: "center",
-              padding: "10px",
-              cursor: "pointer"
-            }}
-          >
+          <div className="new-messages-preview" onClick={handleNewMessageClick}>
             새 메시지가 도착했습니다. :
-            <span style={{ fontWeight: "bold" }}>{getMessagePreview(newMessageVisible)}</span>
+            <span style={{ fontWeight: "bold" }}>
+              {getMessagePreview(newMessageVisible)}
+            </span>
             <br />
             클릭하여 메시지로 이동
           </div>
@@ -140,25 +144,26 @@ const MessageList = ({
       </div>
       <Modal open={isAnnouncementModalOpen} onClose={handleAnnounceCancel}>
         <div>
-          <p style={{ fontSize: "18px", margin: "10px", padding: "10px" }}>공지사항은 하나만 등록 가능합니다.</p>
-          <p style={{ fontSize: "20px", margin: "0 10px 10px 10px", padding: "0 10px 10px 10px" }}>이 메시지를 공지사항으로 등록하시겠습니까?</p>
-          <div style={{ display: 'flex', justifyContent: 'space-around', gap: '10px', marginTop: '20px' }}>
-            <button
-              onClick={handleAnnounceConfirm}
-              style={{ backgroundColor: "rgb(92, 173, 240)", padding: "10px", borderRadius: "5px", width: "80px", height: "30px", display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: "pointer" }}
-            >
+          <p className="text1">공지사항은 하나만 등록 가능합니다.</p>
+          <p className="text2">이 메시지를 공지사항으로 등록하시겠습니까?</p>
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "space-around",
+              gap: "10px",
+              marginTop: "20px",
+            }}
+          >
+            <button className="save-btn" onClick={handleAnnounceConfirm}>
               Save
             </button>
-            <button
-              onClick={handleAnnounceCancel}
-              style={{ backgroundColor: "gray", padding: "10px", borderRadius: "5px", width: "80px", height: "30px", display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: "pointer" }}
-            >
+            <button className="cancel-btn" onClick={handleAnnounceCancel}>
               Cancel
             </button>
           </div>
         </div>
       </Modal>
-    </div >
+    </div>
   );
 };
 

@@ -11,7 +11,6 @@
   position: relative;
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
 
   &.folded {
     margin: 20px;
@@ -308,7 +307,8 @@
   width: 100%;
   padding: 15px;
   background-color: #f4f4f8;
-  margin-top: auto;
+  //margin-top: auto;
+  border-radius: 10px;
 }
 
 .message-input-wrapper {
@@ -416,6 +416,10 @@
     }
   }
 }
+
+.file-image {
+  margin-left: 8px;
+}
 //MessageList.js
 .message-list {
   margin-left: 15px;
@@ -423,7 +427,7 @@
   flex-direction: column;
   padding: 10px;
   gap: 10px;
-  height: 560px;
+  height: 440px;
   overflow-y: auto;
 }
 
@@ -437,8 +441,20 @@
   line-height: 1.5;
   font-size: 14px;
 
+  justify-content: space-between;
+  flex-direction: column;
+  display: flex;
+
+  .message-item .message-text {
+    flex: 1; /* 메시지 내용이 위쪽에 오게 함 */
+  }
+
+  .message-footer {
+    text-align: right;
+  }
+
   &.sender {
-    margin-right: 15px;
+    margin-left: 10px;
     background-color: #c4d7ff; // 보낸 메시지 배경색
     align-self: flex-end;
     border-bottom-right-radius: 0;
@@ -492,13 +508,93 @@
   }
 }
 
+.announcement {
+  display: flex;
+  justify-content: center;
+}
+
+.new-messages-preview {
+  position: absolute;
+  bottom: 100px;
+  background: #f0f0f0;
+  text-align: center;
+  padding: 10px;
+  cursor: pointer;
+}
+.text1 {
+  font-size: 18px;
+  margin: 10px;
+  padding: 10px;
+}
+
+.text2 {
+  font-size: 20px;
+  margin: 0 10px 10px 10px;
+  padding: 0px 10px 10px 10px;
+}
+.save-btn {
+  background-color: rgb(92, 173, 240);
+  padding: 10px;
+  border-radius: 5px;
+  width: 80px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+.cancel-btn {
+  background-color: gray;
+  padding: 10px;
+  border-radius: 5px;
+  width: 80px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+/* 공지사항 스타일 */
+.announcement {
+  background-color: #e3f2fd; /* 밝은 파란색 배경 */
+  padding: 10px;
+  border-radius: 5px;
+  display: flex;
+  align-items: center;
+  margin-bottom: 10px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); /* 부드러운 그림자 */
+}
+
+.announcement-icon {
+  font-size: 20px;
+  color: #2196f3; /* 파란색 아이콘 */
+  margin-right: 10px;
+}
+
+.announcement-content {
+  font-size: 14px;
+  color: #333;
+  line-height: 1.4;
+}
+
+.announcement-text {
+  font-weight: bold;
+  color: #333;
+}
+
+// MessageListItme.js
+.message-container {
+  display: flex;
+  flex-direction: column;
+}
+
 /* CustomLightboxStyles.css - 혜린 */
 .ril-image-current {
   max-width: 80% !important;
   max-height: 80% !important;
   object-fit: contain;
 }
-
 
 .toolbar-buttons {
   display: flex;
@@ -552,7 +648,7 @@
   align-items: center;
   padding: 5px 10px;
   // background-color: #6c757d;
-  background-color: #6A7FDB;
+  background-color: #6a7fdb;
   color: white;
   border: none;
   border-radius: 4px;
@@ -563,16 +659,5 @@
 
 .download-button:hover {
   // background-color: #5a6268;
-  background-color: #5C6DC6;
+  background-color: #5c6dc6;
 }
-
-
-// .message-text {
-//   display: inline-block;
-// }
-
-// .message-sender {
-//   display: inline-block;
-//   font-weight: bold;
-//   margin-right: 5px;
-// }

@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { MentionsInput, Mention } from "react-mentions";
 import Mentions from "./Mentions";
-import { FaLock, FaLockOpen, FaTrashAlt } from "react-icons/fa";
+import { FaLock, FaLockOpen, FaTrashAlt, FaFileImage } from "react-icons/fa";
 import Modal from "../../common/Layouts/components/Modal";
 
 const MessageInput = ({
@@ -66,7 +66,9 @@ const MessageInput = ({
     let totalSize = 0;
     for (let file of selectedFiles) {
       if (file.size > MAX_FILE_SIZE) {
-        setModalMessage(`${file.name} 파일이 너무 큽니다. 최대 파일 크기를 10MB 입니다.`);
+        setModalMessage(
+          `${file.name} 파일이 너무 큽니다. 최대 파일 크기를 10MB 입니다.`
+        );
         setIsModalOpen(true);
         continue;
       }
@@ -78,7 +80,9 @@ const MessageInput = ({
       }
       validFiles.push(file);
       if (validFiles.length >= MAX_FILE_COUNT) {
-        setModalMessage(`최대 ${MAX_FILE_COUNT}개의 파일만 업로드할 수 있습니다. `);
+        setModalMessage(
+          `최대 ${MAX_FILE_COUNT}개의 파일만 업로드할 수 있습니다. `
+        );
         setIsModalOpen(true);
         break;
       }
@@ -108,7 +112,11 @@ const MessageInput = ({
 
   const handleKeyDown = (e) => {
     console.log(typeof messages);
-    if (e.key === "Enter" && !e.shiftKey && (newMessage.trim() || files.length > 0)) {
+    if (
+      e.key === "Enter" &&
+      !e.shiftKey &&
+      (newMessage.trim() || files.length > 0)
+    ) {
       e.preventDefault();
       handleSendMessage();
     }
@@ -139,10 +147,9 @@ const MessageInput = ({
     setFiles(updatedFiles);
     //input file 갱신
     const dataTransfer = new DataTransfer();
-    updatedFiles.forEach(file => dataTransfer.items.add(file));
+    updatedFiles.forEach((file) => dataTransfer.items.add(file));
     fileInputRef.current.files = dataTransfer.files;
   };
-
 
   return (
     <div className="message-input-container">
@@ -150,20 +157,56 @@ const MessageInput = ({
       {files.length > 0 && (
         <div
           className="file-preview"
-          style={{ display: "flex", flexDirection: "row", gap: "10px", overflowX: "auto", padding: "10px", borderRadius: "5px", backgroundColor: "#f0f0f0", marginBottom: "10px", position: "absolute", bottom: "72px", width: "100%" }}>
+          style={{
+            display: "flex",
+            flexDirection: "row",
+            gap: "10px",
+            overflowX: "auto",
+            padding: "10px",
+            borderRadius: "5px",
+            backgroundColor: "#f0f0f0",
+            marginBottom: "10px",
+            position: "absolute",
+            bottom: "72px",
+            width: "100%",
+          }}
+        >
           {files.map((file, index) => (
             <div
               key={index}
               className="file-card"
-              style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "10px", border: "1px solid #ccc", borderRadius: "5px", backgroundColor: "#fff", minWidth: "150px" }}>
+              style={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "space-between",
+                padding: "10px",
+                border: "1px solid #ccc",
+                borderRadius: "5px",
+                backgroundColor: "#fff",
+                minWidth: "150px",
+              }}
+            >
               <span
                 className="file-name"
-                style={{ flex: "1", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+                style={{
+                  flex: "1",
+                  whiteSpace: "nowrap",
+                  overflow: "hidden",
+                  textOverflow: "ellipsis",
+                }}
+              >
                 {file.name}
               </span>
               <button
                 onClick={() => handleRemoveFile(index)}
-                className="remove-file-button" style={{ background: "none", border: "none", cursor: "pointer", color: "red" }}>
+                className="remove-file-button"
+                style={{
+                  background: "none",
+                  border: "none",
+                  cursor: "pointer",
+                  color: "red",
+                }}
+              >
                 <FaTrashAlt />
               </button>
             </div>
@@ -185,16 +228,7 @@ const MessageInput = ({
         </div>
       )}
 
-
       <div className="message-input-wrapper">
-        {replyToMessage && (
-          <div className="replying-to-message">
-            <span>답글 대상: {replyToMessage.sender}</span>
-            <p>{replyToMessage.content}</p>
-            <button onClick={() => setReplyToMessage(null)}>취소</button>
-          </div>
-        )}
-
         <input
           type="text"
           value={newMessage}
@@ -231,22 +265,44 @@ const MessageInput = ({
         <button
           className="send-btn"
           onClick={handleSendMessage}
-          disabled={
-            isLocked || (!newMessage.trim() && files.length === 0)
-          }
+          disabled={isLocked || (!newMessage.trim() && files.length === 0)}
         >
           전송
         </button>
-
+        <input
+          type="file"
+          multiple
+          onChange={handleFileChange}
+          ref={fileInputRef}
+          style={{ display: "none" }}
+        />
+        <FaFileImage
+          className="file-image"
+          onClick={() => fileInputRef.current.click()} // 클릭 시 input 엽니다.
+          style={{
+            cursor: "pointer",
+            fontSize: "25px", // 원하는 아이콘 크기
+          }}
+        />
         {/* 잠금 아이콘: 클릭 시 잠금 상태 토글 */}
         <div className="lock-icon" onClick={toggleLock}>
           {isLocked ? <FaLock /> : <FaLockOpen />}
         </div>
-        <input type="file" multiple onChange={handleFileChange} ref={fileInputRef} />
 
         <Modal open={isModalOpen} onClose={handleCloseModal}>
           <p style={{ margin: "25px 15px" }}>{modalMessage}</p>
-          <button onClick={handleCloseModal} style={{ backgroundColor: "gray", padding: "10px", borderRadius: "5px", marginLeft: "133px", fontSize: "15px" }}>OK</button>
+          <button
+            onClick={handleCloseModal}
+            style={{
+              backgroundColor: "gray",
+              padding: "10px",
+              borderRadius: "5px",
+              marginLeft: "133px",
+              fontSize: "15px",
+            }}
+          >
+            OK
+          </button>
         </Modal>
       </div>
 
