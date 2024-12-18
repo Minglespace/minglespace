@@ -16,40 +16,40 @@ import java.util.HashMap;
 @Component
 public class CustomAuthenticationEntryPoint implements AuthenticationEntryPoint {
 
-    @Override
-    public void commence(
-            HttpServletRequest request,
-            HttpServletResponse response,
-            AuthenticationException authException) throws IOException, ServletException {
+  @Override
+  public void commence(
+          HttpServletRequest request,
+          HttpServletResponse response,
+          AuthenticationException authException) throws IOException, ServletException {
 
-        JwtExceptionCode exception = (JwtExceptionCode) request.getAttribute("exception");
+    JwtExceptionCode exception = (JwtExceptionCode) request.getAttribute("exception");
 
-        if(exception != null) {
-            log.error("=====================================================");
-            log.error("=====================================================");
-            log.error("=====================================================");
-            log.error("CustomAuthenticationEntryPoint");
-            log.error("JwtExceptionCode : {}", exception);
+    if(exception != null) {
+      log.error("=====================================================");
+      log.error("=====================================================");
+      log.error("=====================================================");
+      log.error("CustomAuthenticationEntryPoint");
+      log.error("JwtExceptionCode : {}", exception);
 
-            setResponse(response, exception);
+      setResponse(response, exception);
 
 
-        }
     }
+  }
 
-    private void setResponse(HttpServletResponse response, JwtExceptionCode exceptionCode) throws IOException {
+  private void setResponse(HttpServletResponse response, JwtExceptionCode exceptionCode) throws IOException {
 
-        response.setContentType("application/json;charset=UTF-8");
-        response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+    response.setContentType("application/json;charset=UTF-8");
+    response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
 
-        HashMap<String, Object> errorInfo = new HashMap<>();
+    HashMap<String, Object> errorInfo = new HashMap<>();
 
-        errorInfo.put("message", exceptionCode.getMessage());
-        errorInfo.put("code", exceptionCode.getCode());
+    errorInfo.put("message", exceptionCode.getMessage());
+    errorInfo.put("code", exceptionCode.getCode());
 
-        Gson gson = new Gson();
-        String responseJson = gson.toJson(errorInfo);
+    Gson gson = new Gson();
+    String responseJson = gson.toJson(errorInfo);
 
-        response.getWriter().print(responseJson);
-    }
+    response.getWriter().print(responseJson);
+  }
 }

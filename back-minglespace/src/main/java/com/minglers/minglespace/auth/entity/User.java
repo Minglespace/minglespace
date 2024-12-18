@@ -24,81 +24,81 @@ import java.util.*;
 @AllArgsConstructor
 public class User implements UserDetails {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+  @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  private Long id;
 
-    @OneToOne(fetch = FetchType.LAZY)
-    private Image image;
+  @OneToOne(fetch = FetchType.LAZY)
+  private Image image;
 
-    @OneToMany(mappedBy = "user", fetch =FetchType.LAZY)
-    private List<WSMember> wsMembers;
+  @OneToMany(mappedBy = "user", fetch =FetchType.LAZY)
+  private List<WSMember> wsMembers;
 
-    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
-    private List<UserFriend> userFriends;
+  @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
+  private List<UserFriend> userFriends;
 
-    @Column(nullable = false)
-    private String role;
+  @Column(nullable = false)
+  private String role;
 
-    @CreationTimestamp
-    private LocalDateTime regDate;
+  @CreationTimestamp
+  private LocalDateTime regDate;
 
-    private boolean deleteFlag;
+  private boolean deleteFlag;
 
-    private String verificationCode;
+  private String verificationCode;
 
-    private String provider;
+  private String provider;
 
-    //=============================================================
-    // 유저 입력 필드
-    @Column(unique = true)
-    private String email;
+  //=============================================================
+  // 유저 입력 필드
+  @Column(unique = true)
+  private String email;
 
-    @JsonIgnore
-    @Column(nullable = false)
-    private String password;
+  @JsonIgnore
+  @Column(nullable = false)
+  private String password;
 
-    @Column(nullable = false)
-    private String name;
+  @Column(nullable = false)
+  private String name;
 
-    @Column(nullable = false)
-    private String phone;
+  @Column(nullable = false)
+  private String phone;
 
-    private String position;
+  private String position;
 
-    private String introduction;
-    //=============================================================
+  private String introduction;
+  //=============================================================
 
 
-    @Override
-    public Collection<? extends GrantedAuthority> getAuthorities() {
-        return List.of(new SimpleGrantedAuthority(role));
-    }
+  @Override
+  public Collection<? extends GrantedAuthority> getAuthorities() {
+    return List.of(new SimpleGrantedAuthority(role));
+  }
 
-    @Override
-    public String getUsername() {
-        return email;
-    }
+  @Override
+  public String getUsername() {
+    return email;
+  }
 
-    @Override
-    public boolean isAccountNonExpired() {
-        return true;
-    }
+  @Override
+  public boolean isAccountNonExpired() {
+    return true;
+  }
 
-    @Override
-    public boolean isAccountNonLocked() {
-        return true;
-    }
+  @Override
+  public boolean isAccountNonLocked() {
+    return true;
+  }
 
-    @Override
-    public boolean isCredentialsNonExpired() {
-        return true;
-    }
+  @Override
+  public boolean isCredentialsNonExpired() {
+    return true;
+  }
 
-    @Override
-    public boolean isEnabled() {
-        return true;
-    }
+  @Override
+  public boolean isEnabled() {
+    return true;
+  }
 
 
 }

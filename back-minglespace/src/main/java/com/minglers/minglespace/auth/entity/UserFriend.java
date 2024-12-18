@@ -15,22 +15,22 @@ import lombok.ToString;
 @Builder
 public class UserFriend {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+  @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id")
-    private User user;
+  @ManyToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = "user_id")
+  private User user;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "friend_id")
-    private User friend;
+  @ManyToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = "friend_id")
+  private User friend;
 
-    @Enumerated(EnumType.STRING)
-    private FriendshipStatus friendshipStatus;
+  @Enumerated(EnumType.STRING)
+  private FriendshipStatus friendshipStatus;
 
-    public void ChangeFriendshipStatus(FriendshipStatus friendshipStatus) {
-        this.friendshipStatus = friendshipStatus;
-    }
+  public void ChangeFriendshipStatus(FriendshipStatus friendshipStatus) {
+    this.friendshipStatus = friendshipStatus;
+  }
 }

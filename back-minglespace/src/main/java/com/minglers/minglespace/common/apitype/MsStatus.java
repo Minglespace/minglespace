@@ -32,6 +32,8 @@ public enum MsStatus {
 
   NullProperty("유저 입력 프로퍼티가 비어 있음"),
 
+  ImageUploadException("이미지 업로드 예외"),
+
 
   ;
 

@@ -32,19 +32,19 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 @EnableWebSecurity
 public class SecurityConfig {
 
-    private final UserDetailsServiceImpl ourUserDetailsService;
-    private final JWTAuthFilter jwtAuthFilter;
-    private final CustomAuthenticationEntryPoint customAuthenticationEntryPoint;
-    private final UserServiceOAuth2 userServiceOAuth2;
-    private final SuccessHandlerOAuth2 successHandlerOAuth2;
+  private final UserDetailsServiceImpl ourUserDetailsService;
+  private final JWTAuthFilter jwtAuthFilter;
+  private final CustomAuthenticationEntryPoint customAuthenticationEntryPoint;
+  private final UserServiceOAuth2 userServiceOAuth2;
+  private final SuccessHandlerOAuth2 successHandlerOAuth2;
 
-    @Bean
-    public CorsConfigurationSource corsConfigurationSource() {
+  @Bean
+  public CorsConfigurationSource corsConfigurationSource() {
 
-        CorsConfiguration corsConfig = new CorsConfiguration();
+    CorsConfiguration corsConfig = new CorsConfiguration();
 
-        // 허용할 오리진
-        corsConfig.addAllowedOrigin(MsConfig.getClientUrl());
+    // 허용할 오리진
+    corsConfig.addAllowedOrigin(MsConfig.getClientUrl());
 
 //        // 메서드 허용
 //        corsConfig.addAllowedMethod("GET");
@@ -59,85 +59,85 @@ public class SecurityConfig {
 //        corsConfig.addAllowedHeader("Cache-Control");
 //        corsConfig.addAllowedHeader("Content-Type");
 
-        corsConfig.addAllowedOriginPattern("*");	// 모든 IP에 응답을 허용 allowedOrigins true 일때 addAllowedOrigin *값 사용 불가능
-        corsConfig.addAllowedMethod("*");			// 모든 HTTP METHOD 허용
-        corsConfig.addAllowedHeader("*");			// 모든 HTTP HEADER 허용
-        corsConfig.addExposedHeader("Authorization");
-        corsConfig.addExposedHeader("authorization");
+    corsConfig.addAllowedOriginPattern("*");	// 모든 IP에 응답을 허용 allowedOrigins true 일때 addAllowedOrigin *값 사용 불가능
+    corsConfig.addAllowedMethod("*");			// 모든 HTTP METHOD 허용
+    corsConfig.addAllowedHeader("*");			// 모든 HTTP HEADER 허용
+    corsConfig.addExposedHeader("Authorization");
+    corsConfig.addExposedHeader("authorization");
 
 
 
-        // Preflight 캐시 타임
-        corsConfig.setMaxAge(3600L);
+    // Preflight 캐시 타임
+    corsConfig.setMaxAge(3600L);
 
-        //websocket의 jwt를 받기 위한 자격 증명 요청 허용
-        corsConfig.setAllowCredentials(true);
-
-
-        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-
-        // 모든 경로에 CORS 설정 적용
-        source.registerCorsConfiguration("/**", corsConfig);
-
-        return source;
+    //websocket의 jwt를 받기 위한 자격 증명 요청 허용
+    corsConfig.setAllowCredentials(true);
 
 
+    UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
 
-    }
+    // 모든 경로에 CORS 설정 적용
+    source.registerCorsConfiguration("/**", corsConfig);
 
-    @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-
-        http.csrf(CsrfConfigurer::disable);
-
-        http.formLogin(FormLoginConfigurer::disable);
-
-        http.httpBasic(HttpBasicConfigurer::disable);
-
-        http.oauth2Login(o->o
-                .userInfoEndpoint(c->c
-                        .userService(userServiceOAuth2))
-                .successHandler(successHandlerOAuth2)
-        );
+    return source;
 
 
-        http.cors(c->c.configurationSource(corsConfigurationSource()));
 
-        http.authorizeHttpRequests(request -> request
-                        .requestMatchers("/auth/**", "/public/**","/upload/images/**","/ws/**").permitAll()
-                        .requestMatchers("/admin/**").hasAnyAuthority("ADMIN")
-                        .requestMatchers("/user/**").hasAnyAuthority("USER")
-                        .requestMatchers("/adminuser/**").hasAnyAuthority("ADMIN", "USER")
-                        .anyRequest().authenticated());
+  }
 
-        http.sessionManagement(manager -> manager.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
+  @Bean
+  public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 
-        http.authenticationProvider(authenticationProvider());
+    http.csrf(CsrfConfigurer::disable);
 
-        http.addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
+    http.formLogin(FormLoginConfigurer::disable);
 
-        http.exceptionHandling(c -> c.authenticationEntryPoint(customAuthenticationEntryPoint));
+    http.httpBasic(HttpBasicConfigurer::disable);
 
-        return http.build();
-    }
+    http.oauth2Login(o->o
+            .userInfoEndpoint(c->c
+                    .userService(userServiceOAuth2))
+            .successHandler(successHandlerOAuth2)
+    );
 
-    @Bean
-    public AuthenticationProvider authenticationProvider() {
-        DaoAuthenticationProvider daoAuthenticationProvider = new DaoAuthenticationProvider();
-        daoAuthenticationProvider.setUserDetailsService(ourUserDetailsService);
-        daoAuthenticationProvider.setPasswordEncoder(passwordEncoder());
-        return daoAuthenticationProvider;
-    }
 
-    @Bean
-    public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
-    }
+    http.cors(c->c.configurationSource(corsConfigurationSource()));
 
-    @Bean
-    public AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration)
-            throws Exception {
-        return authenticationConfiguration.getAuthenticationManager();
-    }
+    http.authorizeHttpRequests(request -> request
+            .requestMatchers("/auth/**", "/public/**","/upload/images/**","/ws/**").permitAll()
+            .requestMatchers("/admin/**").hasAnyAuthority("ADMIN")
+            .requestMatchers("/user/**").hasAnyAuthority("USER")
+            .requestMatchers("/adminuser/**").hasAnyAuthority("ADMIN", "USER")
+            .anyRequest().authenticated());
+
+    http.sessionManagement(manager -> manager.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
+
+    http.authenticationProvider(authenticationProvider());
+
+    http.addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
+
+    http.exceptionHandling(c -> c.authenticationEntryPoint(customAuthenticationEntryPoint));
+
+    return http.build();
+  }
+
+  @Bean
+  public AuthenticationProvider authenticationProvider() {
+    DaoAuthenticationProvider daoAuthenticationProvider = new DaoAuthenticationProvider();
+    daoAuthenticationProvider.setUserDetailsService(ourUserDetailsService);
+    daoAuthenticationProvider.setPasswordEncoder(passwordEncoder());
+    return daoAuthenticationProvider;
+  }
+
+  @Bean
+  public PasswordEncoder passwordEncoder() {
+    return new BCryptPasswordEncoder();
+  }
+
+  @Bean
+  public AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration)
+          throws Exception {
+    return authenticationConfiguration.getAuthenticationManager();
+  }
 
 }

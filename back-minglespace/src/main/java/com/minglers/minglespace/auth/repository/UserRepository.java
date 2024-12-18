@@ -12,15 +12,15 @@ import java.util.Optional;
 
 public interface UserRepository extends JpaRepository<User, Long> {
 
-    Optional<User> findByEmail(String email);
+  Optional<User> findByEmail(String email);
 
-    boolean existsByEmail(String email);
+  boolean existsByEmail(String email);
 
-    //친구제외한 유저조회
-    @Query("SELECT u FROM User u " +
-            "WHERE u.id <> :userId " +
-            "AND u.id NOT IN (SELECT f.friend.id FROM UserFriend f WHERE f.user.id = :userId) " +
-            "AND (:searchKeyword IS NULL OR u.email LIKE %:searchKeyword%) " +
-            "ORDER BY u.name ASC")
-    Slice<User> findNonFriends(@Param("userId") Long userId, @Param("searchKeyword") String searchKeyword, Pageable pageable);
+  //친구제외한 유저조회
+  @Query("SELECT u FROM User u " +
+          "WHERE u.id <> :userId " +
+          "AND u.id NOT IN (SELECT f.friend.id FROM UserFriend f WHERE f.user.id = :userId) " +
+          "AND (:searchKeyword IS NULL OR u.email LIKE %:searchKeyword%) " +
+          "ORDER BY u.name ASC")
+  Slice<User> findNonFriends(@Param("userId") Long userId, @Param("searchKeyword") String searchKeyword, Pageable pageable);
 }

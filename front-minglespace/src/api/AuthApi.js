@@ -70,7 +70,7 @@ class AuthApi{
     };
 
     try {
-        const res = await axios.put(`${HOST_URL}/auth/updateNew2`, formData, { headers });
+        const res = await axios.put(`${HOST_URL}/auth/update`, formData, { headers });
         return res.data;
     } catch (error) {
         console.error("회원정보 변경 에러 :", error);
