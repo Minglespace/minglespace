@@ -25,6 +25,8 @@ const ChatRoom = ({
   updateRoomParticipantCount,
   removeRoom,
 }) => {
+  const [message, setMessages] = useState("");
+
   const [chatRoomInfo, setChatRoomInfo] = useState(initChatRoomInfo);
   const [inviteMembers, setInviteMembers] = useState([]);
   const [isRoomOwner, setIsRoomOwner] = useState(false);
@@ -230,13 +232,16 @@ const ChatRoom = ({
 
       setChatRoomInfo((prev) => {
         const updatedMessages = prev.messages.map((msg) =>
-          Number(msg.id) === Number(message.id) ? { ...msg, isAnnouncement: true } : { ...msg, isAnnouncement: false })
+          Number(msg.id) === Number(message.id)
+            ? { ...msg, isAnnouncement: true }
+            : { ...msg, isAnnouncement: false }
+        );
         return { ...prev, messages: updatedMessages };
-      })
+      });
     } catch (error) {
       console.error("chatroom _ 공지 등록 에러: ", error);
     }
-  }
+  };
 
   /////////////////////websocket 연결///////////////////
   useEffect(() => {
@@ -273,21 +278,26 @@ const ChatRoom = ({
           }));
         });
         //메시지 읽음 실시간 구독
-        stompClient.subscribe(`/topic/chatRooms/${chatRoomId}/read-status`, (readstatus) => {
-          const readStatusData = JSON.parse(readstatus.body);
-          console.log("읽음 처리 메시지", readStatusData);
+        stompClient.subscribe(
+          `/topic/chatRooms/${chatRoomId}/read-status`,
+          (readstatus) => {
+            const readStatusData = JSON.parse(readstatus.body);
+            console.log("읽음 처리 메시지", readStatusData);
 
-          ///특정 유저가 실시간으로 읽은 메시지 상태 반영
-          setChatRoomInfo((prev) => ({
-            ...prev,
-            messages: prev.messages.map((message) => ({
-              ...message,
-              unReadMembers: message.unReadMembers.filter(
-                (member) => Number(member.wsMemberId) !== Number(readStatusData.wsMemberId)
-              ),
-            })),
-          }));
-        });
+            ///특정 유저가 실시간으로 읽은 메시지 상태 반영
+            setChatRoomInfo((prev) => ({
+              ...prev,
+              messages: prev.messages.map((message) => ({
+                ...message,
+                unReadMembers: message.unReadMembers.filter(
+                  (member) =>
+                    Number(member.wsMemberId) !==
+                    Number(readStatusData.wsMemberId)
+                ),
+              })),
+            }));
+          }
+        );
       },
       onWebSocketError: (error) => {
         console.log(`채팅방 ${chatRoomId}번 websocket 연결 오류:`, error);
@@ -312,15 +322,19 @@ const ChatRoom = ({
     };
   }, [chatRoomId]);
 
-
-  // 메시지 전송 처리 함수 
-  const handleSendMessage = (newMessage) => {
-
+  // 메시지 전송 처리 함수
+  const handleSendMessage = (newMessage, messageContent) => {
+    console.log("메시지 전송:", messageContent);
     if (socketRef && socketRef.current) {
+      const mentionedUserIds =
+        newMessage.content
+          .match(/@\{(\d+)\|\|.+?\}/g)
+          ?.map((id) => id.match(/\d+/)[0]) || [];
+
       const sendMessage = {
         content: newMessage.content,
         isAnnouncement: false,
-        mentionedUserIds: [], ///구현 필요
+        mentionedUserIds,
         replyId: newMessage.replyId,
         sender: currentMemberInfo.name,
         workspaceId: chatRoomInfo.workSpaceId,
@@ -336,9 +350,7 @@ const ChatRoom = ({
     } else {
       console.warn("websocket 미연결 or 메시지 빔");
     }
-
   };
-
 
   // 메시지를 클릭하면 해당 메시지를 선택
   const handleMessageClick = (messages) => {
@@ -348,6 +360,9 @@ const ChatRoom = ({
     console.log("입력창에 표시된 답장 대상:", `${messages.text}`);
   };
 
+  const handleChange = (e, newValue) => {
+    setMessages(newValue);
+  };
 
   return (
     <div className={`chatroom-container ${isFold ? "folded" : ""}`}>
@@ -374,6 +389,8 @@ const ChatRoom = ({
         onSendMessage={handleSendMessage}
         replyToMessage={replyToMessage}
         setReplyToMessage={setReplyToMessage}
+        currentMemberInfo={currentMemberInfo}
+        // wsMembers={wsMembers}
       />
     </div>
   );
