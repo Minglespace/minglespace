@@ -3,10 +3,11 @@ import api, { HOST_URL } from "./Api";
 const prefix = `${HOST_URL}/workspace`;
 
 class CalendarApi {
-  //캘린더 이벤트 목록 가져오기
-  static getList = async (workspaceId) => {
+  //NOTICE 캘린더 이벤트 목록 가져오기
+  static getCalendarNotice = async (workspaceId) => {
     try {
       const res = await api.axiosIns.get(`${prefix}/${workspaceId}/calendar`);
+      console.log("res.data : ", res.data);
       return res.data;
     } catch (error) {
       console.error("캘린더 이벤트 목록조회 실패", error);
@@ -14,15 +15,15 @@ class CalendarApi {
     }
   };
 
-  //꼭 필요할까?
-  static getOneCalendar = async (workspaceId, calendarId) => {
+  //PRIVATE 캘린더 이벤트 목록 가져오기
+  static getCalendarPrivate = async (workspaceId) => {
     try {
       const res = await api.axiosIns.get(
-        `${prefix}/${workspaceId}/calendar/${calendarId}`
+        `${prefix}/${workspaceId}/calendar/private`
       );
       return res.data;
     } catch (error) {
-      console.error("캘린더 이벤트 세부내용 조회 실패", error);
+      console.error("캘린더 이벤트 목록조회 실패", error);
       throw error;
     }
   };

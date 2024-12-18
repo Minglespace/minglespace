@@ -3,14 +3,21 @@ package com.minglers.minglespace.calendar.service;
 import com.minglers.minglespace.calendar.dto.CalendarRequestDTO;
 import com.minglers.minglespace.calendar.dto.CalendarResponseDTO;
 import com.minglers.minglespace.calendar.entity.Calendar;
+import com.minglers.minglespace.calendar.exception.CalendarException;
 import com.minglers.minglespace.calendar.repository.CalendarRepository;
+import com.minglers.minglespace.calendar.type.CalendarType;
+import com.minglers.minglespace.workspace.entity.WSMember;
 import com.minglers.minglespace.workspace.entity.WorkSpace;
+import com.minglers.minglespace.workspace.exception.WorkspaceException;
+import com.minglers.minglespace.workspace.repository.WSMemberRepository;
 import com.minglers.minglespace.workspace.repository.WorkspaceRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.catalina.mapper.Mapper;
 import org.modelmapper.ModelMapper;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -22,55 +29,80 @@ import java.util.stream.Collectors;
 public class CalendarServiceImpl implements CalendarService{
   private final CalendarRepository calendarRepository;
   private final WorkspaceRepository workspaceRepository;
+  private final WSMemberRepository wsMemberRepository;
   private final ModelMapper modelMapper;
 
-  @Override
-  public List<CalendarResponseDTO> getCalendar(Long workspaceId) {
-    WorkSpace workspace = workspaceRepository.findById(workspaceId).orElseThrow();
+  private WorkSpace findByWorkspaceId(Long workspaceId){
+    return workspaceRepository.findById(workspaceId).orElseThrow(
+            ()-> new WorkspaceException(HttpStatus.NOT_FOUND.value(), "워크스페이스를 찾을수 없습니다.")
+    );
+  }
 
-    List<Calendar> calendarList = calendarRepository.findCalendarByWorkspaceId(workspaceId);
+  private Calendar findByCalendarId(Long calendarId){
+    return calendarRepository.findById(calendarId).orElseThrow(
+            ()->new CalendarException(HttpStatus.NOT_FOUND.value(), "캘린더 조회에 실패했습니다.")
+    );
+  }
+
+  private WSMember findByWsMemberId(Long userId, Long workspaceId){
+    return wsMemberRepository.findByUserIdAndWorkSpaceId(userId, workspaceId).orElseThrow(
+            ()->new WorkspaceException(HttpStatus.NOT_FOUND.value(), "워크스페이스 멤버 조회에 실패했습니다."));
+  }
+
+  @Override
+  public List<CalendarResponseDTO> getCalendarNotice(Long workspaceId) {
+    WorkSpace workspace = findByWorkspaceId(workspaceId);
+    List<Calendar> calendarList = calendarRepository.findCalendarByWorkspaceIdAndType(workspaceId, CalendarType.NOTICE);
+
     return calendarList.stream().map(calendar ->
       modelMapper.map(calendar, CalendarResponseDTO.class)).toList();
   }
 
   @Override
-  public CalendarResponseDTO getOneCalendar(Long workspaceId, Long calendarId) {
-    WorkSpace workSpace = workspaceRepository.findById(workspaceId).orElseThrow();
-
-    Calendar calendar = calendarRepository.findById(calendarId).orElseThrow();
-    
-    return modelMapper.map(calendar, CalendarResponseDTO.class);
+  public List<CalendarResponseDTO> getCalendarPrivate(Long workspaceId, Long wsMemberId) {
+    WorkSpace workspace = findByWorkspaceId(workspaceId);
+    WSMember wsMember = findByWsMemberId(wsMemberId, workspaceId);
+    List<Calendar> calendarList = calendarRepository.findCalendarByWorkspaceIdAndWsMemberId(workspaceId, wsMember.getId());
+    return calendarList.stream().map(calendar ->
+            modelMapper.map(calendar, CalendarResponseDTO.class)).toList();
   }
 
   @Override
-  public CalendarResponseDTO addCalendar(Long workspaceId, CalendarRequestDTO calendarRequestDTO) {
-    WorkSpace workspace = workspaceRepository.findById(workspaceId).orElseThrow();
+  @Transactional
+  public CalendarResponseDTO addCalendar(Long workspaceId, CalendarRequestDTO calendarRequestDTO, Long wsMemberId) {
+    WorkSpace workspace = findByWorkspaceId(workspaceId);
+    WSMember wsMember = findByWsMemberId(wsMemberId, workspaceId);
     Calendar calendar = modelMapper.map(calendarRequestDTO, Calendar.class);
     calendar.changeWorkspace(workspace);
-    calendarRepository.save(calendar);
-    CalendarResponseDTO calendarResponseDTO = modelMapper.map(calendar,CalendarResponseDTO.class);
 
-    return calendarResponseDTO;
+    if(CalendarType.PRIVATE.name().equals(calendarRequestDTO.getType())) {
+      calendar.changeWsMember(wsMember);
+    }
+
+    Calendar savedCalendar = calendarRepository.save(calendar);
+    return modelMapper.map(savedCalendar,CalendarResponseDTO.class);
   }
 
   @Override
+  @Transactional
   public CalendarResponseDTO modifyCalendar(Long workspaceId, Long calendarId, CalendarRequestDTO calendarRequestDTO) {
-    WorkSpace workspace = workspaceRepository.findById(workspaceId).orElseThrow();
-    Calendar calendar = calendarRepository.findById(calendarId).orElseThrow();
+    WorkSpace workspace = findByWorkspaceId(workspaceId);
+    Calendar calendar = findByCalendarId(calendarId);
 
     calendar.changeTitle(calendarRequestDTO.getTitle());
     calendar.changeDescription(calendarRequestDTO.getDescription());
     calendar.changeStart(calendarRequestDTO.getStart());
+    calendar.changeEnd(calendarRequestDTO.getEnd());
 
-    calendarRepository.save(calendar);
-    CalendarResponseDTO calendarResponseDTO = modelMapper.map(calendar, CalendarResponseDTO.class);
-    return calendarResponseDTO;
+    Calendar savedCalendar = calendarRepository.save(calendar);
+    return modelMapper.map(savedCalendar, CalendarResponseDTO.class);
   }
 
   @Override
+  @Transactional
   public String deleteCalendar(Long workspaceId, Long calendarId) {
-    WorkSpace workSpace = workspaceRepository.findById(workspaceId).orElseThrow();
-    Calendar calendar = calendarRepository.findById(calendarId).orElseThrow();
+    WorkSpace workSpace = findByWorkspaceId(workspaceId);
+    Calendar calendar = findByCalendarId(calendarId);
 
     calendarRepository.delete(calendar);
     return "Calendar Event Delete Success";

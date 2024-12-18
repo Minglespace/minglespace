@@ -7,9 +7,9 @@ import com.minglers.minglespace.calendar.dto.CalendarResponseDTO;
 import java.util.List;
 
 public interface CalendarService {
-  List<CalendarResponseDTO> getCalendar(Long workspaceId);
-  CalendarResponseDTO getOneCalendar(Long workspaceId, Long calendarId);
-  CalendarResponseDTO addCalendar(Long workspaceId, CalendarRequestDTO calendarRequestDTO);
+  List<CalendarResponseDTO> getCalendarNotice(Long workspaceId);
+  List<CalendarResponseDTO> getCalendarPrivate(Long workspaceId, Long wsMemberId);
+  CalendarResponseDTO addCalendar(Long workspaceId, CalendarRequestDTO calendarRequestDTO, Long wsMemberId);
   CalendarResponseDTO modifyCalendar(Long workspaceId, Long calendarId, CalendarRequestDTO calendarRequestDTO);
   String deleteCalendar(Long workspaceId, Long calendarId);
 

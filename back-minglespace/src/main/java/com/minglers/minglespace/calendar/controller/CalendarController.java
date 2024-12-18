@@ -1,5 +1,7 @@
 package com.minglers.minglespace.calendar.controller;
 
+import com.minglers.minglespace.auth.entity.User;
+import com.minglers.minglespace.auth.security.JWTUtils;
 import com.minglers.minglespace.calendar.dto.CalendarRequestDTO;
 import com.minglers.minglespace.calendar.dto.CalendarResponseDTO;
 import com.minglers.minglespace.calendar.entity.Calendar;
@@ -20,34 +22,37 @@ import java.util.List;
 public class CalendarController {
 
   private final CalendarService calendarService;
+  private final JWTUtils jwtUtils;
 
   @GetMapping("")
-  private ResponseEntity<List<CalendarResponseDTO>> getCalendar(@PathVariable("workspaceId") Long workspaceId){
-    return ResponseEntity.ok(calendarService.getCalendar(workspaceId));
+  private ResponseEntity<List<CalendarResponseDTO>> getCalendarNotice(@PathVariable("workspaceId") Long workspaceId) {
+    return ResponseEntity.ok(calendarService.getCalendarNotice(workspaceId));
   }
 
-  @GetMapping("/{calendarId}")
-  private ResponseEntity<CalendarResponseDTO> getOneCalendar(@PathVariable("workspaceId") Long workspaceId,
-                                                             @PathVariable("calendarId") Long calendarId){
-    return ResponseEntity.ok(calendarService.getOneCalendar(workspaceId, calendarId));
+  @GetMapping("/private")
+  private ResponseEntity<List<CalendarResponseDTO>> getCalendarPrivate(@PathVariable("workspaceId") Long workspaceId, @RequestHeader("Authorization") String token) {
+    Long userId = jwtUtils.extractUserId(token.substring(7));
+    return ResponseEntity.ok(calendarService.getCalendarPrivate(workspaceId,userId));
   }
 
   @PostMapping("")
   private ResponseEntity<CalendarResponseDTO> addCalendar(@PathVariable("workspaceId") Long workspaceId,
-                             @RequestBody CalendarRequestDTO calendarRequestDTO){
-    return ResponseEntity.ok(calendarService.addCalendar(workspaceId, calendarRequestDTO));
+                                                          @RequestBody CalendarRequestDTO calendarRequestDTO,
+                                                          @RequestHeader("Authorization") String token) {
+    Long userId = jwtUtils.extractUserId(token.substring(7));
+    return ResponseEntity.ok(calendarService.addCalendar(workspaceId, calendarRequestDTO, userId));
   }
 
   @PutMapping("/{calendarId}")
   private ResponseEntity<CalendarResponseDTO> modifyCalendar(@PathVariable("workspaceId") Long workspaceId,
                                                              @PathVariable("calendarId") Long calendarId,
-                                                             @RequestBody CalendarRequestDTO calendarRequestDTO){
+                                                             @RequestBody CalendarRequestDTO calendarRequestDTO) {
     return ResponseEntity.ok(calendarService.modifyCalendar(workspaceId, calendarId, calendarRequestDTO));
   }
 
   @DeleteMapping("/{calendarId}")
   private ResponseEntity<String> deleteCalendar(@PathVariable("workspaceId") Long workspaceId,
-                                                @PathVariable("calendarId") Long calendarId){
+                                                @PathVariable("calendarId") Long calendarId) {
     return ResponseEntity.ok(calendarService.deleteCalendar(workspaceId, calendarId));
   }
 

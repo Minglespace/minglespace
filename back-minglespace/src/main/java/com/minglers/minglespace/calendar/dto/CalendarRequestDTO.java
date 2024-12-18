@@ -14,6 +14,9 @@ public class CalendarRequestDTO {
   private Long id;
   private String title;
   private String description;
+  private String type;
   @JsonDeserialize(using = LocalDateTimeConverter.class)
   private LocalDateTime start;
+  @JsonDeserialize(using = LocalDateTimeConverter.class)
+  private LocalDateTime end;
 }
