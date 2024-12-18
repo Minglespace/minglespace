@@ -40,9 +40,11 @@ const MessageListItem = ({
     if (src && src.trim() !== "") return `${HOST_URL}${src}`;
     else return null;
   };
+
+
   const formatMessage = (message) => {
     const regex = /@(\w+)/g;
-    console.log("Formatting message: ", message); // 메시지 형식화 확인
+    // console.log("Formatting message: ", message); // 메시지 형식화 확인
     return message
       .split(regex)
       .map((part, index) =>

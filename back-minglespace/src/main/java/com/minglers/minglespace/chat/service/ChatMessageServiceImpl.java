@@ -2,6 +2,7 @@ package com.minglers.minglespace.chat.service;
 
 import com.minglers.minglespace.auth.entity.User;
 import com.minglers.minglespace.chat.config.interceptor.CustomHandShakeInterceptor;
+import com.minglers.minglespace.chat.config.interceptor.StompInterceptor;
 import com.minglers.minglespace.chat.dto.ChatMsgRequestDTO;
 import com.minglers.minglespace.chat.dto.ChatMsgResponseDTO;
 import com.minglers.minglespace.chat.dto.MessageStatusDTO;
@@ -43,7 +44,7 @@ public class ChatMessageServiceImpl implements ChatMessageService {
 
   private final MsgReadStatusService msgReadStatusService;
   //알림
-  private final CustomHandShakeInterceptor customHandShakeInterceptor;
+  private final StompInterceptor stompInterceptor;
   private final SimpMessagingTemplate simpMessagingTemplate;
   private final ImageRepository imageRepository;
 
@@ -52,6 +53,7 @@ public class ChatMessageServiceImpl implements ChatMessageService {
   @Transactional
   public ChatMsgResponseDTO saveMessage(ChatMsgRequestDTO messageDTO, Long writerUserId, Set<Long> activeUserIds) {
     try {
+      log.info("writerUserId: "+ writerUserId);
       ChatRoom chatRoom = chatRoomRepository.findById(messageDTO.getChatRoomId())
               .orElseThrow(() -> new ChatException(HttpStatus.NOT_FOUND.value(), "채팅방이 존재하지 않습니다."));
 
@@ -74,33 +76,17 @@ public class ChatMessageServiceImpl implements ChatMessageService {
       }
       ChatMessage savedMessage = chatMessageRepository.save(chatMessage);
 
-      //답글이면 부모 댓글에게 답글 달린 알림 보내기
-//      if (parentMsg != null) {
-//        sendReplyNotificationToUser(parentMsg);
-//      }
-//
-//      //멘션 알림
-//      if (messageDTO.getMentionedUserIds() != null && !messageDTO.getMentionedUserIds().isEmpty()) {
-//        for (Long mentionedUserId : messageDTO.getMentionedUserIds()) {
-//          sendMentionNotificationToUser(wsMember, savedMessage.getChatRoom().getName(), mentionedUserId);
-//        }
-//      }
+      //멘션 알림
+      if (messageDTO.getMentionedUserIds() != null && !messageDTO.getMentionedUserIds().isEmpty()) {
+        for (Long mentionedUserId : messageDTO.getMentionedUserIds()) {
+          log.info("멘션 보낸사람: " + wsMember.getId());
+          sendMentionNotificationToUser(wsMember, savedMessage.getChatRoom().getName(), mentionedUserId);
+        }
+      }
 
       ////msgReadStatus 추가
       msgReadStatusService.createMsgForMembers(savedMessage, activeUserIds);
 
-      //messageDTO 정보 채우기
-//      ChatMsgResponseDTO resDTO = ChatMsgResponseDTO.builder()
-//              .id(savedMessage.getId())
-//              .content(messageDTO.getContent())
-//              .writerWsMemberId(wsMember.getId())
-//              .chatRoomId(messageDTO.getChatRoomId())
-//              .replyId(messageDTO.getReplyId())
-//              .date(savedMessage.getDate())
-//              .isAnnouncement(messageDTO.getIsAnnouncement())
-//              .imageUriPaths(imageUris)
-//              .documentUriPaths(documentUris)
-//              .build();
       List<MemberWithUserInfoDTO> unreadMembers = getUnreadMembers(messageDTO.getChatRoomId(), savedMessage.getId());
       ChatMsgResponseDTO resDTO = savedMessage.toDTO(unreadMembers);
 
@@ -116,17 +102,35 @@ public class ChatMessageServiceImpl implements ChatMessageService {
   }
 
   //답글 알림
-  private void sendReplyNotificationToUser(ChatMessage parentMsg) {
-    String sessionId = customHandShakeInterceptor.getSessionForUser(parentMsg.getWsMember().getUser().getId());
-    simpMessagingTemplate.convertAndSendToUser(sessionId, "/queue/notifications", "타 멤버가 유저의 댓글의 답글을 달았습니다.");
-  }
+//  private void sendReplyNotificationToUser(ChatMessage parentMsg) {
+//    String sessionId = customHandShakeInterceptor.getSessionForUser(parentMsg.getWsMember().getUser().getId());
+//    simpMessagingTemplate.convertAndSendToUser(sessionId, "/queue/notifications", "타 멤버가 유저의 댓글의 답글을 달았습니다.");
+//  }
 
   //멘션 알림
   private void sendMentionNotificationToUser(WSMember sendMember, String mentionedChatName, Long mentionedUserId) {
-    String sessionId = customHandShakeInterceptor.getSessionForUser(mentionedUserId);
-    String sendUsername = sendMember.getUser().getUsername();
-    String notifyMsg = sendUsername + "이 " + mentionedChatName + "채팅방에서 당신을 멘션하였습니다.";
-    simpMessagingTemplate.convertAndSendToUser(sessionId, "/queue/notifications", notifyMsg);
+    log.info("sendMember: "+ sendMember.getUser().getName()+ " - 언급 대상: "+ mentionedUserId);
+    Set<String> sessionIds = stompInterceptor.getSessionForUser(mentionedUserId);
+    
+    if (sessionIds != null && !sessionIds.isEmpty()) {
+      String sendUsername = sendMember.getUser().getName();
+      String notifyMsg = sendUsername + "이 " + mentionedChatName + "채팅방에서 당신을 멘션하였습니다.";
+
+      // 중복 세션 ID가 있을 경우 하나만 처리되도록 Set을 사용하므로 중복 없이 알림 전송
+      sessionIds.forEach(sessionId -> {
+        String cleanSession = sessionId.replaceAll("[\\[\\]]", "");
+        log.info("sessionIds: " + cleanSession + " - sendUsername:" + sendUsername);
+//        simpMessagingTemplate.convertAndSendToUser(cleanSession, "/queue/notifications", notifyMsg);
+
+        Map<String, String> message = new HashMap<>();
+        message.put("message", notifyMsg);
+        simpMessagingTemplate.convertAndSendToUser(cleanSession, "/queue/notifications", message);
+
+      });
+    } else {
+      //나중에 미 연결 중일 때 알림 쌓는 쪽으로
+      log.warn("No active sessions found for userId: " + mentionedUserId);
+    }
   }
 
   // 방 메시지 가져오기

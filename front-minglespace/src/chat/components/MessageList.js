@@ -39,7 +39,7 @@ const MessageList = ({
   useEffect(() => {
     const newAnnouncement = messages.find((message) => message.isAnnouncement) || null;
     setAnnouncement(newAnnouncement);
-    console.log("공지", newAnnouncement)
+    // console.log("공지", newAnnouncement)
   }, [messages]);
 
   const registerAnnouncment = async (msg) => {
@@ -53,10 +53,10 @@ const MessageList = ({
     return messages.find((message) => message.id === replyId);
   };
 
-  // @username 형식으로 멘션을 인식하고 표시하는 함수
+  // @username 형식으로 멘션을 인식하고 표시하는 함수 <<----------멘션 보일 때 
   const parseMessage = (message) => {
     const regex = /@(\w+)/g;
-    console.log("Parsing message: ", message); // 메시지 파싱 확인
+    // console.log("Parsing message: ", message); // 메시지 파싱 확인
     // @username 형식으로 멘션을 인식하고 표시
     return message.split(regex).map((part, index) =>
       regex.test(`@${part}`) ? (
@@ -70,7 +70,7 @@ const MessageList = ({
   };
 
   const openAnnouncementModal = (message) => {
-    console.log("openAnnounce_msg: ", message);
+    // console.log("openAnnounce_msg: ", message);
     setSelectedAnnounce(message);
     setIsAnnouncementModalOpen(true);
   };
@@ -89,7 +89,7 @@ const MessageList = ({
   };
 
   const getMessagePreview = (messageContent) => {
-    console.log("msg preview: ", messageContent);
+    // console.log("msg preview: ", messageContent);
     return messageContent.length > 10 ? `${messageContent.slice(0, 10)}...` : messageContent;
   }
 
@@ -187,7 +187,7 @@ const MessageList = ({
           <div style={{ display: 'flex', justifyContent: 'space-around', gap: '10px', marginTop: '20px' }}>
             <button
               onClick={handleDeleteConfirm}
-              style={{ backgroundColor: "rgb(255, 99, 71)", padding: "10px", borderRadius: "5px", width: "80px", height: "30px", display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: "pointer" }}
+              style={{ backgroundColor: "rgb(253, 113, 113)", padding: "10px", borderRadius: "5px", width: "80px", height: "30px", display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: "pointer" }}
             >
               Delete
             </button>

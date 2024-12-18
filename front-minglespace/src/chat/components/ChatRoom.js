@@ -35,8 +35,8 @@ const ChatRoom = ({
   const [chatRoomId, setChatRoomId] = useState(
     new URLSearchParams(useLocation().search).get("chatRoomId")
   );
-  //messagelist 무한 스크롤
-  const [page, setPage] = useState(0);
+
+  const [page, setPage] = useState(0);//messagelist 무한 스크롤
 
   const location = useLocation();
   const navigate = useNavigate();
@@ -340,10 +340,14 @@ const ChatRoom = ({
               return { ...prev, messages: updatedMessages };
             });
           }
-
         });
 
-
+        //알림 구독
+        stompClient.subscribe(`/queue/notifications`, (notice) => {
+          const noticeMsg = JSON.parse(notice.body);
+          console.log("새 알림: ", noticeMsg.message);
+          alert(noticeMsg.message);
+        });
       },
       onWebSocketError: (error) => {
         console.log(`채팅방 ${chatRoomId}번 websocket 연결 오류:`, error);
@@ -369,8 +373,8 @@ const ChatRoom = ({
   }, [chatRoomId]);
 
 
-  // 메시지 전송 처리 함수 
-  const handleSendMessage = async (newMessage, files, messageContent) => {
+  // 메시지 전송 처리 함수  
+  const handleSendMessage = async (newMessage, files) => {
     try {
       let uploadedFileIds = [];
       if (files && files.length > 0) {
@@ -378,15 +382,10 @@ const ChatRoom = ({
         uploadedFileIds = uploadRes.imageIds;
       }
 
-      const mentionedUserIds =
-        newMessage.content
-          .match(/@\{(\d+)\|\|.+?\}/g)
-          ?.map((id) => id.match(/\d+/)[0]) || [];
-
       const sendMessage = {
         content: newMessage.content,
         isAnnouncement: false,
-        mentionedUserIds,
+        mentionedUserIds: newMessage.mentionedIds,
         replyId: newMessage.replyId,
         // sender: currentMemberInfo.name,
         workspaceId: chatRoomInfo.workSpaceId,
@@ -446,7 +445,7 @@ const ChatRoom = ({
         replyToMessage={replyToMessage}
         setReplyToMessage={setReplyToMessage}
         currentMemberInfo={currentMemberInfo}
-      // wsMembers={wsMembers}
+        wsMembers={wsMembers}
       />
     </div>
   );
