@@ -1,14 +1,17 @@
 package com.minglers.minglespace.chat.entity;
 
-import com.minglers.minglespace.chat.dto.ChatMessageDTO;
+import com.minglers.minglespace.chat.dto.ChatMsgResponseDTO;
 import com.minglers.minglespace.common.converter.LocalDateTimeAttributeConverter;
+import com.minglers.minglespace.common.entity.Image;
 import com.minglers.minglespace.workspace.dto.MemberWithUserInfoDTO;
 import com.minglers.minglespace.workspace.entity.WSMember;
 import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Entity
 @Getter
@@ -35,16 +38,49 @@ public class ChatMessage {
     @JoinColumn(name = "replyid")
     private ChatMessage parentMessage;
 
-//    private Timestamp date;
     @Convert(converter = LocalDateTimeAttributeConverter.class)
     private LocalDateTime date;
 
     @Builder.Default
     private Boolean isAnnouncement = false;
 
-    public ChatMessageDTO toDTO(List<MemberWithUserInfoDTO> unReadMembers){
+    @Builder.Default
+    private Boolean isDeleted = false;
+
+    @OneToMany(mappedBy = "chatMessage", orphanRemoval = true)
+    @Builder.Default
+    private List<Image> images = new ArrayList<>();
+
+    public void addImage(Image image) {
+        images.add(image);
+        image.setChatMessage(this);
+    }
+
+    private boolean isImage(String fileExtension){
+        return fileExtension != null && (fileExtension.equalsIgnoreCase("jpg") || fileExtension.equalsIgnoreCase("jpeg") || fileExtension.equalsIgnoreCase("png"));
+    }
+
+    private String getFileExtension(String fileName) {
+        if(fileName != null && fileName.contains(".")){
+            return fileName.substring(fileName.lastIndexOf('.')+1);
+        }
+        return "";
+    }
+
+    public ChatMsgResponseDTO toDTO(List<MemberWithUserInfoDTO> unReadMembers){
         Long replyId = (this.getParentMessage() != null) ? this.getParentMessage().getId() : null;
-        return ChatMessageDTO.builder()
+
+        List<String> imageUriPaths = this.getImages().stream()
+                .filter(image -> isImage(getFileExtension(image.getOriginalname())))
+                .map(Image::getUripath)
+                .toList();
+
+        List<String> documentUriPaths = this.getImages().stream()
+                .filter(image -> !isImage(getFileExtension(image.getOriginalname())))
+                .map(Image::getUripath)
+                .toList();
+
+        return ChatMsgResponseDTO.builder()
                 .id(this.getId())
                 .chatRoomId(this.getChatRoom().getId())
                 .date(this.getDate())
@@ -54,6 +90,8 @@ public class ChatMessage {
                 .isAnnouncement(this.getIsAnnouncement())
                 .sender(this.getWsMember().getUser().getName())
                 .unReadMembers(unReadMembers)
+                .imageUriPaths(imageUriPaths)
+                .documentUriPaths(documentUriPaths)
                 .build();
     }
 }

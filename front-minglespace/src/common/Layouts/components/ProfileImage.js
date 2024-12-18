@@ -14,6 +14,7 @@ const ProfileImage = ({ src, userName, size = 70 }) => {
           style={{
             width: `${size}px`,
             height: `${size}px`,
+            borderRadius: "50%",
           }}
         />
       );

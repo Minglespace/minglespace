@@ -49,7 +49,12 @@ const ChatListItem = ({ chat, onReadMsg }) => {
           </span>
         </div>
         <div className="chat_footer">
-          <p className="last_message">{chat.lastMessage}</p>
+          <p className="last_message">
+            {chat.lastMessage === null
+              ? ""
+              : chat.lastMessage
+            }
+          </p>
           {chat.notReadMsgCount > 0 && (
             <span className="unread_count">{chat.notReadMsgCount}</span>
           )}

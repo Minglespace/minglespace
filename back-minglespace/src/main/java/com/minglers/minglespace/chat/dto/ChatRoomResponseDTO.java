@@ -16,6 +16,7 @@ public class ChatRoomResponseDTO {
   private String name;
   private String imageUriPath;
   private Long workSpaceId;
-  private List<ChatMessageDTO> messages;
+  private List<ChatMsgResponseDTO> messages;
   private List<ChatRoomMemberDTO> participants;
+  private boolean msgHasMore;
 }

@@ -19,7 +19,7 @@ class ChatApi {
 				alert("현재 채팅방에는 참여할 수 없습니다.");
 				window.location.href = `/workspace`;
 			} else {
-				console.error("채팅방 목록 가져오기 실패:", error);
+				console.error("채팅방 목록 가져오기 실패:", error.message);
 			}
 		}
 	};
@@ -42,7 +42,7 @@ class ChatApi {
 			const res = await axios.post(`${HOST_URL}${chatroomPrefix}/${workspaceId}/chatRooms`, formData, { headers });
 			return res.data;  // 서버 응답 반환
 		} catch (error) {
-			console.error("채팅방 생성 실패:", error);
+			console.error("채팅방 생성 실패:", error.message);
 		}
 	};
 
@@ -59,7 +59,12 @@ class ChatApi {
 			const res = await api.axiosIns.get(`${chatroomPrefix}/${workspaceId}/chatRooms/${chatRoomId}`);
 			return res.data;
 		} catch (error) {
-			console.error("채팅방 정보 겟 실패:", error);
+			if (error.response && error.response.status === 404) {
+				alert("채팅방 정보 겟 실패:", error.response.data.message);
+				window.location.href = `/workspace/${workspaceId}/chat`;
+			} else {
+				console.error("채팅방 정보 겟 실패:", error.message);
+			}
 		}
 
 	};
@@ -69,7 +74,12 @@ class ChatApi {
 			const res = await api.axiosIns.post(`${chatroomPrefix}/${workspaceId}/chatRooms/${chatRoomId}/members/${addMemberId}`);
 			return res.data;
 		} catch (error) {
-			console.error("채팅방 멤버 추가 실패:", error);
+			if (error.response && error.response.status === 403) {
+				alert("채팅방 멤버 추가 실패:", error.response.data.message);
+			} else {
+				console.error("채팅방 멤버 추가 실패:", error.message);
+			}
+
 		}
 	};
 
@@ -78,7 +88,7 @@ class ChatApi {
 			const res = await api.axiosIns.delete(`${chatroomPrefix}/${workspaceId}/chatRooms/${chatRoomId}/members/${kickMemberId}/kick`);
 			return res.data;
 		} catch (error) {
-			console.error("채팅방 멤버 강퇴 실패:", error);
+			console.error("채팅방 멤버 강퇴 실패:", error.message);
 		}
 	};
 
@@ -87,7 +97,7 @@ class ChatApi {
 			const res = await api.axiosIns.delete(`${chatroomPrefix}/${workspaceId}/chatRooms/${chatRoomId}/leave`);
 			return res.data;
 		} catch (error) {
-			console.error("채팅방 나가기 실패:", error);
+			console.error("채팅방 나가기 실패:", error.message);
 		}
 	};
 
@@ -96,25 +106,72 @@ class ChatApi {
 			const res = await api.axiosIns.put(`${chatroomPrefix}/${workspaceId}/chatRooms/${chatRoomId}/leader/${newLeaderId}`);
 			return res.data;
 		} catch (error) {
-			console.error("채팅방 방장 위임 실패:", error);
+			console.error("채팅방 방장 위임 실패:", error.message);
 		}
 	};
 
 	static readMessage = async (workspaceId, chatRoomId) => {
 		try {
-			const res = await api.axiosIns.delete(`${chatroomPrefix}/${workspaceId}/chatRooms/${chatRoomId}/readMsg`);
+			await api.axiosIns.delete(`${chatroomPrefix}/${workspaceId}/chatRooms/${chatRoomId}/readMsg`);
 		} catch (error) {
-			console.log("메시지 읽음 처리 실패: ", error);
+			console.log("메시지 읽음 처리 실패: ", error.message);
 		}
 	}
 
 	/////////message///////////
+	static getMoreMessages = async (chatRoomId, page, size) => {
+		try {
+			const response = await api.axiosIns.get(`${messagePrefix}/${chatRoomId}/messages`, {
+				params: { page, size },
+			});
+			return response.data;
+		} catch (error) {
+			console.log("메시지 가져오기 실패: ", error.message);
+		}
+	}
+
 	static registerAnnouncementMsg = async (chatRoomId, messageId) => {
 		try {
-			const res = await api.axiosIns.put(`${messagePrefix}/${chatRoomId}/messages/${messageId}/announcement`);
-
+			await api.axiosIns.put(`${messagePrefix}/${chatRoomId}/messages/${messageId}/announcement`);
 		} catch (error) {
-			console.log("공지 등록에 실패");
+			console.log("공지 등록에 실패: ", error.message);
+		}
+	}
+
+	static deleteMessage = async (chatRoomId, messageId) => {
+		try {
+			await api.axiosIns.delete(`${messagePrefix}/${chatRoomId}/messages/${messageId}`);
+		} catch (error) {
+			console.log("메시지 삭제 실패: ", error.message);
+		}
+	}
+
+	static uploadChatFile = async (files) => {
+		try {
+			const formData = new FormData();
+			files.forEach(file => {
+				formData.append("files", file);
+			});
+
+			const res = await api.axiosIns.post("/upload/files", formData, {
+				headers: {
+					"Content-Type": "multipart/form-data",
+				},
+			});
+			return res.data;
+		} catch (error) {
+			console.error("채팅 파일 업로드 실패: ", error.message);
+		}
+	}
+
+	static downloadFile = async (url) => {
+		try {
+			const res = await api.axiosIns.get(url, {
+				responseType: 'blob',
+			});
+			return res.data;
+		} catch (error) {
+			console.error("파일 다운로드 실패: ", error.message);
 		}
 	}
 
