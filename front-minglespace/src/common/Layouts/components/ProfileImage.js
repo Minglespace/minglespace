@@ -1,11 +1,17 @@
-﻿import React from "react";
+﻿import React, { useState } from "react";
 import Repo from "../../../auth/Repo";
 
 const ProfileImage = ({ src, userName, size = 70 }) => {
+
+  const [imgError, setImgError] = useState(false);  // 이미지 로딩 실패 여부를 상태로 관리
   const profileImage = src || null;
 
+  const handleImageError = () => {
+    setImgError(true);  // 이미지 로딩 실패 시 상태 변경
+  };
+
   const renderProfileImage = () => {
-    if (profileImage) {
+    if (profileImage && !imgError) {
       return (
         <img
           src={profileImage}
@@ -15,6 +21,7 @@ const ProfileImage = ({ src, userName, size = 70 }) => {
             width: `${size}px`,
             height: `${size}px`,
           }}
+          onError={handleImageError}  // 이미지 로딩 실패 시 처리
         />
       );
     } else {
