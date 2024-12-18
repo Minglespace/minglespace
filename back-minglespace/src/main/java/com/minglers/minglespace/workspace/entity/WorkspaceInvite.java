@@ -2,12 +2,18 @@ package com.minglers.minglespace.workspace.entity;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+
+import java.time.LocalDateTime;
 
 @Entity
 @Table(name="workspaceInvite")
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
+@Getter
 public class WorkspaceInvite {
 
   @Id
@@ -17,6 +23,8 @@ public class WorkspaceInvite {
   private String email;
 
   private String urlLink;
+
+  private LocalDateTime expirationTime;
 
   @ManyToOne(fetch = FetchType.LAZY)
   private WorkSpace workSpace;

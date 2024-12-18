@@ -19,7 +19,6 @@ const LoginPage = () => {
 
   const navigate = useNavigate();
   const location = useLocation();
-  const locationFrom = location.state?.from || "/main";
 
   const [isOpenPopup, setIsOpenPopup] = useState(false);
   const [isOpenPopupCheck, setIsOpenPopupCheck] = useState(false);
@@ -75,7 +74,7 @@ const LoginPage = () => {
       const data = await AuthApi.login(email, password);
       console.log("AuthApi.login : {}", data);
       if (data.code === 200) {
-        navigate(locationFrom, { replace: true });
+        navigate(getUriPath(location), { replace: true });
       } else if (data.code === 425) {
         setIsOpenPopupCheck(true);
       } else {
@@ -111,6 +110,14 @@ const LoginPage = () => {
 
     navigate("/workspace/");
   };
+
+  function getUriPath(location) {
+    const uri = location.state?.from || "/main";
+    if(uri==="/main")
+      return "/main"
+    const segments = uri.split("/");
+    return `/${segments[1]}/${segments[2]}`;
+  }
 
   return (
     <div className="modal-overlay_login_page">

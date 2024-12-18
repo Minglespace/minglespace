@@ -21,10 +21,9 @@ public class EmailInviteService extends EmailService {
   }
 
   @Async
-  public CompletableFuture<String> sendEmail(String workspaceName, String to){
+  public CompletableFuture<String> sendEmail(String workspaceName,String url, String to){
     try {
       String subject = "You have been invited to Mingle Space Workspace";
-      String url = "abcdefg";
       String emailContent ="<html>"
               + "<body style='font-family: Arial, sans-serif; background-color: #f4f4f9; color: #333;'>"
               + "<div style='max-width: 600px; margin: 0 auto; padding: 20px; background-color: #ffffff; border-radius: 8px;'>"
