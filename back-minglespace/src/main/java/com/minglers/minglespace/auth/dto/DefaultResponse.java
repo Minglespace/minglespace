@@ -24,7 +24,15 @@ public class DefaultResponse {
 
   public DefaultResponse setStatus(MsStatus msStatus, String msg){
     this.msStatus = msStatus;
-    log.info("{}, {}, {}", msStatus, msStatus.getDesc(), msg);
+
+    StackTraceElement[] stackTrace = Thread.currentThread().getStackTrace();
+
+    if (stackTrace.length > 3) {
+      StackTraceElement caller = stackTrace[3];
+      log.info("{} .{}() - {} Line", caller.getClassName(), caller.getMethodName(), caller.getLineNumber());
+      log.info("{}, {}, {}", msStatus, msStatus.getDesc(), msg);
+    }
+
     return this;
   }
 

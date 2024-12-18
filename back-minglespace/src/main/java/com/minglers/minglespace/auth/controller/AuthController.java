@@ -88,30 +88,22 @@ class AuthController {
 
     @PostMapping("auth/logout")
     public ResponseEntity<DefaultResponse> logout(
-            @RequestBody RefreshTokenRequest req,
             HttpServletRequest request,
             HttpServletResponse response){
 
-        DefaultResponse res = new DefaultResponse();
         log.info("auth/logout");
 
         String refreshToken = CookieManager.get(JWTUtils.REFRESH_TOKEN, request);
         CookieManager.clear(JWTUtils.REFRESH_TOKEN, response);
 
-        LocalDateTime expiresAt = jwtUtils.extractExpiration(refreshToken);
-        log.info("Token expires at: {}", expiresAt);
+        if(refreshToken != null){
+            LocalDateTime expiresAt = jwtUtils.extractExpiration(refreshToken);
+            log.info("Token expires at: {}", expiresAt);
+            tokenBlacklistService.addToBlacklist(refreshToken, expiresAt);
+        }
 
-        tokenBlacklistService.addToBlacklist(refreshToken, expiresAt);
-
-        res.setStatus(MsStatus.Ok);
-        return ResponseEntity.ok(res);
+        return ResponseEntity.ok(new DefaultResponse().setStatus(MsStatus.Ok));
     }
-
-//    @PostMapping("/auth/refresh")
-//    public ResponseEntity<RefreshTokenResponse> refreshToken(
-//            @RequestBody RefreshTokenRequest req, HttpServletResponse response) {
-//        return ResponseEntity.ok(usersManagementService.refreshToken(req, response));
-//    }
 
     @GetMapping("/auth/token")
     private ResponseEntity<DefaultResponse> token(

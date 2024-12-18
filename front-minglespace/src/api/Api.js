@@ -70,7 +70,6 @@ class Api{
     // 응답 인터셉터 설정
     this.axiosIns.interceptors.response.use(
       (response) => {
-
         // 응답 헤더에서 JWT 토큰 추출
         // 토큰이 존재하면 localStorage에 저장
         // Bearer 'token' 형태로 들어오므로 'Bearer '를 제외하고 토큰만 저장
@@ -78,17 +77,8 @@ class Api{
         if (token) {
           const accessToken = token.replace('Bearer ', '');
           Repo.setAccessToken(accessToken);
-          console.log('응답 헤더에 같이 왔어요, accessToken : ', accessToken);
+          console.log('accessToken 저장함.');
         }
-        
-        // body처리
-        // if(response.data){
-        //   if(response.data.code === 200){
-        //       console.log("응답 성공: ", response.data);
-        //   }else{
-        //       console.log("응답 실패: ", response.data);
-        //   }
-        // }
         return response;
       },
       async (error) => {

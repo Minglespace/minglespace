@@ -8,6 +8,7 @@ import ProfileImage from "../common/Layouts/components/ProfileImage";
 import Repo from "./Repo";
 import AuthApi from "../api/AuthApi";
 import { HOST_URL } from "../api/Api";
+import { MsStatusOk } from "../api/ApiType";
 
 //============================================================================================
 //============================================================================================
@@ -60,12 +61,10 @@ export default function UserInfoPopup() {
     setIsEditing(true);
   };
 
-  const handleClickLogout = () => {
-    AuthApi.logout().then((data) => {
-      if (data.code === 200) {
+  const handleClickLogout = async () => {
+    await AuthApi.logout().then((data)=>{
+      if (MsStatusOk(data.msStatus)) {
         navigate("/auth/login");
-      } else {
-        // Handle error
       }
     });
   };
@@ -80,17 +79,16 @@ export default function UserInfoPopup() {
 
   const handleSaveChanges = async () => {
     userInfo.dontUseProfileImage = dontUseProfileImage;
-
-    const res = await AuthApi.updateUserInfoNew2(userInfo, userInfo.localImage);
-    if (res.code === 200) {
-      // 개선 필요
-      userInfo.profileImagePath = res.profileImagePath;
-      userInfo.name = res.name;
-      userInfo.position = res.position;
-      userInfo.email = res.email;
-      userInfo.phone = res.phone;
-      userInfo.introduction = res.introduction;
-
+    const data = await AuthApi.updateUserInfo(userInfo, userInfo.localImage);
+    if (MsStatusOk(data.msStatus)) {
+      setUserInfo(prevUserInfo => ({
+        ...prevUserInfo,
+        profileImagePath: data.profileImagePath,
+        name: data.name,
+        position: data.position,
+        phone: data.phone,
+        introduction: data.introduction,
+      }));
       setIsEditing(false);
     }
   };

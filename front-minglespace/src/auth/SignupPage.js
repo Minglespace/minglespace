@@ -3,7 +3,7 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import AuthApi from "../api/AuthApi";
 import Modal from "../common/Layouts/components/Modal";
-import { MsStatus } from "../api/ApiType";
+import { MsStatus, MsStatusOk } from "../api/ApiType";
 
 //========================================================================
 /**
@@ -66,7 +66,7 @@ const SignupPage = () => {
       console.log("Form submitted:", formData);
       await AuthApi.signup(formData).then((data) => {
         console.log("Form submitted data : ", data);
-        if (data.msStatus === MsStatus.Ok) {
+        if (MsStatusOk(data.msStatus)) {
           setIsOpenPopup(true);
         }else if(data.msStatus && MsStatus[data.msStatus]){
           setMessage({
@@ -120,6 +120,8 @@ const SignupPage = () => {
           </div>
         </div>
       </Modal>
+
+      {/* 에러 팝업 관련 */}
       <Modal open={message !== null} onClose={handleClickMsgPopup}>
         {(message) && (
           <div className="workspace_add_modal_container">

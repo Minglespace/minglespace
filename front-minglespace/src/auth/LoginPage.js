@@ -53,21 +53,20 @@ const LoginPage = () => {
       console.log("code : ", code);
       console.log("encodedEmail : ", encodedEmail);
 
-      // 
       setTimeout(()=>{
-        AuthApi.verify(code, encodedEmail).then((response) => {
-           if (response.data.code === 200) {
+        AuthApi.verify(code, encodedEmail).then((data) => {
+           if (MsStatusOk(data.msStatus)) {
             setIsOpenPopup(true);
           } else{
-            console.log("AuthApi.verify error");
             setIsOpenPopup(false);
           }
         });  
       }, 1000);
+
     }else{
-      // 정상
+
       setIsOpenPopup(false);
-      console.log("nomail login");
+
     }
   }, []);
 
@@ -92,12 +91,9 @@ const LoginPage = () => {
     e.preventDefault();
     if (validate()) {
 
-      console.log("Form submitted:", formData.email);
-
       const {email, password} = formData;
-
       const data = await AuthApi.login(email, password);
-      console.log("AuthApi.login : {}", data);
+      
       if(MsStatusOk(data.msStatus)){
         navigate("/main");
       }else if(data.msStatus && MsStatus[data.msStatus]){
@@ -106,7 +102,6 @@ const LoginPage = () => {
           content: MsStatus[data.msStatus].desc,  
         });
       }
-
     }
   };
 
@@ -260,10 +255,6 @@ const LoginPage = () => {
             <div className="footer-links">
               <Link to={`/auth/signup`}>비밀번호 찾기</Link>
               <Link to={`/auth/signup`}>회원가입</Link>
-
-              {/* // for tset */}
-              {/* <button onClick={handleClickAbuser}>Abser Token Test</button> */}
-
             </div>
           </div>
         </div>
@@ -274,7 +265,3 @@ const LoginPage = () => {
 
 export default LoginPage
 
-
-
-// export default Modal;
-// render(<Modal />, document.getElementById("root"));

@@ -169,8 +169,7 @@ Google - 완료
 Naver - 완료
 Kakao - 완료
 ```
-### 처리 1
-* application.properties에 소셜관련 비번 설정하면, 깃허브에 커밋할 수 없다.
+### 처리 1 - application.properties에 비번이 있으면, github애 push error 
 * 파일 분리하고, 비빈관련 파일은 .ignore에 등록한다.
 * 개발중 이면
 * application.properties <- develop 선택

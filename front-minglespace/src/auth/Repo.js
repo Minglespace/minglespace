@@ -2,7 +2,6 @@
 class Repo{
 
   static ACCESS_TOKEN = "accessToken";
-  static REFRESH_TOKEN = "refreshToken";
   static USER_ROLE = "role";
   static USER_ID = "userId";
 
@@ -40,10 +39,6 @@ class Repo{
     return localStorage.getItem(this.ACCESS_TOKEN);
   }
 
-  static getRefreshToken(){
-    return localStorage.getItem(this.REFRESH_TOKEN);
-  }
-
   static getRole(){
     return localStorage.getItem(this.USER_ROLE);
   }
@@ -52,26 +47,11 @@ class Repo{
     return localStorage.getItem(this.USER_ID);
   }
 
-
-  // 인증 체크
   static isAuthenticated() {
     const accessToken = this.getAccessToken();
     return !!accessToken;
   }
 
-  // 관리자 체크
-  static isAdmin() {
-    const role = this.getRole();
-    return this.isAuthenticated() && role === "ADMIN";
-  }
-
-  // 사용자 체크
-  static isUser() {
-    const role = this.getRole();
-    return this.isAuthenticated() && role === "USER";
-  }
-
-  //
   static setProfileColor(color){
     if(color){
       localStorage.setItem("profileColor", color);
