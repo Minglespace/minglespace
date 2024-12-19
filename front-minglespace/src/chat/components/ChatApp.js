@@ -102,12 +102,6 @@ const ChatApp = () => {
           }
 
         });
-
-        stompClient.subscribe(`/user/queue/notifications`, (notice) => {
-          const noticeMsg = JSON.parse(notice.body);
-          console.log("새 알림: ", noticeMsg.noticeMsg);
-          alert(noticeMsg.noticeMsg);
-        });
       },
       onWebSocketError: (error) => {
         console.error(`채팅 목록 _ 웹소켓 연결 오류 : `, error);

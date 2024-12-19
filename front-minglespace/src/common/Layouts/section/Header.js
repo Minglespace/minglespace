@@ -9,6 +9,7 @@ import {
 import WorkspaceApi from "../../../api/workspaceApi";
 import { WSMemberRoleContext } from "../../../workspace/context/WSMemberRoleContext";
 import WorkspaceModify from "../../../workspace/components/WorkspaceModify";
+import NotificationIcon from "../../../notification/NotificationIcon";
 
 const initData = {
   id: "",
@@ -123,8 +124,12 @@ const Header = () => {
       ) : (
         <></>
       )}
+
+
+
       {/* 버튼을 우측 정렬하는 div */}
-      <div className="button-container">
+      <div className="button-container" style={{display:"flex", alignItems:"center"}}>
+        <NotificationIcon/>
         <UserInfoPopup />
       </div>
 

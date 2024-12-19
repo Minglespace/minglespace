@@ -14,6 +14,7 @@ import org.springframework.messaging.simp.SimpMessageType;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Set;
 
 @Service
@@ -46,6 +47,14 @@ public class NotificationServiceImpl implements NotificationService{
   @Override
   public void deleteNotification(Long notificationId) {
     notificationRepository.deleteById(notificationId);
+  }
+
+  @Override
+  public List<NotificationDTO> getNotificationsByUser(Long userId) {
+    List<Notification> noticeList = notificationRepository.findByUser_Id(userId);
+    return noticeList.stream()
+            .map(Notification::toDTO)
+            .toList();
   }
 
   private void sendNotificationToUser(Long recipientUserId, NotificationDTO notificationDTO){
