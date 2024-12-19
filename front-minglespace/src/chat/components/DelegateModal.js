@@ -37,7 +37,7 @@ const DelegateModal = ({ isOpen, onClose, onDelegate, participants }) => {
                 style={{
                   backgroundColor:
                     selectedUser?.wsMemberId === member.wsMemberId
-                      ? "#d3f4f8"
+                      ? "#f9f5f6"
                       : "transparent",
                 }}
               >

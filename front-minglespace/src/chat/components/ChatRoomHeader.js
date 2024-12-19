@@ -68,7 +68,7 @@ const ChatRoomHeader = ({
         onExit={handleExit}
         onKick={handleKick}
       />
-      <span>{chatRoomInfo.name}</span>
+      <span className="chatroominfo-name">{chatRoomInfo.name}</span>
       <button
         onClick={(e) => {
           e.stopPropagation();

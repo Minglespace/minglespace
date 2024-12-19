@@ -56,7 +56,11 @@ const InviteFriendModal = ({
   const handleImageChange = (e) => {
     const file = e.target.files ? e.target.files[0] : null; // 파일이 있는지 확인
     if (file) {
-      setSelectedImage(URL.createObjectURL(file)); // 선택된 파일을 미리보기로 사용
+      setSelectedImage(URL.createObjectURL(file));
+      setNewChatRoomData((prev) => ({
+        ...prev,
+        image: file,
+      }));
     }
   };
 
@@ -74,7 +78,7 @@ const InviteFriendModal = ({
                 {member.email}
                 {/* <button className="invite-btn" onClick={() => handleKick(member)}>강퇴</button> */}
                 <button
-                  className="close_btn"
+                  className="invite-btn"
                   onClick={() => handleKick(member)}
                 >
                   강퇴
@@ -92,7 +96,7 @@ const InviteFriendModal = ({
               <li key={member.wsMemberId}>
                 {member.email}
                 <button
-                  className="close_btn"
+                  className="invite-btn"
                   onClick={() => handleInvite(member)}
                 >
                   초대

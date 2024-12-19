@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { FiCornerDownRight, FiDownload } from "react-icons/fi";
 import { HOST_URL } from "../../api/Api";
 import ProfileImage from "../../common/Layouts/components/ProfileImage";
@@ -144,6 +144,35 @@ const MessageListItem = ({
     );
   };
 
+  const [currentTime, setCurrentTime] = useState(new Date());
+  // 1초마다 시간을 갱신하는 useEffect
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentTime(new Date()); // 1초마다 현재 시간을 갱신
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, []);
+
+  const getFormattedTime = (timestamp) => {
+    console.log("Timestamp:", timestamp);
+    if (typeof timestamp === "string") {
+      timestamp = Date.parse(timestamp);
+    }
+    const date = new Date(timestamp);
+
+    if (isNaN(date.getTime())) {
+      console.error("Invalid Date:", timestamp);
+      return "Invalid Date";
+    }
+    return date.toLocaleTimeString("ko-KR", {
+      hour: "2-digit",
+      minute: "2-digit",
+
+      hour12: false,
+    });
+  };
+
   return (
     <div className="message-container">
       <div
@@ -171,10 +200,13 @@ const MessageListItem = ({
         {parentMessage && (
           <>
             <div className="reply-to-text">{parentMessage.content}</div>
-            <div className="reply-line">--------------------------</div>
+            <div className="reply-line"></div>
             <div className="reply-text">{message.content}</div>
           </>
         )}
+
+        {/* 메시지 시간 표시  */}
+        <div className="message-time">{getFormattedTime(message.date)}</div>
 
         {/* 메시지의 포함된 이미지 표시 */}
         {message.imageUriPaths && message.imageUriPaths.length > 0 && (
