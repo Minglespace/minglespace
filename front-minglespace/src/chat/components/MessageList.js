@@ -1,4 +1,4 @@
-﻿import React, { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import MessageListItem from "./MessageListItem";
 import Modal from "../../common/Layouts/components/Modal";
 import useMessageListScroll from "../hooks/useMessageListScroll";
@@ -11,11 +11,15 @@ const MessageList = ({
   onDeleteMessage,
   fetchMoreMessages,
   msgHasMore,
-  currentChatRoomId
+  currentChatRoomId,
+  wsMembers
 }) => {
   const [announcement, setAnnouncement] = useState(null);
   const [isAnnouncementModalOpen, setIsAnnouncementModalOpen] = useState(false);
   const [selectedAnnounce, setSelectedAnnounce] = useState(null);
+
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [selectedDelete, setSelectedDelete] = useState(null);
 
   // 스크롤과 메시지 관련
   const {
@@ -36,7 +40,7 @@ const MessageList = ({
   useEffect(() => {
     const newAnnouncement = messages.find((message) => message.isAnnouncement) || null;
     setAnnouncement(newAnnouncement);
-    console.log("공지", newAnnouncement)
+    // console.log("공지", newAnnouncement)
   }, [messages]);
 
   const registerAnnouncment = async (msg) => {
@@ -50,24 +54,9 @@ const MessageList = ({
     return messages.find((message) => message.id === replyId);
   };
 
-  // @username 형식으로 멘션을 인식하고 표시하는 함수
-  const parseMessage = (message) => {
-    const regex = /@(\w+)/g;
-    console.log("Parsing message: ", message); // 메시지 파싱 확인
-    // @username 형식으로 멘션을 인식하고 표시
-    return message.split(regex).map((part, index) =>
-      regex.test(`@${part}`) ? (
-        <strong key={index} style={{ color: "blue", fontWeight: "bold" }}>
-          @{part}
-        </strong>
-      ) : (
-        part
-      )
-    );
-  };
 
   const openAnnouncementModal = (message) => {
-    console.log("openAnnounce_msg: ", message);
+    // console.log("openAnnounce_msg: ", message);
     setSelectedAnnounce(message);
     setIsAnnouncementModalOpen(true);
   };
@@ -86,9 +75,28 @@ const MessageList = ({
   };
 
   const getMessagePreview = (messageContent) => {
-    console.log("msg preview: ", messageContent);
+    // console.log("msg preview: ", messageContent);
     return messageContent.length > 10 ? `${messageContent.slice(0, 10)}...` : messageContent;
   }
+
+  //메시지 삭제 모달
+  const openDeleteModal = (message) => {
+    setSelectedDelete(message);
+    setIsDeleteModalOpen(true);
+  };
+
+  const handleDeleteConfirm = async () => {
+    if (selectedDelete) {
+      await onDeleteMessage(selectedDelete);
+      setIsDeleteModalOpen(false);
+      setSelectedDelete(null);
+    }
+  };
+
+  const handleDeleteCancel = () => {
+    setIsDeleteModalOpen(false);
+    setSelectedDelete(null);
+  };
 
   return (
     <div>
@@ -125,15 +133,13 @@ const MessageList = ({
             <MessageListItem
               key={message.id}
               message={message}
-              isSameSender={
-                message.writerWsMemberId === currentMemberInfo.wsMemberId
-              }
+              isSameSender={message.writerWsMemberId === currentMemberInfo.wsMemberId}
               currentMemberInfo={currentMemberInfo}
               onMessageClick={onMessageClick}
               onFindParentMessage={findParentMessage}
-              parsedMessage={parseMessage(message.content)}
               openAnnounceMentModal={openAnnouncementModal}
-              onDeleteMessage={onDeleteMessage}
+              openDeleteModal={openDeleteModal}
+              wsMembers={wsMembers}
             />
           );
         })}
@@ -151,6 +157,26 @@ const MessageList = ({
             </button>
             <button
               onClick={handleAnnounceCancel}
+              style={{ backgroundColor: "gray", padding: "10px", borderRadius: "5px", width: "80px", height: "30px", display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: "pointer" }}
+            >
+              Cancel
+            </button>
+          </div>
+        </div>
+      </Modal>
+
+      <Modal open={isDeleteModalOpen} onClose={handleDeleteCancel}>
+        <div>
+          <p style={{ fontSize: "20px", margin: "20px" }}>이 메시지를 삭제하시겠습니까?</p>
+          <div style={{ display: 'flex', justifyContent: 'space-around', gap: '10px', marginTop: '20px' }}>
+            <button
+              onClick={handleDeleteConfirm}
+              style={{ backgroundColor: "rgb(253, 113, 113)", padding: "10px", borderRadius: "5px", width: "80px", height: "30px", display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: "pointer" }}
+            >
+              Delete
+            </button>
+            <button
+              onClick={handleDeleteCancel}
               style={{ backgroundColor: "gray", padding: "10px", borderRadius: "5px", width: "80px", height: "30px", display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: "pointer" }}
             >
               Cancel

@@ -24,7 +24,7 @@ public class ChatRoom {
 
     private String name;
 
-    @OneToOne(fetch = FetchType.LAZY)
+    @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private Image image;
 
     @ManyToOne(fetch = FetchType.LAZY)

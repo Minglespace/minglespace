@@ -37,7 +37,7 @@ public class ChatMessageWebsocket {
       log.error("user ID not found in websocket session");
       return null;
     }
-    log.info("received message : " + messageDTO.getContent() + " from " + messageDTO.getWorkspaceId());
+    log.info("received message : " + messageDTO.getContent() + " from " + writerUserId);
 
     messageDTO.setChatRoomId(chatRoomId);
 

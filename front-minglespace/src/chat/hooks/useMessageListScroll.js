@@ -12,16 +12,16 @@ const useMessageListScroll = ({ messages, currentMemberInfo, msgHasMore, fetchMo
   const [isInitialLoad, setIsInitialLoad] = useState(true);
 
   useEffect(() => {
-    console.log("스크롤을 위한 채팅방 id;", currentChatRoomId);
+    // console.log("스크롤을 위한 채팅방 id;", currentChatRoomId);
     setIsInitialLoad(true);
   }, [currentChatRoomId]);
 
   useEffect(() => {
-    console.log("isInitialLoad:", isInitialLoad);
-    console.log("messages:", messages.length);
+    // console.log("isInitialLoad:", isInitialLoad);
+    // console.log("messages:", messages.length);
     if (!messageListRef.current || !isInitialLoad || messages[messages.length - 1]?.chatRoomId !== Number(currentChatRoomId)) return;
 
-    console.log("isInitialLoad2222:", isInitialLoad);
+    // console.log("isInitialLoad2222:", isInitialLoad);
 
     setIsInitialLoad(false);
     messageListRef.current.scrollTo({

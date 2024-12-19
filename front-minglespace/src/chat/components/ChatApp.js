@@ -1,4 +1,4 @@
-﻿import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { FiChevronsLeft } from "react-icons/fi";
 import ChatList from "./ChatList";
 import ChatRoom from "./ChatRoom";
@@ -78,7 +78,7 @@ const ChatApp = () => {
       },
       onConnect: () => {
         console.log("chatapp _ websocket 연결 성공");
-        
+
         stompClient.subscribe(`/topic/workspaces/${workspaceId}`, (msg) => {
           const newMsg = JSON.parse(msg.body);
           console.log("chatapp에 새 메시지 도착", newMsg);
@@ -102,6 +102,12 @@ const ChatApp = () => {
           }
 
         });
+
+        stompClient.subscribe(`/user/queue/notifications`, (notice) => {
+          const noticeMsg = JSON.parse(notice.body);
+          console.log("새 알림: ", noticeMsg.noticeMsg);
+          alert(noticeMsg.noticeMsg);
+        });
       },
       onWebSocketError: (error) => {
         console.error(`채팅 목록 _ 웹소켓 연결 오류 : `, error);
@@ -123,7 +129,7 @@ const ChatApp = () => {
     };
 
 
-}, [workspaceId, validChatRoomId])
+  }, [workspaceId, validChatRoomId])
 
 
   //마운트 시, 채팅방 목록 가져오기
