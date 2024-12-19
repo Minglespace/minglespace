@@ -8,4 +8,5 @@ public interface ResponseOAuth2 {
   String getEmail();
   String getName();
   String getPhone();
+  String getProfileImage();
 }

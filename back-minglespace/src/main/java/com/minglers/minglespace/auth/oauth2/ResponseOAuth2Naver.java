@@ -9,8 +9,6 @@ public class ResponseOAuth2Naver implements ResponseOAuth2 {
   private final Map<String, Object> attribute;
 
   public ResponseOAuth2Naver(Map<String, Object> attribute){
-
-//        this.attribute = attribute;
     this.attribute = (Map<String, Object>) attribute.get("response");
   }
 
@@ -21,21 +19,31 @@ public class ResponseOAuth2Naver implements ResponseOAuth2 {
 
   @Override
   public String getProviderId() {
-    return attribute.get("id") != null ? attribute.get("id").toString() : "";
+    return get("id");
   }
 
   @Override
   public String getEmail() {
-    return attribute.get("email") != null ? attribute.get("email").toString() : "";
+    return get("email");
   }
 
   @Override
   public String getName() {
-    return attribute.get("name") != null ? attribute.get("name").toString() : "";
+    return get("name");
   }
 
   @Override
   public String getPhone() {
-    return attribute.get("mobile") != null ? attribute.get("mobile").toString() : "010";
+    return get("mobile");
+  }
+
+  @Override
+  public String getProfileImage() {
+    return get("profile_image");
+  }
+
+  private String get(String key){
+    return attribute.get(key) != null ? attribute.get(key).toString() : "";
+
   }
 }

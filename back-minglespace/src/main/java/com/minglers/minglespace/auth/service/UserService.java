@@ -94,7 +94,7 @@ public class UserService {
 
       User user = userOpt.get();
 
-      if(!user.isMingleSpaceProvider()){
+      if(user.isSocialProvider()){
         res.setStatus(AuthStatus.AlreadyJoinedEmail);
         return res;
       }
@@ -107,7 +107,8 @@ public class UserService {
       );
 
 
-      if(user.getVerificationCode().isEmpty()){
+      String verificationCode = user.getVerificationCode();
+      if( verificationCode == null || verificationCode.isEmpty()){
         // 토큰 생성
         String accessToken = jwtUtils.geneTokenAccess(user);
         String refreshToken = jwtUtils.geneTokenRefresh(user);

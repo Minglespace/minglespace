@@ -19,5 +19,6 @@ public class UserResponse extends DefaultResponse {
   String position;
   String role;
   String profileImagePath;
+  boolean socialLogin;
 
 }

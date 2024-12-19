@@ -139,6 +139,8 @@ class AuthController {
       response.setProfileImagePath(image.getUripath());
     }
 
+    response.setSocialLogin(user.isSocialProvider());
+
     response.setStatus(AuthStatus.Ok);
     return ResponseEntity.ok(response);
   }

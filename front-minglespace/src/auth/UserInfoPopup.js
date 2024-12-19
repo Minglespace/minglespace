@@ -29,6 +29,7 @@ export default function UserInfoPopup() {
     phone: "",
     introduction: "",
     localImage: "",
+    socialLogin:"",
   });
 
   const [selectedImage, setSelectedImage] = useState(null); // 선택된 이미지 파일 선택
@@ -46,6 +47,7 @@ export default function UserInfoPopup() {
 
   const getUserInfo = async () => {
     const res = await AuthApi.userInfo();
+    console.log("userInfo res : ", res);
     setUserInfo(res);
   };
 
@@ -88,6 +90,7 @@ export default function UserInfoPopup() {
         position: data.position,
         phone: data.phone,
         introduction: data.introduction,
+        socialLogin: data.socialLogin,
       }));
       setIsEditing(false);
     }
@@ -150,12 +153,14 @@ export default function UserInfoPopup() {
                   <button
                     className="userInfo-button"
                     onClick={() => fileInputRef.current.click()} // 버튼 클릭 시 파일 선택창 열기
+                    disabled={userInfo.socialLogin}
                   >
                     변경
                   </button>
                   <button
                     className="userInfo-button"
                     onClick={handleClickDontUseImage}
+                    disabled={userInfo.socialLogin}
                   >
                     제거
                   </button>
@@ -178,6 +183,7 @@ export default function UserInfoPopup() {
                   value={userInfo.name}
                   onChange={handleInputChange}
                   className="input-field"
+                  disabled={userInfo.socialLogin}
                 />
                 <label className="input-label" htmlFor="position">
                   직책
@@ -200,7 +206,7 @@ export default function UserInfoPopup() {
                   value={userInfo.email}
                   onChange={handleInputChange}
                   className="input-field"
-                  disabled
+                  disabled={userInfo.socialLogin}
                 />
                 <label className="input-label" htmlFor="phone">
                   전화번호
@@ -212,6 +218,7 @@ export default function UserInfoPopup() {
                   value={userInfo.phone}
                   onChange={handleInputChange}
                   className="input-field"
+                  disabled={userInfo.socialLogin}
                 />
                 <label className="input-label" htmlFor="introduction">
                   소개

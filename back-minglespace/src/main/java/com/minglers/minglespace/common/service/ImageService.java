@@ -14,4 +14,5 @@ public interface ImageService {
     void deleteImage(Long id);
     Resource getImage(String imageName) throws IOException;
     String getMimeType(String imageName);
+    Image uploadImageFromUrl(String imageUrl) throws IOException, InterruptedException;
 }

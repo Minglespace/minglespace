@@ -73,8 +73,8 @@ public class User implements UserDetails {
 
   //=============================================================
 
-  public boolean isMingleSpaceProvider(){
-    return (this.getProvider() == Provider.MINGLESPACE);
+  public boolean isSocialProvider(){
+    return (this.getProvider() != Provider.MINGLESPACE);
   }
 
   //=============================================================

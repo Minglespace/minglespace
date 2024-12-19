@@ -24,31 +24,40 @@ public class ResponseOAuth2Kakao implements ResponseOAuth2 {
 
   @Override
   public String getEmail() {
-    Map<String, Object> kakaoAccount = (Map<String, Object>) attribute.get("kakao_account");
-    if (kakaoAccount != null && kakaoAccount.containsKey("email")) {
-      return kakaoAccount.get("email") != null ? kakaoAccount.get("email").toString() : "";
-    }
-    return "";
+    return getInAccount("email");
   }
 
   @Override
   public String getName() {
-    Map<String, Object> kakaoAccount = (Map<String, Object>) attribute.get("kakao_account");
-    if (kakaoAccount != null) {
-      Map<String, Object> profile = (Map<String, Object>) kakaoAccount.get("profile");
-      if (profile != null && profile.containsKey("nickname")) {
-        return profile.get("nickname") != null ? profile.get("nickname").toString() : "";
-      }
-    }
-    return "";
+    return getInProfile("nickname");
   }
 
   @Override
   public String getPhone() {
+    return getInAccount("mobile");
+  }
+
+  @Override
+  public String getProfileImage() {
+    return getInProfile("profile_image_url");
+  }
+
+  private String getInAccount(String key){
     Map<String, Object> kakaoAccount = (Map<String, Object>) attribute.get("kakao_account");
-    if (kakaoAccount != null && kakaoAccount.containsKey("mobile")) {
-      return kakaoAccount.get("mobile") != null ? kakaoAccount.get("mobile").toString() : "010";
+    if (kakaoAccount != null) {
+      return kakaoAccount.get(key) != null ? kakaoAccount.get(key).toString() : "";
     }
-    return "010"; // 기본값
+    return "";
+  }
+
+  private String getInProfile(String key){
+    Map<String, Object> kakaoAccount = (Map<String, Object>) attribute.get("kakao_account");
+    if (kakaoAccount != null) {
+      Map<String, Object> profile = (Map<String, Object>) kakaoAccount.get("profile");
+      if (profile != null) {
+        return profile.get(key) != null ? profile.get(key).toString() : "";
+      }
+    }
+    return "";
   }
 }

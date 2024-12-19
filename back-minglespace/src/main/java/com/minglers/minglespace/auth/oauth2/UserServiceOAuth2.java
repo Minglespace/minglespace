@@ -5,6 +5,8 @@ import com.minglers.minglespace.auth.exception.AuthException;
 import com.minglers.minglespace.auth.repository.UserRepository;
 import com.minglers.minglespace.auth.type.Provider;
 import com.minglers.minglespace.common.apistatus.AuthStatus;
+import com.minglers.minglespace.common.entity.Image;
+import com.minglers.minglespace.common.service.ImageService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.http.HttpStatus;
@@ -14,6 +16,7 @@ import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
 
+import java.io.IOException;
 import java.util.Optional;
 
 @Log4j2
@@ -22,6 +25,7 @@ import java.util.Optional;
 public class UserServiceOAuth2 extends DefaultOAuth2UserService {
 
   private final UserRepository userRepository;
+  private final ImageService imageService;
 
   @Override
   public OAuth2User loadUser(OAuth2UserRequest userRequest) throws OAuth2AuthenticationException {
@@ -42,11 +46,13 @@ public class UserServiceOAuth2 extends DefaultOAuth2UserService {
        SCOPE_openid]],
        User Attributes: [{
        sub=117687004761420672776,
+
        name=jay code,
        given_name=jay,
        family_name=code,
        picture=https://lh3.googleusercontent.com/a/ACg8ocJI-FlXTNwba09UGLzrYRIk0AiYy2FxW3yzB-YLbVRqIV8OHw=s96-c,
        email=codejay2018@gmail.com,
+
        email_verified=true
        }]
        **/
@@ -55,13 +61,13 @@ public class UserServiceOAuth2 extends DefaultOAuth2UserService {
     {
       //log.info("[MIRO] loadUser oAuth2User : {}", oAuth2User);
       /**
-       Name: [{
+      Name: [{
        id=_EUppVWBwjpGB3673g57YrtiIfZjFSl8IKCktlKacuI,
+       profile_image=https://ssl.pstatic.net/static/pwe/address/img_profile.png,
        email=minglespace0@naver.com,
        mobile=010-7688-7221,
        mobile_e164=+821076887221,
-       name=한형호
-       }],
+       name=한형호}],
        Granted Authorities:
        [[OAUTH2_USER]],
        User Attributes: [{
@@ -69,13 +75,12 @@ public class UserServiceOAuth2 extends DefaultOAuth2UserService {
        message=success,
        response={
        id=_EUppVWBwjpGB3673g57YrtiIfZjFSl8IKCktlKacuI,
+       profile_image=https://ssl.pstatic.net/static/pwe/address/img_profile.png,
        email=minglespace0@naver.com,
        mobile=010-7688-7221,
        mobile_e164=+821076887221,
-       name=한형호
-       }
-       }]
-       **/
+       name=한형호}}]
+      **/
     }
     // kakao
     {
@@ -95,9 +100,11 @@ public class UserServiceOAuth2 extends DefaultOAuth2UserService {
        profile_nickname_needs_agreement=false,
        profile_image_needs_agreement=false,
        profile={
+
        nickname=Mingler,
        thumbnail_image_url=http://img1.kakaocdn.net/thumb/R110x110.q70/?fname=http://t1.kakaocdn.net/account_images/default_profile.jpeg,
        profile_image_url=http://img1.kakaocdn.net/thumb/R640x640.q70/?fname=http://t1.kakaocdn.net/account_images/default_profile.jpeg,
+
        is_default_image=true,
        is_default_nickname=false
        },
@@ -105,7 +112,9 @@ public class UserServiceOAuth2 extends DefaultOAuth2UserService {
        email_needs_agreement=false,
        is_email_valid=true,
        is_email_verified=true,
+
        email=minglespace0@kakao.com
+
        }}]
        **/
     }
@@ -148,6 +157,16 @@ public class UserServiceOAuth2 extends DefaultOAuth2UserService {
     user.setEmail(responseOAuth2.getEmail());
     user.setPhone(responseOAuth2.getPhone());
     user.setProvider(responseOAuth2.getProvider());
+
+    try {
+      String profileImage = responseOAuth2.getProfileImage();
+      if(profileImage != null && !profileImage.isEmpty()){
+        Image saveFile = imageService.uploadImageFromUrl(profileImage);
+        user.setImage(saveFile);
+      }
+    } catch (IOException | InterruptedException e) {
+      throw new RuntimeException(e);
+    }
 
     // 소셜유저 비번은 필요없지만 에러방지 위해 넣어준다.
     user.setPassword("password");

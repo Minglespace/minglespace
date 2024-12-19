@@ -20,23 +20,30 @@ public class ResponseOAuth2Google implements ResponseOAuth2 {
 
   @Override
   public String getProviderId() {
-    return attribute.get("sub") != null ? attribute.get("sub").toString() : "";
+    return get("sub");
   }
 
   @Override
   public String getEmail() {
-    return attribute.get("email") != null ? attribute.get("email").toString() : "";
+    return get("email");
   }
 
   @Override
   public String getName() {
-    String name = attribute.get("name") != null ? attribute.get("name").toString() : "";
-    String givenName = attribute.get("given_name") != null ? attribute.get("given_name").toString() : "";
-    return name + " " + givenName;
+    return get("name");
   }
 
   @Override
   public String getPhone() {
-    return attribute.get("mobile") != null ? attribute.get("mobile").toString() : "010";
+    return get("mobile");
+  }
+
+  @Override
+  public String getProfileImage() {
+    return get("picture");
+  }
+
+  private String get(String key){
+    return attribute.get(key) != null ? attribute.get(key).toString() : "";
   }
 }
