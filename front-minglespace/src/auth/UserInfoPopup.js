@@ -17,6 +17,7 @@ import { AuthStatusOk } from "../api/AuthStatus";
 //============================================================================================
 export default function UserInfoPopup() {
   const navigate = useNavigate();
+  const popupRef = useRef(null); // 팝업을 참조하기 위한 ref 추가
 
   const [isOpen, setIsOpen] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
@@ -39,6 +40,41 @@ export default function UserInfoPopup() {
     getUserInfo();
   }, []);
 
+  // ESC 키를 누르면 팝업을 닫는 함수
+  useEffect(() => {
+    const handleEscape = (e) => {
+      if (e.key === "Escape") {
+        console.log("isOpen : ", isOpen);
+        console.log("isEditing : ", isEditing);
+        // if(!isEditing)
+          setIsOpen(false);
+        setIsEditing(false);
+      }
+    };
+
+    document.addEventListener("keydown", handleEscape);
+
+    return () => {
+      document.removeEventListener("keydown", handleEscape);
+    };
+  }, []);
+
+  // 팝업 외부 클릭 시 팝업 닫기
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (popupRef.current && !popupRef.current.contains(e.target)) {
+        setIsOpen(false);
+        setIsEditing(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
+
   //============================================================================================
   //============================================================================================
   //============================================================================================
@@ -57,10 +93,13 @@ export default function UserInfoPopup() {
       getUserInfo();
     }
     setIsOpen(nowIsOpen);
+    console.log("isOpen : ", isOpen);
+
   };
 
   const handleClickSetting = () => {
     setIsEditing(true);
+    console.log("isEditing : ", isEditing);
   };
 
   const handleClickLogout = async () => {
@@ -141,7 +180,7 @@ export default function UserInfoPopup() {
       </button>
 
       {isOpen && (
-        <div className="popup-content">
+        <div className="popup-content" ref={popupRef}>
           <div className="popup-header">
             {isEditing ? (
               <div className="user-info">
