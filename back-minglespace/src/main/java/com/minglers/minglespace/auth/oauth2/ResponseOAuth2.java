@@ -1,8 +1,9 @@
 package com.minglers.minglespace.auth.oauth2;
 
-public interface ResponseOAuth2 {
+import com.minglers.minglespace.auth.type.Provider;
 
-  String getProvider();
+public interface ResponseOAuth2 {
+  Provider getProvider();
   String getProviderId();
   String getEmail();
   String getName();

@@ -7,7 +7,7 @@ import com.minglers.minglespace.auth.security.JWTUtils;
 import com.minglers.minglespace.auth.service.AuthEmailService;
 import com.minglers.minglespace.auth.service.TokenBlacklistService;
 import com.minglers.minglespace.auth.service.UserService;
-import com.minglers.minglespace.common.apitype.MsStatus;
+import com.minglers.minglespace.common.apistatus.AuthStatus;
 import com.minglers.minglespace.common.entity.Image;
 import com.minglers.minglespace.common.service.ImageService;
 import com.minglers.minglespace.common.util.CookieManager;
@@ -52,7 +52,7 @@ class AuthController {
 
     // 회원가입 서비스 진행
     DefaultResponse res = usersManagementService.signup(reg);
-    if(res.equals(MsStatus.Ok)){
+    if(res.equals(AuthStatus.Ok)){
 
       log.info("비동기 이메일 전송 - Before");
       CompletableFuture<String> emailResult = authEmailService.sendEmail(code, reg.getEmail(), request);
@@ -100,7 +100,7 @@ class AuthController {
       tokenBlacklistService.addToBlacklist(refreshToken, expiresAt);
     }
 
-    return ResponseEntity.ok(new DefaultResponse().setStatus(MsStatus.Ok));
+    return ResponseEntity.ok(new DefaultResponse().setStatus(AuthStatus.Ok));
   }
 
   @GetMapping("/auth/token")
@@ -111,12 +111,12 @@ class AuthController {
     DefaultResponse res = new DefaultResponse();
     String accessToken = CookieManager.get("Authorization", request);
     if(accessToken == null){
-      res.setStatus(MsStatus.NotFoundAccessTokenInCookie);
+      res.setStatus(AuthStatus.NotFoundAccessTokenInCookie);
     }else{
       // accessToken은 쿠키에서 빼서, 헤더에 넣어 준다.
       CookieManager.clear("Authorization", response);
       response.setHeader("Authorization", "Bearer " + accessToken);
-      res.setStatus(MsStatus.Ok);
+      res.setStatus(AuthStatus.Ok);
     }
     return ResponseEntity.ok(res);
   }
@@ -139,7 +139,7 @@ class AuthController {
       response.setProfileImagePath(image.getUripath());
     }
 
-    response.setStatus(MsStatus.Ok);
+    response.setStatus(AuthStatus.Ok);
     return ResponseEntity.ok(response);
   }
 
@@ -172,7 +172,7 @@ class AuthController {
         saveFile = imageService.uploadImage(image);
         updateUser.setImage(saveFile);
       } catch (RuntimeException | IOException e) {
-        return ResponseEntity.ok(new UserResponse().setStatus(MsStatus.ImageUploadException));
+        return ResponseEntity.ok(new UserResponse().setStatus(AuthStatus.ImageUploadException));
       }
     }
 

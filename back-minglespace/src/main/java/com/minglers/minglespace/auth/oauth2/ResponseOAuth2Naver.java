@@ -1,5 +1,7 @@
 package com.minglers.minglespace.auth.oauth2;
 
+import com.minglers.minglespace.auth.type.Provider;
+
 import java.util.Map;
 
 public class ResponseOAuth2Naver implements ResponseOAuth2 {
@@ -13,8 +15,8 @@ public class ResponseOAuth2Naver implements ResponseOAuth2 {
   }
 
   @Override
-  public String getProvider() {
-    return "naver";
+  public Provider getProvider() {
+    return Provider.NAVER;
   }
 
   @Override

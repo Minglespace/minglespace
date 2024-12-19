@@ -3,12 +3,11 @@ package com.minglers.minglespace.auth.service;
 import com.minglers.minglespace.auth.dto.DefaultResponse;
 import com.minglers.minglespace.auth.entity.User;
 import com.minglers.minglespace.auth.repository.UserRepository;
-import com.minglers.minglespace.common.apitype.MsStatus;
+import com.minglers.minglespace.common.apistatus.AuthStatus;
 import com.minglers.minglespace.common.service.EmailService;
 import jakarta.mail.MessagingException;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.log4j.Log4j2;
-import org.springframework.http.HttpStatus;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
@@ -78,16 +77,16 @@ public class AuthEmailService extends EmailService {
       String storedCode = user.getVerificationCode();
 
       if(storedCode.isEmpty()){
-        res.setStatus(MsStatus.EmailVerificationAlready);
+        res.setStatus(AuthStatus.EmailVerificationAlready);
       }else if(storedCode.equals(code)){
         user.setVerificationCode("");
         usersRepo.save(user);
-        res.setStatus(MsStatus.Ok);
+        res.setStatus(AuthStatus.Ok);
       }else{
-        res.setStatus(MsStatus.EmailVerificationCodeMismatch);
+        res.setStatus(AuthStatus.EmailVerificationCodeMismatch);
       }
     } catch (Exception e) {
-      res.setStatus(MsStatus.Exception);
+      res.setStatus(AuthStatus.Exception);
     }
 
     return res;

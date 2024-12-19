@@ -9,7 +9,7 @@ import Repo from "./Repo";
 import AuthApi from "../api/AuthApi";
 import Modal from "../common/Layouts/components/Modal";
 import { HOST_URL } from "../api/Api";
-import { MsStatus, MsStatusEquals, MsStatusOk } from "../api/ApiType";
+import { AuthStatus, AuthStatusOk } from "../api/AuthStatus";
 
 
 const LoginPage = () => {
@@ -38,13 +38,13 @@ const LoginPage = () => {
   //================================================================================================
   useEffect(()=>{
 
-    if(msg && MsStatus[msg]){
+    if(msg && AuthStatus[msg]){
       
       console.log("msg : ", msg);
       
       setMessage({
         title: "확인", 
-        content: MsStatus[msg].desc,
+        content: AuthStatus[msg].desc,
      });
 
 
@@ -55,7 +55,7 @@ const LoginPage = () => {
 
       setTimeout(()=>{
         AuthApi.verify(code, encodedEmail).then((data) => {
-           if (MsStatusOk(data.msStatus)) {
+           if (AuthStatusOk(data.msStatus)) {
             setIsOpenPopup(true);
           } else{
             setIsOpenPopup(false);
@@ -94,12 +94,12 @@ const LoginPage = () => {
       const {email, password} = formData;
       const data = await AuthApi.login(email, password);
       
-      if(MsStatusOk(data.msStatus)){
+      if(AuthStatusOk(data.msStatus)){
         navigate("/main");
-      }else if(data.msStatus && MsStatus[data.msStatus]){
+      }else if(data.msStatus && AuthStatus[data.msStatus]){
         setMessage({
           title: "확인", 
-          content: MsStatus[data.msStatus].desc,  
+          content: AuthStatus[data.msStatus].desc,  
         });
       }
     }

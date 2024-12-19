@@ -3,7 +3,7 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import AuthApi from "../api/AuthApi";
 import Modal from "../common/Layouts/components/Modal";
-import { MsStatus, MsStatusOk } from "../api/ApiType";
+import { AuthStatus, AuthStatusOk } from "../api/AuthStatus";
 
 //========================================================================
 /**
@@ -66,12 +66,12 @@ const SignupPage = () => {
       console.log("Form submitted:", formData);
       await AuthApi.signup(formData).then((data) => {
         console.log("Form submitted data : ", data);
-        if (MsStatusOk(data.msStatus)) {
+        if (AuthStatusOk(data.msStatus)) {
           setIsOpenPopup(true);
-        }else if(data.msStatus && MsStatus[data.msStatus]){
+        }else if(data.msStatus && AuthStatus[data.msStatus]){
           setMessage({
             title: "확인", 
-            content: MsStatus[data.msStatus].desc,  
+            content: AuthStatus[data.msStatus].desc,  
           });
         }
       });

@@ -7,7 +7,7 @@ import com.minglers.minglespace.auth.exception.JwtExceptionCode;
 import com.minglers.minglespace.auth.repository.UserRepository;
 import com.minglers.minglespace.auth.service.TokenBlacklistService;
 import com.minglers.minglespace.auth.service.UserDetailsServiceImpl;
-import com.minglers.minglespace.common.apitype.MsStatus;
+import com.minglers.minglespace.common.apistatus.AuthStatus;
 import com.minglers.minglespace.common.util.CookieManager;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.MalformedJwtException;
@@ -118,7 +118,7 @@ public class JWTAuthFilter extends OncePerRequestFilter {
       response.setContentType("application/json");
 
       ObjectMapper objectMapper = new ObjectMapper();
-      String jsonResponse = objectMapper.writeValueAsString(new DefaultResponse(MsStatus.ExpiredRefreshToken));
+      String jsonResponse = objectMapper.writeValueAsString(new DefaultResponse(AuthStatus.ExpiredRefreshToken));
 
       response.getWriter().write(jsonResponse);
       return null;

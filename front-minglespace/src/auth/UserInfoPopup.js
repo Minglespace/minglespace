@@ -8,7 +8,7 @@ import ProfileImage from "../common/Layouts/components/ProfileImage";
 import Repo from "./Repo";
 import AuthApi from "../api/AuthApi";
 import { HOST_URL } from "../api/Api";
-import { MsStatusOk } from "../api/ApiType";
+import { AuthStatusOk } from "../api/AuthStatus";
 
 //============================================================================================
 //============================================================================================
@@ -63,7 +63,7 @@ export default function UserInfoPopup() {
 
   const handleClickLogout = async () => {
     await AuthApi.logout().then((data)=>{
-      if (MsStatusOk(data.msStatus)) {
+      if (AuthStatusOk(data.msStatus)) {
         navigate("/auth/login");
       }
     });
@@ -80,7 +80,7 @@ export default function UserInfoPopup() {
   const handleSaveChanges = async () => {
     userInfo.dontUseProfileImage = dontUseProfileImage;
     const data = await AuthApi.updateUserInfo(userInfo, userInfo.localImage);
-    if (MsStatusOk(data.msStatus)) {
+    if (AuthStatusOk(data.msStatus)) {
       setUserInfo(prevUserInfo => ({
         ...prevUserInfo,
         profileImagePath: data.profileImagePath,

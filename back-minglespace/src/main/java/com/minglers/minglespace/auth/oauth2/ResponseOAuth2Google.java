@@ -1,5 +1,7 @@
 package com.minglers.minglespace.auth.oauth2;
 
+import com.minglers.minglespace.auth.type.Provider;
+
 import java.util.Map;
 
 public class ResponseOAuth2Google implements ResponseOAuth2 {
@@ -12,8 +14,8 @@ public class ResponseOAuth2Google implements ResponseOAuth2 {
   }
 
   @Override
-  public String getProvider() {
-    return "google";
+  public Provider getProvider() {
+    return Provider.GOOGLE;
   }
 
   @Override

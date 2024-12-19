@@ -1,24 +1,14 @@
-package com.minglers.minglespace.common.apitype;
+package com.minglers.minglespace.common.apistatus;
 
 import com.fasterxml.jackson.annotation.JsonValue;
+import lombok.Getter;
 
-/**
- * Spring Boot의 enum은
- * name과
- * desc 포함하여
- * JSON으로 자동 변환
-{
-  "name": "Ok",
-  "desc": "정상"
-}
-**/
-public enum MsStatus {
+@Getter
+public enum AuthStatus {
 
   Ok("정상"),
   Exception("예기치 못한 오류."),
-  AlreadyJoinedEmail("이미 가입한 이메일 입니다."),
-  DuplicateEmail("이메일 중복,."),
-
+  AlreadyJoinedEmail("이미 등록한 이메일(소셜 포함) 유저 입니다."),
 
   MismatchPw("비밀번호가 틀림"),
   AuthInternalError("인증 서비스 내부 오류"),
@@ -43,18 +33,14 @@ public enum MsStatus {
 
   private final String desc;
 
-  MsStatus(String desc) {
+  AuthStatus(String desc) {
     this.desc = desc;
   }
 
-  public String getDesc(){
-    return this.desc;
-  }
-
-  // `@JsonValue` 어노테이션을 추가하여, JSON 직렬화 시 `desc`를 값으로 사용하도록 변경
-  @JsonValue
-  public String getStatusValue() {
-    return this.name();  // 혹은 원하는 필드를 반환할 수 있습니다. (여기서는 `name()`을 반환)
-  }
+//  // `@JsonValue` 어노테이션을 추가하여, JSON 직렬화 시 `desc`를 값으로 사용하도록 변경
+//  @JsonValue
+//  public String getStatusValue() {
+//    return this.name();  // 혹은 원하는 필드를 반환할 수 있습니다. (여기서는 `name()`을 반환)
+//  }
 
 }

@@ -1,7 +1,7 @@
 
 import axios from "axios";
 import Repo from "../auth/Repo";
-import { MsStatus } from "./ApiType";
+import { AuthStatus } from "./AuthStatus";
 
 const HOST_URL = "http://localhost:8080";
 
@@ -53,6 +53,8 @@ class Api{
     // 응답 인터셉터 설정
     this.axiosIns.interceptors.response.use(
       (response) => {
+        //console.log("응답 : ", response);
+
         // 응답 헤더에서 JWT 토큰 추출
         // 토큰이 존재하면 localStorage에 저장
         // Bearer 'token' 형태로 들어오므로 'Bearer '를 제외하고 토큰만 저장
@@ -66,10 +68,10 @@ class Api{
         const msStatus = response.data.msStatus;
 
         console.log("msStatus : ", msStatus);
-        console.log("MsStatus[msStatus] : ", MsStatus[msStatus]);
+        console.log("AuthStatus[msStatus] : ", AuthStatus[msStatus]);
 
-        if(msStatus === MsStatus.ExpiredRefreshToken.value){
-          console.log(MsStatus.ExpiredRefreshToken.desc);
+        if(msStatus === AuthStatus.ExpiredRefreshToken.value){
+          console.log(AuthStatus.ExpiredRefreshToken.desc);
           console.log('[작업필요] 여기에서 팝업 띄우고 싶어');
           console.log('[작업필요] 로그인창으로 날려버려~');
           Repo.clearItem();

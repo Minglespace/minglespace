@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react'
 import api from '../api/Api'
 import { useNavigate } from 'react-router-dom';
-import { MsStatusOk } from '../api/ApiType';
+import { AuthStatusOk } from '../api/AuthStatus';
 
 //===============================================================
 // 소셜 로그인 로그인시 성공시
@@ -21,7 +21,7 @@ const TokenPage = () => {
 
   const getAccessToken = async () =>{
     await api.axiosIns.get("/auth/token").then((res)=>{
-      if(MsStatusOk(res.data.msStatus)){
+      if(AuthStatusOk(res.data.msStatus)){
         navigate("/main");
       }
     });

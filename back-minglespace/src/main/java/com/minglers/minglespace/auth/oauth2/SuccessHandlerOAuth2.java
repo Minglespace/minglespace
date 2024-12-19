@@ -2,10 +2,9 @@ package com.minglers.minglespace.auth.oauth2;
 
 import com.minglers.minglespace.auth.entity.User;
 import com.minglers.minglespace.auth.security.JWTUtils;
-import com.minglers.minglespace.common.apitype.MsStatus;
+import com.minglers.minglespace.common.apistatus.AuthStatus;
 import com.minglers.minglespace.common.util.CookieManager;
 import com.minglers.minglespace.common.util.MsConfig;
-import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -27,11 +26,11 @@ public class SuccessHandlerOAuth2 extends SimpleUrlAuthenticationSuccessHandler 
   public void onAuthenticationSuccess(
           HttpServletRequest request,
           HttpServletResponse response,
-          Authentication authentication) throws IOException, ServletException {
+          Authentication authentication) throws IOException {
 
     OAuth2UserMs oAuth2UserMs = (OAuth2UserMs) authentication.getPrincipal();
 
-    if(oAuth2UserMs.getStatus() == MsStatus.AlreadyJoinedEmail){
+    if(oAuth2UserMs.getStatus() == AuthStatus.AlreadyJoinedEmail){
       log.info("[MIRO] 돌려 보내는 사유 : {}", oAuth2UserMs.getStatus().getDesc());
       response.sendRedirect(MsConfig.getClientUrl("/auth/login/" +  oAuth2UserMs.getStatus()));
       return;

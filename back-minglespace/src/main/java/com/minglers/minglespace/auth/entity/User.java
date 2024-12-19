@@ -1,6 +1,7 @@
 package com.minglers.minglespace.auth.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.minglers.minglespace.auth.type.Provider;
 import com.minglers.minglespace.common.entity.Image;
 import com.minglers.minglespace.workspace.entity.WSMember;
 import jakarta.persistence.*;
@@ -14,7 +15,8 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.time.LocalDateTime;
-import java.util.*;
+import java.util.Collection;
+import java.util.List;
 
 @Entity
 @Table(name = "user")
@@ -47,7 +49,8 @@ public class User implements UserDetails {
 
   private String verificationCode;
 
-  private String provider;
+  @Enumerated(EnumType.STRING)
+  private Provider provider;
 
   //=============================================================
   // 유저 입력 필드
@@ -67,8 +70,14 @@ public class User implements UserDetails {
   private String position;
 
   private String introduction;
+
   //=============================================================
 
+  public boolean isMingleSpaceProvider(){
+    return (this.getProvider() == Provider.MINGLESPACE);
+  }
+
+  //=============================================================
 
   @Override
   public Collection<? extends GrantedAuthority> getAuthorities() {

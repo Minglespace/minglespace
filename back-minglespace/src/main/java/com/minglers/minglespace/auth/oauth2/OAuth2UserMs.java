@@ -1,7 +1,7 @@
 package com.minglers.minglespace.auth.oauth2;
 
 import com.minglers.minglespace.auth.entity.User;
-import com.minglers.minglespace.common.apitype.MsStatus;
+import com.minglers.minglespace.common.apistatus.AuthStatus;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;
@@ -16,7 +16,7 @@ import java.util.Map;
 public class OAuth2UserMs implements OAuth2User {
 
   private final User user;
-  private final MsStatus status;
+  private final AuthStatus status;
 
   @Override
   public Map<String, Object> getAttributes() {

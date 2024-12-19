@@ -5,7 +5,8 @@ import com.minglers.minglespace.auth.entity.User;
 import com.minglers.minglespace.auth.exception.AuthException;
 import com.minglers.minglespace.auth.repository.UserRepository;
 import com.minglers.minglespace.auth.security.JWTUtils;
-import com.minglers.minglespace.common.apitype.MsStatus;
+import com.minglers.minglespace.auth.type.Provider;
+import com.minglers.minglespace.common.apistatus.AuthStatus;
 import com.minglers.minglespace.common.entity.Image;
 import com.minglers.minglespace.common.util.CookieManager;
 import jakarta.servlet.http.HttpServletResponse;
@@ -42,7 +43,7 @@ public class UserService {
     try {
       // 이메일 중복 확인
       if (usersRepo.existsByEmail(req.getEmail())) {
-        return new DefaultResponse().setStatus(MsStatus.AlreadyJoinedEmail);
+        return new DefaultResponse().setStatus(AuthStatus.AlreadyJoinedEmail);
       }else{
         User user = new User();
 
@@ -50,15 +51,15 @@ public class UserService {
         modelMapper.map(req, user);
         user.setPassword(passwordEncoder.encode(req.getPassword()));
         user.setRole(req.getRole());
-        user.setProvider("minglespace");
+        user.setProvider(Provider.MINGLESPACE);
 
         // 디비 저장
         User userResult = usersRepo.save(user);
 
         if (userResult.getId() > 0) {
-          return new DefaultResponse().setStatus(MsStatus.Ok);
+          return new DefaultResponse().setStatus(AuthStatus.Ok);
         }else{
-          return new DefaultResponse().setStatus(MsStatus.DbInsertError);
+          return new DefaultResponse().setStatus(AuthStatus.DbInsertError);
         }
       }
     }catch (DataIntegrityViolationException e) {
@@ -66,15 +67,15 @@ public class UserService {
         String message = cause.getMessage();
         if (message != null && message.contains("not-null property references a null or transient value")) {
           String fieldName = message.substring(message.lastIndexOf('.') + 1);
-          return new DefaultResponse().setStatus(MsStatus.NullProperty, fieldName);
+          return new DefaultResponse().setStatus(AuthStatus.NullProperty, fieldName);
         } else {
-          return new DefaultResponse().setStatus(MsStatus.DbError);// 그 외 데이터 무결성 위반 예외 처리
+          return new DefaultResponse().setStatus(AuthStatus.DbError);// 그 외 데이터 무결성 위반 예외 처리
         }
       } else {
-        return new DefaultResponse().setStatus(MsStatus.DbDataIntegrityViolation);// DataIntegrityViolationException 발생 시 다른 경우 처리
+        return new DefaultResponse().setStatus(AuthStatus.DbDataIntegrityViolation);// DataIntegrityViolationException 발생 시 다른 경우 처리
       }
     } catch (Exception e) {
-      return new DefaultResponse().setStatus(MsStatus.Exception);
+      return new DefaultResponse().setStatus(AuthStatus.Exception);
     }
   }
 
@@ -84,6 +85,20 @@ public class UserService {
 
     try {
 
+      // 유저 정보
+      Optional<User> userOpt = usersRepo.findByEmail(req.getEmail());
+      if(!userOpt.isPresent()){
+        res.setStatus(AuthStatus.NotFoundAccount);
+        return res;
+      }
+
+      User user = userOpt.get();
+
+      if(!user.isMingleSpaceProvider()){
+        res.setStatus(AuthStatus.AlreadyJoinedEmail);
+        return res;
+      }
+
       // 인증 시도
       authenticationManager.authenticate(
               new UsernamePasswordAuthenticationToken(
@@ -91,8 +106,6 @@ public class UserService {
                       req.getPassword())
       );
 
-      // 유저 정보
-      User user = usersRepo.findByEmail(req.getEmail()).orElseThrow();
 
       if(user.getVerificationCode().isEmpty()){
         // 토큰 생성
@@ -108,20 +121,20 @@ public class UserService {
         // refreshToken은 cookie에 넣어 준다.
         CookieManager.add(JWTUtils.REFRESH_TOKEN, refreshToken, JWTUtils.EXPIRATION_REFRESH, response);
 
-        res.setStatus(MsStatus.Ok, accessToken);
+        res.setStatus(AuthStatus.Ok, accessToken);
       }else{
-        res.setStatus(MsStatus.EmailVerificationFirst);
+        res.setStatus(AuthStatus.EmailVerificationFirst);
       }
     } catch (InternalAuthenticationServiceException e) {
       if (e.getCause() instanceof NoSuchElementException) {
-        res.setStatus(MsStatus.NotFoundAccount);// 사용자가 존재하지 않는 경우
+        res.setStatus(AuthStatus.NotFoundAccount);// 사용자가 존재하지 않는 경우
       } else {
-        res.setStatus(MsStatus.AuthInternalError);// 인증 서비스 내부 오류
+        res.setStatus(AuthStatus.AuthInternalError);// 인증 서비스 내부 오류
       }
     } catch (BadCredentialsException e) {
-      res.setStatus(MsStatus.MismatchPw); // 잘못된 자격 증명 (비밀번호 틀림)
+      res.setStatus(AuthStatus.MismatchPw); // 잘못된 자격 증명 (비밀번호 틀림)
     } catch (Exception e) {
-      res.setStatus(MsStatus.Exception);
+      res.setStatus(AuthStatus.Exception);
     }
 
     return res;
@@ -136,12 +149,12 @@ public class UserService {
 
       if (opt.isPresent()) {
         usersRepo.deleteById(userId);
-        res.setStatus(MsStatus.Ok);
+        res.setStatus(AuthStatus.Ok);
       } else {
-        res.setStatus(MsStatus.NotFoundAccount);
+        res.setStatus(AuthStatus.NotFoundAccount);
       }
     } catch (Exception e) {
-      res.setStatus(MsStatus.Exception);
+      res.setStatus(AuthStatus.Exception);
     }
 
     return res;
@@ -180,12 +193,12 @@ public class UserService {
 
         modelMapper.map(savedUser, res);
 
-        res.setStatus(MsStatus.Ok);
+        res.setStatus(AuthStatus.Ok);
       } else {
-        res.setStatus(MsStatus.NotFoundAccount);
+        res.setStatus(AuthStatus.NotFoundAccount);
       }
     } catch (Exception e) {
-      res.setStatus(MsStatus.Exception);
+      res.setStatus(AuthStatus.Exception);
     }
 
     return res;

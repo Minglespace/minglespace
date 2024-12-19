@@ -1,15 +1,13 @@
 package com.minglers.minglespace.auth.oauth2;
 
-import com.minglers.minglespace.auth.dto.DefaultResponse;
 import com.minglers.minglespace.auth.entity.User;
 import com.minglers.minglespace.auth.exception.AuthException;
 import com.minglers.minglespace.auth.repository.UserRepository;
-import com.minglers.minglespace.auth.service.AuthEmailService;
-import com.minglers.minglespace.common.apitype.MsStatus;
+import com.minglers.minglespace.auth.type.Provider;
+import com.minglers.minglespace.common.apistatus.AuthStatus;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.http.HttpStatus;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
@@ -17,8 +15,6 @@ import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
-import java.util.UUID;
-import java.util.concurrent.CompletableFuture;
 
 @Log4j2
 @Service
@@ -133,16 +129,16 @@ public class UserServiceOAuth2 extends DefaultOAuth2UserService {
 
     User user = userOpt.isPresent() ? userOpt.get() : new User();
 
-    String provider = user.getProvider();
+    Provider provider = user.getProvider();
 
-    if (provider != null && !provider.isEmpty() && !provider.equals(responseOAuth2.getProvider())) {
-      log.info("[MIRO] 이미 이메일 유저 입니다.");
+    if (provider != null && !provider.equals(responseOAuth2.getProvider())) {
+      log.info("[MIRO] 이미 등록한 이메일(소셜 포함) 유저 입니다.");
 
       log.info("[MIRO] getEmail : {}", responseOAuth2.getEmail());
       log.info("[MIRO] getProvider 소셜 : {}", responseOAuth2.getProvider());
       log.info("[MIRO] getProvider DB : {}", user.getProvider());
 
-      return new OAuth2UserMs(user, MsStatus.AlreadyJoinedEmail);
+      return new OAuth2UserMs(user, AuthStatus.AlreadyJoinedEmail);
     }
 
     log.info("[MIRO] 신규 또는 기존 유저 입니다.");
@@ -163,7 +159,7 @@ public class UserServiceOAuth2 extends DefaultOAuth2UserService {
     User userResult = userRepository.save(user);
 
     if (userResult.getId() > 0) {
-      return new OAuth2UserMs(user, MsStatus.Ok);
+      return new OAuth2UserMs(user, AuthStatus.Ok);
     }else{
       throw new AuthException(HttpStatus.INTERNAL_SERVER_ERROR.value(), "회원 가입 실패.");
     }
