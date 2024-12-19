@@ -26,8 +26,8 @@ public class Notification {
   private String noticeMsg;
   private String path;
 
-//  @Enumerated(EnumType.STRING)
-//  private NotificationType type;
+  @Enumerated(EnumType.STRING)
+  private NotificationType type;
 
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "recipient_user_id", nullable = false)

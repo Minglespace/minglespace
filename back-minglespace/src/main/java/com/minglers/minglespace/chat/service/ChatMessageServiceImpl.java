@@ -15,6 +15,7 @@ import com.minglers.minglespace.chat.repository.specification.ChatMessageSpecifi
 import com.minglers.minglespace.common.entity.Image;
 import com.minglers.minglespace.common.repository.ImageRepository;
 import com.minglers.minglespace.common.service.NotificationService;
+import com.minglers.minglespace.common.type.NotificationType;
 import com.minglers.minglespace.workspace.dto.MemberWithUserInfoDTO;
 import com.minglers.minglespace.workspace.entity.WSMember;
 import com.minglers.minglespace.workspace.repository.WSMemberRepository;
@@ -78,8 +79,8 @@ public class ChatMessageServiceImpl implements ChatMessageService {
       //멘션 알림
       if (messageDTO.getMentionedUserIds() != null && !messageDTO.getMentionedUserIds().isEmpty()) {
         for (Long mentionedUserId : messageDTO.getMentionedUserIds()) {
-          log.info("멘션 보낸사람: " + wsMember.getId());
-          sendMentionNotificationToUser(wsMember, savedMessage.getChatRoom(), mentionedUserId);
+          String notifyMsg = wsMember.getUser().getName() + "님께서 " + savedMessage.getChatRoom().getName() + "채팅방에서 당신을 멘션하였습니다.";
+          sendMentionNotification(notifyMsg, savedMessage.getChatRoom(), mentionedUserId);
         }
       }
 
@@ -102,13 +103,13 @@ public class ChatMessageServiceImpl implements ChatMessageService {
 
 
   //멘션 알림
-  private void sendMentionNotificationToUser(WSMember sendMember, ChatRoom mentionedChat, Long mentionedUserId) {
-    log.info("sendMember: " + sendMember.getUser().getName() + " - 언급 대상: " + mentionedUserId);
-    String sendUsername = sendMember.getUser().getName();
-    String notifyMsg = sendUsername + "님께서 " + mentionedChat.getName() + "채팅방에서 당신을 멘션하였습니다.";
+  private void sendMentionNotification(String notifyMsg, ChatRoom mentionedChat, Long mentionedUserId) {
+//    log.info("sendMember: " + sendMember.getUser().getName() + " - 언급 대상: " + mentionedUserId);
+//    String sendUsername = sendMember.getUser().getName();
+//    String notifyMsg = sendUsername + "님께서 " + mentionedChat.getName() + "채팅방에서 당신을 멘션하였습니다.";
     String path = "/workspace/" + mentionedChat.getWorkSpace().getId() + "/chat?chatRoomId=" + mentionedChat.getId();
 //    log.info("멘션 알림과 이어진 path: " + path);
-    notificationService.sendNotification(mentionedUserId, notifyMsg, path);
+    notificationService.sendNotification(mentionedUserId, notifyMsg, path, NotificationType.CHAT);
   }
 
   // 방 메시지 가져오기

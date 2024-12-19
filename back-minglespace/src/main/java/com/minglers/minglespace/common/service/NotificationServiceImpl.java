@@ -6,6 +6,7 @@ import com.minglers.minglespace.chat.config.interceptor.StompInterceptor;
 import com.minglers.minglespace.common.dto.NotificationDTO;
 import com.minglers.minglespace.common.entity.Notification;
 import com.minglers.minglespace.common.repository.NotificationRepository;
+import com.minglers.minglespace.common.type.NotificationType;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
@@ -26,19 +27,25 @@ public class NotificationServiceImpl implements NotificationService{
   private final StompInterceptor stompInterceptor;
 
   @Override
-  public void sendNotification(Long recipientUserId, String message, String path) { //, String type
+  public void sendNotification(Long recipientUserId, String message, String path, NotificationType type) {
     User user = userRepository.findById(recipientUserId)
             .orElseThrow(() -> new RuntimeException("알림 받을 유저를 찾지 못했습니다."));
     Notification notification = Notification.builder()
             .noticeMsg(message)
             .path(path)
             .user(user)
+            .type(type)
             .build();
 
     Notification saved = notificationRepository.save(notification);
 
     //실시간 전송하기
     sendNotificationToUser(recipientUserId, saved.toDTO());
+  }
+
+  @Override
+  public void deleteNotification(Long notificationId) {
+    notificationRepository.deleteById(notificationId);
   }
 
   private void sendNotificationToUser(Long recipientUserId, NotificationDTO notificationDTO){
