@@ -1,4 +1,4 @@
-﻿import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import ChatRoomHeader from "./ChatRoomHeader";
 import MessageList from "./MessageList";
 import MessageInput from "./MessageInput";
@@ -343,11 +343,11 @@ const ChatRoom = ({
         });
 
         //알림 구독
-        stompClient.subscribe(`/queue/notifications`, (notice) => {
-          const noticeMsg = JSON.parse(notice.body);
-          console.log("새 알림: ", noticeMsg.message);
-          alert(noticeMsg.message);
-        });
+        // stompClient.subscribe(`/user/queue/notifications`, (notice) => {
+        //   const noticeMsg = JSON.parse(notice.body);
+        //   console.log("새 알림: ", noticeMsg.message);
+        //   alert(noticeMsg.message);
+        // });
       },
       onWebSocketError: (error) => {
         console.log(`채팅방 ${chatRoomId}번 websocket 연결 오류:`, error);

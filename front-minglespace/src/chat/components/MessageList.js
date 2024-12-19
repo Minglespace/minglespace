@@ -1,4 +1,4 @@
-﻿import React, { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import MessageListItem from "./MessageListItem";
 import Modal from "../../common/Layouts/components/Modal";
 import useMessageListScroll from "../hooks/useMessageListScroll";
@@ -139,7 +139,7 @@ const MessageList = ({
               onFindParentMessage={findParentMessage}
               openAnnounceMentModal={openAnnouncementModal}
               openDeleteModal={openDeleteModal}
-              wsMembers = {wsMembers}
+              wsMembers={wsMembers}
             />
           );
         })}

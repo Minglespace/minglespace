@@ -1,4 +1,4 @@
-﻿import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { FiChevronsLeft } from "react-icons/fi";
 import ChatList from "./ChatList";
 import ChatRoom from "./ChatRoom";
@@ -103,10 +103,10 @@ const ChatApp = () => {
 
         });
 
-        stompClient.subscribe(`/queue/notifications`, (notice) => {
+        stompClient.subscribe(`/user/queue/notifications`, (notice) => {
           const noticeMsg = JSON.parse(notice.body);
-          console.log("새 알림: ", noticeMsg);
-          alert(noticeMsg);
+          console.log("새 알림: ", noticeMsg.noticeMsg);
+          alert(noticeMsg.noticeMsg);
         });
       },
       onWebSocketError: (error) => {

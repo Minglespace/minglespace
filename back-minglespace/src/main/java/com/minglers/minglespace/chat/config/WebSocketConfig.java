@@ -1,12 +1,7 @@
 package com.minglers.minglespace.chat.config;
 
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.minglers.minglespace.chat.config.interceptor.CustomHandShakeInterceptor;
 import com.minglers.minglespace.chat.config.interceptor.StompInterceptor;
-import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.messaging.simp.config.ChannelRegistration;
@@ -29,6 +24,7 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
     @Override
     public void configureMessageBroker(MessageBrokerRegistry config) {
         config.enableSimpleBroker("/topic","/queue"); // 클라이언트가 구독할 수 있는 메시지 브로커 경로 설정
+        config.setUserDestinationPrefix("/user"); // /user/queue/notifications 와 같은 경로로 메시지를 보냄
         config.setApplicationDestinationPrefixes("/app"); // 클라이언트에서 메시지를 보낼 때 붙이는 경로
     }
 
