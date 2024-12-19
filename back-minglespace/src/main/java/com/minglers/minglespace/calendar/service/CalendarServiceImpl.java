@@ -6,6 +6,9 @@ import com.minglers.minglespace.calendar.entity.Calendar;
 import com.minglers.minglespace.calendar.exception.CalendarException;
 import com.minglers.minglespace.calendar.repository.CalendarRepository;
 import com.minglers.minglespace.calendar.type.CalendarType;
+import com.minglers.minglespace.todo.entity.Todo;
+import com.minglers.minglespace.todo.repository.TodoAssigneeRepository;
+import com.minglers.minglespace.todo.repository.TodoRepository;
 import com.minglers.minglespace.workspace.entity.WSMember;
 import com.minglers.minglespace.workspace.entity.WorkSpace;
 import com.minglers.minglespace.workspace.exception.WorkspaceException;
@@ -30,6 +33,7 @@ public class CalendarServiceImpl implements CalendarService{
   private final CalendarRepository calendarRepository;
   private final WorkspaceRepository workspaceRepository;
   private final WSMemberRepository wsMemberRepository;
+  private final TodoAssigneeRepository todoAssigneeRepository;
   private final ModelMapper modelMapper;
 
   private WorkSpace findByWorkspaceId(Long workspaceId){
@@ -63,8 +67,25 @@ public class CalendarServiceImpl implements CalendarService{
     WorkSpace workspace = findByWorkspaceId(workspaceId);
     WSMember wsMember = findByWsMemberId(wsMemberId, workspaceId);
     List<Calendar> calendarList = calendarRepository.findCalendarByWorkspaceIdAndWsMemberId(workspaceId, wsMember.getId());
-    return calendarList.stream().map(calendar ->
-            modelMapper.map(calendar, CalendarResponseDTO.class)).toList();
+    List<Todo> todoList = todoAssigneeRepository.findAllTodoByWorkspaceIdAndWsMemberId(workspaceId,wsMember.getId());
+
+    List<CalendarResponseDTO> calendarResponseDTO = calendarList.stream().map(calendar ->
+            modelMapper.map(calendar, CalendarResponseDTO.class)).collect(Collectors.toList());
+
+    todoList.forEach((todo -> {CalendarResponseDTO calendarDTO = CalendarResponseDTO.builder()
+
+            .title(todo.getTitle())
+            .description(todo.getContent())
+            .start(todo.getStartDate())
+            .end(todo.getEndDate())
+            .type("TODO")
+            .build();
+
+      calendarResponseDTO.add(calendarDTO);
+
+    }));
+
+    return calendarResponseDTO;
   }
 
   @Override

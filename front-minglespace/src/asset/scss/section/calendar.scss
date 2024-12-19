@@ -30,6 +30,13 @@
   width: 90%;
   height: 90%;
   background-color: #fff !important;
+  button {
+    width: 100px;
+    height: 30px;
+    &:hover {
+      background-color: blue;
+    }
+  }
 }
 .fc-media-screen {
   margin: 0 auto;

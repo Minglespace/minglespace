@@ -19,6 +19,7 @@ const Workspace = () => {
   useEffect(() => {
     WorkspaceApi.getList()
       .then((data) => {
+        console.log("data : ", data);
         setWorkspaceData(data); //useState 상태에 저장
       })
       .catch((error) => {

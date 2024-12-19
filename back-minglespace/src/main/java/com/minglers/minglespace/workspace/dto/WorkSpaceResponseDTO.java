@@ -1,5 +1,6 @@
 package com.minglers.minglespace.workspace.dto;
 
+import com.minglers.minglespace.milestone.dto.MilestoneTaskStatusDTO;
 import lombok.*;
 
 @Builder
@@ -13,4 +14,7 @@ public class WorkSpaceResponseDTO {
   private String name;
   private String wsdesc;
   private int count;
+
+  private MilestoneTaskStatusDTO milestoneTaskStatusDTO;
+
 }

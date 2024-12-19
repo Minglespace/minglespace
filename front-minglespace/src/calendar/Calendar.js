@@ -32,6 +32,8 @@ const Calendar = () => {
     wsMemberData: { role },
   } = useContext(WSMemberRoleContext);
   //캘린더 NOTICE 조회
+
+  console.log("cale: ", calendarData);
   const getCalendarNotice = useCallback(async () => {
     try {
       const result = await CalendarApi.getCalendarNotice(workspaceId);
@@ -140,13 +142,15 @@ const Calendar = () => {
 
   //캘린더 내부 event 하나 클릭했을 때 해당 값을 가져와서 formData에 저장
   const handleEventClick = (evt) => {
-    setFormData({
-      id: evt.event.id,
-      title: evt.event.title,
-      description: evt.event.extendedProps.description,
-      start: formatDateToKST(evt.event.start),
-    });
-    setModalOpen(true);
+    if (evt.event.extendedProps.type !== "TODO") {
+      setFormData({
+        id: evt.event.id,
+        title: evt.event.title,
+        description: evt.event.extendedProps.description,
+        start: formatDateToKST(evt.event.start),
+      });
+      setModalOpen(true);
+    }
   };
 
   //handleEventClick으로 받아온 formData를 가지고 수정작업
@@ -187,6 +191,11 @@ const Calendar = () => {
               placement: "top",
               trigger: "hover",
             });
+            if (info.event.extendedProps.type === "TODO") {
+              info.el.style.backgroundColor = "green";
+              info.el.style.cursor = "default";
+              console.log("info : ", info);
+            }
           }}
           dayMaxEventRows={5}
           eventContent={(info) => {

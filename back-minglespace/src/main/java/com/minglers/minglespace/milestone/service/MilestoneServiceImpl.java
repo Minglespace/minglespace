@@ -65,11 +65,6 @@ public class MilestoneServiceImpl implements MilestoneService{
   public MilestoneItemResponseDTO addMilestoneItem(Long milestoneGroupId, MilestoneItemRequestDTO milestoneItemRequestDTO) {
     MilestoneGroup milestoneGroup = milestoneGroupRepository.findById(milestoneGroupId)
             .orElseThrow(()-> new MilestoneException(HttpStatus.NOT_FOUND.value(), "마일스톤 그룹이 존재하지 않습니다."));
-    // 1. 그룹 아이디를 조회
-    // 2. Request를 DB에 저장해야하므로
-    // 3. Entity로 변환해야한다.
-    // 4. Repository로 save작동
-    // 5. 리턴된 값을 컨트롤러로 반환한다.
 
     MilestoneItem milestoneItem = modelMapper.map(milestoneItemRequestDTO, MilestoneItem.class);
     log.info(milestoneItem.toString());

@@ -38,7 +38,7 @@ public class WorkSpace {
     private Long deletedByUserId;
 
     @OneToMany(mappedBy = "workSpace", fetch = FetchType.LAZY)
-    private List<WSMember> workSpaceList;
+    private List<WSMember> wsMemberList;
 
     @OneToMany(mappedBy = "workspace", fetch = FetchType.LAZY)
     private List<MilestoneGroup> milestoneGroupList;
