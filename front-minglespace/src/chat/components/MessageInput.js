@@ -9,7 +9,8 @@ const MessageInput = ({
   replyToMessage,
   setReplyToMessage,
   currentMemberInfo,
-  wsMembers,
+  participants,
+  currentChatRoomId
 }) => {
   const [newMessage, setNewMessage] = useState("");
   const [isLocked, setIsLocked] = useState(false);
@@ -30,15 +31,21 @@ const MessageInput = ({
   const mentionRef = useRef(null);
 
   useEffect(() => {
+    setNewMessage("");
+  }, [currentChatRoomId]);
+
+  useEffect(() => {
     if (newMessage.includes("@")) {
       const mentionMatch = newMessage.match(/@(\S*)$/);
       if (mentionMatch) {
         const query = mentionMatch[1];
         const filteredList = query
-          ? wsMembers.filter((member) =>
-              member.name.toLowerCase().includes(query.toLowerCase())
-            )
-          : wsMembers;
+          ? participants.filter((member) =>
+            member.name.toLowerCase().includes(query.toLowerCase()) &&
+            member.userId !== currentMemberInfo.userId  // currentMemberInfo.id와 동일한 멤버 제외
+          )
+          : participants.filter((member) => member.userId !== currentMemberInfo.userId);
+
         setMentioning(true);
         setFilteredMembers(filteredList);
       }
@@ -46,12 +53,12 @@ const MessageInput = ({
       setMentioning(false);
       setFilteredMembers([]);
     }
-  }, [newMessage, wsMembers]);
+  }, [newMessage, participants, currentMemberInfo]);
 
 
   //멘션 선택 유저가 있다면 목록 스크롤 조정
   useEffect(() => {
-    if(mentionRef.current && selectedIndex >= 0){
+    if (mentionRef.current && selectedIndex >= 0) {
       mentionRef.current.scrollTop = selectedIndex * 40;
     }
   }, [selectedIndex]);
@@ -81,13 +88,13 @@ const MessageInput = ({
       while ((match = regex.exec(newMessage)) !== null) {
         const mentionedName = match[1];
 
-        const member = wsMembers.find((m) => m.name.toLowerCase() === mentionedName.toLowerCase());
+        const member = participants.find((m) => m.name.toLowerCase() === mentionedName.toLowerCase());
         if (member) {
           mentionedIds.push(member.userId);
         }
       }
 
-      console.log("멘션된 멤버 id들: ", mentionedIds);
+      // console.log("멘션된 멤버 id들: ", mentionedIds);
 
       const messageToSend = {
         content: newMessage,
@@ -102,19 +109,19 @@ const MessageInput = ({
     } else {
       alert("메시지를 입력해주세요");
     }
-    console.log("Message sent: ", newMessage); // 전송된 메시지 확인
+    // console.log("Message sent: ", newMessage); // 전송된 메시지 확인
   };
 
   const handleKeyDown = (e) => {
-    if(mentioning){
-      if(e.key === "ArrowDown"){
+    if (mentioning) {
+      if (e.key === "ArrowDown") {
         setSelectedIndex((prev) => (prev + 1) % filteredMembers.length);
-      }else if(e.key === "ArrowUp"){
+      } else if (e.key === "ArrowUp") {
         setSelectedIndex((prev) => (prev - 1 + filteredMembers.length) % filteredMembers.length);
-      }else if(e.key === "Enter" && selectedIndex >= 0){
+      } else if (e.key === "Enter" && selectedIndex >= 0) {
         handleMentionSelect(filteredMembers[selectedIndex]);
       }
-    }else{
+    } else {
       if (e.key === "Enter" && !e.shiftKey && (newMessage.trim() || files.length > 0)) {
         // e.preventDefault();
         handleSendMessage();

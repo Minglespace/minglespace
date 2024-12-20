@@ -17,5 +17,6 @@ public class NotificationDTO {
   private String path;
   private LocalDateTime noticeTime;
   private Long recipientUserId;
-//  private String type; //chat,
+  private boolean isRead;
+  private String type;
 }

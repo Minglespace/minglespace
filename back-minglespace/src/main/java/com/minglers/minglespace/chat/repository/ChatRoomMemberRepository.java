@@ -14,7 +14,7 @@ import java.util.Optional;
 public interface ChatRoomMemberRepository extends JpaRepository<ChatRoomMember, Long> {
   List<ChatRoomMember> findByChatRoomIdAndIsLeftFalse(Long chatRoomId); //채팅방에 떠나지 않은 멤버 목륵
 
-  List<ChatRoomMember> findByChatRoom_WorkSpace_IdAndWsMember_IdOrderByChatRoom_DateDesc(Long workSpaceId, Long wsMemberId);  // 특정 워크스페이스와 유저가 참여한 채팅방 목록을 조회하는 쿼리
+  List<ChatRoomMember> findByChatRoom_WorkSpace_IdAndWsMember_IdAndIsLeftFalseOrderByChatRoom_DateDesc(Long workSpaceId, Long wsMemberId);  // 특정 워크스페이스와 유저가 참여한 채팅방 목록을 조회하는 쿼리
 
   List<ChatRoomMember> findByChatRoomId(Long chatRoomId); //채팅방에 참여하고 있는 멤버들 get
 //    List<ChatRoomMember> findByWsMemberIdAndIsLeftFalse(Long wsMemberId); //멤버가 참여하고 있는 채팅방 목록

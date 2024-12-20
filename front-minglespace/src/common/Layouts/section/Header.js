@@ -125,11 +125,9 @@ const Header = () => {
         <></>
       )}
 
-
-
       {/* 버튼을 우측 정렬하는 div */}
-      <div className="button-container" style={{display:"flex", alignItems:"center"}}>
-        <NotificationIcon/>
+      <div className="button-container" style={{ display: "flex", alignItems: "center" }}>
+        <NotificationIcon />
         <UserInfoPopup />
       </div>
 

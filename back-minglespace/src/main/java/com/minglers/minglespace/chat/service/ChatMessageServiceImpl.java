@@ -79,7 +79,7 @@ public class ChatMessageServiceImpl implements ChatMessageService {
       //멘션 알림
       if (messageDTO.getMentionedUserIds() != null && !messageDTO.getMentionedUserIds().isEmpty()) {
         for (Long mentionedUserId : messageDTO.getMentionedUserIds()) {
-          String notifyMsg = wsMember.getUser().getName() + "님께서 " + savedMessage.getChatRoom().getName() + "채팅방에서 당신을 멘션하였습니다.";
+          String notifyMsg = wsMember.getUser().getName() + "님께서 '" + savedMessage.getChatRoom().getName() + "' 채팅방에서 당신을 언급하였습니다.";
           sendMentionNotification(notifyMsg, savedMessage.getChatRoom(), mentionedUserId);
         }
       }
@@ -107,7 +107,7 @@ public class ChatMessageServiceImpl implements ChatMessageService {
 //    log.info("sendMember: " + sendMember.getUser().getName() + " - 언급 대상: " + mentionedUserId);
 //    String sendUsername = sendMember.getUser().getName();
 //    String notifyMsg = sendUsername + "님께서 " + mentionedChat.getName() + "채팅방에서 당신을 멘션하였습니다.";
-    String path = "/workspace/" + mentionedChat.getWorkSpace().getId() + "/chat?chatRoomId=" + mentionedChat.getId();
+    String path = "/workspace/" + mentionedChat.getWorkSpace().getId() + "/chat"; //?chatRoomId=" + mentionedChat.getId()
 //    log.info("멘션 알림과 이어진 path: " + path);
     notificationService.sendNotification(mentionedUserId, notifyMsg, path, NotificationType.CHAT);
   }
@@ -179,20 +179,6 @@ public class ChatMessageServiceImpl implements ChatMessageService {
     }
 
     return resultIds;
-//    return msgs.stream()
-//            .map(msg ->{
-//              Long replyId = (msg.getParentMessage() != null) ? msg.getParentMessage().getId() : null;
-//              return ChatMessageDTO.builder()
-//                      .id(msg.getId())
-//                      .chatRoomId(msg.getChatRoom().getId())
-//                      .date(msg.getDate())
-//                      .content(msg.getContent())
-//                      .replyId(replyId)
-//                      .writerWsMemberId(msg.getWsMember().getId())
-//                      .isAnnouncement(msg.getIsAnnouncement())
-//                      .build();
-//            })
-//            .collect(Collectors.toList());
   }
 
   @Override

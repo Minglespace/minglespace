@@ -402,10 +402,10 @@ const ChatRoom = ({
 
   // 메시지를 클릭하면 해당 메시지를 선택
   const handleMessageClick = (messages) => {
-    console.log("답장할 메시지:", messages);
+    // console.log("답장할 메시지:", messages);
     // setSelectedMessageId(messageId);
     setReplyToMessage(messages);
-    console.log("입력창에 표시된 답장 대상:", `${messages.text}`);
+    // console.log("입력창에 표시된 답장 대상:", `${messages.text}`);
   };
 
   return (
@@ -439,7 +439,8 @@ const ChatRoom = ({
         replyToMessage={replyToMessage}
         setReplyToMessage={setReplyToMessage}
         currentMemberInfo={currentMemberInfo}
-        wsMembers={wsMembers}
+        currentChatRoomId={chatRoomId}
+        participants={chatRoomInfo.participants}
       />
     </div>
   );

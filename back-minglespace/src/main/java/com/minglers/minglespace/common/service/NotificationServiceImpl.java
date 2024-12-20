@@ -9,11 +9,14 @@ import com.minglers.minglespace.common.repository.NotificationRepository;
 import com.minglers.minglespace.common.type.NotificationType;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+import org.springframework.data.domain.Sort;
 import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
 import org.springframework.messaging.simp.SimpMessageType;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Set;
 
@@ -45,16 +48,34 @@ public class NotificationServiceImpl implements NotificationService{
   }
 
   @Override
-  public void deleteNotification(Long notificationId) {
-    notificationRepository.deleteById(notificationId);
+  public void deleteNotifications(List<Long> notificationIds) {
+    notificationRepository.deleteAllById(notificationIds);
+  }
+
+  @Override
+  public String updateIsRead(Long notificationId) {
+    int count = notificationRepository.markNotificationAsRead(notificationId);
+    if (count > 0) {
+      return "SUCCESS";  // 성공 응답
+    } else {
+      return "FAILED";  // 실패 응답
+    }
   }
 
   @Override
   public List<NotificationDTO> getNotificationsByUser(Long userId) {
-    List<Notification> noticeList = notificationRepository.findByUser_Id(userId);
+    List<Notification> noticeList = notificationRepository.findByUser_Id(userId, Sort.by(Sort.Order.desc("noticeTime")));
     return noticeList.stream()
             .map(Notification::toDTO)
             .toList();
+  }
+  
+  //하루에 한 번, 한 달 이상된 확인된 알림 삭제
+  @Override
+  @Scheduled(cron = "0 0 0 * * ?")
+  public void deleteOldReadNotifications() {
+    LocalDateTime oneMonthAgo = LocalDateTime.now().minusMonths(1);
+    notificationRepository.deleteOldReadNotifications(oneMonthAgo);
   }
 
   private void sendNotificationToUser(Long recipientUserId, NotificationDTO notificationDTO){

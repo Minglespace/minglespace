@@ -37,6 +37,9 @@ public class Notification {
   @Column(name = "notice_time", columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
   private LocalDateTime noticeTime;
 
+  @Builder.Default
+  private boolean isRead = false;
+
   @PrePersist
   public void prePersist(){
     if(noticeTime == null){
@@ -51,6 +54,8 @@ public class Notification {
             .path(this.path)
             .noticeTime(this.noticeTime)
             .recipientUserId(this.user.getId())
+            .isRead(this.isRead)
+            .type(this.type.name())
             .build();
   }
 }
