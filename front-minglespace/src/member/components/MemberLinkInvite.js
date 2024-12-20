@@ -9,7 +9,7 @@ const MemberLinkInvite = () => {
     try {
       const inviteResult = await MembersApi.linkInviteMember(
         workspaceId,
-        "dldudtn118@ndvr.com"
+        "dldudtn118@naver.com"
       );
     } catch (error) {
       alert(`멤버 초대 실패 \n원인:${getErrorMessage(error)}`);

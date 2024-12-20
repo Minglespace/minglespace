@@ -24,5 +24,5 @@ public interface WSMemberService {
 
   void checkWSMember(Long userId, Long workSpaceId);
 
-  String linkInviteMember(Long workspaceId, String email);
+  String sendInviteEmail(Long workspaceId, String email);
 }

@@ -10,6 +10,7 @@ import com.minglers.minglespace.workspace.dto.MemberWithUserInfoDTO;
 import com.minglers.minglespace.workspace.dto.WSMemberResponseDTO;
 import com.minglers.minglespace.workspace.entity.WSMember;
 import com.minglers.minglespace.workspace.entity.WorkSpace;
+import com.minglers.minglespace.workspace.entity.WorkspaceInvite;
 import com.minglers.minglespace.workspace.exception.WorkspaceException;
 import com.minglers.minglespace.workspace.repository.WSMemberRepository;
 import com.minglers.minglespace.workspace.repository.WorkspaceInviteRepository;
@@ -22,9 +23,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.time.LocalDateTime;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 
 @Service
@@ -134,12 +134,17 @@ public class WSMemberServiceImpl implements WSMemberService {
   public List<FriendWithWorkspaceStatusDTO> getFriendWithWorkspace(Long userId, Long workSpaceId) {
     List<User> userList = userFriendRepository
             .findAllByUserIdAndStatus(userId, FriendshipStatus.ACCEPTED, null);
+
     return userList.stream().map((user) -> {
-      FriendWithWorkspaceStatusDTO friendWithWorkspaceStatusDTO =
-              modelMapper.map(user, com.minglers.minglespace.workspace.dto.FriendWithWorkspaceStatusDTO.class);
-      friendWithWorkspaceStatusDTO.setInWorkSpace(wsMemberRepository
-              .existsByWorkSpaceIdAndUserId(workSpaceId,user.getId()));
-      return friendWithWorkspaceStatusDTO;
+      return FriendWithWorkspaceStatusDTO.builder()
+              .friendId(user.getId())
+              .email(user.getEmail())
+              .name(user.getName())
+              .imageUriPath(Objects.isNull(user.getImage()) ? null : user.getImage().getUripath())
+              .position(user.getPosition())
+              .inWorkSpace(wsMemberRepository
+                      .existsByWorkSpaceIdAndUserId(workSpaceId,user.getId()))
+              .build();
     }).toList();
   }
 //유저를 방에 초대하기
@@ -219,11 +224,16 @@ public class WSMemberServiceImpl implements WSMemberService {
 
   //링크방식 초대하기
   @Override
-  public String linkInviteMember(Long workspaceId, String email) {
+  @Transactional
+  public String sendInviteEmail(Long workspaceId, String email) {
     WorkSpace workSpace = findWorkSpaceById(workspaceId);
     Optional<User> targetUser = userRepository.findByEmail(email);
-    //1. 이메일을 보낸다.
-    CompletableFuture<String> emailResult = emailInviteService.sendEmail(workSpace.getName(),email);
+
+    //1. 이메일을 보낸다.(링크+uuid)
+    String url = "localhost:3000/workspaces/"+workspaceId+"/"
+            +UUID.randomUUID().toString(); //하나로 빌드후 수정해야함
+
+    CompletableFuture<String> emailResult = emailInviteService.sendEmail(workSpace.getName(),url,email);
     String returnString = emailResult.thenApply((result) ->{
       if("success".equals(result)){
         return "success";
@@ -235,13 +245,17 @@ public class WSMemberServiceImpl implements WSMemberService {
     if("fail".equals(returnString))
       return "이메일 전송에 실패하였습니다";
 
-    //3. 전송완료시 db에 저장한다.(일단 기존이메일이 db에 있는지 확인후 기존꺼가 있으면 지워버린다.)
-    if(targetUser.isEmpty()){//가입 되어있지않은 유저
-      log.info("가입되지않은유저~");
-    }else{//가입된유저
-      log.info("가입한 유저~");
-    }
+    //3. 전송완료시 db에 저장한다.(일단 기존이메일이 db에 있는지 확인후 기존꺼가 있으면 지운다.)
+    Optional<WorkspaceInvite> workspaceInvite = workspaceInviteRepository.findByEmail(email);
+    workspaceInvite.ifPresent(workspaceInviteRepository::delete);
 
-    return "";
+    WorkspaceInvite workspaceInviteEntity = WorkspaceInvite.builder()
+            .email(email)
+            .urlLink(url)
+            .expirationTime(LocalDateTime.now().plusHours(24))
+            .build();
+
+    WorkspaceInvite savedWorkspaceInvite = workspaceInviteRepository.save(workspaceInviteEntity);
+    return savedWorkspaceInvite.getEmail()+"님에게 이메일 링크를 전송하였습니다.";
   }
 }

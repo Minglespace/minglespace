@@ -140,7 +140,7 @@ public class WorkspaceController {
     Long userId = jwtUtils.extractUserId(token.substring(7));
     checkLeaderAndSubLeader(userId,workspaceId);
 
-    return ResponseEntity.ok(wsMemberService.linkInviteMember(workspaceId,requestEmail.get("email")));
+    return ResponseEntity.ok(wsMemberService.sendInviteEmail(workspaceId,requestEmail.get("email")));
   }
 
   //////////////////////공통 유효성검사(리더확인)

@@ -63,7 +63,7 @@ public class SampleDataTest {
     public void insertUserTest() {
         userRepository.save(User.builder()
                 .name(generateRandomKoreanName())
-                .email("abc@abc.abc")
+                .email("dldudtn118@naver.com")
                 .introduction("안녕하세요")
                 .password(passwordEncoder.encode("123123"))
                 .phone("000-0000-0000")
