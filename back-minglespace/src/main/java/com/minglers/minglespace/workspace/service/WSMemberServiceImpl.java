@@ -24,10 +24,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 
 @Service
@@ -137,12 +134,17 @@ public class WSMemberServiceImpl implements WSMemberService {
   public List<FriendWithWorkspaceStatusDTO> getFriendWithWorkspace(Long userId, Long workSpaceId) {
     List<User> userList = userFriendRepository
             .findAllByUserIdAndStatus(userId, FriendshipStatus.ACCEPTED, null);
+
     return userList.stream().map((user) -> {
-      FriendWithWorkspaceStatusDTO friendWithWorkspaceStatusDTO =
-              modelMapper.map(user, com.minglers.minglespace.workspace.dto.FriendWithWorkspaceStatusDTO.class);
-      friendWithWorkspaceStatusDTO.setInWorkSpace(wsMemberRepository
-              .existsByWorkSpaceIdAndUserId(workSpaceId,user.getId()));
-      return friendWithWorkspaceStatusDTO;
+      return FriendWithWorkspaceStatusDTO.builder()
+              .friendId(user.getId())
+              .email(user.getEmail())
+              .name(user.getName())
+              .imageUriPath(Objects.isNull(user.getImage()) ? null : user.getImage().getUripath())
+              .position(user.getPosition())
+              .inWorkSpace(wsMemberRepository
+                      .existsByWorkSpaceIdAndUserId(workSpaceId,user.getId()))
+              .build();
     }).toList();
   }
 //유저를 방에 초대하기
