@@ -2,7 +2,7 @@ import React, { useCallback, useEffect } from "react";
 import FullCalendar from "@fullcalendar/react";
 import dayGridPlugin from "@fullcalendar/daygrid";
 import interactionPlugin from "@fullcalendar/interaction";
-import { useState, useContext } from "react";
+import { useState, useContext, useRef } from "react";
 import CalendarApi from "../api/CalendarApi";
 import { useParams } from "react-router-dom";
 import Modal from "../common/Layouts/components/Modal";
@@ -10,6 +10,8 @@ import { formatDateToKST } from "../common/DateFormat/dateUtils";
 import { WSMemberRoleContext } from "../workspace/context/WSMemberRoleContext";
 import { getErrorMessage } from "../common/Exception/errorUtils";
 import Tooltip from "tooltip.js";
+import { end } from "@popperjs/core";
+import CalendarFormModal from "./componenets/CalendarFormModal";
 
 const initData = [
   {
@@ -26,14 +28,28 @@ const Calendar = () => {
   const { workspaceId } = useParams();
   const [calendarData, setCalendarData] = useState([...initData]);
   const [modalOpen, setModalOpen] = useState(false);
-  const [calendarType, setCalendarType] = useState("NOTICE");
+  const [calendarType, setCalendarType] = useState("ALL");
   const [formData, setFormData] = useState({});
+  const [addType, setAddType] = useState("TIME");
   const {
     wsMemberData: { role },
   } = useContext(WSMemberRoleContext);
-  //캘린더 NOTICE 조회
+  const focusTitle = useRef(null);
+  const focusDescription = useRef(null);
 
-  console.log("cale: ", calendarData);
+  //캘린더 ALL 조회
+  const getCalendarAll = useCallback(async () => {
+    try {
+      const result = await CalendarApi.getCalendarAll(workspaceId);
+      setCalendarData(result);
+    } catch (error) {
+      alert(
+        `캘린더 조회 중 에러가 발생했습니다.\n원인:${getErrorMessage(error)}`
+      );
+    }
+  }, [workspaceId]);
+
+  //캘린더 NOTICE 조회
   const getCalendarNotice = useCallback(async () => {
     try {
       const result = await CalendarApi.getCalendarNotice(workspaceId);
@@ -100,22 +116,48 @@ const Calendar = () => {
 
   //캘린더 목록 조회
   useEffect(() => {
-    calendarType === "NOTICE" ? getCalendarNotice() : getCalendarPrivate();
-  }, [workspaceId, calendarType, getCalendarNotice, getCalendarPrivate]);
+    // calendarType === "NOTICE" ? getCalendarNotice() : getCalendarPrivate();
+    if (calendarType === "ALL") {
+      getCalendarAll();
+    } else if (calendarType === "NOTICE") {
+      getCalendarNotice();
+    } else if (calendarType === "PRIVATE") {
+      getCalendarPrivate();
+    }
+  }, [
+    workspaceId,
+    calendarType,
+    getCalendarAll,
+    getCalendarNotice,
+    getCalendarPrivate,
+  ]);
 
   //캘린더에 추가되는 내용을 formData에 저장
   const handleChangeData = (e) => {
     const { name, value } = e.target;
-    setFormData((prevData) => ({
-      ...prevData,
-      [name]: value,
-    }));
+    if (addType === "TIME") {
+      setFormData((prevData) => ({
+        ...prevData,
+        [name]: value,
+        end: prevData.start,
+      }));
+    } else {
+      setFormData((prevData) => ({
+        ...prevData,
+        [name]: value,
+      }));
+    }
   };
 
   //캘린더에 날짜 클릭 시 Add모달을 통해 데이터 추가
   const handleDateClick = (arg) => {
     const formattedStart = formatDateToKST(arg.dateStr);
-    setFormData({ title: "", description: "", start: formattedStart });
+    setFormData({
+      title: "",
+      description: "",
+      start: formattedStart,
+      end: formattedStart,
+    });
     setModalOpen(true);
   };
 
@@ -127,6 +169,12 @@ const Calendar = () => {
 
   //캘린더에 항목 추가하여 DB에 저장
   const handleAddCalendar = async () => {
+    if (!validation()) return false;
+
+    if (addType === "DAY") {
+      formData.start = formatDateToKST(formData.start);
+      formData.end = formatDateToKST(formData.end);
+    }
     //dateUtils.js에 KST 데이터를 받아올수 있는 Formatter 생성
     const formattedStart = formatDateToKST(formData.start);
     const newCalendar = {
@@ -134,10 +182,33 @@ const Calendar = () => {
       start: formattedStart,
       type: calendarType,
     };
+
     await addCalendar(newCalendar);
     setModalOpen(false);
     setFormData([]); //추가 후 formData내용 초기화
     calendarType === "NOTICE" ? getCalendarNotice() : getCalendarPrivate();
+  };
+
+  const validation = () => {
+    if (formData.title === null || formData.title === "") {
+      alert("제목을 입력해 주세요.");
+      focusTitle.current.focus();
+      return false;
+    }
+    if (formData.description === null || formData.description === "") {
+      alert("세부내용을 입력해 주세요.");
+      focusDescription.current.focus();
+      return false;
+    }
+    if (formData.start > formData.end) {
+      alert("종료일이 시작일보다 먼저일수 없습니다.");
+      setFormData((prevDate) => ({
+        ...prevDate,
+        end: prevDate.start,
+      }));
+      return false;
+    }
+    return true;
   };
 
   //캘린더 내부 event 하나 클릭했을 때 해당 값을 가져와서 formData에 저장
@@ -147,7 +218,8 @@ const Calendar = () => {
         id: evt.event.id,
         title: evt.event.title,
         description: evt.event.extendedProps.description,
-        start: formatDateToKST(evt.event.start),
+        start: formatDateToKST(evt.event.start).split("T")[0],
+        end: formatDateToKST(evt.event.end).split("T")[0],
       });
       setModalOpen(true);
     }
@@ -171,8 +243,60 @@ const Calendar = () => {
     calendarType === "NOTICE" ? getCalendarNotice() : getCalendarPrivate();
   };
 
+  const handleAddTypeChange = (type) => {
+    setAddType(type);
+  };
+
   const fullcalendarRender = () => {
-    if (
+    if (calendarType === "ALL") {
+      return (
+        <FullCalendar
+          plugins={[dayGridPlugin, interactionPlugin]}
+          initialView="dayGridMonth"
+          events={calendarData}
+          eventDidMount={(info) => {
+            new Tooltip(info.el, {
+              title: "제목" + info.event.extendedProps.description,
+              placement: "top",
+              trigger: "hover",
+            });
+            if (info.event.extendedProps.type === "TODO") {
+              info.el.style.backgroundColor = "green";
+              info.el.style.cursor = "default";
+            }
+          }}
+          dayMaxEventRows={5}
+          eventContent={(info) => {
+            const { start, end, title } = info.event;
+            const date = new Date(start);
+            const startTime = date.toLocaleTimeString("ko-KR", {
+              hour: "2-digit",
+              minute: "2-digit",
+              hour12: false, // 24시간 형식
+            });
+            const eventType = info.event.extendedProps.type;
+            let typeString = "";
+            if (eventType === "NOTICE") {
+              typeString = "공지";
+            } else if (eventType === "PRIVATE") {
+              typeString = "개인";
+            } else if (eventType === "TODO") {
+              typeString = "할일";
+            }
+            const timeString = end ? "" : `-${startTime}`;
+            return (
+              <div>
+                <p>
+                  {typeString}
+                  {timeString}
+                  <b> {title}</b>
+                </p>
+              </div>
+            );
+          }}
+        />
+      );
+    } else if (
       role === "LEADER" ||
       role === "SUB_LEADER" ||
       calendarType === "PRIVATE"
@@ -194,7 +318,6 @@ const Calendar = () => {
             if (info.event.extendedProps.type === "TODO") {
               info.el.style.backgroundColor = "green";
               info.el.style.cursor = "default";
-              console.log("info : ", info);
             }
           }}
           dayMaxEventRows={5}
@@ -259,45 +382,23 @@ const Calendar = () => {
 
   return (
     <div className="section_container calendar_container">
+      <button onClick={() => setCalendarType("ALL")}>모든일정</button>
       <button onClick={() => setCalendarType("NOTICE")}>공지</button>
       <button onClick={() => setCalendarType("PRIVATE")}>개인</button>
       {fullcalendarRender()}
       <Modal open={modalOpen} onClose={handleModalClose}>
-        <input
-          name="title"
-          type="text"
-          onChange={handleChangeData}
-          value={formData.title}
+        <CalendarFormModal
+          formData={formData}
+          addType={addType}
+          handleAddTypeChange={handleAddTypeChange}
+          handleChangeData={handleChangeData}
+          handleAddCalendar={handleAddCalendar}
+          handleModifyCalendar={handleModifyCalendar}
+          handleDeleteCalendar={handleDeleteCalendar}
+          handleModalClose={handleModalClose}
+          focusTitle={focusTitle}
+          focusDescription={focusDescription}
         />
-        <input
-          name="description"
-          type="text"
-          onChange={handleChangeData}
-          value={formData.description}
-        />
-        <input
-          name="start"
-          type="datetime-local"
-          onChange={handleChangeData}
-          value={formData.start}
-        />
-        <input
-          name="end"
-          type="datetime-local"
-          onChange={handleChangeData}
-          value={formData.end}
-        />
-        <br />
-
-        {formData.id ? (
-          <>
-            <button onClick={handleModifyCalendar}>수정</button>
-            <button onClick={handleDeleteCalendar}>삭제</button>
-          </>
-        ) : (
-          <button onClick={handleAddCalendar}>추가</button>
-        )}
-        <button onClick={handleModalClose}>닫기</button>
       </Modal>
     </div>
   );

@@ -54,6 +54,31 @@ public class CalendarServiceImpl implements CalendarService{
   }
 
   @Override
+  public List<CalendarResponseDTO> getCalendarAll(Long workspaceId, Long wsMemberId) {
+    WorkSpace workspace = findByWorkspaceId(workspaceId);
+    WSMember wsMember = findByWsMemberId(wsMemberId, workspaceId);
+
+    List<Calendar> calendarList = calendarRepository.findCalendarByWorkspaceId(workspaceId);
+
+    List<CalendarResponseDTO> calendarResponseDTO = calendarList.stream().map(calendar ->
+            modelMapper.map(calendar, CalendarResponseDTO.class)).collect(Collectors.toList());
+
+    List<Todo> todoList = todoAssigneeRepository.findAllTodoByWorkspaceIdAndWsMemberId(workspaceId,wsMember.getId());
+    todoList.forEach((todo -> {CalendarResponseDTO calendarDTO = CalendarResponseDTO.builder()
+
+            .title(todo.getTitle())
+            .description(todo.getContent())
+            .start(todo.getStartDate())
+            .end(todo.getEndDate())
+            .type("TODO")
+            .build();
+
+      calendarResponseDTO.add(calendarDTO);
+    }));
+    return calendarResponseDTO;
+  }
+
+  @Override
   public List<CalendarResponseDTO> getCalendarNotice(Long workspaceId) {
     WorkSpace workspace = findByWorkspaceId(workspaceId);
     List<Calendar> calendarList = calendarRepository.findCalendarByWorkspaceIdAndType(workspaceId, CalendarType.NOTICE);
@@ -67,24 +92,23 @@ public class CalendarServiceImpl implements CalendarService{
     WorkSpace workspace = findByWorkspaceId(workspaceId);
     WSMember wsMember = findByWsMemberId(wsMemberId, workspaceId);
     List<Calendar> calendarList = calendarRepository.findCalendarByWorkspaceIdAndWsMemberId(workspaceId, wsMember.getId());
-    List<Todo> todoList = todoAssigneeRepository.findAllTodoByWorkspaceIdAndWsMemberId(workspaceId,wsMember.getId());
 
     List<CalendarResponseDTO> calendarResponseDTO = calendarList.stream().map(calendar ->
             modelMapper.map(calendar, CalendarResponseDTO.class)).collect(Collectors.toList());
 
-    todoList.forEach((todo -> {CalendarResponseDTO calendarDTO = CalendarResponseDTO.builder()
+    List<Todo> todoList = todoAssigneeRepository.findAllTodoByWorkspaceIdAndWsMemberId(workspaceId,wsMember.getId());
+    todoList.forEach((todo -> {
+      CalendarResponseDTO calendarDTO = CalendarResponseDTO.builder()
 
-            .title(todo.getTitle())
-            .description(todo.getContent())
-            .start(todo.getStartDate())
-            .end(todo.getEndDate())
-            .type("TODO")
-            .build();
+              .title(todo.getTitle())
+              .description(todo.getContent())
+              .start(todo.getStartDate())
+              .end(todo.getEndDate())
+              .type("TODO")
+              .build();
 
       calendarResponseDTO.add(calendarDTO);
-
     }));
-
     return calendarResponseDTO;
   }
 

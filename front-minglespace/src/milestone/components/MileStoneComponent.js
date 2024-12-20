@@ -485,7 +485,7 @@ const MileStoneComponent = () => {
           groups={groups}
           items={items}
           lineHeight={40}
-          itemHeightRatio={0.8}
+          itemHeightRatio={0.5}
           canChangeGroup={false}
           defaultTimeStart={moment().add(0, "day")}
           defaultTimeEnd={moment().add(31, "day")}

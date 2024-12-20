@@ -12,4 +12,5 @@ import java.util.List;
 public interface CalendarRepository extends JpaRepository<Calendar, Long> {
   List<Calendar> findCalendarByWorkspaceIdAndType(Long workspaceId, CalendarType calendarType);
   List<Calendar> findCalendarByWorkspaceIdAndWsMemberId(Long workspaceId, Long wsMemberId);
+  List<Calendar> findCalendarByWorkspaceId(Long workspaceId);
 }

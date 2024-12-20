@@ -3,14 +3,26 @@ import api, { HOST_URL } from "./Api";
 const prefix = `${HOST_URL}/workspace`;
 
 class CalendarApi {
+  //ALL 캘린더 이벤트 목록 가져오기
+  static getCalendarAll = async (workspaceId) => {
+    try {
+      const res = await api.axiosIns.get(`${prefix}/${workspaceId}/calendar`);
+      return res.data;
+    } catch (error) {
+      console.error("캘린더 전체 이벤트 목록조회 실패", error);
+      throw error;
+    }
+  };
+
   //NOTICE 캘린더 이벤트 목록 가져오기
   static getCalendarNotice = async (workspaceId) => {
     try {
-      const res = await api.axiosIns.get(`${prefix}/${workspaceId}/calendar`);
-      console.log("res.data : ", res.data);
+      const res = await api.axiosIns.get(
+        `${prefix}/${workspaceId}/calendar/notice`
+      );
       return res.data;
     } catch (error) {
-      console.error("캘린더 이벤트 목록조회 실패", error);
+      console.error("캘린더 공지 이벤트 목록조회 실패", error);
       throw error;
     }
   };
@@ -23,7 +35,7 @@ class CalendarApi {
       );
       return res.data;
     } catch (error) {
-      console.error("캘린더 이벤트 목록조회 실패", error);
+      console.error("캘린더 개인 이벤트 목록조회 실패", error);
       throw error;
     }
   };
