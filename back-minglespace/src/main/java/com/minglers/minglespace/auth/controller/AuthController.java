@@ -127,8 +127,12 @@ class AuthController {
 
     Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
+
     String email = authentication.getName();
     User user = usersManagementService.getUserByEmail(email);
+    if(user == null){
+      return ResponseEntity.ok(new UserResponse(AuthStatus.NotFoundAccount));
+    }
 
     UserResponse response = new UserResponse();
 
@@ -149,6 +153,10 @@ class AuthController {
   public ResponseEntity<UserResponse> getUserById(@PathVariable Long userId) {
 
     User user = usersManagementService.getUserById(userId);
+    if(user == null){
+      return ResponseEntity.ok(new UserResponse(AuthStatus.NotFoundAccount));
+    }
+
     UserResponse response = new UserResponse();
     modelMapper.map(user, response);
 

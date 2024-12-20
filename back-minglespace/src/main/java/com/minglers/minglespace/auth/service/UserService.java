@@ -213,10 +213,12 @@ public class UserService {
       if (opt.isPresent()) {
         return opt.get();
       } else {
-        throw new AuthException(HttpStatus.NOT_FOUND.value(), "유저를 찾을 수 없습니다");
+        log.info("[MIRO] getUserById : ", AuthStatus.NotFoundAccount);
+        return null;
       }
     }catch (Exception e){
-      throw new AuthException(HttpStatus.INTERNAL_SERVER_ERROR.value(), "예외 : 유저를 찾을 수 없습니다");
+      log.info("[MIRO] getUserById 에외 : ", AuthStatus.Exception);
+      return null;
     }
   }
 
@@ -228,60 +230,12 @@ public class UserService {
       if (opt.isPresent()) {
         return opt.get();
       } else {
-        throw new AuthException(HttpStatus.NOT_FOUND.value(), "유저를 찾을 수 없습니다");
+        log.info("[MIRO] getUserByEmail : ", AuthStatus.NotFoundAccount);
+        return null;
       }
     }catch (Exception e){
-      throw new AuthException(HttpStatus.INTERNAL_SERVER_ERROR.value(), "예외 : 유저를 찾을 수 없습니다");
+      log.info("[MIRO] getUserByEmail 에외 : ", AuthStatus.Exception);
+      return null;
     }
   }
-
-//    public UserResponse getUserById(Long id) {
-//
-//        UserResponse res = getUserResponse(usersRepo.findById(id));
-//
-//        log.info("");
-//        log.info("");
-//        log.info("getUserById");
-//        log.info(res.toString());
-//        log.info("");
-//        log.info("");
-//
-//        return res;
-//    }
-//
-//    public UserResponse getUserByEmail(String email) {
-//
-//        UserResponse res = getUserResponse(usersRepo.findByEmail(email));
-//
-//        log.info("");
-//        log.info("");
-//        log.info("getUserByEmail");
-//        log.info(res.toString());
-//        log.info("");
-//        log.info("");
-//
-//        return res;
-//    }
-
-//    private UserResponse getUserResponse (Optional<User> optionalUser){
-//
-//        UserResponse res = new UserResponse();
-//
-//        try {
-//
-//            if (optionalUser.isPresent()) {
-//
-//                modelMapper.map(optionalUser.get(), res);
-//
-//                res.setStatus(HttpStatus.OK);
-//                res.setMsg("유저 찾기 성공: " + res.getEmail());
-//            } else {
-//                res.setStatus(HttpStatus.NOT_FOUND);
-//            }
-//        }catch (Exception e){
-//            res.setStatus(HttpStatus.INTERNAL_SERVER_ERROR);
-//        }
-//
-//        return res;
-//    }
 }

@@ -8,7 +8,8 @@ import ProfileImage from "../common/Layouts/components/ProfileImage";
 import Repo from "./Repo";
 import AuthApi from "../api/AuthApi";
 import { HOST_URL } from "../api/Api";
-import { AuthStatusOk } from "../api/AuthStatus";
+import { AuthStatus, AuthStatusOk } from "../api/AuthStatus";
+import Modal from "../common/Layouts/components/Modal";
 
 //============================================================================================
 //============================================================================================
@@ -36,12 +37,19 @@ export default function UserInfoPopup() {
   const [selectedImage, setSelectedImage] = useState(null); // 선택된 이미지 파일 선택
   const fileInputRef = useRef(null);
 
+  const [message, setMessage] = useState(null);
+
+
   useEffect(() => {
+
     getUserInfo();
+
+
   }, []);
 
   // ESC 키를 누르면 팝업을 닫는 함수
   useEffect(() => {
+
     const handleEscape = (e) => {
       if (e.key === "Escape") {
         console.log("isOpen : ", isOpen);
@@ -82,9 +90,18 @@ export default function UserInfoPopup() {
   //============================================================================================
 
   const getUserInfo = async () => {
-    const res = await AuthApi.userInfo();
-    console.log("userInfo res : ", res);
-    setUserInfo(res);
+
+    const data = await AuthApi.userInfo();
+
+    if (AuthStatusOk(data.msStatus)) {
+      setUserInfo(data);
+    }else if(data.msStatus && AuthStatus[data.msStatus]){
+      setMessage({
+        title: "확인", 
+        content: AuthStatus[data.msStatus].desc,  
+      });
+    }
+
   };
 
   const handleClickOpen = async () => {
@@ -178,6 +195,16 @@ export default function UserInfoPopup() {
           size={50}
         />
       </button>
+
+      {message && (
+        <Modal open={message !== null} onClose={() => setMessage(null)}>
+          <div className="workspace_add_modal_container">
+            <p className="form-title">{message.title}</p>
+            <p>{message.content}</p>
+            <button type="submit" className="add_button" onClick={() => setMessage(null)}>확인</button>
+          </div>
+        </Modal>
+      )}
 
       {isOpen && (
         <div className="popup-content" ref={popupRef}>
