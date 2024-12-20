@@ -2,7 +2,6 @@ package com.minglers.minglespace.todo.service;
 
 import com.minglers.minglespace.auth.entity.User;
 import com.minglers.minglespace.auth.repository.UserRepository;
-import com.minglers.minglespace.todo.dto.TodoAssigneeResponseDTO;
 import com.minglers.minglespace.todo.dto.TodoRequestDTO;
 import com.minglers.minglespace.todo.dto.TodoResponseDTO;
 import com.minglers.minglespace.todo.entity.Todo;

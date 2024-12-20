@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { FiCornerDownRight, FiDownload } from "react-icons/fi";
+import { FiCornerDownRight, FiDownload, FiTrash2 } from "react-icons/fi";
 import { HOST_URL } from "../../api/Api";
 import ProfileImage from "../../common/Layouts/components/ProfileImage";
 import Lightbox from "react-18-image-lightbox";
@@ -16,9 +16,9 @@ const MessageListItem = ({
   currentMemberInfo,
   onMessageClick,
   onFindParentMessage,
-  parsedMessage,
   openAnnounceMentModal,
-  onDeleteMessage
+  openDeleteModal,
+  wsMembers
 }) => {
   const parentMessage = message.replyId
     ? onFindParentMessage(message.replyId)
@@ -40,14 +40,16 @@ const MessageListItem = ({
     if (src && src.trim() !== "") return `${HOST_URL}${src}`;
     else return null;
   };
+
+
   const formatMessage = (message) => {
     const regex = /@(\w+)/g;
-    console.log("Formatting message: ", message); // 메시지 형식화 확인
     return message
       .split(regex)
-      .map((part, index) =>
-        regex.test(`@${part}`) ? <strong key={index}>@{part}</strong> : part
-      );
+      .map((part, index) => {
+        const isMention = wsMembers.some((member) => member.name === part) || part === currentMemberInfo.name;
+        return isMention ? <span style={{ fontWeight: "bold", color: "#6495ED" }} key={index}>@{part}</span> : part;
+      });
   };
 
   const openLightbox = (index) => {
@@ -154,9 +156,9 @@ const MessageListItem = ({
       {/* 답장 내용 추가 */}
       {parentMessage && (
         <>
-          <div className="reply-to-text">{parentMessage.content}</div>
+          <div className="reply-to-text">{formatMessage(parentMessage.content)}</div>
           <div className="reply-line">--------------------------</div>
-          <div className="reply-text">{message.content}</div>
+          <div className="reply-text">{formatMessage(message.content)}</div>
         </>
       )}
 
@@ -232,6 +234,20 @@ const MessageListItem = ({
               }
             </span>
           )}
+        {/* 삭제 아이콘 */}
+        <button
+          className="delete-button"
+          onClick={() => openDeleteModal(message)}
+          style={{
+            backgroundColor: "transparent",
+            border: "none",
+            color: "red",
+            cursor: "pointer",
+            fontSize: "20px",
+          }}
+        >
+          <FiTrash2 />
+        </button>
       </div>
       {isImageOpen && (
         <Lightbox
@@ -258,7 +274,6 @@ const MessageListItem = ({
           ]}
         />
       )}
-
     </div >
   );
 };

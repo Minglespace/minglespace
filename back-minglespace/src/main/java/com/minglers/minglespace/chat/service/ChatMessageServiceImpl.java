@@ -1,7 +1,6 @@
 package com.minglers.minglespace.chat.service;
 
 import com.minglers.minglespace.auth.entity.User;
-import com.minglers.minglespace.chat.config.interceptor.CustomHandShakeInterceptor;
 import com.minglers.minglespace.chat.dto.ChatMsgRequestDTO;
 import com.minglers.minglespace.chat.dto.ChatMsgResponseDTO;
 import com.minglers.minglespace.chat.dto.MessageStatusDTO;
@@ -15,6 +14,7 @@ import com.minglers.minglespace.chat.repository.MsgReadStatusRepository;
 import com.minglers.minglespace.chat.repository.specification.ChatMessageSpecification;
 import com.minglers.minglespace.common.entity.Image;
 import com.minglers.minglespace.common.repository.ImageRepository;
+import com.minglers.minglespace.common.service.NotificationService;
 import com.minglers.minglespace.workspace.dto.MemberWithUserInfoDTO;
 import com.minglers.minglespace.workspace.entity.WSMember;
 import com.minglers.minglespace.workspace.repository.WSMemberRepository;
@@ -23,7 +23,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
@@ -40,18 +39,20 @@ public class ChatMessageServiceImpl implements ChatMessageService {
   private final ChatRoomRepository chatRoomRepository;
   private final WSMemberRepository wsMemberRepository;
   private final MsgReadStatusRepository msgReadStatusRepository;
+  private final ImageRepository imageRepository;
 
   private final MsgReadStatusService msgReadStatusService;
+  private final NotificationService notificationService;
   //알림
-  private final CustomHandShakeInterceptor customHandShakeInterceptor;
   private final SimpMessagingTemplate simpMessagingTemplate;
-  private final ImageRepository imageRepository;
+
 
   // 메시지 저장
   @Override
   @Transactional
   public ChatMsgResponseDTO saveMessage(ChatMsgRequestDTO messageDTO, Long writerUserId, Set<Long> activeUserIds) {
     try {
+      log.info("writerUserId: " + writerUserId);
       ChatRoom chatRoom = chatRoomRepository.findById(messageDTO.getChatRoomId())
               .orElseThrow(() -> new ChatException(HttpStatus.NOT_FOUND.value(), "채팅방이 존재하지 않습니다."));
 
@@ -69,38 +70,22 @@ public class ChatMessageServiceImpl implements ChatMessageService {
       List<Image> images = imageRepository.findAllById(messageDTO.getImageIds());
 
       ChatMessage chatMessage = messageDTO.toEntity(chatRoom, wsMember, parentMsg);
-      for(Image image: images){
+      for (Image image : images) {
         chatMessage.addImage(image);
       }
       ChatMessage savedMessage = chatMessageRepository.save(chatMessage);
 
-      //답글이면 부모 댓글에게 답글 달린 알림 보내기
-//      if (parentMsg != null) {
-//        sendReplyNotificationToUser(parentMsg);
-//      }
-//
-//      //멘션 알림
-//      if (messageDTO.getMentionedUserIds() != null && !messageDTO.getMentionedUserIds().isEmpty()) {
-//        for (Long mentionedUserId : messageDTO.getMentionedUserIds()) {
-//          sendMentionNotificationToUser(wsMember, savedMessage.getChatRoom().getName(), mentionedUserId);
-//        }
-//      }
+      //멘션 알림
+      if (messageDTO.getMentionedUserIds() != null && !messageDTO.getMentionedUserIds().isEmpty()) {
+        for (Long mentionedUserId : messageDTO.getMentionedUserIds()) {
+          log.info("멘션 보낸사람: " + wsMember.getId());
+          sendMentionNotificationToUser(wsMember, savedMessage.getChatRoom(), mentionedUserId);
+        }
+      }
 
       ////msgReadStatus 추가
       msgReadStatusService.createMsgForMembers(savedMessage, activeUserIds);
 
-      //messageDTO 정보 채우기
-//      ChatMsgResponseDTO resDTO = ChatMsgResponseDTO.builder()
-//              .id(savedMessage.getId())
-//              .content(messageDTO.getContent())
-//              .writerWsMemberId(wsMember.getId())
-//              .chatRoomId(messageDTO.getChatRoomId())
-//              .replyId(messageDTO.getReplyId())
-//              .date(savedMessage.getDate())
-//              .isAnnouncement(messageDTO.getIsAnnouncement())
-//              .imageUriPaths(imageUris)
-//              .documentUriPaths(documentUris)
-//              .build();
       List<MemberWithUserInfoDTO> unreadMembers = getUnreadMembers(messageDTO.getChatRoomId(), savedMessage.getId());
       ChatMsgResponseDTO resDTO = savedMessage.toDTO(unreadMembers);
 
@@ -115,18 +100,15 @@ public class ChatMessageServiceImpl implements ChatMessageService {
     }
   }
 
-  //답글 알림
-  private void sendReplyNotificationToUser(ChatMessage parentMsg) {
-    String sessionId = customHandShakeInterceptor.getSessionForUser(parentMsg.getWsMember().getUser().getId());
-    simpMessagingTemplate.convertAndSendToUser(sessionId, "/queue/notifications", "타 멤버가 유저의 댓글의 답글을 달았습니다.");
-  }
 
   //멘션 알림
-  private void sendMentionNotificationToUser(WSMember sendMember, String mentionedChatName, Long mentionedUserId) {
-    String sessionId = customHandShakeInterceptor.getSessionForUser(mentionedUserId);
-    String sendUsername = sendMember.getUser().getUsername();
-    String notifyMsg = sendUsername + "이 " + mentionedChatName + "채팅방에서 당신을 멘션하였습니다.";
-    simpMessagingTemplate.convertAndSendToUser(sessionId, "/queue/notifications", notifyMsg);
+  private void sendMentionNotificationToUser(WSMember sendMember, ChatRoom mentionedChat, Long mentionedUserId) {
+    log.info("sendMember: " + sendMember.getUser().getName() + " - 언급 대상: " + mentionedUserId);
+    String sendUsername = sendMember.getUser().getName();
+    String notifyMsg = sendUsername + "님께서 " + mentionedChat.getName() + "채팅방에서 당신을 멘션하였습니다.";
+    String path = "/workspace/" + mentionedChat.getWorkSpace().getId() + "/chat?chatRoomId=" + mentionedChat.getId();
+//    log.info("멘션 알림과 이어진 path: " + path);
+    notificationService.sendNotification(mentionedUserId, notifyMsg, path);
   }
 
   // 방 메시지 가져오기

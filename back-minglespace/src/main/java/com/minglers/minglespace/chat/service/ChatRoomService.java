@@ -9,6 +9,7 @@ import com.minglers.minglespace.workspace.entity.WSMember;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
+import java.util.Map;
 
 public interface ChatRoomService {
 
@@ -22,4 +23,5 @@ public interface ChatRoomService {
 
     ChatRoomResponseDTO getChatRoomWithMsgAndParticipants(Long chatRoomId, Long workspaceId, Long userId);
 
+    Map<String, Object> updateChatRoom(Long chatRoomId,String name,MultipartFile image, String isImageDelete);
 }

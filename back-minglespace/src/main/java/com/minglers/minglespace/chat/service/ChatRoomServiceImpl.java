@@ -25,10 +25,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -187,9 +184,9 @@ public class ChatRoomServiceImpl implements ChatRoomService {
 
     notifyReadStatus(chatRoomId, wsMember.getId()); //읽음 처리 알림보내기
 
-    Map<String, Object> messagesResponse = chatMessageService.getMessagesByChatRoom(chatRoomId,0,50);
-    List<ChatMsgResponseDTO> messages = (List<ChatMsgResponseDTO>)messagesResponse.get("messages");
-    boolean msgHasMore = (boolean)messagesResponse.get("msgHasMore");
+    Map<String, Object> messagesResponse = chatMessageService.getMessagesByChatRoom(chatRoomId, 0, 50);
+    List<ChatMsgResponseDTO> messages = (List<ChatMsgResponseDTO>) messagesResponse.get("messages");
+    boolean msgHasMore = (boolean) messagesResponse.get("msgHasMore");
     List<ChatRoomMemberDTO> participants = chatRoomMemberService.getParticipantsByChatRoomId(chatRoomId);
 
     String imageUriPath = (chatRoom.getImage() != null && chatRoom.getImage().getUripath() != null) ? chatRoom.getImage().getUripath() : "";
@@ -203,6 +200,52 @@ public class ChatRoomServiceImpl implements ChatRoomService {
             .imageUriPath(imageUriPath)
             .msgHasMore(msgHasMore)
             .build();
+  }
+
+  @Override
+  public Map<String, Object> updateChatRoom(Long chatRoomId, String name, MultipartFile image, String isImageDelete) {
+    ChatRoom chatRoom = chatRoomRepository.findById(chatRoomId)
+            .orElseThrow(() -> new ChatException(HttpStatus.NOT_FOUND.value(), "수정할 채팅방을 찾지 못했습니다."));
+    if (name != null && !name.isEmpty()) {
+      chatRoom.setName(name);
+    }
+    Image savedImage = chatRoom.getImage();
+    log.info("이미지가 null인가: " + image);
+
+    if ("true".equals(isImageDelete)) {
+      if (image != null && !image.isEmpty()) {
+        try {
+          if (savedImage != null) {
+            // 기존 이미지가 있으면 업데이트
+            savedImage = imageService.updateImage(savedImage, image);
+          } else {
+            // 기존 이미지가 없으면 새 이미지 업로드
+            savedImage = imageService.uploadImage(image);
+          }
+          chatRoom.setImage(savedImage);
+        } catch (IOException e) {
+          throw new ChatException(HttpStatus.INTERNAL_SERVER_ERROR.value(), "채팅방 이미지 수정 중 오류 발생: " + e.getMessage());
+        }
+      } else if (image == null || image.isEmpty()) {
+        if (savedImage != null) {
+          try {
+            log.info("기존 이미지 삭제 중...");
+            imageService.deleteImage(savedImage);
+            chatRoom.setImage(null);  // 이미지 필드를 null로 설정
+          } catch (IOException e) {
+            throw new ChatException(HttpStatus.INTERNAL_SERVER_ERROR.value(), "이미지 삭제 중 오류 발생: " + e.getMessage());
+          }
+        }
+      }
+    }
+
+    chatRoomRepository.save(chatRoom);
+
+    Map<String, Object> response = new HashMap<>();
+    response.put("chatRoomId", chatRoomId);
+    response.put("name", name != null && !name.isEmpty() ? name : chatRoom.getName());
+    response.put("imageUriPath", chatRoom.getImage() != null ? chatRoom.getImage().getUripath() : null);
+    return response;
   }
 
   private void notifyReadStatus(Long chatRoomId, Long wsMemberId) {

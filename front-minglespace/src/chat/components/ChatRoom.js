@@ -1,4 +1,4 @@
-﻿import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import ChatRoomHeader from "./ChatRoomHeader";
 import MessageList from "./MessageList";
 import MessageInput from "./MessageInput";
@@ -26,8 +26,6 @@ const ChatRoom = ({
   updateRoomParticipantCount,
   removeRoom,
 }) => {
-  const [message, setMessages] = useState("");
-
   const [chatRoomInfo, setChatRoomInfo] = useState(initChatRoomInfo);
   const [inviteMembers, setInviteMembers] = useState([]);
   const [isRoomOwner, setIsRoomOwner] = useState(false);
@@ -37,8 +35,8 @@ const ChatRoom = ({
   const [chatRoomId, setChatRoomId] = useState(
     new URLSearchParams(useLocation().search).get("chatRoomId")
   );
-  //messagelist 무한 스크롤
-  const [page, setPage] = useState(0);
+
+  const [page, setPage] = useState(0);//messagelist 무한 스크롤
 
   const location = useLocation();
   const navigate = useNavigate();
@@ -342,10 +340,14 @@ const ChatRoom = ({
               return { ...prev, messages: updatedMessages };
             });
           }
-
         });
 
-
+        //알림 구독
+        // stompClient.subscribe(`/user/queue/notifications`, (notice) => {
+        //   const noticeMsg = JSON.parse(notice.body);
+        //   console.log("새 알림: ", noticeMsg.message);
+        //   alert(noticeMsg.message);
+        // });
       },
       onWebSocketError: (error) => {
         console.log(`채팅방 ${chatRoomId}번 websocket 연결 오류:`, error);
@@ -371,8 +373,8 @@ const ChatRoom = ({
   }, [chatRoomId]);
 
 
-  // 메시지 전송 처리 함수 
-  const handleSendMessage = async (newMessage, files, messageContent) => {
+  // 메시지 전송 처리 함수  
+  const handleSendMessage = async (newMessage, files) => {
     try {
       let uploadedFileIds = [];
       if (files && files.length > 0) {
@@ -380,15 +382,10 @@ const ChatRoom = ({
         uploadedFileIds = uploadRes.imageIds;
       }
 
-      const mentionedUserIds =
-        newMessage.content
-          .match(/@\{(\d+)\|\|.+?\}/g)
-          ?.map((id) => id.match(/\d+/)[0]) || [];
-
       const sendMessage = {
         content: newMessage.content,
         isAnnouncement: false,
-        mentionedUserIds,
+        mentionedUserIds: newMessage.mentionedIds,
         replyId: newMessage.replyId,
         // sender: currentMemberInfo.name,
         workspaceId: chatRoomInfo.workSpaceId,
@@ -418,10 +415,6 @@ const ChatRoom = ({
     console.log("입력창에 표시된 답장 대상:", `${messages.text}`);
   };
 
-  const handleChange = (e, newValue) => {
-    setMessages(newValue);
-  };
-
   return (
     <div className={`chatroom-container ${isFold ? "folded" : ""}`}>
       <ChatRoomHeader
@@ -445,6 +438,7 @@ const ChatRoom = ({
         fetchMoreMessages={fetchMoreMessages}
         msgHasMore={chatRoomInfo.msgHasMore}
         currentChatRoomId={chatRoomId}
+        wsMembers={wsMembers}
       />
 
       <MessageInput
@@ -452,7 +446,7 @@ const ChatRoom = ({
         replyToMessage={replyToMessage}
         setReplyToMessage={setReplyToMessage}
         currentMemberInfo={currentMemberInfo}
-      // wsMembers={wsMembers}
+        wsMembers={wsMembers}
       />
     </div>
   );

@@ -9,94 +9,34 @@ import org.springframework.messaging.MessageChannel;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.messaging.simp.stomp.StompCommand;
 import org.springframework.messaging.simp.stomp.StompHeaderAccessor;
-import org.springframework.messaging.simp.user.SimpSession;
-import org.springframework.messaging.simp.user.SimpUserRegistry;
 import org.springframework.messaging.support.ChannelInterceptor;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Component;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.security.Principal;
+import java.util.*;
 import java.util.stream.Collectors;
-
-//웹소켓 연결 세션 관리
-//@Component
-//public class StompInterceptor implements ChannelInterceptor {
-//  private final JWTUtils jwtUtils;
-//  private final SimpMessagingTemplate simpMessagingTemplate;
-//  private final SimpUserRegistry simpUserRegistry;
-//
-//  @Autowired
-//  public StompInterceptor(JWTUtils jwtUtils,
-//                          SimpMessagingTemplate simpMessagingTemplate,
-//                          SimpUserRegistry simpUserRegistry) {
-//    this.jwtUtils = jwtUtils;
-//    this.simpMessagingTemplate = simpMessagingTemplate;
-//    this.simpUserRegistry = simpUserRegistry;
-//  }
-//
-//  @Override
-//  public Message<?> preSend(Message<?> message, MessageChannel channel) {
-//    StompHeaderAccessor accessor = StompHeaderAccessor.wrap(message);
-//    String token = accessor.getFirstNativeHeader("Authorization");
-//
-//    if (StompCommand.CONNECT.equals(accessor.getCommand()) && token != null) {
-//      token = token.substring(7);
-//      try {
-//        Long userId = jwtUtils.extractUserId(token);
-//        accessor.getSessionAttributes().put("userId", userId);
-//
-//        //인증객체 생성 및 세션에 설정
-//        Authentication authentication = new UsernamePasswordAuthenticationToken(userId.toString(), null);
-//        accessor.setUser(authentication);
-//
-//        System.out.println("websocket _ connect userId: " + userId);
-//      } catch (Exception e) {
-//        throw new ChatException(HttpStatus.BAD_REQUEST.value(), "웹소켓 연결 시 토큰 오류 발생");
-//      }
-//      ///token 유효한지 검사 필요한가
-////      UserDetails user
-////      jwtUtils.isTokenValid(accessor.getFirstNativeHeader("Authorization").substring(7), user)
-//    }
-//    return message;
-//  }
-//
-//  public Set<Long> getActiveUsersForChatRoom(Long chatRoomId) {
-//    return simpUserRegistry.getUsers().stream()
-//            .flatMap(user -> user.getSessions().stream())
-//            .filter(session -> session.getSubscriptions().stream()
-//                    .anyMatch(sub -> sub.getDestination().equals("/topic/chatRooms/" + chatRoomId + "/msg")))
-//            .map(session -> Long.parseLong(session.getUser().getName()))
-//            .collect(Collectors.toSet());
-//  }
-//
-//  //특정 유저에게 메시지 보낼 때
-//  public void sendMessageToUser(Long userId, String message) {
-//    Set<SimpSession> userSessions = simpUserRegistry.getUsers().stream()
-//            .filter(user -> user.getName().equals(String.valueOf(userId)))
-//            .flatMap(user -> user.getSessions().stream())
-//            .collect(Collectors.toSet());
-//
-//    userSessions.forEach(session -> simpMessagingTemplate.convertAndSendToUser(session.getId(), "/queue/messages", message));
-//  }
-//}
 
 
 @Component
 public class StompInterceptor implements ChannelInterceptor {
   private final JWTUtils jwtUtils;
   private final SimpMessagingTemplate simpMessagingTemplate;
+  private final UserDetailsService userDetailsService;
   private final Map<Long, Set<String>> userSessions = new HashMap<>();
   private final Map<Long, Set<String>> userSubscriptions = new HashMap<>();
 
   @Autowired
   public StompInterceptor(JWTUtils jwtUtils,
-                          SimpMessagingTemplate simpMessagingTemplate) {
+                          SimpMessagingTemplate simpMessagingTemplate,
+                          UserDetailsService userDetailsService) {
     this.jwtUtils = jwtUtils;
     this.simpMessagingTemplate = simpMessagingTemplate;
+    this.userDetailsService =userDetailsService;
   }
 
   @Override
@@ -106,20 +46,24 @@ public class StompInterceptor implements ChannelInterceptor {
 
     if (StompCommand.CONNECT.equals(accessor.getCommand()) && token != null) {
       token = token.substring(7);
+      System.out.println("웹소켓 연결 요청한 유저의 토큰: " + token);
       try {
         Long userId = jwtUtils.extractUserId(token);
         String sessionId = accessor.getSessionId();
+        UserDetails userDetails = userDetailsService.loadUserByUsername(jwtUtils.extractUsername(token));
 
-        userSessions.computeIfAbsent(userId, k -> new HashSet<>()).add(sessionId);
-        accessor.getSessionAttributes().put("userId", userId);
+        if(jwtUtils.isTokenValid(token, userDetails)){
+//          UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(userId.toString(), null, userDetails.getAuthorities());
+//          SecurityContextHolder.getContext().setAuthentication(authenticationToken);
+//          accessor.setUser(authenticationToken);
 
-        System.out.println("websocket _ connect userId: " + userId);
+          userSessions.computeIfAbsent(userId, k -> new HashSet<>()).add(sessionId);
+          accessor.getSessionAttributes().put("userId", userId);
+          System.out.println("websocket _ connect userId: " + userId);
+        }
       } catch (Exception e) {
         throw new ChatException(HttpStatus.BAD_REQUEST.value(), "웹소켓 연결 시 토큰 오류 발생");
       }
-      ///token 유효한지 검사 필요한가
-//      UserDetails user
-//      jwtUtils.isTokenValid(accessor.getFirstNativeHeader("Authorization").substring(7), user)
     }else if (StompCommand.SUBSCRIBE.equals(accessor.getCommand())){
       Long userId = (Long) accessor.getSessionAttributes().get("userId");
       String destination = accessor.getDestination();
@@ -155,7 +99,7 @@ public class StompInterceptor implements ChannelInterceptor {
     return message;
   }
 
-
+  //나중에 common에 알림 관련 클래스 생기면 거기로 가자.
   public void sendMessageToUser(Long userId, String message) {
     Set<String> sessions = userSessions.get(userId);
     if (sessions != null) {
@@ -165,10 +109,6 @@ public class StompInterceptor implements ChannelInterceptor {
 
   public Set<String> getSessionForUser(Long userId) {
     return userSessions.get(userId);
-  }
-
-  public void addSession(Long userId, String sessionId) {
-    userSessions.computeIfAbsent(userId, k -> new HashSet<>()).add(sessionId);
   }
 
   public void removeSession(Long userId, String sessionId) {
@@ -182,6 +122,7 @@ public class StompInterceptor implements ChannelInterceptor {
     userSubscriptions.remove(userId);
   }
 
+  //경로를 구독중인 유저들의 id 추출
   public Set<Long> getActiveUsersForSubscription(String destination){
     //entrySet > 키-값 쌍 객체로 getKey, getValue함수를 포함.
     return userSubscriptions.entrySet().stream()
@@ -191,3 +132,5 @@ public class StompInterceptor implements ChannelInterceptor {
   }
 
 }
+
+

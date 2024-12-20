@@ -6,6 +6,7 @@ import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.ColumnDefault;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -24,9 +25,9 @@ public class Todo {
   private String title;
   private String content;
   @Column(name ="start_date")
-  private Long startDate;
+  private LocalDateTime startDate;
   @Column(name="end_date")
-  private Long endDate;
+  private LocalDateTime endDate;
   @ColumnDefault("false")
   private boolean complete;
 
@@ -75,11 +76,11 @@ public class Todo {
     this.content = content;
   }
 
-  public void changeStart_date(Long start_date) {
+  public void changeStart_date(LocalDateTime start_date) {
     this.startDate = start_date;
   }
 
-  public void changeEnd_date(Long end_date) {
+  public void changeEnd_date(LocalDateTime end_date) {
     this.endDate = end_date;
   }
 

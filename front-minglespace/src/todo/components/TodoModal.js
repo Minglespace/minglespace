@@ -3,12 +3,13 @@ import Modal from "../../common/Layouts/components/Modal";
 import { useParams } from "react-router-dom";
 import MembersApi from "../../api/membersApi";
 import Userinfo from "../../common/Layouts/components/Userinfo";
+import { formatDateToKST } from "../../common/DateFormat/dateUtils";
 
 const initTodo = {
   title: "",
   content: "",
-  start_date: Date.now(),
-  end_date: Date.now(),
+  start_date: formatDateToKST(Date.now()),
+  end_date: formatDateToKST(Date.now()),
   wsMember_id: [], // 필드 이름 수정
 };
 
@@ -44,7 +45,7 @@ const TodoModal = React.memo(
     const handleChangeNewTodo = (e) => {
       const { name, value } = e.target;
       if (name === "start_date" || name === "end_date") {
-        newTodo[name] = new Date(value).getTime();
+        newTodo[name] = formatDateToKST(value);
       } else {
         newTodo[name] = value;
       }
@@ -143,16 +144,12 @@ const TodoModal = React.memo(
               )}
               <br /> <span>시작일 : </span>
               {editingTodo && role !== "LEADER" && role !== "SUB_LEADER" ? (
-                <p>
-                  {new Date(newTodo.start_date).toISOString().split("T")[0]}
-                </p>
+                <p>{formatDateToKST(newTodo.start_date).split("T")[0]}</p>
               ) : (
                 <input
                   name="start_date"
                   type="date"
-                  value={
-                    new Date(newTodo.start_date).toISOString().split("T")[0]
-                  }
+                  value={formatDateToKST(newTodo.start_date).split("T")[0]}
                   onChange={handleChangeNewTodo}
                   readOnly={
                     editingTodo && role !== "LEADER" && role !== "SUB_LEADER"
@@ -161,12 +158,12 @@ const TodoModal = React.memo(
               )}
               <br /> <span>마감일 : </span>
               {editingTodo && role !== "LEADER" && role !== "SUB_LEADER" ? (
-                <p>{new Date(newTodo.end_date).toISOString().split("T")[0]}</p>
+                <p>{formatDateToKST(newTodo.end_date).split("T")[0]}</p>
               ) : (
                 <input
                   name="end_date"
                   type="date"
-                  value={new Date(newTodo.end_date).toISOString().split("T")[0]}
+                  value={formatDateToKST(newTodo.end_date).split("T")[0]}
                   onChange={handleChangeNewTodo}
                   readOnly={
                     editingTodo && role !== "LEADER" && role !== "SUB_LEADER"

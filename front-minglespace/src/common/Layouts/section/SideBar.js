@@ -17,10 +17,10 @@ const SideBar = () => {
             <p>*****</p>
             <p>*****</p>
             <li>
-              <Link to="/calendar/">Calendar</Link>
+              <Link to={`/workspace/${workspaceId}/mileStone`}>MileStone</Link>
             </li>
             <li>
-              <Link to={`/workspace/${workspaceId}/mileStone`}>MileStone</Link>
+              <Link to={`/workspace/${workspaceId}/calendar`}>Calendar</Link>
             </li>
             <li>
               <Link to={`/workspace/${workspaceId}/chat`}>ChatRoom</Link>

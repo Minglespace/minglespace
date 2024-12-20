@@ -93,8 +93,7 @@ public class ImageServiceImpl implements ImageService{
 
   // 파일 삭제 (Delete) - test 필요
   @Override
-  public void deleteImage(Long id) {
-    Image image = getImageById(id);
+  public void deleteImage(Image image) throws IOException {
     if (image != null) {
       File file = new File(image.getLocalpath());
       if (file.exists()) {
@@ -102,6 +101,25 @@ public class ImageServiceImpl implements ImageService{
       }
       imageRepository.delete(image);
     }
+  }
+
+  //이미지 업데이트
+  @Override
+  public Image updateImage(Image oldImage, MultipartFile newFile) throws IOException{
+    if(oldImage != null && oldImage.getLocalpath() != null){
+      File existingFile = new File(oldImage.getLocalpath());
+      if(existingFile.exists() && existingFile.delete()){
+        log.info("old image deleted: " + oldImage.getLocalpath());
+      }else{
+        log.warn("failed to delete old image or file not found: " + oldImage.getLocalpath());
+      }
+      imageRepository.delete(oldImage);
+    }
+
+    if (newFile != null && !newFile.isEmpty()){
+      return uploadImage(newFile);
+    }
+    return null;
   }
 
   @Override

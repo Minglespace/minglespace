@@ -11,8 +11,6 @@ import org.springframework.data.repository.query.Param;
 import java.util.List;
 
 public interface TodoRepository extends JpaRepository<Todo, Long> {
-  @Query("SELECT t FROM Todo t JOIN t.todoAssigneeList a WHERE a.wsMember.id = :wsMemberId")
-  List<Todo> findTodosByAssigneeWsMemberId(@Param("wsMemberId") Long wsMemberId);
 
   @Query("SELECT t FROM Todo t WHERE t.workSpace.id = :workspaceId AND (" +
           "LOWER(REPLACE(CAST(t.title AS string), ' ', '')) LIKE LOWER(REPLACE(CONCAT('%', :searchKeyword, '%'), ' ', '')) OR " +
