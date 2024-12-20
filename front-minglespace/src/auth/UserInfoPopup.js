@@ -35,6 +35,8 @@ export default function UserInfoPopup() {
     socialLogin:"",
   });
 
+  const [initialUserInfo, setInitialUserInfo] = useState(null); // 초기 상태 저장
+
   const [selectedImage, setSelectedImage] = useState(null); // 선택된 이미지 파일 선택
   const fileInputRef = useRef(null);
 
@@ -99,6 +101,9 @@ export default function UserInfoPopup() {
 
     if (AuthStatusOk(data.msStatus)) {
       setUserInfo(data);
+      setInitialUserInfo({ ...data }); // 초기 상태 저장
+      console.log("저장 data : ", data);
+
     }else if(data.msStatus && AuthStatus[data.msStatus]){
       setMessage({
         title: "확인", 
@@ -119,7 +124,6 @@ export default function UserInfoPopup() {
 
   const handleClickSetting = () => {
     setIsEditing(true);
-    console.log("isEditing : ", isEditing);
   };
 
   const handleClickLogout = async () => {
@@ -139,22 +143,63 @@ export default function UserInfoPopup() {
   };
 
   const handleSaveChanges = async () => {
-    userInfo.dontUseProfileImage = dontUseProfileImage;
-    const data = await AuthApi.updateUserInfo(userInfo, userInfo.localImage);
-    if (AuthStatusOk(data.msStatus)) {
-      setUserInfo(prevUserInfo => ({
-        ...prevUserInfo,
-        profileImagePath: data.profileImagePath,
-        name: data.name,
-        position: data.position,
-        phone: data.phone,
-        introduction: data.introduction,
-        socialLogin: data.socialLogin,
-      }));
+    
+    const changedFields = compareUserInfo(initialUserInfo, userInfo); // 변경된 필드 찾기
+
+    if (Object.keys(changedFields).length > 0) {
+      console.log("변경된 필드가 있으면 서버로 전송");
+      userInfo.dontUseProfileImage = dontUseProfileImage;
+      
+      console.log("변경 before : ", changedFields);
+      const data = await AuthApi.updateUserInfo(changedFields, userInfo.localImage);
+      console.log("변경 after : ", data);
+
+      if (AuthStatusOk(data.msStatus)) {
+        setUserInfo(prevUserInfo => ({
+          ...prevUserInfo,
+          profileImagePath: data.profileImagePath,
+          name: data.name,
+          position: data.position,
+          phone: data.phone,
+          introduction: data.introduction,
+          socialLogin: data.socialLogin,
+        }));
+        setIsEditing(false);
+      }
+    } else {
+      console.log("변경된 필드가 없으면 그냥 종료");
       setIsEditing(false);
     }
+
+
+    // userInfo.dontUseProfileImage = dontUseProfileImage;
+    // const data = await AuthApi.updateUserInfo(userInfo, userInfo.localImage);
+    // if (AuthStatusOk(data.msStatus)) {
+    //   setUserInfo(prevUserInfo => ({
+    //     ...prevUserInfo,
+    //     profileImagePath: data.profileImagePath,
+    //     name: data.name,
+    //     position: data.position,
+    //     phone: data.phone,
+    //     introduction: data.introduction,
+    //     socialLogin: data.socialLogin,
+    //   }));
+    //   setIsEditing(false);
+    // }
   };
 
+  // 변경된 필드만 추적하는 함수
+  const compareUserInfo = (initial, current) => {
+    let changes = {};
+    for (let key in initial) {
+      if (initial[key] !== current[key]) {
+        changes[key] = current[key];
+      }
+    }
+    return changes;
+  };
+
+  
   const handleImageChange = (e) => {
     const file = e.target.files ? e.target.files[0] : null;
     if (file) {

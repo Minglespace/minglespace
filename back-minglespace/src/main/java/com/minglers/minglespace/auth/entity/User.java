@@ -1,6 +1,7 @@
 package com.minglers.minglespace.auth.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.minglers.minglespace.auth.dto.UserResponse;
 import com.minglers.minglespace.auth.type.Provider;
 import com.minglers.minglespace.common.entity.Image;
 import com.minglers.minglespace.workspace.entity.WSMember;
@@ -10,9 +11,11 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
+import org.modelmapper.ModelMapper;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.time.LocalDateTime;
 import java.util.Collection;
@@ -75,6 +78,26 @@ public class User implements UserDetails {
 
   public boolean isSocialProvider(){
     return (this.getProvider() != Provider.MINGLESPACE);
+  }
+
+  public void change(
+          ModelMapper modelMapper,
+          Image image,
+          PasswordEncoder passwordEncoder,
+          User from,
+          boolean dontUse){
+
+    modelMapper.map(from, this);
+
+    if (from.getPassword() != null && !from.getPassword().isEmpty()) {
+      this.setPassword(passwordEncoder.encode(from.getPassword()));
+    }
+
+    if(dontUse){
+      this.image = null;
+    }else if(image != null){
+      this.image = image;
+    }
   }
 
   //=============================================================

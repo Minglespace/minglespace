@@ -1,6 +1,5 @@
 package com.minglers.minglespace.auth.controller;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.minglers.minglespace.auth.dto.*;
 import com.minglers.minglespace.auth.entity.User;
 import com.minglers.minglespace.auth.security.JWTUtils;
@@ -33,13 +32,12 @@ import java.util.concurrent.CompletableFuture;
 @RequiredArgsConstructor
 class AuthController {
 
-  private final UserService usersManagementService;
+  private final UserService userService;
   private final TokenBlacklistService tokenBlacklistService;
   private final JWTUtils jwtUtils;
   private final AuthEmailService authEmailService;
   private final ImageService imageService;
   private final ModelMapper modelMapper;
-  private final ObjectMapper objectMapper;
 
   @PostMapping("/auth/signup")
   public ResponseEntity<DefaultResponse> signup(@RequestBody SignupRequest reg, HttpServletRequest request) throws MessagingException {
@@ -51,7 +49,7 @@ class AuthController {
     reg.setVerificationCode(code);
 
     // 회원가입 서비스 진행
-    DefaultResponse res = usersManagementService.signup(reg);
+    DefaultResponse res = userService.signup(reg);
     if(res.equals(AuthStatus.Ok)){
 
       log.info("비동기 이메일 전송 - Before");
@@ -81,7 +79,7 @@ class AuthController {
 
   @PostMapping("/auth/login")
   public ResponseEntity<LoginResponse> login(@RequestBody LoginRequest req, HttpServletResponse response) {
-    return ResponseEntity.ok(usersManagementService.login(req, response));
+    return ResponseEntity.ok(userService.login(req, response));
   }
 
   @PostMapping("auth/logout")
@@ -129,39 +127,32 @@ class AuthController {
 
 
     String email = authentication.getName();
-    User user = usersManagementService.getUserByEmail(email);
+    User user = userService.getUserByEmail(email);
     if(user == null){
       return ResponseEntity.ok(new UserResponse(AuthStatus.NotFoundAccount));
     }
 
     UserResponse response = new UserResponse();
 
-    modelMapper.map(user, response);
-
-    Image image = user.getImage();
-    if(image != null){
-      response.setProfileImagePath(image.getUripath());
-    }
-
-    response.setSocialLogin(user.isSocialProvider());
+    response.map(modelMapper, user);
 
     response.setStatus(AuthStatus.Ok);
     return ResponseEntity.ok(response);
   }
 
-  @GetMapping("/auth/user/{userId}")
-  public ResponseEntity<UserResponse> getUserById(@PathVariable Long userId) {
-
-    User user = usersManagementService.getUserById(userId);
-    if(user == null){
-      return ResponseEntity.ok(new UserResponse(AuthStatus.NotFoundAccount));
-    }
-
-    UserResponse response = new UserResponse();
-    modelMapper.map(user, response);
-
-    return ResponseEntity.ok(response);
-  }
+//  @GetMapping("/auth/user/{userId}")
+//  public ResponseEntity<UserResponse> getUserById(@PathVariable Long userId) {
+//
+//    User user = userService.getUserById(userId);
+//    if(user == null){
+//      return ResponseEntity.ok(new UserResponse(AuthStatus.NotFoundAccount));
+//    }
+//
+//    UserResponse response = new UserResponse();
+//    modelMapper.map(user, response);
+//
+//    return ResponseEntity.ok(response);
+//  }
 
   @PutMapping("/auth/update")
   public ResponseEntity<DefaultResponse> updateUser(
@@ -175,7 +166,7 @@ class AuthController {
     Image saveFile = null;
     if (image == null) {
       if(req.isDontUseProfileImage()){
-        updateUser.setImage(saveFile);
+        updateUser.setImage(null);
       }
     }else{
       try {
@@ -186,7 +177,7 @@ class AuthController {
       }
     }
 
-    UserResponse res = usersManagementService.updateUser(updateUser, saveFile);
+    UserResponse res = userService.updateUser(updateUser, saveFile, req.isDontUseProfileImage());
 
     if(saveFile != null){
       res.setProfileImagePath(saveFile.getUripath());
@@ -197,7 +188,7 @@ class AuthController {
 
   @DeleteMapping("/auth/delete/{userId}")
   public ResponseEntity<DefaultResponse> deleteUSer(@PathVariable Long userId) {
-    return ResponseEntity.ok(usersManagementService.deleteUser(userId));
+    return ResponseEntity.ok(userService.deleteUser(userId));
   }
 
 }

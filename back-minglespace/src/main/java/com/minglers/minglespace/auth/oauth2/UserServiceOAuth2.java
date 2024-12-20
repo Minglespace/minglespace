@@ -136,7 +136,17 @@ public class UserServiceOAuth2 extends DefaultOAuth2UserService {
 
     Optional<User> userOpt = userRepository.findByEmail(responseOAuth2.getEmail());
 
-    User user = userOpt.isPresent() ? userOpt.get() : new User();
+    User user = null;
+
+    if(userOpt.isPresent()){
+      user = userOpt.get();
+    }else{
+      user = new User();
+
+      // 신규 소셜유저 비번은 필요없지만 에러방지 위해 넣어준다.
+      user.setPassword("password");
+      user.setRole("ROLE_USER");
+    }
 
     Provider provider = user.getProvider();
 
@@ -149,8 +159,6 @@ public class UserServiceOAuth2 extends DefaultOAuth2UserService {
 
       return new OAuth2UserMs(user, AuthStatus.AlreadyJoinedEmail);
     }
-
-    log.info("[MIRO] 신규 또는 기존 유저 입니다.");
 
     // 소셜에서 받은 정보로 채움
     user.setName(responseOAuth2.getName());
@@ -167,12 +175,6 @@ public class UserServiceOAuth2 extends DefaultOAuth2UserService {
     } catch (IOException | InterruptedException e) {
       throw new RuntimeException(e);
     }
-
-    // 소셜유저 비번은 필요없지만 에러방지 위해 넣어준다.
-    user.setPassword("password");
-    user.setRole("ROLE_USER");
-    user.setIntroduction("");
-    user.setPosition("");
 
     // 디비 저장
     User userResult = userRepository.save(user);

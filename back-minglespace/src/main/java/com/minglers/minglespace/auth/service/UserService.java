@@ -162,7 +162,7 @@ public class UserService {
     return res;
   }
 
-  public UserResponse updateUser(User updateUser, Image image) {
+  public UserResponse updateUser(User updateUser, Image image, boolean dontUse) {
 
     Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
@@ -170,10 +170,10 @@ public class UserService {
 
     Long userId = user.getId();
 
-    return updateUser(userId, updateUser, image);
+    return updateUser(userId, updateUser, image,dontUse);
   }
 
-  public UserResponse updateUser(Long userId, User updateUser, Image image) {
+  public UserResponse updateUser(Long userId, User updateUser, Image image, boolean dontUse) {
 
     UserResponse res = new UserResponse();
 
@@ -183,17 +183,11 @@ public class UserService {
       if (userOptional.isPresent()) {
         User existingUser = userOptional.get();
 
-        modelMapper.map(updateUser, existingUser);
-
-        if (updateUser.getPassword() != null && !updateUser.getPassword().isEmpty()) {
-          existingUser.setPassword(passwordEncoder.encode(updateUser.getPassword()));
-        }
-
-        existingUser.setImage(image);
+        existingUser.change(modelMapper, image, passwordEncoder, updateUser, dontUse);
 
         User savedUser = usersRepo.save(existingUser);
 
-        modelMapper.map(savedUser, res);
+        res.map(modelMapper, savedUser);
 
         res.setStatus(AuthStatus.Ok);
       } else {
