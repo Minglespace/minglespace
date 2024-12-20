@@ -7,11 +7,12 @@ import Timeline, {
 // make sure you include the timeline stylesheet or the timeline will not be styled
 // import "react-calendar-timeline/styles.css";
 import moment from "moment";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useContext } from "react";
 import MilestoneApi from "../../api/milestoneApi";
 import { useParams } from "react-router-dom";
 import MileStoneModal from "./MileStoneModal";
 import MileStoneHelpModal from "./MileStoneHelpModal";
+import { WSMemberRoleContext } from "../../workspace/context/WSMemberRoleContext";
 
 const initGroup = [{ id: 0, title: "" }];
 
@@ -39,7 +40,9 @@ const MileStoneComponent = () => {
   const [newEndTime, setNewEndTime] = useState("");
   const [mode, setMode] = useState("default");
   const [newTaskStatus, setNewTaskStatus] = useState("");
-  const [status, setStatus] = useState("");
+  const {
+    wsMemberData: { role },
+  } = useContext(WSMemberRoleContext);
 
   console.error = (...args) => {
     if (args[0].includes("React keys must be passed directly to JSX")) {
@@ -222,36 +225,40 @@ const MileStoneComponent = () => {
 
   //캔버스 클릭 핸들러(아이템 추가)
   const handleCanvasClick = (groupId, time) => {
-    const unitTime = calculateUnit();
-    const startAndEndTime = calStartAndEndTime(unitTime, time);
+    if (role === "LEADER" || role === "SUB_LEADER") {
+      const unitTime = calculateUnit();
+      const startAndEndTime = calStartAndEndTime(unitTime, time);
 
-    const startOfTime = startAndEndTime.startTime;
-    const endOfTime = startAndEndTime.endTime;
-    const newItem = {
-      groupid: groupId,
-      title: "New item",
-      start_time: startOfTime,
-      end_time: endOfTime,
-      taskStatus: "NOT_START",
-    };
+      const startOfTime = startAndEndTime.startTime;
+      const endOfTime = startAndEndTime.endTime;
+      const newItem = {
+        groupid: groupId,
+        title: "New item",
+        start_time: startOfTime,
+        end_time: endOfTime,
+        taskStatus: "NOT_START",
+      };
 
-    MilestoneApi.postAddItem(workspaceId, groupId, newItem).then(
-      ({ id, title, start_time, end_time, taskStatus }) => {
-        console.log(newItem.taskStatus);
-        setItems([
-          ...items,
-          {
-            id,
-            group: groupId,
-            title,
-            start_time,
-            end_time,
-            taskStatus,
-          },
-        ]);
-      }
-    );
-    console.log("add : ", items);
+      MilestoneApi.postAddItem(workspaceId, groupId, newItem).then(
+        ({ id, title, start_time, end_time, taskStatus }) => {
+          console.log(newItem.taskStatus);
+          setItems([
+            ...items,
+            {
+              id,
+              group: groupId,
+              title,
+              start_time,
+              end_time,
+              taskStatus,
+            },
+          ]);
+        }
+      );
+      console.log("add : ", items);
+    } else {
+      return false;
+    }
   };
 
   //그룹 추가 핸들러
@@ -266,25 +273,36 @@ const MileStoneComponent = () => {
 
   //아이템 더블클릭 핸들러(아이템 title 수정)
   const handleItemDoubleClick = (itemId) => {
-    const item = items.find((i) => i.id === itemId);
-    setSelectedItem(item);
-    setSelectedGroup(null);
-    setNewTitle(item.title);
-    setNewStartTime(moment(item.start_time).format("YYYY-MM-DDTHH:mm"));
-    setNewEndTime(moment(item.end_time).format("YYYY-MM-DDTHH:mm"));
-    setNewTaskStatus(item.taskStatus);
-    setMode("default");
-    setModalOpen(true);
+    console.log("role : ", role);
+    if (role === "LEADER" || role === "SUB_LEADER") {
+      const item = items.find((i) => i.id === itemId);
+      setSelectedItem(item);
+      setSelectedGroup(null);
+      setNewTitle(item.title);
+      setNewStartTime(moment(item.start_time).format("YYYY-MM-DDTHH:mm"));
+      setNewEndTime(moment(item.end_time).format("YYYY-MM-DDTHH:mm"));
+      setNewTaskStatus(item.taskStatus);
+      setMode("default");
+      setModalOpen(true);
+      console.log("true");
+    } else {
+      console.log("false");
+      return false;
+    }
   };
 
   //그룹 수정을 위한 더블클릭 이벤트 처리
   const handleGroupDoubleClick = (groupId) => {
-    const group = groups.find((i) => i.id === groupId);
-    setSelectedGroup(group);
-    setSelectedItem(null);
-    setNewTitle(group.title);
-    setMode("titleOnly");
-    setModalOpen(true);
+    if (role === "LEADER" || role === "SUB_LEADER") {
+      const group = groups.find((i) => i.id === groupId);
+      setSelectedGroup(group);
+      setSelectedItem(null);
+      setNewTitle(group.title);
+      setMode("titleOnly");
+      setModalOpen(true);
+    } else {
+      return false;
+    }
   };
 
   //모달창 닫는 함수
@@ -440,7 +458,11 @@ const MileStoneComponent = () => {
     >
       <div className="milestone_header">
         <div className="milestone_group_add_button">
-          <button onClick={handleGroupAdd}>그룹 추가하기</button>
+          {role === "LEADER" || role === "SUB_LEADER" ? (
+            <button onClick={handleGroupAdd}>그룹 추가하기</button>
+          ) : (
+            <></>
+          )}
         </div>
         <div className="milestone_category">
           <p>전체 작업 : {total}건</p>

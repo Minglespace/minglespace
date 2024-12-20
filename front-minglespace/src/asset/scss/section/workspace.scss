@@ -48,6 +48,9 @@
   background: #8034fc; /* 호버 시 스크롤바 색상 */
 }
 
+.workspace_member_count {
+  display: flex;
+}
 .workspace_item_container {
   width: 95%;
   height: 100px;
@@ -103,6 +106,34 @@
   }
   .menu_item:hover {
     background-color: #f5f5f5;
+  }
+  .workspace_milestone_category {
+    display: flex;
+    width: auto;
+    border: 1px solid #000;
+    justify-content: end;
+    align-items: center;
+    div {
+      margin-right: 10px;
+      width: 10px;
+      height: 10px;
+      border: 1px solid;
+    }
+    p {
+      margin-right: 20px;
+    }
+    .workspace_not_start {
+      background-color: #c8c8c8;
+    }
+    .workspace_inprogress {
+      background-color: #2eeb3a;
+    }
+    .workspace_completed {
+      background-color: #3e63eb;
+    }
+    .workspace_on_hold {
+      background-color: #ea7436;
+    }
   }
 }
 

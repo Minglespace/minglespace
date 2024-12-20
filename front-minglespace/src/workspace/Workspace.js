@@ -78,6 +78,7 @@ const Workspace = () => {
             name={workspace.name}
             count={workspace.count}
             wsdesc={workspace.wsdesc}
+            data={workspace.milestoneTaskStatusDTO}
             onClick={() => moveToRead(workspace)}
             // 클릭 시 현재 id정보를 매개변수로 url을 지정하여 이동함
             // WorkspaceItem은 워크스페이스에 대한 모든 정보를 props로 가지도록 함

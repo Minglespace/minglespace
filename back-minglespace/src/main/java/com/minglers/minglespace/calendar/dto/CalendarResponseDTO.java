@@ -1,29 +1,25 @@
-package com.minglers.minglespace.todo.dto;
+package com.minglers.minglespace.calendar.dto;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.minglers.minglespace.common.converter.LocalDateTimeConverter;
+import com.minglers.minglespace.workspace.entity.WorkSpace;
 import lombok.*;
+import org.springframework.web.bind.annotation.GetMapping;
 
 import java.time.LocalDateTime;
-import java.util.List;
 
+@Getter
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
 @ToString
-@Getter
-@Builder
-public class TodoRequestDTO {
+public class CalendarResponseDTO {
   private Long id;
   private String title;
-  private String content;
-
+  private String description;
+  private String type;
   @JsonDeserialize(using = LocalDateTimeConverter.class)
-  private LocalDateTime start_date;
+  private LocalDateTime start;
   @JsonDeserialize(using = LocalDateTimeConverter.class)
-  private LocalDateTime end_date;
-
-  private boolean complete;
-  private String creator_name;
-  private List<Long> assignee_id;
-  private List<Long> wsMember_id;
+  private LocalDateTime end;
 }

@@ -29,7 +29,7 @@ public class TodoController {
   private final WorkspaceService workspaceService;
   private final JWTUtils jwtUtils;
 
-  @GetMapping({"/search", "/search/{searchKeyword}"}) //유저용 (자신이 만든것 + 자신에게 부여된것)
+  @GetMapping({"/search", "/search/{searchKeyword}"}) //유저용 (본인이 작업해야 하는 것)
   public ResponseEntity<Slice<TodoResponseDTO>> getTodo(@RequestHeader("Authorization") String token,
                                                         @PathVariable(value = "searchKeyword", required = false) String searchKeyword,
                                                         @PathVariable("workspaceId") Long workspaceId,

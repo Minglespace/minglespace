@@ -8,8 +8,7 @@ const Signup = lazy(() => import("../auth/SignupPage"));
 const Main = lazy(() => import("../page/MainPage"));
 const Chat = lazy(() => import("../page/ChatPage"));
 const Todo = lazy(() => import("../page/TodoPage"));
-// const Calendar = lazy(() => import("../page/Calendar"));
-// const Milestone = lazy(() => import("../page/Milestone"));
+const Calendar = lazy(() => import("../page/CalendarPage"));
 const Workspace = lazy(() => import("../page/WorkspacePage"));
 const MyFriends = lazy(() => import("../page/MyFriendsPage"));
 const MileStone = lazy(() => import("../page/MileStonePage"));
@@ -53,6 +52,10 @@ const root = createBrowserRouter([
   {
     path: "/workspace/:workspaceId/member",
     element: <SuspenseWithPrivateRoute page={Member} />,
+  },
+  {
+    path: "/workspace/:workspaceId/calendar",
+    element: <SuspenseWithPrivateRoute page={Calendar} />,
   },
 
   // Suspense

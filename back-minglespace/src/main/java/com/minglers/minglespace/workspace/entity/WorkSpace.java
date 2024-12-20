@@ -1,5 +1,6 @@
 package com.minglers.minglespace.workspace.entity;
 
+import com.minglers.minglespace.calendar.entity.Calendar;
 import com.minglers.minglespace.common.entity.Image;
 import com.minglers.minglespace.milestone.entity.MilestoneGroup;
 import com.minglers.minglespace.todo.entity.Todo;
@@ -37,13 +38,16 @@ public class WorkSpace {
     private Long deletedByUserId;
 
     @OneToMany(mappedBy = "workSpace", fetch = FetchType.LAZY)
-    private List<WSMember> workSpaceList;
+    private List<WSMember> wsMemberList;
 
     @OneToMany(mappedBy = "workspace", fetch = FetchType.LAZY)
     private List<MilestoneGroup> milestoneGroupList;
 
     @OneToMany(mappedBy = "workSpace", fetch = FetchType.LAZY)
     private List<Todo> Todolist;
+
+    @OneToMany(mappedBy = "workspace", fetch = FetchType.LAZY)
+    private List<Calendar> calendarList;
 
     public void changeName(String name) {
         this.name = name;
