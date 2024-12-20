@@ -11,7 +11,7 @@ import java.util.List;
 
 @NoArgsConstructor
 @AllArgsConstructor
-@ToString(exclude = {"todoAssigneeResponseDTOList"})
+@ToString
 @Getter
 @Setter
 @Builder
