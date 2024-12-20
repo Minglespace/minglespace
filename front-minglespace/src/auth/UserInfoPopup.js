@@ -19,6 +19,7 @@ import Modal from "../common/Layouts/components/Modal";
 export default function UserInfoPopup() {
   const navigate = useNavigate();
   const popupRef = useRef(null); // 팝업을 참조하기 위한 ref 추가
+  const buttonRef = useRef(null); // 버튼 클릭을 위한 ref 추가
 
   const [isOpen, setIsOpen] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
@@ -52,11 +53,13 @@ export default function UserInfoPopup() {
 
     const handleEscape = (e) => {
       if (e.key === "Escape") {
-        console.log("isOpen : ", isOpen);
-        console.log("isEditing : ", isEditing);
-        // if(!isEditing)
+        if(isEditing){
+          setIsEditing(false);
+          return;
+        }
+        if(isOpen){
           setIsOpen(false);
-        setIsEditing(false);
+        }
       }
     };
 
@@ -65,19 +68,20 @@ export default function UserInfoPopup() {
     return () => {
       document.removeEventListener("keydown", handleEscape);
     };
-  }, []);
+  }, [isOpen, isEditing]);
 
   // 팝업 외부 클릭 시 팝업 닫기
   useEffect(() => {
     const handleClickOutside = (e) => {
+      if (buttonRef.current && buttonRef.current.contains(e.target)) {
+        return;
+      }
       if (popupRef.current && !popupRef.current.contains(e.target)) {
         setIsOpen(false);
         setIsEditing(false);
       }
     };
-
     document.addEventListener("mousedown", handleClickOutside);
-
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
@@ -105,13 +109,12 @@ export default function UserInfoPopup() {
   };
 
   const handleClickOpen = async () => {
-    const nowIsOpen = !isOpen;
-    if (nowIsOpen) {
+    if (isOpen) {
+      setIsOpen(false);
+    } else {
+      setIsOpen(true);
       getUserInfo();
     }
-    setIsOpen(nowIsOpen);
-    console.log("isOpen : ", isOpen);
-
   };
 
   const handleClickSetting = () => {
@@ -188,6 +191,7 @@ export default function UserInfoPopup() {
         className="user-info-button"
         aria-expanded={isOpen}
         aria-haspopup="true"
+        ref={buttonRef}  // 버튼에 ref 추가
       >
         <ProfileImage
           src={selectedImage || getHostImagePath()}
