@@ -1,6 +1,7 @@
 package com.minglers.minglespace.auth.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.minglers.minglespace.auth.type.Provider;
 import com.minglers.minglespace.common.entity.Image;
 import com.minglers.minglespace.workspace.entity.WSMember;
 import jakarta.persistence.*;
@@ -14,7 +15,8 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.time.LocalDateTime;
-import java.util.*;
+import java.util.Collection;
+import java.util.List;
 
 @Entity
 @Table(name = "user")
@@ -24,75 +26,88 @@ import java.util.*;
 @AllArgsConstructor
 public class User implements UserDetails {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+  @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  private Long id;
 
-    @Column(unique = true)
-    private String email;
+  @OneToOne(fetch = FetchType.LAZY)
+  private Image image;
 
-    @OneToOne(fetch = FetchType.LAZY)
-    private Image image;
+  @OneToMany(mappedBy = "user", fetch =FetchType.LAZY)
+  private List<WSMember> wsMembers;
 
-    @OneToMany(mappedBy = "user", fetch =FetchType.LAZY)
-    private List<WSMember> wsMembers;
+  @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
+  private List<UserFriend> userFriends;
 
-    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
-    private List<UserFriend> userFriends;
+  @Column(nullable = false)
+  private String role;
 
-    @JsonIgnore
-    @Column(nullable = false)
-    private String password;
+  @CreationTimestamp
+  private LocalDateTime regDate;
 
-    @Column(nullable = false)
-    private String name;
+  private boolean deleteFlag;
 
-    @Column(nullable = false)
-    private String phone;
+  private String verificationCode;
 
-    @Column(nullable = false)
-    private String role;
+  @Enumerated(EnumType.STRING)
+  private Provider provider;
 
-    @CreationTimestamp
-    private LocalDateTime regDate;
+  //=============================================================
+  // 유저 입력 필드
+  @Column(unique = true)
+  private String email;
 
-    private String position;
-    private String introduction;
-    private boolean deleteFlag;
+  @JsonIgnore
+  @Column(nullable = false)
+  private String password;
 
-    private String verificationCode;
+  @Column(nullable = false)
+  private String name;
 
+  @Column(nullable = false)
+  private String phone;
 
+  private String position;
 
-    @Override
-    public Collection<? extends GrantedAuthority> getAuthorities() {
-        return List.of(new SimpleGrantedAuthority(role));
-    }
+  private String introduction;
 
-    @Override
-    public String getUsername() {
-        return email;
-    }
+  //=============================================================
 
-    @Override
-    public boolean isAccountNonExpired() {
-        return true;
-    }
+  public boolean isSocialProvider(){
+    return (this.getProvider() != Provider.MINGLESPACE);
+  }
 
-    @Override
-    public boolean isAccountNonLocked() {
-        return true;
-    }
+  //=============================================================
 
-    @Override
-    public boolean isCredentialsNonExpired() {
-        return true;
-    }
+  @Override
+  public Collection<? extends GrantedAuthority> getAuthorities() {
+    return List.of(new SimpleGrantedAuthority(role));
+  }
 
-    @Override
-    public boolean isEnabled() {
-        return true;
-    }
+  @Override
+  public String getUsername() {
+    return email;
+  }
+
+  @Override
+  public boolean isAccountNonExpired() {
+    return true;
+  }
+
+  @Override
+  public boolean isAccountNonLocked() {
+    return true;
+  }
+
+  @Override
+  public boolean isCredentialsNonExpired() {
+    return true;
+  }
+
+  @Override
+  public boolean isEnabled() {
+    return true;
+  }
 
 
 }

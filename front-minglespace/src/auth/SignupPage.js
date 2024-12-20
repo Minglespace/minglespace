@@ -3,6 +3,7 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import AuthApi from "../api/AuthApi";
 import Modal from "../common/Layouts/components/Modal";
+import { AuthStatus, AuthStatusOk } from "../api/AuthStatus";
 
 //========================================================================
 /**
@@ -10,6 +11,7 @@ import Modal from "../common/Layouts/components/Modal";
  */
 //========================================================================
 const SignupPage = () => {
+
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [formData, setFormData] = useState({
@@ -19,7 +21,7 @@ const SignupPage = () => {
     confirmPassword: "Aa!1Aa!1",
     name: "codejay2018",
     phone: "01012345678",
-    role: "ADMIN",
+    role: "ROLE_ADMIN",
     position: "CTO",
     introduction: "Test Data",
   });
@@ -64,10 +66,13 @@ const SignupPage = () => {
       console.log("Form submitted:", formData);
       await AuthApi.signup(formData).then((data) => {
         console.log("Form submitted data : ", data);
-        if (data.code === 200) {
+        if (AuthStatusOk(data.msStatus)) {
           setIsOpenPopup(true);
-        }else{
-
+        }else if(data.msStatus && AuthStatus[data.msStatus]){
+          setMessage({
+            title: "확인", 
+            content: AuthStatus[data.msStatus].desc,  
+          });
         }
       });
     }
@@ -91,6 +96,12 @@ const SignupPage = () => {
     }
   };
 
+  // 에러 팝업 관련
+  const [message, setMessage] = useState(null);
+  const handleClickMsgPopup = () =>{
+    setMessage(null);
+  }
+
   //========================================================================
   //========================================================================
   //========================================================================
@@ -110,6 +121,16 @@ const SignupPage = () => {
         </div>
       </Modal>
 
+      {/* 에러 팝업 관련 */}
+      <Modal open={message !== null} onClose={handleClickMsgPopup}>
+        {(message) && (
+          <div className="workspace_add_modal_container">
+            <p className="form-title">{message.title}</p>
+            <p>{message.content}</p>
+            <button type="submit" className="add_button" onClick={handleClickMsgPopup}>확인</button>
+          </div>
+        )}  
+      </Modal>
 
       <div className="signup-page-container">
         <button onClick={handlePopupClose} className="signup-page-close-button">

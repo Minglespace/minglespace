@@ -1,5 +1,6 @@
 package com.minglers.minglespace.common.service;
 
+import com.minglers.minglespace.common.util.MsConfig;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import jakarta.servlet.http.HttpServletRequest;
@@ -58,8 +59,7 @@ public class EmailService {
             int serverPort = request.getServerPort();
             url = scheme + "://" + serverName + ":" + serverPort;  // http://localhost:8080
         }else{
-            url = "http://localhost:3000";
-            //url = "http://localhost:3001";
+            url = MsConfig.getClientUrl();
         }
 
         return url;

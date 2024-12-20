@@ -3,11 +3,11 @@ package com.minglers.minglespace.auth.service;
 import com.minglers.minglespace.auth.dto.DefaultResponse;
 import com.minglers.minglespace.auth.entity.User;
 import com.minglers.minglespace.auth.repository.UserRepository;
+import com.minglers.minglespace.common.apistatus.AuthStatus;
 import com.minglers.minglespace.common.service.EmailService;
 import jakarta.mail.MessagingException;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.log4j.Log4j2;
-import org.springframework.http.HttpStatus;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
@@ -72,44 +72,25 @@ public class AuthEmailService extends EmailService {
     DefaultResponse res = new DefaultResponse();
 
     try {
-
-      // 이메일 디코딩
       String email = new String(Base64.getDecoder().decode(encodedEmail), StandardCharsets.UTF_8);
-
-      // 유저 정보
       User user = usersRepo.findByEmail(email).orElseThrow();
-
       String storedCode = user.getVerificationCode();
 
       if(storedCode.isEmpty()){
-        res.setStatus(HttpStatus.ALREADY_REPORTED);
-        res.setMsg("이미 유저 이메일 인증 성공 : " + user.getEmail());
-      }else if(user.getVerificationCode().equals(code)){
+        res.setStatus(AuthStatus.EmailVerificationAlready);
+      }else if(storedCode.equals(code)){
         user.setVerificationCode("");
         usersRepo.save(user);
-        res.setStatus(HttpStatus.OK);
-        res.setMsg("유저 이메일 인증 성공 : " + user.getEmail());
+        res.setStatus(AuthStatus.Ok);
       }else{
-        res.setStatus(HttpStatus.NOT_FOUND);
-        res.setMsg("유저 이메일 인증 실패 : " + user.getEmail());
+        res.setStatus(AuthStatus.EmailVerificationCodeMismatch);
       }
-
     } catch (Exception e) {
-      res.setStatus(HttpStatus.INTERNAL_SERVER_ERROR); // 500 Internal Server Error
-      res.setMsg("서버 오류");
+      res.setStatus(AuthStatus.Exception);
     }
 
-    log.info("");
-    log.info("");
-    log.info("verify");
-    log.info(res.toString());
-    log.info("");
-    log.info("");
-
     return res;
-
   }
-
 }
 
 

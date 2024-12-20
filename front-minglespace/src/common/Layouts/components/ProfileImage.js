@@ -1,11 +1,17 @@
-﻿import React from "react";
+﻿import React, { useState } from "react";
 import Repo from "../../../auth/Repo";
 
 const ProfileImage = ({ src, userName, size = 70 }) => {
+
+  const [imgError, setImgError] = useState(false);  // 이미지 로딩 실패 여부를 상태로 관리
   const profileImage = src || null;
 
+  const handleImageError = () => {
+    setImgError(true);  // 이미지 로딩 실패 시 상태 변경
+  };
+
   const renderProfileImage = () => {
-    if (profileImage) {
+    if (profileImage && !imgError) {
       return (
         <img
           src={profileImage}
@@ -16,11 +22,12 @@ const ProfileImage = ({ src, userName, size = 70 }) => {
             height: `${size}px`,
             borderRadius: "50%",
           }}
+          onError={handleImageError}  // 이미지 로딩 실패 시 처리
         />
       );
     } else {
       // 이미지가 없으면 이름의 첫 글자로 기본 이미지를 생성
-      const firstLetter = userName.charAt(0).toUpperCase();
+      const firstLetter = (userName) ? userName.charAt(0).toUpperCase() : "A";
       const backgroundColor = getRandomColor();
 
       return (

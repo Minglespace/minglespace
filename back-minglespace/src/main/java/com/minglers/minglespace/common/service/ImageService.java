@@ -16,4 +16,6 @@ public interface ImageService {
     String getMimeType(String imageName);
     Image uploadChatFile(MultipartFile file) throws IOException;
     List<Image> uploadChatFiles(List<MultipartFile> files) throws IOException;
+
+    Image uploadImageFromUrl(String imageUrl) throws IOException, InterruptedException;
 }

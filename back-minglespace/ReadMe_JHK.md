@@ -165,8 +165,25 @@
 ---
 # OAuth2
 ```angular2html
-
-카카오
-네이버
-구으글
+Google - 완료
+Naver - 완료
+Kakao - 완료
 ```
+### 처리 1 - application.properties에 비번이 있으면, github애 push error 
+* 파일 분리하고, 비빈관련 파일은 .ignore에 등록한다.
+* 개발중 이면
+* application.properties <- develop 선택
+* application-develop.properties <- 기본 설정이 있다
+* application-develop-auth.properties <- 비빈등이 있다
+* 서비스 시점이 되면 
+* application.properties <- sevice 선택
+* application-sevice.properties <- 기본 설정이 있다
+* application-sevice-auth.properties <- 비빈등이 있다
+
+### 이슈 1
+* 회원가입시 다른 플렛폼(소셜 -> 자체)의 이메일이 중복할경우 어떻게 할 것인가.
+* 가입을 거부(Join하지 않고)하게 처리했다.
+### 이슈 2
+* 브라우저에 이미 로그인 되어 있는 경우, 해당 계정으로만 로그인 된다.
+* 다른 계정으로 로그인 하고 싶은경우, 브라우저에서 로그아웃한 상태로 소셜로그인을 시도해야 한다.
+* ? 브라우저에 로그인 되어있어도, 어떤계정을 사용할지 선택할 수 있나 ?

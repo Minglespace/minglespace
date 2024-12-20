@@ -9,15 +9,23 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
+import java.net.URI;
 import java.net.URLConnection;
 import java.net.URLDecoder;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -82,6 +90,63 @@ public class ImageServiceImpl implements ImageService{
 
     // 이미지 정보를 DB에 저장
     return imageRepository.save(image);
+  }
+
+  // 서버에 저장할 파일 이름 (중복 방지)
+  public static String UPDATED_NAME(String originalName){
+    return  System.currentTimeMillis() + "_" + originalName;
+  }
+  // 파일 저장 경로
+  public static String LOCAL_PATH(String uploadPath, String updatedName){
+    return uploadPath + File.separator + "images" + File.separator + updatedName;
+  }
+  // 클라이언트에서 파일을 불러올 때 URI 경로
+  public static String URI_PATH(String updatedName){
+    return "/upload/images/" + updatedName;
+  }
+
+  // URL로부터 이미지를 다운로드하여 저장
+  public Image uploadImageFromUrl(String imageUrl) throws IOException, InterruptedException {
+
+    // 이미지 파일 이름 추출 (URL에서 파일명만 추출)
+    String originalName = StringUtils.getFilename(imageUrl);
+    String updatedName  = UPDATED_NAME(originalName);
+    String localPath    = LOCAL_PATH(uploadPath, updatedName);
+    String uriPath      = URI_PATH(updatedName);
+
+    log.info("originalName : " + originalName);
+    log.info("updatedName: " + updatedName);
+    log.info("localPath: " + localPath);
+    log.info("uriPath: " + uriPath);
+
+    // URL에서 이미지를 다운로드하여 로컬 파일로 저장
+    downloadImage(imageUrl, localPath);
+
+    // Image 엔티티 생성
+    Image image = new Image();
+    image.setOriginalname(originalName);
+    image.setUpdatename(updatedName);
+    image.setLocalpath(localPath);
+    image.setUripath(uriPath);
+
+    // 이미지 정보를 DB에 저장
+    return imageRepository.save(image);
+  }
+
+  // URL에서 이미지를 다운로드하는 메서드
+  private void downloadImage(String imageUrl, String localPath) throws IOException, InterruptedException {
+    // HTTP 클라이언트 사용하여 이미지 다운로드
+    HttpClient client = HttpClient.newHttpClient();
+    HttpRequest request = HttpRequest.newBuilder()
+            .uri(URI.create(imageUrl))
+            .build();
+    HttpResponse<InputStream> response = client.send(request, HttpResponse.BodyHandlers.ofInputStream());
+
+    // 다운로드 받은 이미지를 로컬 파일로 저장
+    InputStream inputStream = response.body();
+    Path targetPath = Path.of(localPath);
+    Files.copy(inputStream, targetPath, StandardCopyOption.REPLACE_EXISTING);
+    inputStream.close();
   }
 
 

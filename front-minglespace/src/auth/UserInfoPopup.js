@@ -8,6 +8,8 @@ import ProfileImage from "../common/Layouts/components/ProfileImage";
 import Repo from "./Repo";
 import AuthApi from "../api/AuthApi";
 import { HOST_URL } from "../api/Api";
+import { AuthStatus, AuthStatusOk } from "../api/AuthStatus";
+import Modal from "../common/Layouts/components/Modal";
 
 //============================================================================================
 //============================================================================================
@@ -16,6 +18,8 @@ import { HOST_URL } from "../api/Api";
 //============================================================================================
 export default function UserInfoPopup() {
   const navigate = useNavigate();
+  const popupRef = useRef(null); // 팝업을 참조하기 위한 ref 추가
+  const buttonRef = useRef(null); // 버튼 클릭을 위한 ref 추가
 
   const [isOpen, setIsOpen] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
@@ -28,13 +32,59 @@ export default function UserInfoPopup() {
     phone: "",
     introduction: "",
     localImage: "",
+    socialLogin:"",
   });
 
   const [selectedImage, setSelectedImage] = useState(null); // 선택된 이미지 파일 선택
   const fileInputRef = useRef(null);
 
+  const [message, setMessage] = useState(null);
+
+
   useEffect(() => {
+
     getUserInfo();
+
+
+  }, []);
+
+  // ESC 키를 누르면 팝업을 닫는 함수
+  useEffect(() => {
+
+    const handleEscape = (e) => {
+      if (e.key === "Escape") {
+        if(isEditing){
+          setIsEditing(false);
+          return;
+        }
+        if(isOpen){
+          setIsOpen(false);
+        }
+      }
+    };
+
+    document.addEventListener("keydown", handleEscape);
+
+    return () => {
+      document.removeEventListener("keydown", handleEscape);
+    };
+  }, [isOpen, isEditing]);
+
+  // 팝업 외부 클릭 시 팝업 닫기
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (buttonRef.current && buttonRef.current.contains(e.target)) {
+        return;
+      }
+      if (popupRef.current && !popupRef.current.contains(e.target)) {
+        setIsOpen(false);
+        setIsEditing(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
   }, []);
 
   //============================================================================================
@@ -44,28 +94,38 @@ export default function UserInfoPopup() {
   //============================================================================================
 
   const getUserInfo = async () => {
-    const res = await AuthApi.userInfo();
-    setUserInfo(res);
+
+    const data = await AuthApi.userInfo();
+
+    if (AuthStatusOk(data.msStatus)) {
+      setUserInfo(data);
+    }else if(data.msStatus && AuthStatus[data.msStatus]){
+      setMessage({
+        title: "확인", 
+        content: AuthStatus[data.msStatus].desc,  
+      });
+    }
+
   };
 
   const handleClickOpen = async () => {
-    const nowIsOpen = !isOpen;
-    if (nowIsOpen) {
+    if (isOpen) {
+      setIsOpen(false);
+    } else {
+      setIsOpen(true);
       getUserInfo();
     }
-    setIsOpen(nowIsOpen);
   };
 
   const handleClickSetting = () => {
     setIsEditing(true);
+    console.log("isEditing : ", isEditing);
   };
 
-  const handleClickLogout = () => {
-    AuthApi.logout().then((data) => {
-      if (data.code === 200) {
+  const handleClickLogout = async () => {
+    await AuthApi.logout().then((data)=>{
+      if (AuthStatusOk(data.msStatus)) {
         navigate("/auth/login");
-      } else {
-        // Handle error
       }
     });
   };
@@ -80,17 +140,17 @@ export default function UserInfoPopup() {
 
   const handleSaveChanges = async () => {
     userInfo.dontUseProfileImage = dontUseProfileImage;
-
-    const res = await AuthApi.updateUserInfoNew2(userInfo, userInfo.localImage);
-    if (res.code === 200) {
-      // 개선 필요
-      userInfo.profileImagePath = res.profileImagePath;
-      userInfo.name = res.name;
-      userInfo.position = res.position;
-      userInfo.email = res.email;
-      userInfo.phone = res.phone;
-      userInfo.introduction = res.introduction;
-
+    const data = await AuthApi.updateUserInfo(userInfo, userInfo.localImage);
+    if (AuthStatusOk(data.msStatus)) {
+      setUserInfo(prevUserInfo => ({
+        ...prevUserInfo,
+        profileImagePath: data.profileImagePath,
+        name: data.name,
+        position: data.position,
+        phone: data.phone,
+        introduction: data.introduction,
+        socialLogin: data.socialLogin,
+      }));
       setIsEditing(false);
     }
   };
@@ -131,6 +191,7 @@ export default function UserInfoPopup() {
         className="user-info-button"
         aria-expanded={isOpen}
         aria-haspopup="true"
+        ref={buttonRef}  // 버튼에 ref 추가
       >
         <ProfileImage
           src={selectedImage || getHostImagePath()}
@@ -139,8 +200,18 @@ export default function UserInfoPopup() {
         />
       </button>
 
+      {message && (
+        <Modal open={message !== null} onClose={() => setMessage(null)}>
+          <div className="workspace_add_modal_container">
+            <p className="form-title">{message.title}</p>
+            <p>{message.content}</p>
+            <button type="submit" className="add_button" onClick={() => setMessage(null)}>확인</button>
+          </div>
+        </Modal>
+      )}
+
       {isOpen && (
-        <div className="popup-content">
+        <div className="popup-content" ref={popupRef}>
           <div className="popup-header">
             {isEditing ? (
               <div className="user-info">
@@ -152,12 +223,14 @@ export default function UserInfoPopup() {
                   <button
                     className="userInfo-button"
                     onClick={() => fileInputRef.current.click()} // 버튼 클릭 시 파일 선택창 열기
+                    disabled={userInfo.socialLogin}
                   >
                     변경
                   </button>
                   <button
                     className="userInfo-button"
                     onClick={handleClickDontUseImage}
+                    disabled={userInfo.socialLogin}
                   >
                     제거
                   </button>
@@ -180,6 +253,7 @@ export default function UserInfoPopup() {
                   value={userInfo.name}
                   onChange={handleInputChange}
                   className="input-field"
+                  disabled={userInfo.socialLogin}
                 />
                 <label className="input-label" htmlFor="position">
                   직책
@@ -202,7 +276,7 @@ export default function UserInfoPopup() {
                   value={userInfo.email}
                   onChange={handleInputChange}
                   className="input-field"
-                  disabled
+                  disabled={userInfo.socialLogin}
                 />
                 <label className="input-label" htmlFor="phone">
                   전화번호
@@ -214,6 +288,7 @@ export default function UserInfoPopup() {
                   value={userInfo.phone}
                   onChange={handleInputChange}
                   className="input-field"
+                  disabled={userInfo.socialLogin}
                 />
                 <label className="input-label" htmlFor="introduction">
                   소개

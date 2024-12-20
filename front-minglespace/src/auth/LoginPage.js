@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 
+
 import { X, Eye, EyeOff } from "lucide-react";
 
 import { Link, useLocation, useNavigate, useParams } from "react-router-dom";
@@ -7,46 +8,66 @@ import { Link, useLocation, useNavigate, useParams } from "react-router-dom";
 import Repo from "./Repo";
 import AuthApi from "../api/AuthApi";
 import Modal from "../common/Layouts/components/Modal";
+import { HOST_URL } from "../api/Api";
+import { AuthStatus, AuthStatusOk } from "../api/AuthStatus";
+
 
 const LoginPage = () => {
+  //================================================================================================
+  //================================================================================================
+  //================================================================================================
+  //================================================================================================
   const [showPassword, setShowPassword] = useState(false);
   const [formData, setFormData] = useState({
     email: "codejay2018@gmail.com",
     password: "Aa!1Aa!1",
   });
+  const [message, setMessage] = useState(null);
 
   const [errors, setErrors] = useState({});
-
+  
   const navigate = useNavigate();
   const location = useLocation();
 
   const [isOpenPopup, setIsOpenPopup] = useState(false);
-  const [isOpenPopupCheck, setIsOpenPopupCheck] = useState(false);
-  const { code, encodedEmail } = useParams();
+  const {code, encodedEmail} = useParams();
+  const {msg} = useParams();
+  
+  //================================================================================================
+  //================================================================================================
+  //================================================================================================
+  //================================================================================================
+  useEffect(()=>{
 
-  // ===============================================================
-  // ===============================================================
+    if(msg && AuthStatus[msg]){
+      
+      console.log("msg : ", msg);
+      
+      setMessage({
+        title: "확인", 
+        content: AuthStatus[msg].desc,
+     });
 
-  useEffect(() => {
-    if (code && encodedEmail) {
+
+    }else if(code && encodedEmail){
+
       console.log("code : ", code);
       console.log("encodedEmail : ", encodedEmail);
 
-      //
-      setTimeout(() => {
-        AuthApi.verify(code, encodedEmail).then((response) => {
-          if (response.data.code === 200) {
+      setTimeout(()=>{
+        AuthApi.verify(code, encodedEmail).then((data) => {
+           if (AuthStatusOk(data.msStatus)) {
             setIsOpenPopup(true);
-          } else {
-            console.log("AuthApi.verify error");
+          } else{
             setIsOpenPopup(false);
           }
-        });
+        });  
       }, 1000);
-    } else {
-      // 정상
+
+    }else{
+
       setIsOpenPopup(false);
-      console.log("nomail login");
+
     }
   }, []);
 
@@ -63,22 +84,25 @@ const LoginPage = () => {
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
-
+  //================================================================================================
+  //================================================================================================
+  //================================================================================================
+  //================================================================================================
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (validate()) {
-      console.log("Form submitted:", formData.email);
 
-      const { email, password } = formData;
-
+      const {email, password} = formData;
       const data = await AuthApi.login(email, password);
-      console.log("AuthApi.login : {}", data);
-      if (data.code === 200) {
+      
+      if(AuthStatusOk(data.msStatus)){
+        // navigate("/main");
         navigate(getUriPath(location), { replace: true });
-      } else if (data.code === 425) {
-        setIsOpenPopupCheck(true);
-      } else {
-        // 뭘할까?
+      }else if(data.msStatus && AuthStatus[data.msStatus]){
+        setMessage({
+          title: "확인", 
+          content: AuthStatus[data.msStatus].desc,  
+        });
       }
     }
   };
@@ -97,19 +121,14 @@ const LoginPage = () => {
     }
   };
 
-  const handleClickPopup = () => {
+  const handleClickMsgPopup = () =>{
+    setMessage(null);
+    navigate("/auth/login");
+  }
+
+  const handleClickPopup = () =>{
     setIsOpenPopup(false);
-  };
-
-  // for test
-  const handleClickAbuser = async () => {
-    console.log("abuse test");
-
-    Repo.setAccessToken(Repo.getAccessTokenForAbuse());
-    Repo.setRefreshToken(Repo.getRefreshTokenForAbuse());
-
-    navigate("/workspace/");
-  };
+  }
 
   function getUriPath(location) {
     const uri = location.state?.from || "/main";
@@ -119,9 +138,27 @@ const LoginPage = () => {
     return `/${segments[1]}/${segments[2]}`;
   }
 
+  const handleClickGoogle = () => {
+    const url = `${HOST_URL}/oauth2/authorization/google`;
+    window.location.href = url;
+  }
+  const handleClickNaver = () => {
+    const url = `${HOST_URL}/oauth2/authorization/naver`;
+    window.location.href = url;
+  }
+  const handleClicKakao = () => {
+    const url = `${HOST_URL}/oauth2/authorization/kakao`;
+    window.location.href = url;
+  }
+
+  //================================================================================================
+  //================================================================================================
+  //================================================================================================
+  //================================================================================================
   return (
     <div className="modal-overlay_login_page">
       <div className="modal-container_login_page">
+
         <div className="image-container">
           <img
             src="https://images.unsplash.com/photo-1522071820081-009f0129c71c?auto=format&fit=crop&w=800"
@@ -130,39 +167,24 @@ const LoginPage = () => {
           />
         </div>
 
+        <Modal open={message !== null} onClose={handleClickMsgPopup}>
+          {(message) && (
+            <div className="workspace_add_modal_container">
+              <p className="form-title">{message.title}</p>
+              <p>{message.content}</p>
+              <button type="submit" className="add_button" onClick={handleClickMsgPopup}>확인</button>
+            </div>
+          )}
+        </Modal>
+          
         <Modal open={isOpenPopup} onClose={handleClickPopup}>
           <div className="workspace_add_modal_container">
             <p className="form-title">이메일 인증완료</p>
             <p>회원가입이 완료 되었습니다.</p>
-            <button
-              type="submit"
-              className="add_button"
-              onClick={handleClickPopup}
-            >
-              확인
-            </button>
+            <button type="submit" className="add_button" onClick={handleClickPopup}>확인</button>
           </div>
         </Modal>
-        <Modal
-          open={isOpenPopupCheck}
-          onClose={() => {
-            setIsOpenPopupCheck(false);
-          }}
-        >
-          <div className="workspace_add_modal_container">
-            <p className="form-title">이메일 인증</p>
-            <p>이메일 인증해야 회원가입이 완료 됩니다.</p>
-            <button
-              type="submit"
-              className="add_button"
-              onClick={() => {
-                setIsOpenPopupCheck(false);
-              }}
-            >
-              확인
-            </button>
-          </div>
-        </Modal>
+          
 
         <div className="form-container">
           <div className="form-wrapper">
@@ -178,9 +200,7 @@ const LoginPage = () => {
                   className={`input-field ${errors.email ? "input-error" : ""}`}
                   placeholder="이메일을 입력하세요"
                 />
-                {errors.email && (
-                  <span className="error-message">{errors.email}</span>
-                )}
+                {errors.email && <span className="error-message">{errors.email}</span>}
               </div>
 
               <div className="input-group">
@@ -191,9 +211,7 @@ const LoginPage = () => {
                     name="password"
                     value={formData.password}
                     onChange={handleChange}
-                    className={`input-field ${
-                      errors.password ? "input-error" : ""
-                    }`}
+                    className={`input-field ${errors.password ? "input-error" : ""}`}
                     placeholder="비밀번호를 입력하세요"
                   />
                   <button
@@ -204,14 +222,10 @@ const LoginPage = () => {
                     {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
                   </button>
                 </div>
-                {errors.password && (
-                  <span className="error-message">{errors.password}</span>
-                )}
+                {errors.password && <span className="error-message">{errors.password}</span>}
               </div>
 
-              <button type="submit" className="submit-button">
-                로그인
-              </button>
+              <button type="submit" className="submit-button">로그인</button>
             </form>
 
             <div className="social-login">
@@ -221,7 +235,7 @@ const LoginPage = () => {
               </div>
 
               <div className="social-buttons">
-                <button className="google-button">
+              <button className="google-button" onClick={handleClickGoogle}>
                   <img
                     src="https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_272x92dp.png"
                     alt="Google"
@@ -229,8 +243,7 @@ const LoginPage = () => {
                   />
                   Google로 계속하기
                 </button>
-
-                <button className="kakao-button">
+                <button className="kakao-button" onClick={handleClicKakao}>
                   <img
                     src="https://developers.kakao.com/static/images/pc/product/icon/kakaoTalk.png"
                     alt="Kakao"
@@ -238,8 +251,7 @@ const LoginPage = () => {
                   />
                   카카오로 계속하기
                 </button>
-
-                <button className="naver-button">
+                <button className="naver-button" onClick={handleClickNaver}>
                   <img
                     src="https://www.naver.com/favicon.ico"
                     alt="Naver"
@@ -253,9 +265,6 @@ const LoginPage = () => {
             <div className="footer-links">
               <Link to={`/auth/signup`}>비밀번호 찾기</Link>
               <Link to={`/auth/signup`}>회원가입</Link>
-
-              {/* // for tset */}
-              {/* <button onClick={handleClickAbuser}>Abser Token Test</button> */}
             </div>
           </div>
         </div>
@@ -264,7 +273,5 @@ const LoginPage = () => {
   );
 };
 
-export default LoginPage;
+export default LoginPage
 
-// export default Modal;
-// render(<Modal />, document.getElementById("root"));
