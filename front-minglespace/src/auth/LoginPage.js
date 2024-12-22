@@ -28,7 +28,6 @@ const LoginPage = () => {
   
   const navigate = useNavigate();
   const location = useLocation();
-
   const [isOpenPopup, setIsOpenPopup] = useState(false);
   const {code, encodedEmail} = useParams();
   const {msg} = useParams();
@@ -97,7 +96,7 @@ const LoginPage = () => {
       
       if(AuthStatusOk(data.msStatus)){
         // navigate("/main");
-        navigate(getUriPath(location), { replace: true });
+        navigate(getUriPath(), { replace: true });
       }else if(data.msStatus && AuthStatus[data.msStatus]){
         setMessage({
           title: "확인", 
@@ -130,12 +129,15 @@ const LoginPage = () => {
     setIsOpenPopup(false);
   }
 
-  function getUriPath(location) {
-    const uri = location.state?.from || "/main";
-    if(uri==="/main")
+  const getUriPath = ()=> {
+    if(location.pathname ==="/auth/login" || location.pathname ==="/auth/login/") {
       return "/main"
-    const segments = uri.split("/");
-    return `/${segments[1]}/${segments[2]}`;
+    }
+    else {
+      const workspaceIdAndUUID = location.pathname.split("=")[1];
+      const workspaceUri = workspaceIdAndUUID.substring(0,workspaceIdAndUUID.indexOf("@"))
+      return `/workspace/${workspaceUri}`;
+    }
   }
 
   const handleClickGoogle = () => {

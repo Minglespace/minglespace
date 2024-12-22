@@ -5,6 +5,7 @@ import com.minglers.minglespace.auth.entity.UserFriend;
 import com.minglers.minglespace.auth.repository.UserFriendRepository;
 import com.minglers.minglespace.auth.repository.UserRepository;
 import com.minglers.minglespace.auth.type.FriendshipStatus;
+import com.minglers.minglespace.auth.type.Provider;
 import com.minglers.minglespace.workspace.entity.WSMember;
 import com.minglers.minglespace.workspace.entity.WorkSpace;
 import com.minglers.minglespace.workspace.repository.WSMemberRepository;
@@ -63,28 +64,16 @@ public class SampleDataTest {
     public void insertUserTest() {
         userRepository.save(User.builder()
                 .name(generateRandomKoreanName())
-                .email("dldudtn118@naver.com")
+                .email("abc@abc.abc")
                 .introduction("안녕하세요")
                 .password(passwordEncoder.encode("123123"))
                 .phone("000-0000-0000")
                 .deleteFlag(false)
                 .position("사원")
                 .role("ADMIN")
+                .provider(Provider.MINGLESPACE)
                 .verificationCode("")
                 .build());
-        for (int i = 0; i < 100; i++) {
-            userRepository.save(User.builder()
-                    .name(generateRandomKoreanName())
-                    .email(generateRandomEmail())
-                    .introduction("안녕하세요")
-                    .password(passwordEncoder.encode("123123"))
-                    .phone("000-0000-0000")
-                    .deleteFlag(false)
-                    .position("사원")
-                    .role("ADMIN")
-                    .verificationCode("")
-                    .build());
-        }
     }
     @Test
     public void insertFriendTest() {

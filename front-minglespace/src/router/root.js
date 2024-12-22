@@ -1,4 +1,4 @@
-﻿﻿import { Suspense, lazy } from "react";
+﻿import { Suspense, lazy } from "react";
 import { createBrowserRouter, Navigate } from "react-router-dom";
 import SuspenseWithPrivateRoute from "./SuspenseWithPrivateRoute";
 
