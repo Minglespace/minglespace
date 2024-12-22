@@ -164,6 +164,7 @@ const Calendar = () => {
   //모달 On, Off 핸들러
   const handleModalClose = () => {
     setModalOpen(false);
+    setAddType("TIME");
     setFormData([]); //모달창 Close 시 입력중이던 내용 초기화
   };
 
@@ -185,6 +186,7 @@ const Calendar = () => {
 
     await addCalendar(newCalendar);
     setModalOpen(false);
+    setAddType("TIME");
     setFormData([]); //추가 후 formData내용 초기화
     calendarType === "NOTICE" ? getCalendarNotice() : getCalendarPrivate();
   };
@@ -208,19 +210,36 @@ const Calendar = () => {
       }));
       return false;
     }
+    const startDate = new Date(formData.start.split("T")[0]);
+    const endDate = new Date(formData.end.split("T")[0]);
+    const timeDifference = endDate - startDate;
+    const dayDifference = timeDifference / (1000 * 60 * 60 * 24);
+    if (dayDifference < 1) {
+      alert("2일 이상 날짜를 선택해 주세요.");
+      return false;
+    }
     return true;
   };
 
   //캘린더 내부 event 하나 클릭했을 때 해당 값을 가져와서 formData에 저장
   const handleEventClick = (evt) => {
     if (evt.event.extendedProps.type !== "TODO") {
+      const start =
+        evt.event.end === null
+          ? formatDateToKST(evt.event.start)
+          : formatDateToKST(evt.event.start).split("T")[0];
       setFormData({
         id: evt.event.id,
         title: evt.event.title,
         description: evt.event.extendedProps.description,
-        start: formatDateToKST(evt.event.start).split("T")[0],
+        start: start,
         end: formatDateToKST(evt.event.end).split("T")[0],
       });
+      if (evt.event.end === null) {
+        setAddType("TIME");
+      } else {
+        setAddType("DAY");
+      }
       setModalOpen(true);
     }
   };
@@ -230,6 +249,7 @@ const Calendar = () => {
     const updatedCalendar = { ...formData };
     await modifyCalendar(updatedCalendar);
     setModalOpen(false);
+    setAddType("TIME");
     setFormData([]);
     calendarType === "NOTICE" ? getCalendarNotice() : getCalendarPrivate();
   };
@@ -239,6 +259,7 @@ const Calendar = () => {
     const updatedCalendar = { ...formData };
     await deleteCalendar(updatedCalendar);
     setModalOpen(false);
+    setAddType("TIME");
     setFormData([]);
     calendarType === "NOTICE" ? getCalendarNotice() : getCalendarPrivate();
   };
@@ -330,7 +351,7 @@ const Calendar = () => {
               hour12: false, // 24시간 형식
             });
 
-            const timeString = end ? "" : `-${startTime}`;
+            const timeString = end ? "" : `ㆍ${startTime}`;
             return (
               <div>
                 <p>
@@ -382,9 +403,26 @@ const Calendar = () => {
 
   return (
     <div className="section_container calendar_container">
-      <button onClick={() => setCalendarType("ALL")}>모든일정</button>
-      <button onClick={() => setCalendarType("NOTICE")}>공지</button>
-      <button onClick={() => setCalendarType("PRIVATE")}>개인</button>
+      <div className="calendar_type_buttons">
+        <button
+          className={calendarType === "ALL" ? "checked" : ""}
+          onClick={() => setCalendarType("ALL")}
+        >
+          모든일정
+        </button>
+        <button
+          className={calendarType === "NOTICE" ? "checked" : ""}
+          onClick={() => setCalendarType("NOTICE")}
+        >
+          공지
+        </button>
+        <button
+          className={calendarType === "PRIVATE" ? "checked" : ""}
+          onClick={() => setCalendarType("PRIVATE")}
+        >
+          개인
+        </button>
+      </div>
       {fullcalendarRender()}
       <Modal open={modalOpen} onClose={handleModalClose}>
         <CalendarFormModal

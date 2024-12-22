@@ -149,6 +149,7 @@ public class WorkspaceServiceImpl implements WorkspaceService {
 
     WorkSpaceResponseDTO response = workspaceDtoFromEntity(savedWorkSpace);
     response.setCount(1);//처음 참여인원은 무조건1로 리턴
+    response.setMilestoneTaskStatusDTO(new MilestoneTaskStatusDTO());
 
     return response;
   }
