@@ -18,6 +18,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 @Service
@@ -34,6 +35,11 @@ public class NotificationServiceImpl implements NotificationService{
   public void sendNotification(Long recipientUserId, String message, String path, NotificationType type) {
     User user = userRepository.findById(recipientUserId)
             .orElseThrow(() -> new RuntimeException("알림 받을 유저를 찾지 못했습니다."));
+    if(type.equals(NotificationType.CHAT_NEW_MESSAGE)){
+      if(handleChatNewMessageNotification(recipientUserId)){
+        return;
+      }
+    }
     Notification notification = Notification.builder()
             .noticeMsg(message)
             .path(path)
@@ -93,5 +99,19 @@ public class NotificationServiceImpl implements NotificationService{
       // 세션이 없을 때는 알림을 저장만 하고 클라이언트가 로그인하면 확인하도록 처리
       log.warn("No active sessions found for userId: " + recipientUserId);
     }
+  }
+
+  private boolean handleChatNewMessageNotification(Long recipientUserId){
+    Notification notification = notificationRepository.findByTypeAndUser_Id(NotificationType.CHAT_NEW_MESSAGE, recipientUserId).orElse(null);
+    if(notification != null){
+      if(notification.isRead()){
+        notification.setRead(false);
+      }
+      notification.setNoticeTime(LocalDateTime.now());
+      notificationRepository.save(notification);
+      sendNotificationToUser(recipientUserId, notification.toDTO());
+      return true;
+    }
+    return false;
   }
 }
