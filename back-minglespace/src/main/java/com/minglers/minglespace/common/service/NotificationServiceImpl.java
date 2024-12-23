@@ -85,6 +85,7 @@ public class NotificationServiceImpl implements NotificationService{
   }
 
   private void sendNotificationToUser(Long recipientUserId, NotificationDTO notificationDTO){
+    log.info("알림 메시지: "+ notificationDTO.getNoticeMsg());
     Set<String> sessionIds = stompInterceptor.getSessionForUser(recipientUserId);
 
     if(sessionIds != null && !sessionIds.isEmpty()){

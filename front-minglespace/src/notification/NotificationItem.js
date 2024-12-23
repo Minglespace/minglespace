@@ -3,8 +3,8 @@ import React from 'react'
 const dotColorMap = {
 	CHAT: "#e6ccd2", //채팅
 	CHAT_NEW_MESSAGE: "#e6ccd2",
-	FRIEND: "#5c6ac4", // 친구
-	SCHEDULE: "rgb(46, 235, 58)", // 일정
+	FRIEND: "#5c6ac4", // 친구 _ 임의
+	SCHEDULE: "rgb(46, 235, 58)", // 일정 _ 임의
 	default: "#dfe6e9", // 기본 (타입이 지정되지 않은 경우)
 };
 

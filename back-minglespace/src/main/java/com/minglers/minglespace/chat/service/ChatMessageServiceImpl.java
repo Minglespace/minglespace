@@ -104,11 +104,7 @@ public class ChatMessageServiceImpl implements ChatMessageService {
 
   //멘션 알림
   private void sendMentionNotification(String notifyMsg, ChatRoom mentionedChat, Long mentionedUserId) {
-//    log.info("sendMember: " + sendMember.getUser().getName() + " - 언급 대상: " + mentionedUserId);
-//    String sendUsername = sendMember.getUser().getName();
-//    String notifyMsg = sendUsername + "님께서 " + mentionedChat.getName() + "채팅방에서 당신을 멘션하였습니다.";
     String path = "/workspace/" + mentionedChat.getWorkSpace().getId() + "/chat"; //?chatRoomId=" + mentionedChat.getId()
-//    log.info("멘션 알림과 이어진 path: " + path);
     notificationService.sendNotification(mentionedUserId, notifyMsg, path, NotificationType.CHAT);
   }
 

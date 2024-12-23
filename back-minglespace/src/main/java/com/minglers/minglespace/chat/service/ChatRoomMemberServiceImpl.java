@@ -78,9 +78,6 @@ public class ChatRoomMemberServiceImpl implements ChatRoomMemberService {
   @Override
   @Transactional
   public String kickMemberFromRoom(Long chatRoomId, Long wsMemberId) {
-//    if (!chatRoomMemberRepository.existsByChatRoomIdAndWsMemberIdAndIsLeftFalse(chatRoomId, wsMemberId)) {
-//      throw new ChatException(HttpStatus.NOT_FOUND.value(), "채팅방에 참여하지 않은 유저입니다.");
-//    }
     chatRoomMemberRepository.updateIsLeftStatus(true, chatRoomId, wsMemberId);
 
     ChatRoom chatRoom = chatRoomRepository.findById(chatRoomId)
