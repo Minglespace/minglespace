@@ -31,11 +31,8 @@ const LoginPage = () => {
 
   const [isOpenPopup, setIsOpenPopup] = useState(false);
 
-  const {type1, code, encodedEmail} = useParams();
-  const {type2, msStatus} = useParams();
-  const {type3} = useParams();
-  // const {code, encodedEmail} = useParams();
-  // const {msg} = useParams();
+  const {code, encodedEmail, encodedVerifyType} = useParams();
+  const {msg} = useParams();
   
   //================================================================================================
   //================================================================================================
@@ -43,40 +40,18 @@ const LoginPage = () => {
   //================================================================================================
   useEffect(()=>{
 
-    
-    console.log("location.state : ", location.state);
-
-    const searchParams = new URLSearchParams(location.search);
-    console.log("searchParams : ", searchParams);
-
-    console.log("type3 : ", type3);
-
-    console.log("type2 : ", type2);
-    console.log("msStatus : ", msStatus);
-
-    console.log("type1 : ", type1);
-    console.log("code : ", code);
-    console.log("encodedEmail : ", encodedEmail);
-    
-    let msg = "asdf";
-
     if(msg && AuthStatus[msg]){
-      
       console.log("msg : ", msg);
-      
-      setMessage({
-        title: "확인", 
-        content: AuthStatus[msg].desc,
-     });
-
-
-    }else if(code && encodedEmail){
+      setMessage({title: "확인", content: AuthStatus[msg].desc,});
+    }else if(code && encodedEmail && encodedVerifyType){
 
       console.log("code : ", code);
       console.log("encodedEmail : ", encodedEmail);
+      console.log("encodedVerifyType : ", encodedVerifyType);
 
       setTimeout(()=>{
-        AuthApi.verify(code, encodedEmail).then((data) => {
+        AuthApi.verify(code, encodedEmail, encodedVerifyType).then((data) => {
+          console.log("AuthApi.verify data : ", data);
            if (AuthStatusOk(data.msStatus)) {
             setIsOpenPopup(true);
           } else{

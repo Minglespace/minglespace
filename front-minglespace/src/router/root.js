@@ -66,21 +66,13 @@ const root = createBrowserRouter([
     element: (<Suspense fallback={Loading}><LoginPage /></Suspense>),
   },
   {
-    path: "/auth/login/:type/:code/:encodedEmail",
+    path: "/auth/login/:code/:encodedEmail/:encodedVerifyType",
     element: (<Suspense fallback={Loading}><LoginPage /></Suspense>),
   },
   {
-    path: "/auth/login/:type/:msStatus",
+    path: "/auth/login/:msg",
     element: (<Suspense fallback={Loading}><LoginPage /></Suspense>),
   },
-  // {
-  //   path: "/auth/login/:code/:encodedEmail",
-  //   element: (<Suspense fallback={Loading}><LoginPage /></Suspense>),
-  // },
-  // {
-  //   path: "/auth/login/:msg",
-  //   element: (<Suspense fallback={Loading}><LoginPage /></Suspense>),
-  // },
   {
     path: "/auth/signup",
     element: (<Suspense fallback={Loading}><SignupPage /></Suspense>),

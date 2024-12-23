@@ -40,9 +40,19 @@ class AuthApi{
     }
   };
 
-  static verify = async (code, encodedEmail) => {
+  // static verify = async (code, encodedEmail) => {
+  //   try{
+  //     return await api.axiosIns.get(`/auth/verify/${ code }/${encodedEmail}`).data;
+  //   }catch(err){
+  //     throw err;
+  //   }
+  // };
+
+  static verify = async (code, encodedEmail, encodedVerifyType) => {
     try{
-      return await api.axiosIns.get(`/auth/verify/${ code }/${encodedEmail}`).data;
+      const res = await api.axiosIns.get(`/auth/verify/${ code }/${encodedEmail}/${encodedVerifyType}`);
+      console.log("응답 res : ", res);
+      return res.data;
     }catch(err){
       throw err;
     }

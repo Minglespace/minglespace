@@ -2,11 +2,13 @@ package com.minglers.minglespace.auth.controller;
 
 import com.minglers.minglespace.auth.dto.*;
 import com.minglers.minglespace.auth.entity.User;
+import com.minglers.minglespace.auth.repository.UserRepository;
 import com.minglers.minglespace.auth.security.JWTUtils;
 import com.minglers.minglespace.auth.service.AuthEmailService;
 import com.minglers.minglespace.auth.service.TokenBlacklistService;
 import com.minglers.minglespace.auth.service.UserService;
 import com.minglers.minglespace.auth.service.WithdrawalService;
+import com.minglers.minglespace.auth.type.VerifyType;
 import com.minglers.minglespace.auth.type.WithdrawalType;
 import com.minglers.minglespace.common.apistatus.AuthStatus;
 import com.minglers.minglespace.common.entity.Image;
@@ -25,7 +27,9 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
+import java.util.Base64;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
@@ -69,13 +73,45 @@ class AuthController {
     return ResponseEntity.ok(res);
   }
 
-  @GetMapping("/auth/verify/{code}/{encodedEmail}")
+//  @GetMapping("/auth/verify/{code}/{encodedEmail}")
+//  public ResponseEntity<DefaultResponse> verifyEmail(
+//          @PathVariable String code,
+//          @PathVariable String encodedEmail) {
+//    DefaultResponse res = authEmailService.verify(code, encodedEmail);
+//
+//    log.info("verifyEmail res : {}", res);
+//
+//    return ResponseEntity.ok(res);
+//  }
+
+  @GetMapping("/auth/verify/{code}/{encodedEmail}/{encodedVerifyType}")
   public ResponseEntity<DefaultResponse> verifyEmail(
           @PathVariable String code,
-          @PathVariable String encodedEmail) {
-    DefaultResponse res = authEmailService.verify(code, encodedEmail);
+          @PathVariable String encodedEmail,
+          @PathVariable String encodedVerifyType) {
 
-    log.info("verifyEmail res : {}", res);
+    String email = new String(Base64.getDecoder().decode(encodedEmail), StandardCharsets.UTF_8);
+    String strVerifyType = new String(Base64.getDecoder().decode(encodedVerifyType), StandardCharsets.UTF_8);
+    User user = userService.getUserByEmail(email);
+    VerifyType verifyType = VerifyType.valueOf(strVerifyType);
+
+    DefaultResponse res = null;
+
+    if(verifyType == VerifyType.SIGNUP){
+      res = authEmailService.checkVerifyCode(user, code);
+      if(res.getMsStatus() == AuthStatus.Ok) {
+        user.setVerificationCode("");
+        userService.updateUser(user.getId(), user, null, false);
+      }
+    }else if(verifyType == VerifyType.WITHDRAWAL){
+      res = withdrawalService.checkVerifyCode(user, code);
+      if(res.getMsStatus() == AuthStatus.Ok){
+        user.setWithdrawalType(WithdrawalType.ABLE);
+        userService.updateUser(user.getId(), user, null, false);
+      }
+    }
+
+    log.info("verifyEmail res : {}", res.toString());
 
     return ResponseEntity.ok(res);
   }
