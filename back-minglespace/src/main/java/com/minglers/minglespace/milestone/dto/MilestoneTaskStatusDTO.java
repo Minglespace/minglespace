@@ -8,9 +8,9 @@ import lombok.*;
 @ToString
 @Getter
 public class MilestoneTaskStatusDTO {
-  private int total = 0;
-  private int not_start = 0;
-  private int in_progress = 0;
-  private int completed = 0;
-  private int on_hold = 0;
+  private int total;
+  private int not_start;
+  private int in_progress;
+  private int completed;
+  private int on_hold;
 }
