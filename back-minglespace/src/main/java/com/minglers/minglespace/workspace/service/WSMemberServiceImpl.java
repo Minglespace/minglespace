@@ -242,7 +242,7 @@ public class WSMemberServiceImpl implements WSMemberService {
     }
 
     //1. 이메일을 보낸다.(링크+uuid)
-    String url = "http://localhost:3000/auth/login/workspaces="+workspaceId+"@"
+    String url = "http://localhost:3000/workspaces/"+workspaceId+"/"
             +UUID.randomUUID().toString(); //하나로 빌드후 수정해야함
 
     CompletableFuture<String> emailResult = emailInviteService.sendEmail(workSpace.getName(),url,email);
