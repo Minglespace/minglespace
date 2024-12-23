@@ -35,9 +35,6 @@ public class ChatRoomMemberServiceImpl implements ChatRoomMemberService {
   @Override
   @Transactional
   public void updateIsLeftFromLeave(Long chatRoomId, Long wsMemberId) {
-//        ChatRoom chatRoom = chatRoomRepository.findById(chatRoomId).orElseThrow(() -> new RuntimeException("해당하는 채팅방이 없습니다.."));
-//        WSMember member = wsMemberRepository.findById(wsMemberId).orElseThrow(() -> new RuntimeException("해당하는 멤버가 없습니다. "));
-
     if (!chatRoomMemberRepository.existsByChatRoomIdAndWsMemberIdAndIsLeftFalse(chatRoomId, wsMemberId)) {
       throw new ChatException(HttpStatus.NOT_FOUND.value(), "채팅방에 참여하지 않은 유저입니다.");
     }

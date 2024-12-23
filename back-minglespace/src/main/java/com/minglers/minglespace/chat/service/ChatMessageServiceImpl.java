@@ -76,16 +76,8 @@ public class ChatMessageServiceImpl implements ChatMessageService {
       }
       ChatMessage savedMessage = chatMessageRepository.save(chatMessage);
 
-      //멘션 알림
-      if (messageDTO.getMentionedUserIds() != null && !messageDTO.getMentionedUserIds().isEmpty()) {
-        for (Long mentionedUserId : messageDTO.getMentionedUserIds()) {
-          String notifyMsg = wsMember.getUser().getName() + "님께서 '" + savedMessage.getChatRoom().getName() + "' 채팅방에서 당신을 언급하였습니다.";
-          sendMentionNotification(notifyMsg, savedMessage.getChatRoom(), mentionedUserId);
-        }
-      }
-
       ////msgReadStatus 추가
-      msgReadStatusService.createMsgForMembers(savedMessage, activeUserIds);
+      msgReadStatusService.createMsgForMembers(savedMessage, activeUserIds, messageDTO.getMentionedUserIds());
 
       List<MemberWithUserInfoDTO> unreadMembers = getUnreadMembers(messageDTO.getChatRoomId(), savedMessage.getId());
       ChatMsgResponseDTO resDTO = savedMessage.toDTO(unreadMembers);
@@ -99,13 +91,6 @@ public class ChatMessageServiceImpl implements ChatMessageService {
       log.error("메시지 저장 중 오류 발생 : ", e);
       throw new ChatException(HttpStatus.INTERNAL_SERVER_ERROR.value(), "메시지 저장 중 오류 발생: " + e.getMessage());
     }
-  }
-
-
-  //멘션 알림
-  private void sendMentionNotification(String notifyMsg, ChatRoom mentionedChat, Long mentionedUserId) {
-    String path = "/workspace/" + mentionedChat.getWorkSpace().getId() + "/chat"; //?chatRoomId=" + mentionedChat.getId()
-    notificationService.sendNotification(mentionedUserId, notifyMsg, path, NotificationType.CHAT);
   }
 
   // 방 메시지 가져오기
