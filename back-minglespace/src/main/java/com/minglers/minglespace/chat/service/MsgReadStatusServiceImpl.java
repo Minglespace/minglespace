@@ -32,7 +32,7 @@ public class MsgReadStatusServiceImpl implements MsgReadStatusService {
 
   @Override
   @Transactional
-  public void createMsgForMembers(ChatMessage saveMsg, Set<Long> activeUserIds) {
+  public void createMsgForMembers(ChatMessage saveMsg, Set<Long> activeUserIds, List<Long> mentionedIds) {
     try {
       List<ChatRoomMember> members = chatRoomMemberRepository.findByChatRoomIdAndIsLeftFalse(saveMsg.getChatRoom().getId());
 
@@ -51,8 +51,20 @@ public class MsgReadStatusServiceImpl implements MsgReadStatusService {
       msgReadStatusRepository.saveAll(list);
 
       for (ChatRoomMember member : members) {
-        if(!member.getWsMember().getId().equals(saveMsg.getWsMember().getId())){
-          notificationService.sendNotification(member.getWsMember().getUser().getId(), "새로운 메시지가 있습니다.", "/workspace/" + member.getChatRoom().getWorkSpace().getId() + "/chat", NotificationType.CHAT_NEW_MESSAGE);
+        Long memberId = member.getWsMember().getUser().getId();
+        String path = "/workspace/" + saveMsg.getChatRoom().getWorkSpace().getId() + "/chat";
+        boolean isMentioned = mentionedIds.contains(memberId);
+        //작성 유저 제외
+        if (!member.getWsMember().getId().equals(saveMsg.getWsMember().getId())) {
+          // 멘션 유저 아님
+          if (!isMentioned) {
+            notificationService.sendNotification(memberId, "새로운 메시지가 있습니다.",
+                    path, NotificationType.CHAT_NEW_MESSAGE);
+          }else {
+            String notifyMsg = saveMsg.getWsMember().getUser().getName() + "님께서 '" + saveMsg.getChatRoom().getName() + "' 채팅방에서 당신을 언급하였습니다.";
+            notificationService.sendNotification(memberId, notifyMsg, path, NotificationType.CHAT);
+          }
+
         }
       }
 
