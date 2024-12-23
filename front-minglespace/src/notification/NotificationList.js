@@ -1,26 +1,28 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { FiInfo } from 'react-icons/fi'
 import NotificationItem from './NotificationItem'
+import { useNotification } from './context/NotificationContext';
 
 const isWithinLastMonth = (date) => {
 	const now = new Date();
 	const lastMonth = new Date();
 	lastMonth.setMonth(now.getMonth() - 1);
-	// const givenDate = new Date(date);
-	// return givenDate >= lastMonth && givenDate <= now;
 	return new Date(date) >= lastMonth;
 };
 
-const NotificationList = ({ notifications, handleConfirmNotification, handleClearAllNotifications, showInfo, handleInfoClick }) => {
+const NotificationList = ({ notifications, styleClass }) => {
+	const { handleClearModalOpen } = useNotification();
+
+	const [showInfo, setShowInfo] = useState(false);
 	const recentList = notifications.filter((notice) => isWithinLastMonth(notice.noticeTime));
 	const olderList = notifications.filter((notice) => !isWithinLastMonth(notice.noticeTime));
 
 	return (
-		<div className='notification-dropdown'>
+		<div className={`notification-dropdown ${styleClass || ''}`}>
 			<div className='info-container'>
 				<FiInfo
 					className='info-icon'
-					onClick={handleInfoClick}
+					onClick={() => setShowInfo(!showInfo)}
 				/>
 				{showInfo && (
 					<div className='info-message'>
@@ -28,7 +30,7 @@ const NotificationList = ({ notifications, handleConfirmNotification, handleClea
 						<p>미확인 알림은 그대로 유지됩니다.</p>
 					</div>
 				)}
-				<button className='clear-all-notification' onClick={handleClearAllNotifications}>
+				<button className='clear-all-notification' onClick={handleClearModalOpen}>
 					전체 알림 삭제
 				</button>
 			</div>
@@ -38,7 +40,6 @@ const NotificationList = ({ notifications, handleConfirmNotification, handleClea
 					<NotificationItem
 						key={notice.id}
 						notification={notice}
-						onClick={handleConfirmNotification}
 					/>
 				))
 			)}
@@ -52,7 +53,6 @@ const NotificationList = ({ notifications, handleConfirmNotification, handleClea
 						<NotificationItem
 							key={notice.id}
 							notification={notice}
-							onClick={handleConfirmNotification}
 						/>
 					))}
 				</>
