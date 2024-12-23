@@ -9,5 +9,6 @@ import java.util.Optional;
 
 @Repository
 public interface MilestoneGroupRepository extends JpaRepository<MilestoneGroup, Long> {
+  List<MilestoneGroup> findMilestoneGroupByWorkspaceId(Long workspaceId);
 
 }

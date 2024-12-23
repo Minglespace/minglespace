@@ -6,8 +6,8 @@ import Timeline, {
 } from "react-calendar-timeline";
 // make sure you include the timeline stylesheet or the timeline will not be styled
 // import "react-calendar-timeline/styles.css";
-import moment from "moment";
-import { useEffect, useState, useContext } from "react";
+import moment, { now } from "moment";
+import { useEffect, useState, useContext, useRef } from "react";
 import MilestoneApi from "../../api/milestoneApi";
 import { useParams } from "react-router-dom";
 import MileStoneModal from "./MileStoneModal";
@@ -125,6 +125,9 @@ const MileStoneComponent = () => {
 
   //아이템 사이즈 조절 핸들러
   const handleItemResize = (itemId, time, edge) => {
+    if (role === "MEMBER") {
+      return false;
+    }
     const updatedItems = items.map((item) =>
       item.id === itemId
         ? {
@@ -156,7 +159,6 @@ const MileStoneComponent = () => {
         }
       );
     }
-
     setItems(updatedItems); // 로컬 상태에서 아이템 크기 업데이트
   };
 
@@ -447,137 +449,229 @@ const MileStoneComponent = () => {
   const handleHelpModalClose = () => {
     setHelpModalOpen(false);
   };
+
   const { total, notStart, inProgress, completed, onHold } = getStatusCounts();
   return (
-    <div
-      style={{
-        overflowX: "auto",
-        overflowY: "auto",
-        height: "600px",
-      }}
-    >
-      <div className="milestone_header">
-        <div className="milestone_group_add_button">
-          {role === "LEADER" || role === "SUB_LEADER" ? (
-            <button onClick={handleGroupAdd}>그룹 추가하기</button>
+    <>
+      <div
+        style={{
+          overflowX: "auto",
+          overflowY: "auto",
+          height: "600px",
+          width: "100%",
+        }}
+      >
+        <div className="milestone_header">
+          <button onClick={() => window.location.reload()}>Today</button>
+          <div className="milestone_group_add_button">
+            {role === "LEADER" || role === "SUB_LEADER" ? (
+              <button onClick={handleGroupAdd}>그룹 추가하기</button>
+            ) : (
+              <></>
+            )}
+          </div>
+          <div className="milestone_category">
+            <p>전체 작업 : {total}건</p>
+            <div className="milestone_not_start"></div>
+            <p>시작 전 : {notStart}건</p>
+            <div className="milestone_inprogress"></div>
+            <p>진행중 : {inProgress}건</p>
+            <div className="milestone_completed"></div>
+            <p>완료 : {completed}건</p>
+            <div className="milestone_on_hold"></div>
+            <p>보류 : {onHold}건</p>
+          </div>
+          <div className="milestone_help_button">
+            <p onClick={handleHelpModalOpen}>마일스톤 사용 설명서</p>
+          </div>
+        </div>
+        <div className="milestone_borderbox">
+          {groups.length === 0 ? (
+            <div>그룹을 추가해 보세요</div>
           ) : (
-            <></>
+            <>
+              {role === "MEMBER" ? (
+                <Timeline
+                  minZoom={36000000}
+                  groups={groups}
+                  items={items}
+                  lineHeight={40}
+                  itemHeightRatio={0.5}
+                  canChangeGroup={false}
+                  defaultTimeStart={moment()
+                    .subtract(15, "days")
+                    .startOf("days")}
+                  defaultTimeEnd={moment().add(15, "days").startOf("days")}
+                  canMove={false}
+                  canResize={false}
+                  stackItems
+                  todayMarker={{
+                    backgroundColor: "#ff0000", // 빨간색
+                    borderColor: "#ff0000", // 빨간색 테두리
+                  }}
+                  groupRenderer={({ group }) => {
+                    const completionRate = getGroupCompletionRate(group.id); // 진행률 계산
+                    return (
+                      <div
+                        onDoubleClick={() => handleGroupDoubleClick(group.id)}
+                        style={{ cursor: "pointer", textAlign: "center" }}
+                      >
+                        {group.title} ({completionRate}%)
+                      </div>
+                    );
+                  }}
+                  itemRenderer={({ item, itemContext, getItemProps }) => {
+                    let styles = "#ffffff";
+                    if (item.taskStatus === "NOT_START") {
+                      styles = "#C8C8C8";
+                    } else if (item.taskStatus === "IN_PROGRESS") {
+                      styles = "#2EEB3A";
+                    } else if (item.taskStatus === "COMPLETED") {
+                      styles = "#3E63EB";
+                    } else {
+                      styles = "#EA7436";
+                    }
+
+                    const BackgroundColor = itemContext.selected
+                      ? `${styles} !important`
+                      : styles;
+
+                    return (
+                      <div
+                        tabIndex={0}
+                        {...getItemProps({
+                          style: {
+                            backgroundColor: BackgroundColor,
+                            borderColor: itemContext.selected
+                              ? "#ff0000"
+                              : styles,
+                          },
+                          onDoubleClick: () => handleItemDoubleClick(item.id),
+                        })}
+                      >
+                        {itemContext.title}
+                      </div>
+                    );
+                  }}
+                  onCanvasDoubleClick={handleCanvasClick}
+                >
+                  <TodayMarker />
+                  <TimelineHeaders minZoom={36000000}>
+                    <DateHeader unit="primaryHeader" />
+                    <DateHeader />
+                  </TimelineHeaders>
+                </Timeline>
+              ) : (
+                <Timeline
+                  minZoom={36000000}
+                  groups={groups}
+                  items={items}
+                  lineHeight={40}
+                  itemHeightRatio={0.5}
+                  canChangeGroup={false}
+                  defaultTimeStart={moment()
+                    .subtract(15, "days")
+                    .startOf("days")}
+                  defaultTimeEnd={moment().add(15, "days").startOf("days")}
+                  onTimeChange={handleTimeChange}
+                  onItemMove={handleItemMove}
+                  onItemResize={handleItemResize}
+                  stackItems
+                  todayMarker={{
+                    backgroundColor: "#ff0000", // 빨간색
+                    borderColor: "#ff0000", // 빨간색 테두리
+                  }}
+                  groupRenderer={({ group }) => {
+                    const completionRate = getGroupCompletionRate(group.id); // 진행률 계산
+                    return (
+                      <div
+                        onDoubleClick={() => handleGroupDoubleClick(group.id)}
+                        style={{ cursor: "pointer", textAlign: "center" }}
+                      >
+                        {group.title} ({completionRate}%)
+                      </div>
+                    );
+                  }}
+                  itemRenderer={({
+                    item,
+                    itemContext,
+                    getItemProps,
+                    getResizeProps,
+                  }) => {
+                    let styles = "#ffffff";
+                    if (item.taskStatus === "NOT_START") {
+                      styles = "#C8C8C8";
+                    } else if (item.taskStatus === "IN_PROGRESS") {
+                      styles = "#2EEB3A";
+                    } else if (item.taskStatus === "COMPLETED") {
+                      styles = "#3E63EB";
+                    } else {
+                      styles = "#EA7436";
+                    }
+
+                    const BackgroundColor = itemContext.selected
+                      ? `${styles} !important`
+                      : styles;
+
+                    const { left: leftResizeProps, right: rightResizeProps } =
+                      getResizeProps();
+                    return (
+                      <div
+                        tabIndex={0}
+                        {...getItemProps({
+                          style: {
+                            backgroundColor: BackgroundColor,
+                            borderColor: itemContext.selected
+                              ? "#ff0000"
+                              : styles,
+                          },
+                          onDoubleClick: () => handleItemDoubleClick(item.id),
+                        })}
+                      >
+                        {itemContext.title}
+                        {itemContext.useResizeHandle ? (
+                          <div>
+                            <div {...leftResizeProps} />{" "}
+                            <div {...rightResizeProps} />{" "}
+                          </div>
+                        ) : null}
+                      </div>
+                    );
+                  }}
+                  onCanvasDoubleClick={handleCanvasClick}
+                >
+                  <TodayMarker />
+                  <TimelineHeaders minZoom={36000000}>
+                    <DateHeader unit="primaryHeader" />
+                    <DateHeader />
+                  </TimelineHeaders>
+                </Timeline>
+              )}
+            </>
           )}
         </div>
-        <div className="milestone_category">
-          <p>전체 작업 : {total}건</p>
-          <div className="milestone_not_start"></div>
-          <p>시작 전 : {notStart}건</p>
-          <div className="milestone_inprogress"></div>
-          <p>진행중 : {inProgress}건</p>
-          <div className="milestone_completed"></div>
-          <p>완료 : {completed}건</p>
-          <div className="milestone_on_hold"></div>
-          <p>보류 : {onHold}건</p>
-        </div>
-        <div className="milestone_help_button">
-          <p onClick={handleHelpModalOpen}>마일스톤 사용 설명서</p>
-        </div>
+
+        <MileStoneModal
+          open={modalOpen}
+          onClose={handleModalClose}
+          title={newTitle}
+          startTime={newStartTime}
+          endTime={newEndTime}
+          taskStatus={newTaskStatus}
+          onTaskStatusChange={setNewTaskStatus}
+          onTitleChange={setNewTitle}
+          onStartTimeChange={setNewStartTime}
+          onEndTimeChange={setNewEndTime}
+          onSave={handleModalSave}
+          onDelete={handleModalDelete}
+          mode={mode}
+        />
+        <MileStoneHelpModal
+          open={helpModalOpen}
+          onClose={handleHelpModalClose}
+        />
       </div>
-      <div className="milestone_borderbox">
-        <Timeline
-          minZoom={36000000}
-          groups={groups}
-          items={items}
-          lineHeight={40}
-          itemHeightRatio={0.5}
-          canChangeGroup={false}
-          defaultTimeStart={moment().add(0, "day")}
-          defaultTimeEnd={moment().add(31, "day")}
-          onTimeChange={handleTimeChange}
-          onItemMove={handleItemMove}
-          onItemResize={handleItemResize}
-          stackItems
-          todayMarker={{
-            backgroundColor: "#ff0000", // 빨간색
-            borderColor: "#ff0000", // 빨간색 테두리
-          }}
-          groupRenderer={({ group }) => {
-            const completionRate = getGroupCompletionRate(group.id); // 진행률 계산
-            return (
-              <div
-                onDoubleClick={() => handleGroupDoubleClick(group.id)}
-                style={{ cursor: "pointer", textAlign: "center" }}
-              >
-                {group.title} ({completionRate}%)
-              </div>
-            );
-          }}
-          itemRenderer={({
-            item,
-            itemContext,
-            getItemProps,
-            getResizeProps,
-          }) => {
-            let styles = "#ffffff";
-            if (item.taskStatus === "NOT_START") {
-              styles = "#C8C8C8";
-            } else if (item.taskStatus === "IN_PROGRESS") {
-              styles = "#2EEB3A";
-            } else if (item.taskStatus === "COMPLETED") {
-              styles = "#3E63EB";
-            } else {
-              styles = "#EA7436";
-            }
-
-            const BackgroundColor = itemContext.selected
-              ? `${styles} !important`
-              : styles;
-
-            const { left: leftResizeProps, right: rightResizeProps } =
-              getResizeProps();
-            return (
-              <div
-                tabIndex={0}
-                {...getItemProps({
-                  style: {
-                    backgroundColor: BackgroundColor,
-                    borderColor: itemContext.selected ? "#ff0000" : styles,
-                  },
-                  onDoubleClick: () => handleItemDoubleClick(item.id),
-                })}
-              >
-                {itemContext.title}
-                {itemContext.useResizeHandle ? (
-                  <div>
-                    <div {...leftResizeProps} /> <div {...rightResizeProps} />{" "}
-                  </div>
-                ) : null}
-              </div>
-            );
-          }}
-          onCanvasDoubleClick={handleCanvasClick}
-        >
-          <TodayMarker />
-          <TimelineHeaders minZoom={36000000}>
-            <DateHeader unit="primaryHeader" />
-            <DateHeader />
-          </TimelineHeaders>
-        </Timeline>
-      </div>
-
-      <MileStoneModal
-        open={modalOpen}
-        onClose={handleModalClose}
-        title={newTitle}
-        startTime={newStartTime}
-        endTime={newEndTime}
-        taskStatus={newTaskStatus}
-        onTaskStatusChange={setNewTaskStatus}
-        onTitleChange={setNewTitle}
-        onStartTimeChange={setNewStartTime}
-        onEndTimeChange={setNewEndTime}
-        onSave={handleModalSave}
-        onDelete={handleModalDelete}
-        mode={mode}
-      />
-      <MileStoneHelpModal open={helpModalOpen} onClose={handleHelpModalClose} />
-    </div>
+    </>
   );
 };
 

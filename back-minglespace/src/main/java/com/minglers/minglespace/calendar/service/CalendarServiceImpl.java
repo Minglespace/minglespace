@@ -6,6 +6,9 @@ import com.minglers.minglespace.calendar.entity.Calendar;
 import com.minglers.minglespace.calendar.exception.CalendarException;
 import com.minglers.minglespace.calendar.repository.CalendarRepository;
 import com.minglers.minglespace.calendar.type.CalendarType;
+import com.minglers.minglespace.milestone.entity.MilestoneGroup;
+import com.minglers.minglespace.milestone.entity.MilestoneItem;
+import com.minglers.minglespace.milestone.repository.MilestoneGroupRepository;
 import com.minglers.minglespace.todo.entity.Todo;
 import com.minglers.minglespace.todo.repository.TodoAssigneeRepository;
 import com.minglers.minglespace.todo.repository.TodoRepository;
@@ -22,6 +25,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -34,6 +40,7 @@ public class CalendarServiceImpl implements CalendarService{
   private final WorkspaceRepository workspaceRepository;
   private final WSMemberRepository wsMemberRepository;
   private final TodoAssigneeRepository todoAssigneeRepository;
+  private final MilestoneGroupRepository milestoneGroupRepository;
   private final ModelMapper modelMapper;
 
   private WorkSpace findByWorkspaceId(Long workspaceId){
@@ -65,16 +72,28 @@ public class CalendarServiceImpl implements CalendarService{
 
     List<Todo> todoList = todoAssigneeRepository.findAllTodoByWorkspaceIdAndWsMemberId(workspaceId,wsMember.getId());
     todoList.forEach((todo -> {CalendarResponseDTO calendarDTO = CalendarResponseDTO.builder()
-
             .title(todo.getTitle())
             .description(todo.getContent())
             .start(todo.getStartDate())
             .end(todo.getEndDate())
             .type("TODO")
             .build();
-
       calendarResponseDTO.add(calendarDTO);
     }));
+
+    milestoneGroupRepository.findMilestoneGroupByWorkspaceId(workspaceId)
+            .forEach((msg -> msg.getMilestoneItemList()
+                    .forEach((msi -> {CalendarResponseDTO calendarDTO = CalendarResponseDTO.builder()
+                            .title(msi.getTitle())
+                            .description(msg.getTitle())
+                            .start(LocalDateTime.ofInstant(Instant.ofEpochMilli(msi.getStart_time()), ZoneId.systemDefault()))
+                            .end(LocalDateTime.ofInstant(Instant.ofEpochMilli(msi.getEnd_time()), ZoneId.systemDefault()))
+                            .type("MILESTONE")
+                            .build();
+                      calendarResponseDTO.add(calendarDTO);
+                    }))
+            ));
+
     return calendarResponseDTO;
   }
 

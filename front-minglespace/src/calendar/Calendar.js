@@ -210,14 +210,14 @@ const Calendar = () => {
       }));
       return false;
     }
-    const startDate = new Date(formData.start.split("T")[0]);
-    const endDate = new Date(formData.end.split("T")[0]);
-    const timeDifference = endDate - startDate;
-    const dayDifference = timeDifference / (1000 * 60 * 60 * 24);
-    if (dayDifference < 1) {
-      alert("2일 이상 날짜를 선택해 주세요.");
-      return false;
-    }
+    // const startDate = new Date(formData.start.split("T")[0]);
+    // const endDate = new Date(formData.end.split("T")[0]);
+    // const timeDifference = endDate - startDate;
+    // const dayDifference = timeDifference / (1000 * 60 * 60 * 24);
+    // if (dayDifference < 1) {
+    //   alert("2일 이상 날짜를 선택해 주세요.");
+    //   return false;
+    // }
     return true;
   };
 
@@ -284,6 +284,9 @@ const Calendar = () => {
             if (info.event.extendedProps.type === "TODO") {
               info.el.style.backgroundColor = "green";
               info.el.style.cursor = "default";
+            } else if (info.event.extendedProps.type === "MILESTONE") {
+              info.el.style.backgroundColor = "orange";
+              info.el.style.cursor = "default";
             }
           }}
           dayMaxEventRows={5}
@@ -303,6 +306,8 @@ const Calendar = () => {
               typeString = "개인";
             } else if (eventType === "TODO") {
               typeString = "할일";
+            } else if (eventType === "MILESTONE") {
+              typeString = "마일스톤";
             }
             const timeString = end ? "" : `-${startTime}`;
             return (
