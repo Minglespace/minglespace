@@ -25,6 +25,12 @@ public class CalendarController {
   private final JWTUtils jwtUtils;
 
   @GetMapping("")
+  private ResponseEntity<List<CalendarResponseDTO>> getCalendarAll(@PathVariable("workspaceId") Long workspaceId, @RequestHeader("Authorization") String token) {
+    Long userId = jwtUtils.extractUserId(token.substring(7));
+    return ResponseEntity.ok(calendarService.getCalendarAll(workspaceId, userId));
+  }
+
+  @GetMapping("/notice")
   private ResponseEntity<List<CalendarResponseDTO>> getCalendarNotice(@PathVariable("workspaceId") Long workspaceId) {
     return ResponseEntity.ok(calendarService.getCalendarNotice(workspaceId));
   }
@@ -35,7 +41,7 @@ public class CalendarController {
     return ResponseEntity.ok(calendarService.getCalendarPrivate(workspaceId,userId));
   }
 
-  @PostMapping("")
+    @PostMapping("")
   private ResponseEntity<CalendarResponseDTO> addCalendar(@PathVariable("workspaceId") Long workspaceId,
                                                           @RequestBody CalendarRequestDTO calendarRequestDTO,
                                                           @RequestHeader("Authorization") String token) {
