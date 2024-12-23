@@ -96,6 +96,7 @@ const LoginPage = () => {
       const data = await AuthApi.login(email, password);
       
       if(AuthStatusOk(data.msStatus)){
+        Repo.setItem(data);
         // navigate("/main");
         navigate(getUriPath(location), { replace: true });
       }else if(data.msStatus && AuthStatus[data.msStatus]){

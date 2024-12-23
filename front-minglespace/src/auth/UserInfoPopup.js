@@ -100,9 +100,9 @@ export default function UserInfoPopup() {
     const data = await AuthApi.userInfo();
 
     if (AuthStatusOk(data.msStatus)) {
+      Repo.setItem(data);
       setUserInfo(data);
       setInitialUserInfo({ ...data }); // 초기 상태 저장
-      console.log("저장 data : ", data);
 
     }else if(data.msStatus && AuthStatus[data.msStatus]){
       setMessage({
@@ -132,6 +132,7 @@ export default function UserInfoPopup() {
         navigate("/auth/login");
       }
     });
+    Repo.clearItem();
   };
 
   const handleInputChange = (e) => {
