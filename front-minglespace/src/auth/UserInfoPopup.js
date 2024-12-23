@@ -121,6 +121,19 @@ export default function UserInfoPopup() {
       getUserInfo();
     }
   };
+  
+  const handleClickWithdrawal = async () => {
+    const data = await AuthApi.withdrawal();
+    if (AuthStatusOk(data.msStatus)) {
+      Repo.clearItem();
+      navigate("/auth/login");
+    }else if(data.msStatus && AuthStatus[data.msStatus]){
+      setMessage({
+        title: "확인", 
+        content: AuthStatus[data.msStatus].desc,  
+      });
+    }
+  };
 
   const handleClickSetting = () => {
     setIsEditing(true);
@@ -388,6 +401,10 @@ export default function UserInfoPopup() {
               </>
             ) : (
               <>
+                <button onClick={handleClickWithdrawal} className="logout-button">
+                  <Settings size={16} />
+                  회원탈퇴
+                </button>
                 <button onClick={handleClickSetting} className="logout-button">
                   <Settings size={16} />
                   정보변경

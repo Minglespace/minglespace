@@ -4,6 +4,7 @@ import com.minglers.minglespace.auth.entity.User;
 import com.minglers.minglespace.auth.exception.AuthException;
 import com.minglers.minglespace.auth.repository.UserRepository;
 import com.minglers.minglespace.auth.type.Provider;
+import com.minglers.minglespace.auth.type.WithdrawalType;
 import com.minglers.minglespace.common.apistatus.AuthStatus;
 import com.minglers.minglespace.common.entity.Image;
 import com.minglers.minglespace.common.service.ImageService;
@@ -140,8 +141,22 @@ public class UserServiceOAuth2 extends DefaultOAuth2UserService {
 
     if(userOpt.isPresent()){
       user = userOpt.get();
+
+      // 자체 로그인과 통합필요
+      WithdrawalType withdrawalType = user.getWithdrawalType();
+      if(withdrawalType != WithdrawalType.NOT){
+        AuthStatus authStatus = AuthStatus.WithdrawalEmailFirst;
+        switch (withdrawalType){
+          case EMAIL ->         authStatus = AuthStatus.WithdrawalEmailFirst;
+          case ABLE ->          authStatus = AuthStatus.WithdrawalAble;
+          case DELIVERATION ->  authStatus = AuthStatus.WithdrawalDeliveration;
+          case DONE ->          authStatus = AuthStatus.WithdrawalDone;
+        }
+        return new OAuth2UserMs(user, authStatus);
+      }
     }else{
       user = new User();
+      user.setWithdrawalType(WithdrawalType.NOT);
 
       // 신규 소셜유저 비번은 필요없지만 에러방지 위해 넣어준다.
       user.setPassword("password");

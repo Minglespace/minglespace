@@ -30,9 +30,21 @@ public class SuccessHandlerOAuth2 extends SimpleUrlAuthenticationSuccessHandler 
 
     OAuth2UserMs oAuth2UserMs = (OAuth2UserMs) authentication.getPrincipal();
 
-    if(oAuth2UserMs.getStatus() == AuthStatus.AlreadyJoinedEmail){
-      log.info("[MIRO] 돌려 보내는 사유 : {}", oAuth2UserMs.getStatus().getDesc());
-      response.sendRedirect(MsConfig.getClientUrl("/auth/login/" +  oAuth2UserMs.getStatus()));
+    // 자체 로그인과 통합 필요
+    AuthStatus authStatus = oAuth2UserMs.getStatus();
+    if(authStatus != AuthStatus.Ok){
+
+      String uri = "/auth/login/";
+      switch (authStatus){
+        case AlreadyJoinedEmail ->      uri += MsConfig.UriType.MESSAGE.name();
+        case WithdrawalEmailFirst ->    uri += MsConfig.UriType.WITHDRAWAL.name();
+        case WithdrawalAble ->          uri += MsConfig.UriType.WITHDRAWAL.name();
+        case WithdrawalDeliveration ->  uri += MsConfig.UriType.WITHDRAWAL.name();
+        case WithdrawalDone ->          uri += MsConfig.UriType.WITHDRAWAL.name();
+      }
+
+      log.info("[MIRO] 돌려 보내는 사유 : {}", authStatus.getDesc());
+      response.sendRedirect(MsConfig.getClientUrl(uri + "/" +  authStatus));
       return;
     }
 

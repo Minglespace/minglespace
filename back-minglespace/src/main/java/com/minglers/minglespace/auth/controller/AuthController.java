@@ -6,6 +6,8 @@ import com.minglers.minglespace.auth.security.JWTUtils;
 import com.minglers.minglespace.auth.service.AuthEmailService;
 import com.minglers.minglespace.auth.service.TokenBlacklistService;
 import com.minglers.minglespace.auth.service.UserService;
+import com.minglers.minglespace.auth.service.WithdrawalService;
+import com.minglers.minglespace.auth.type.WithdrawalType;
 import com.minglers.minglespace.common.apistatus.AuthStatus;
 import com.minglers.minglespace.common.entity.Image;
 import com.minglers.minglespace.common.service.ImageService;
@@ -38,6 +40,7 @@ class AuthController {
   private final AuthEmailService authEmailService;
   private final ImageService imageService;
   private final ModelMapper modelMapper;
+  private final WithdrawalService withdrawalService;
 
   @PostMapping("/auth/signup")
   public ResponseEntity<DefaultResponse> signup(@RequestBody SignupRequest reg, HttpServletRequest request) throws MessagingException {
@@ -89,6 +92,12 @@ class AuthController {
 
     log.info("auth/logout");
 
+    logoutCommon(request, response);
+
+    return ResponseEntity.ok(new DefaultResponse().setStatus(AuthStatus.Ok));
+  }
+
+  private void logoutCommon(HttpServletRequest request, HttpServletResponse response){
     String refreshToken = CookieManager.get(JWTUtils.REFRESH_TOKEN, request);
     CookieManager.clear(JWTUtils.REFRESH_TOKEN, response);
 
@@ -97,8 +106,6 @@ class AuthController {
       log.info("Token expires at: {}", expiresAt);
       tokenBlacklistService.addToBlacklist(refreshToken, expiresAt);
     }
-
-    return ResponseEntity.ok(new DefaultResponse().setStatus(AuthStatus.Ok));
   }
 
   @GetMapping("/auth/token")
@@ -119,15 +126,15 @@ class AuthController {
     return ResponseEntity.ok(res);
   }
 
+  private User getUser(){
+    Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+    String email = authentication.getName();
+    return userService.getUserByEmail(email);
+  }
 
   @GetMapping("/auth/user")
   public ResponseEntity<UserResponse> getMyProfile() {
-
-    Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-
-
-    String email = authentication.getName();
-    User user = userService.getUserByEmail(email);
+    User user = getUser();
     if(user == null){
       return ResponseEntity.ok(new UserResponse(AuthStatus.NotFoundAccount));
     }
@@ -191,4 +198,42 @@ class AuthController {
     return ResponseEntity.ok(userService.deleteUser(userId));
   }
 
+  // 유저가 회원탈퇴 요청시
+  // 이메일 인증 보내고
+  // DB 설정 후
+  // 이후 로그인시
+  // 회원탈퇴로 이동 시킨다.
+  @GetMapping("/auth/withdrawal")
+  public ResponseEntity<DefaultResponse> withdrawal(HttpServletRequest request, HttpServletResponse response){
+
+    // 유저 찾기
+    User user = getUser();
+    if(user == null){
+      return ResponseEntity.ok(new UserResponse(AuthStatus.NotFoundAccount));
+    }
+
+    // 회원 탈퇴 이메일 인증 코드 생성
+    String code = UUID.randomUUID().toString();
+
+    // user WithdrawalType 저장
+    user.setWithdrawalType(WithdrawalType.EMAIL);
+    UserResponse userResponse = userService.updateUser(user, null, false);
+
+    // withdrawal table 저장
+    withdrawalService.add(user, code);
+
+    // 이메일 전송
+    CompletableFuture<String> emailResult = authEmailService.sendWithdrawal(code, user.getEmail(), request);
+    log.info("비동기 이메일 전송 : {}", emailResult.toString());
+    emailResult.thenAccept(result -> {
+      log.info("비동기 이메일 전송 결과: {}", result);
+    });
+
+    // 인증 초기화
+    logoutCommon(request, response);
+
+    // 클라에서는 로그아웃 패킷 보낼 필요 없이 자체 로그 아웃 하면 된다.
+
+    return ResponseEntity.ok(new DefaultResponse(AuthStatus.Ok));
+  }
 }

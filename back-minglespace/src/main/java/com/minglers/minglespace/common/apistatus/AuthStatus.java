@@ -10,6 +10,11 @@ public enum AuthStatus {
   Exception("예기치 못한 오류."),
   AlreadyJoinedEmail("이미 등록한 이메일(소셜 포함) 유저 입니다."),
 
+  WithdrawalEmailFirst("회원탈퇴 이메일 인증 먼저"),
+  WithdrawalAble("회원탈퇴 신청가능."),
+  WithdrawalDeliveration("회원탈퇴 숙려기간."),
+  WithdrawalDone("회원탈퇴 완료."),
+
   MismatchPw("비밀번호가 틀림"),
   AuthInternalError("인증 서비스 내부 오류"),
   NotFoundAccount("사용자가 존재하지 않은 경우"),

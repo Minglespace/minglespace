@@ -2,10 +2,12 @@ package com.minglers.minglespace.auth.service;
 
 import com.minglers.minglespace.auth.dto.*;
 import com.minglers.minglespace.auth.entity.User;
+import com.minglers.minglespace.auth.entity.Withdrawal;
 import com.minglers.minglespace.auth.exception.AuthException;
 import com.minglers.minglespace.auth.repository.UserRepository;
 import com.minglers.minglespace.auth.security.JWTUtils;
 import com.minglers.minglespace.auth.type.Provider;
+import com.minglers.minglespace.auth.type.WithdrawalType;
 import com.minglers.minglespace.common.apistatus.AuthStatus;
 import com.minglers.minglespace.common.entity.Image;
 import com.minglers.minglespace.common.util.CookieManager;
@@ -52,6 +54,7 @@ public class UserService {
         user.setPassword(passwordEncoder.encode(req.getPassword()));
         user.setRole(req.getRole());
         user.setProvider(Provider.MINGLESPACE);
+        user.setWithdrawalType(WithdrawalType.NOT);
 
         // 디비 저장
         User userResult = usersRepo.save(user);
@@ -95,6 +98,20 @@ public class UserService {
 
       User user = userOpt.get();
 
+      // 소셜로그인과 통합필요
+      // 회원탈퇴 중인 유저인지 체크
+      WithdrawalType withdrawalType = user.getWithdrawalType();
+      if(withdrawalType != WithdrawalType.NOT){
+        switch (withdrawalType){
+          case EMAIL ->         res.setStatus(AuthStatus.WithdrawalEmailFirst);
+          case ABLE ->          res.setStatus(AuthStatus.WithdrawalAble);
+          case DELIVERATION ->  res.setStatus(AuthStatus.WithdrawalDeliveration);
+          case DONE ->          res.setStatus(AuthStatus.WithdrawalDone);
+        }
+        return res;
+      }
+
+      // 자체 로그인 중인데, 소셜계정의 유저가 찾아진 경우
       if(user.isSocialProvider()){
         res.setStatus(AuthStatus.AlreadyJoinedEmail);
         return res;
@@ -170,7 +187,7 @@ public class UserService {
 
     Long userId = user.getId();
 
-    return updateUser(userId, updateUser, image,dontUse);
+    return updateUser(userId, updateUser, image, dontUse);
   }
 
   public UserResponse updateUser(Long userId, User updateUser, Image image, boolean dontUse) {

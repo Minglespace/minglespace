@@ -10,6 +10,12 @@ export const AuthStatus = Object.freeze({
   EmailVerificationFirst:     {value:"EmailVerificationFirst",    desc:"이메일 인증해야 회원가입이 완료 됩니다."},
   ExpiredRefreshToken:        {value:"ExpiredRefreshToken",       desc:"로그인 인증이 만료 되었습니다."},
 
+  WithdrawalEmailFirst:     {value:"WithdrawalEmailFirst",    desc:"먼저 회원탈퇴 이메일 인증을 완료하세요."},
+  WithdrawalAble:           {value:"WithdrawalAble",          desc:"회원탈퇴 페이지에서 신청 가능합니다."},
+  WithdrawalDeliveration:   {value:"WithdrawalDeliveration",  desc:"회원탈퇴 숙려기간 중입니다."},
+  WithdrawalDone:           {value:"WithdrawalDone",          desc:"회원탈퇴가 완료 되었습니다."},
+
+
 });
 
 export const AuthStatusOk = (msStatus) => {

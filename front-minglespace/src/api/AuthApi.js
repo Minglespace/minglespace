@@ -77,6 +77,15 @@ class AuthApi{
     }
   };
 
+  static withdrawal = async () => {
+    try {
+      const res = await api.axiosIns.get("/auth/withdrawal");
+      return res.data;
+    } catch (err) {
+      throw err; 
+    }
+  };
+  
 }
 
 export default AuthApi;

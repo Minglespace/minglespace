@@ -91,6 +91,55 @@ public class AuthEmailService extends EmailService {
 
     return res;
   }
+
+  enum UriType{
+    SIGNUP,
+    WITHDRAWAL,
+    MESSAGE,
+  };
+
+  private String makeURI(UriType uriType, String code){
+
+    String uri = "/auth/login";
+    String type = "/" + uriType.name();
+    String encodedCode = "/" + code;
+
+    return uri + type + encodedCode;
+  }
+
+  @Async
+  public CompletableFuture<String> sendWithdrawal(String code, String to, HttpServletRequest request) {
+    try {
+
+      String base = getBaseUrl(request);
+      String uri = makeURI(UriType.WITHDRAWAL, code);
+      String confirmationUrl = base + uri;
+
+      // 이메일 인증 내용
+      String subject = "Mingle Space Email Verification";
+
+      // HTML로 꾸민 이메일 내용#f20306
+      String emailContent = "<html>"
+              + "<body style='font-family: Arial, sans-serif; background-color: #f4f4f9; color: #333;'>"
+              + "<div style='max-width: 600px; margin: 0 auto; padding: 20px; background-color: #ffffff; border-radius: 8px;'>"
+              + "<h2 style='color: #f20306;'>Mingle Space Email Verification</h2>"
+              + "<p>안녕하세요!<br> 회원탈퇴 이메일 인증을 완료하려면 아래 버튼을 클릭하세요:</p>"
+              + "<a href='" + confirmationUrl + "' style='display: inline-block; margin: 15px 15px; padding: 15px 15px; font-size: 16px; color: #fff; background-color: #f20306; text-decoration: none; border-radius: 5px;'>회원 탈퇴 이메일 인증하기</a>"
+              + "<p style='margin-top: 20px;'>혹은 아래 링크를 복사하여 브라우저에 붙여넣으세요:</p>"
+              + "<p><a href='" + confirmationUrl + "' style='color: #1E88E5;'>" + confirmationUrl + "</a></p>"
+              + "<p style='margin-top: 30px;'>감사합니다,<br>Team Mingle Space</p>"
+              + "</div>"
+              + "</body>"
+              + "</html>";
+
+      send(to, subject, emailContent);
+
+    } catch (MessagingException e) {
+      e.printStackTrace();
+    }
+
+    return CompletableFuture.completedFuture("비동기 회원탈퇴 이메일 완료 sendWithdrawal");
+  }
 }
 
 

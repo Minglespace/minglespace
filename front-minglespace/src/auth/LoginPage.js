@@ -30,14 +30,35 @@ const LoginPage = () => {
   const location = useLocation();
 
   const [isOpenPopup, setIsOpenPopup] = useState(false);
-  const {code, encodedEmail} = useParams();
-  const {msg} = useParams();
+
+  const {type1, code, encodedEmail} = useParams();
+  const {type2, msStatus} = useParams();
+  const {type3} = useParams();
+  // const {code, encodedEmail} = useParams();
+  // const {msg} = useParams();
   
   //================================================================================================
   //================================================================================================
   //================================================================================================
   //================================================================================================
   useEffect(()=>{
+
+    
+    console.log("location.state : ", location.state);
+
+    const searchParams = new URLSearchParams(location.search);
+    console.log("searchParams : ", searchParams);
+
+    console.log("type3 : ", type3);
+
+    console.log("type2 : ", type2);
+    console.log("msStatus : ", msStatus);
+
+    console.log("type1 : ", type1);
+    console.log("code : ", code);
+    console.log("encodedEmail : ", encodedEmail);
+    
+    let msg = "asdf";
 
     if(msg && AuthStatus[msg]){
       
