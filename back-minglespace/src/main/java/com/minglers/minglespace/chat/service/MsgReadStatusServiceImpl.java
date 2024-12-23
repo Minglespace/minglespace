@@ -6,6 +6,8 @@ import com.minglers.minglespace.chat.entity.MsgReadStatus;
 import com.minglers.minglespace.chat.exception.ChatException;
 import com.minglers.minglespace.chat.repository.ChatRoomMemberRepository;
 import com.minglers.minglespace.chat.repository.MsgReadStatusRepository;
+import com.minglers.minglespace.common.service.NotificationService;
+import com.minglers.minglespace.common.type.NotificationType;
 import com.minglers.minglespace.workspace.entity.WSMember;
 import com.minglers.minglespace.workspace.repository.WSMemberRepository;
 import com.minglers.minglespace.workspace.service.WSMemberService;
@@ -22,23 +24,23 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 @Log4j2
-public class MsgReadStatusServiceImpl implements MsgReadStatusService{
+public class MsgReadStatusServiceImpl implements MsgReadStatusService {
   private final MsgReadStatusRepository msgReadStatusRepository;
   private final ChatRoomMemberRepository chatRoomMemberRepository;
   private final WSMemberRepository wsMemberRepository;
+  private final NotificationService notificationService;
 
   @Override
   @Transactional
   public void createMsgForMembers(ChatMessage saveMsg, Set<Long> activeUserIds) {
-    try{
+    try {
       List<ChatRoomMember> members = chatRoomMemberRepository.findByChatRoomIdAndIsLeftFalse(saveMsg.getChatRoom().getId());
 
-      if (members.isEmpty()){
+      if (members.isEmpty()) {
         throw new ChatException(HttpStatus.NOT_FOUND.value(), "메시지 저장하는 채팅방에 멤버가 없습니다.");
       }
 
       List<MsgReadStatus> list = members.stream()
-//              .filter(member -> !member.getWsMember().getId().equals(saveMsg.getWsMember().getId()))
               .filter(member -> !activeUserIds.contains(member.getWsMember().getUser().getId()))
               .map(member -> MsgReadStatus.builder()
                       .message(saveMsg)
@@ -47,8 +49,15 @@ public class MsgReadStatusServiceImpl implements MsgReadStatusService{
               .collect(Collectors.toList());
 
       msgReadStatusRepository.saveAll(list);
-    }catch (Exception e){
-      log.error("메시지 읽음 처리 테이블에 저장 중 오류 발생: ",e.getMessage());
+
+      for (ChatRoomMember member : members) {
+        if(!member.getWsMember().getId().equals(saveMsg.getWsMember().getId())){
+          notificationService.sendNotification(member.getWsMember().getUser().getId(), "새로운 메시지가 있습니다.", "/workspace/" + member.getChatRoom().getWorkSpace().getId() + "/chat", NotificationType.CHAT_NEW_MESSAGE);
+        }
+      }
+
+    } catch (Exception e) {
+      log.error("메시지 읽음 처리 테이블에 저장 중 오류 발생: "+ e.getMessage());
       throw new ChatException(HttpStatus.INTERNAL_SERVER_ERROR.value(), "메시지 읽음 처리 테이블에 저장 중 오류 발생");
     }
 

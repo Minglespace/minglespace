@@ -52,7 +52,7 @@ public class ChatRoomServiceImpl implements ChatRoomService {
     WSMember wsMember = wsMemberRepository.findByUserIdAndWorkSpaceId(userId, workspaceId).orElseThrow(() -> new ChatException(HttpStatus.FORBIDDEN.value(), "워크스페이스 참여하는 유저가 아닙니다."));
 
     // 채팅방 목록을 얻기 위한
-    List<ChatRoomMember> chatRooms = chatRoomMemberRepository.findByChatRoom_WorkSpace_IdAndWsMember_IdOrderByChatRoom_DateDesc(workspaceId, wsMember.getId());
+    List<ChatRoomMember> chatRooms = chatRoomMemberRepository.findByChatRoom_WorkSpace_IdAndWsMember_IdAndIsLeftFalseOrderByChatRoom_DateDesc(workspaceId, wsMember.getId());
 
     return chatRooms.stream()
             .map(chatRoomMember -> {
