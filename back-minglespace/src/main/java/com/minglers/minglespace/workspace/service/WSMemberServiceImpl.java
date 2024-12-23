@@ -229,21 +229,16 @@ public class WSMemberServiceImpl implements WSMemberService {
     WorkSpace workSpace = findWorkSpaceById(workspaceId);
     Optional<User> targetUser = userRepository.findByEmail(email);
 
-    if(targetUser.isPresent()) {//이미 가입한 유저이면서
-      if(wsMemberRepository.existsByWorkSpaceIdAndUserId(workspaceId, targetUser.get().getId())){//워크스페이스에 존재하면
+    if(targetUser.isPresent()) {//이미 가입한 유저이면서,워크스페이스에 존재하면
+      if(wsMemberRepository.existsByWorkSpaceIdAndUserId(workspaceId, targetUser.get().getId())){
         return targetUser.get().getEmail()+"님은 이미 워크스페이스 멤버입니다.";
-      }else {//가입한 유저이지만 워크스페이스에 존재하지 않으면..
-        wsMemberRepository.save(WSMember.builder()
-                .role(WSMemberRole.MEMBER)
-                .user(targetUser.get())
-                .workSpace(workSpace)
-                .build());
       }
     }
 
     //1. 이메일을 보낸다.(링크+uuid)
-    String url = "http://localhost:3000/workspaces/"+workspaceId+"/"
-            +UUID.randomUUID().toString(); //하나로 빌드후 수정해야함
+    String uuid = UUID.randomUUID().toString();
+    String url = "http://localhost:3000/workspace/"+workspaceId+"/invite/"
+            +uuid; //하나로 빌드후 수정해야함
 
     CompletableFuture<String> emailResult = emailInviteService.sendEmail(workSpace.getName(),url,email);
     String returnString = emailResult.thenApply((result) ->{
@@ -265,10 +260,36 @@ public class WSMemberServiceImpl implements WSMemberService {
             .email(email)
             .urlLink(url)
             .expirationTime(LocalDateTime.now().plusHours(24))
+            .workSpace(workSpace)
+            .uuid(uuid)
             .build();
 
     WorkspaceInvite savedWorkspaceInvite = workspaceInviteRepository.save(workspaceInviteEntity);
 
     return savedWorkspaceInvite.getEmail()+"님에게 이메일 링크를 전송하였습니다.";
+  }
+
+  @Override
+  @Transactional
+  public String checkInvite(Long workspaceId, String uuid) {
+    WorkspaceInvite workspaceInvite = workspaceInviteRepository.findByUuid(uuid).orElseThrow(
+            ()-> new WorkspaceException(HttpStatus.NOT_FOUND.value(), "초대링크가 존재하지 않습니다."));
+
+    if(LocalDateTime.now().isAfter(workspaceInvite.getExpirationTime()))
+      return "만료된 링크입니다.";
+
+    WorkSpace workSpace = findWorkSpaceById(workspaceId);
+    Optional<User> targetUser = userRepository.findByEmail(workspaceInvite.getEmail());
+
+    //이미 가입한 유저
+    if(targetUser.isPresent()){wsMemberRepository.save(WSMember.builder()
+            .role(WSMemberRole.MEMBER)
+            .user(targetUser.get())
+            .workSpace(workSpace)
+            .build());
+      return "existUser";
+    }else{//존재하지 않는 유저
+      return "notExistUser";
+    }
   }
 }

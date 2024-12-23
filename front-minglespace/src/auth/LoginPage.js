@@ -26,6 +26,7 @@ const LoginPage = () => {
 
   const navigate = useNavigate();
   const location = useLocation();
+  console.log(location.state);
   const [isOpenPopup, setIsOpenPopup] = useState(false);
   const { code, encodedEmail } = useParams();
   const { msg } = useParams();
@@ -80,12 +81,10 @@ const LoginPage = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (validate()) {
-
-      const {email, password} = formData;
+      const { email, password } = formData;
       const data = await AuthApi.login(email, password);
-      
-      if(AuthStatusOk(data.msStatus)){
-        Repo.setItem(data);
+
+      if (AuthStatusOk(data.msStatus)) {
         // navigate("/main");
         navigate(getUriPath(), { replace: true });
       } else if (data.msStatus && AuthStatus[data.msStatus]) {
@@ -122,12 +121,7 @@ const LoginPage = () => {
 
   const getUriPath = () => {
     const uri = location.state?.from || "main";
-    if (uri === "main") {
-      return `/main`;
-    } else {
-      const segments = uri.split("/");
-      return `/${segments[1]}/${segments[2]}`;
-    }
+    return uri;
   };
 
   const handleClickGoogle = () => {

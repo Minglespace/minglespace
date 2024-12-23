@@ -19,4 +19,5 @@ public class SignupRequest {
 
   String confirmPassword;
   String verificationCode;
+  boolean inviteWorkspace;
 }

@@ -24,6 +24,8 @@ public class WorkspaceInvite {
 
   private String urlLink;
 
+  private String uuid;
+
   private LocalDateTime expirationTime;
 
   @ManyToOne(fetch = FetchType.LAZY)
