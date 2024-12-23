@@ -18,10 +18,42 @@ export const ChatAppProvider = ({ children }) => {
 
 	const [validChatRoomId, setValidChatRoomId] = useState(null);
 
-	const chatListRef = useRef(null);
 	const socketRef = useRef(null);
 
 	const { workspaceId } = useParams();
+
+	useEffect(() => {
+		const fetchChatRooms = async () => {
+      try {
+        const roomsData = await ChatApi.getChatList(workspaceId);
+				roomsDispatch({
+					type:"SET_ROOMS",
+					payload:roomsData
+				});
+      } catch (e) {
+        // console.log("chatrooms: ", roomsData);
+        console.error("채팅방 데이터를 가져오는 데 문제가 발생했습니다.");
+      }
+    };
+
+    //워크스페이스 멤버 목록
+    const fetchWsMembers = async () => {
+      try {
+        const wsmembersData = await ChatApi.getwsMembers(workspaceId);
+				wsMemberDispatch({
+					type:"SET_WS_MEMBERS",
+					payload: wsmembersData.filter(
+            (member) => member.userId !== Number(Repo.getUserId())
+          )
+				});
+      } catch (e) {
+        console.error("Error fetching ws members:", e);
+      }
+    };
+
+    fetchChatRooms();
+    fetchWsMembers();
+	},[workspaceId]);
 
 	useEffect(() => {
 		if (socketRef.current) {
@@ -43,14 +75,9 @@ export const ChatAppProvider = ({ children }) => {
 					const newMsg = JSON.parse(msg.body);
 					if (validChatRoomId == null || Number(validChatRoomId) !== Number(newMsg.chatRoomId)) {
 						roomsDispatch({
-							type: "UPDATE_ROOM",
+							type: "UPDATE_ROOM_SUB",
 							payload: {
-								chatRoomId: newMsg.chatRoomId,
-								lastMessage: newMsg.content,
-								updates: {
-									lastMessage: newMsg.content,
-									notReadMsgCount: roomsState.notReadMsgCount + 1, //여기 roomsState는 통이라서 개인요소의 값으로 수정 필요
-								},
+								newMsg:newMsg
 							},
 						});
 					} else {
@@ -84,6 +111,7 @@ export const ChatAppProvider = ({ children }) => {
 		};
 	}, [workspaceId, validChatRoomId]);
 
+
 	const handleCreateRoom = async (newRoomData, imageFile) => {
 		try {
 			const createdRoomData = await ChatApi.createChatRoom(workspaceId, newRoomData, imageFile);
@@ -98,13 +126,6 @@ export const ChatAppProvider = ({ children }) => {
 		try {
 			await ChatApi.readMessage(workspaceId, chatRoomId);
 
-			// setRooms((prev) =>
-			// 	prev.map((room) =>
-			// 		room.chatRoomId === chatRoomId
-			// 			? { ...room, notReadMsgCount: 0 }
-			// 			: room
-			// 	)
-			// );
 			roomsDispatch({
 				type: "SET_ROOMS",
 				payload: {
@@ -120,36 +141,16 @@ export const ChatAppProvider = ({ children }) => {
 	};
 
 	const updateRoomParticipantCount = (chatRoomId, change) => {
-		// console.log("updateRoomParicipantCount: ", chatRoomId, "- ", change);
-		// setRooms((prevRooms) => {
-		// 	const updatedRooms = prevRooms.map((room) =>
-		// 		Number(room.chatRoomId) === Number(chatRoomId)
-		// 			? {
-		// 				...room,
-		// 				participantCount: Number(room.participantCount) + Number(change),
-		// 			}
-		// 			: room
-		// 	);
-
-		// 	return updatedRooms;
-		// });
-		//////여기도 개별 room의 값 비교라 개선 필요
 		roomsDispatch({
-			type: "SET_ROOMS",
+			type: "UPDATE_ROOM_PARTICIPANT",
 			payload: {
 				chatRoomId: chatRoomId,
-				updates: {
-					participantCount: Number(room.participantCount) + Number(change)
-				}
+				change:change
 			}
 		});
 	};
 
 	const removeRoom = (chatRoomId) => {
-		// setRooms((prevRooms) =>
-		// 	prevRooms.filter((room) => Number(room.chatRoomId) !== Number(chatRoomId))
-		// );
-
 		roomsDispatch({
 			type: "REMOVE_ROOM",
 			payload: { chatRoomId: chatRoomId }
@@ -160,16 +161,17 @@ export const ChatAppProvider = ({ children }) => {
 	return (
 		<ChatAppContext.Provider
 			value={{
+				workspaceId,
 				roomsState,
 				roomsDispatch,
 				wsMemberState,
 				wsMemberDispatch,
 				socketRef,
+				setValidChatRoomId,
 				handleCreateRoom,
 				handleReadMsg,
 				updateRoomParticipantCount,
 				removeRoom,
-				setValidChatRoomId
 			}}
 		>
 			{children}

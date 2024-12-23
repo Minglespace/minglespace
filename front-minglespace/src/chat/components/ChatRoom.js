@@ -8,6 +8,7 @@ import Repo from "../../auth/Repo";
 import SockJS from "sockjs-client";
 import { HOST_URL } from "../../api/Api";
 import { Client } from "@stomp/stompjs";
+import { useChatApp } from "../context/ChatAppContext";
 
 const initChatRoomInfo = {
   chatRoomId: 0,
@@ -20,12 +21,11 @@ const initChatRoomInfo = {
 };
 
 const ChatRoom = ({
-  isFold,
-  wsMembers,
-  workSpaceId,
-  updateRoomParticipantCount,
-  removeRoom,
+  isFold
 }) => {
+  const {wsMemberState, workspaceId, updateRoomParticipantCount, removeRoom} = useChatApp();
+
+
   const [chatRoomInfo, setChatRoomInfo] = useState(initChatRoomInfo);
   const [inviteMembers, setInviteMembers] = useState([]);
   const [isRoomOwner, setIsRoomOwner] = useState(false);
@@ -63,7 +63,7 @@ const ChatRoom = ({
     //채팅방 정보 서버에 요청
     const fetchRoomInfo = async () => {
       try {
-        const roomInfo = await ChatApi.getChatRoom(workSpaceId, chatRoomId);
+        const roomInfo = await ChatApi.getChatRoom(workspaceId, chatRoomId);
         console.log("chatRoom_ get info: ", roomInfo);
         roomInfo.messages.reverse();
         setChatRoomInfo(roomInfo);
@@ -73,7 +73,7 @@ const ChatRoom = ({
         );
         // console.log("participantsId: ", participantsIds);
 
-        const nonParticipants = wsMembers.filter(
+        const nonParticipants = wsMemberState.filter(
           (member) => !participantsIds.includes(Number(member.userId))
         );
         // console.log("wsmembers: ", wsMembers);
@@ -101,13 +101,13 @@ const ChatRoom = ({
     fetchRoomInfo();
 
     setIsModalOpen(false);
-  }, [workSpaceId, chatRoomId, wsMembers]);
+  }, [workspaceId, chatRoomId, wsMemberState]);
 
   const handleInvite = async (addMember) => {
     try {
       // console.log("add member wsmemberId: ", addMember.wsMemberId);
       await ChatApi.addMemberToRoom(
-        workSpaceId,
+        workspaceId,
         chatRoomId,
         addMember.wsMemberId
       );
@@ -148,7 +148,7 @@ const ChatRoom = ({
     try {
       // console.log("kick member wsmemberId: ", kickMember.wsMemberId);
       await ChatApi.kickMemberFromRoom(
-        workSpaceId,
+        workspaceId,
         chatRoomId,
         kickMember.wsMemberId
       );
@@ -182,7 +182,7 @@ const ChatRoom = ({
     console.log(`${newLeader.email} has been promoted to the leader.`);
     try {
       await ChatApi.delegateLeader(
-        workSpaceId,
+        workspaceId,
         chatRoomId,
         newLeader.wsMemberId
       );
@@ -216,7 +216,7 @@ const ChatRoom = ({
 
   const handleExit = async () => {
     try {
-      const data = await ChatApi.leaveFromChat(workSpaceId, chatRoomId);
+      const data = await ChatApi.leaveFromChat(workspaceId, chatRoomId);
 
       if (data) {
         removeRoom(chatRoomId);
@@ -431,7 +431,7 @@ const ChatRoom = ({
         fetchMoreMessages={fetchMoreMessages}
         msgHasMore={chatRoomInfo.msgHasMore}
         currentChatRoomId={chatRoomId}
-        wsMembers={wsMembers}
+        wsMembers={wsMemberState} ///<<<<
       />
 
       <MessageInput
