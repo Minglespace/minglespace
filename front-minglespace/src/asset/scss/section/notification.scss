@@ -1,0 +1,229 @@
+///notification.js
+.notification-container {
+	position: relative;
+	cursor: pointer;
+	margin-top: 8px;
+	margin-right: 20px;
+}
+
+.notification-icon {
+	font-size: 40px;
+}
+
+.notification-count {
+	position: absolute;
+	top: -5px;
+	right: -5px;
+	background: red;
+	color: white;
+	font-size: 12px;
+	border-radius: 50%;
+	padding: 2px 6px;
+}
+
+.notification-dropdown {
+	position: absolute;
+	top: 45px;
+	right: -3px;
+	background: white;
+	border: 1px solid #ddd;
+	border-radius: 5px;
+	box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+	width: 440px;
+	max-height: 400px;
+	overflow-y: auto;
+	z-index: 1000;
+	// display: flex;
+	// flex-direction: column;
+	// align-items: center;
+}
+
+
+///info 
+.info-container {
+	display: flex;
+	height: 50px;
+}
+
+.info-icon {
+	font-size: 20px;
+	color: #999;
+	cursor: pointer;
+	margin-left: 8px;
+	margin-top: 15px;
+}
+
+.info-message {
+	background-color: #f5f5f5;
+	padding: 4px 20px;
+	// font-size: 14px;
+	color: #333;
+	margin: 5px 5px;
+	border-radius: 5px;
+	border: 1px solid #ddd;
+
+	p {
+		font-size: 11px;
+		font-weight: bold;
+	}
+}
+
+////전체 삭제 버튼
+.clear-all-notification {
+	background-color: rgb(253, 113, 113);
+	color: #fff;
+	border: none;
+	padding: 0px 5px;
+	font-size: 12px; // 폰트 크기 줄이기
+	border-radius: 5px;
+	cursor: pointer;
+	margin: 7px 17px 0px auto;
+	height: 35px;
+	transition: background-color 0.3s ease, transform 0.3s ease;
+	box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+
+	&:hover {
+		background-color: #ff4d4d;
+		transform: translateY(-1px);
+		box-shadow: 0 6px 8px rgba(0, 0, 0, 0.15);
+	}
+}
+
+
+
+//////알림 목록
+.notification-item {
+	position: relative;
+	padding: 15px 20px;
+	border-top: 1px solid #f0f0f0;
+	cursor: pointer;
+	display: flex;
+	flex-direction: column;
+	justify-content: flex-start;
+	height: auto;
+}
+
+.notification-msg {
+	font-size: 14px;
+	color: #333;
+	flex-grow: 1;
+	/* 메시지가 길어도 적절히 공간을 차지하도록 */
+	margin-bottom: 15px;
+	padding-left: 6px;
+}
+
+.unread-dot {
+	position: absolute;
+	top: 22px;
+	left: 10px;
+	width: 8px;
+	height: 8px;
+	// background-color: #e6ccd2;
+	border-radius: 50%;
+}
+
+.notification-time {
+	font-size: 12px;
+	color: #787878;
+	position: absolute;
+	bottom: 10px;
+	right: 20px;
+}
+
+
+.notification-empty {
+	padding: 10px;
+	text-align: center;
+	color: #aaa;
+}
+
+.notification-separator {
+	border-top: 2px solid #ccc;
+	// margin: 10px 0;
+	text-align: center;
+	padding: 5px;
+	font-weight: bold;
+	color: #555;
+}
+
+.notification-separator span {
+	background-color: #fff;
+	padding: 0 10px;
+	font-size: 14px;
+}
+
+
+
+
+
+//   snackbar.js
+.snackbar-container {
+	position: fixed;
+	top: 20px;
+	right: 20px;
+	z-index: 9999;
+	display: flex;
+	flex-direction: column;
+	gap: 10px;
+}
+
+
+
+.snackbar {
+	background-color: #f9f9f9;
+	color: #333;
+	padding: 15px 20px;
+	border-radius: 5px;
+	box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+	display: flex;
+	// align-items: center;
+	justify-content: space-between;
+	// border-top: 5px solid #4CAF50;
+	animation: fadeIn 0.5s, fadeOut 0.5s 4.5s;
+	font-family: Arial, sans-serif;
+	font-size: 14px;
+	min-width: 300px;
+}
+
+.snackbar .snackbar-title {
+	font-weight: bold;
+	margin-right: 10px;
+}
+
+.snackbar-close {
+	background: none;
+	border: none;
+	color: #555;
+	font-size: 1.2rem;
+	cursor: pointer;
+	margin-left: 10px;
+	transition: color 0.3s ease;
+}
+
+.snackbar-close:hover {
+	color: #333;
+}
+
+@keyframes fadeIn {
+	from {
+		opacity: 0;
+		transform: translateY(-20px);
+	}
+
+	to {
+		opacity: 1;
+		transform: translateY(0);
+	}
+}
+
+@keyframes fadeOut {
+	from {
+		opacity: 1;
+		transform: translateY(0);
+	}
+
+	to {
+		opacity: 0;
+		transform: translateY(-20px);
+	}
+}

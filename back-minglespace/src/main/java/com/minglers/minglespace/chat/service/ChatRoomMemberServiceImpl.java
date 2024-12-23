@@ -10,6 +10,8 @@ import com.minglers.minglespace.chat.exception.ChatException;
 import com.minglers.minglespace.chat.repository.ChatRoomMemberRepository;
 import com.minglers.minglespace.chat.repository.ChatRoomRepository;
 import com.minglers.minglespace.chat.role.ChatRole;
+import com.minglers.minglespace.common.service.NotificationService;
+import com.minglers.minglespace.common.type.NotificationType;
 import com.minglers.minglespace.workspace.entity.WSMember;
 import com.minglers.minglespace.workspace.repository.WSMemberRepository;
 import jakarta.transaction.Transactional;
@@ -28,9 +30,7 @@ public class ChatRoomMemberServiceImpl implements ChatRoomMemberService {
   private final ChatRoomMemberRepository chatRoomMemberRepository;
   private final ChatRoomRepository chatRoomRepository;
   private final WSMemberRepository wsMemberRepository;
-  //알림 처리
-  private final CustomHandShakeInterceptor customHandShakeInterceptor;
-  private final SimpMessagingTemplate simpMessagingTemplate;
+  private final NotificationService notificationService;
 
   @Override
   @Transactional
@@ -70,24 +70,21 @@ public class ChatRoomMemberServiceImpl implements ChatRoomMemberService {
       chatRoom.addChatRoomMember(chatRoomMember);
       chatRoomMemberRepository.save(chatRoomMember);
     }
+    notificationService.sendNotification(member.getUser().getId(),"'"+ chatRoom.getName() + "' 채팅방에 초대되었습니다.", "/workspace/"+chatRoom.getWorkSpace().getId()+"/chat" ,NotificationType.CHAT);
+
     return "참여자 추가 완료";
   }
 
   @Override
   @Transactional
   public String kickMemberFromRoom(Long chatRoomId, Long wsMemberId) {
-    if (!chatRoomMemberRepository.existsByChatRoomIdAndWsMemberIdAndIsLeftFalse(chatRoomId, wsMemberId)) {
-      throw new ChatException(HttpStatus.NOT_FOUND.value(), "채팅방에 참여하지 않은 유저입니다.");
-    }
-
     chatRoomMemberRepository.updateIsLeftStatus(true, chatRoomId, wsMemberId);
 
-    //강퇴된 유저에게 알림 전송
-    String sessionid = customHandShakeInterceptor.getSessionForUser(wsMemberId);
-    if (sessionid != null){
-      String kickMsg = "채팅방에서 강퇴되었습니다.";
-      simpMessagingTemplate.convertAndSendToUser(sessionid, "/queue/notifications", kickMsg);
-    }
+    ChatRoom chatRoom = chatRoomRepository.findById(chatRoomId)
+                    .orElseThrow(() -> new ChatException(HttpStatus.NOT_FOUND.value(), "채팅방을 찾지 못했습니다."));
+    WSMember wsMember = wsMemberRepository.findById(wsMemberId)
+            .orElseThrow(() -> new ChatException(HttpStatus.NOT_FOUND.value(), "강퇴할 멤버를 찾지 못했습니다."));
+    notificationService.sendNotification(wsMember.getUser().getId(),"'"+ chatRoom.getName() + "' 채팅방에서 강퇴되었습니다.", "/workspace/"+chatRoom.getWorkSpace().getId()+"/chat" ,NotificationType.CHAT);
     return "참여자 강퇴 완료";
   }
 
@@ -127,11 +124,10 @@ public class ChatRoomMemberServiceImpl implements ChatRoomMemberService {
       chatRoomMemberRepository.save(chatRoomMember);
       chatRoomMemberRepository.save(newLeader);
 
-      //뉴방장에게 알림 전송
-      String newLeaderSessionId = customHandShakeInterceptor.getSessionForUser(newLeaderId);
-      if (newLeaderSessionId != null){
-        simpMessagingTemplate.convertAndSendToUser(newLeaderSessionId, "/queue/notifications","새 방장으로 임명되셨습니다.");
-      }
+      notificationService.sendNotification(newLeader.getWsMember().getUser().getId(),
+              "'"+ chatRoom.getName() + "' 채팅방의 새로운 방장으로 임명되셨습니다.",
+              "/workspace/"+chatRoom.getWorkSpace().getId()+"/chat",
+              NotificationType.CHAT);
     }catch (ChatException e){
       throw  e;
     }catch(Exception e){

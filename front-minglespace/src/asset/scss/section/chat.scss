@@ -196,6 +196,7 @@
   align-items: center;
   background-color: #fff;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  cursor: pointer;
 }
 
 .chat_img {
@@ -243,6 +244,7 @@
 .last_message {
   color: #aaa;
   font-size: 15px;
+  cursor: pointer;
 }
 
 .unread_count {

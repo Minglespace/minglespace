@@ -30,13 +30,52 @@
   width: 90%;
   height: 90%;
   background-color: #fff !important;
-  button {
-    width: 100px;
-    height: 30px;
-    &:hover {
-      background-color: blue;
+  .calendar_type_buttons {
+    button {
+      width: 80px;
+      height: 30px;
+      margin-right: 5px;
+      border-radius: 5px;
+      background-color: #7f8fdf;
+      transition: background-color 0.2s, box-shadow 0.2s;
+
+      &:hover {
+        background-color: #5c6ac4;
+        box-shadow: 2px 2px 2px #000;
+      }
+    }
+    .checked {
+      background-color: #5c6ac4;
+      box-shadow: 2px 2px 2px #000;
     }
   }
+  > p {
+    margin-top: 10px;
+  }
+  input {
+    display: block;
+    margin-bottom: 10px;
+    width: 300px;
+    padding: 5px;
+    border: 1px solid #888;
+    border-radius: 5px;
+  }
+}
+.calendar_modal_container {
+  height: 350px;
+  .calendar_modal_inputbox {
+    height: 270px;
+  }
+  .calendar_modal_editbuttons {
+    display: flex;
+    justify-content: end;
+    justify-items: end;
+  }
+}
+.fc-event {
+  padding: 0;
+  height: 20px;
+  border: none;
 }
 .fc-media-screen {
   margin: 0 auto;

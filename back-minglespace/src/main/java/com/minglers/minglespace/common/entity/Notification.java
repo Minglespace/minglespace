@@ -26,8 +26,8 @@ public class Notification {
   private String noticeMsg;
   private String path;
 
-//  @Enumerated(EnumType.STRING)
-//  private NotificationType type;
+  @Enumerated(EnumType.STRING)
+  private NotificationType type;
 
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "recipient_user_id", nullable = false)
@@ -36,6 +36,9 @@ public class Notification {
   @Convert(converter = LocalDateTimeAttributeConverter.class)
   @Column(name = "notice_time", columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
   private LocalDateTime noticeTime;
+
+  @Builder.Default
+  private boolean isRead = false;
 
   @PrePersist
   public void prePersist(){
@@ -51,6 +54,8 @@ public class Notification {
             .path(this.path)
             .noticeTime(this.noticeTime)
             .recipientUserId(this.user.getId())
+            .isRead(this.isRead)
+            .type(this.type.name())
             .build();
   }
 }

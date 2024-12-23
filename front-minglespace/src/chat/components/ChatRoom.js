@@ -341,13 +341,6 @@ const ChatRoom = ({
             });
           }
         });
-
-        //알림 구독
-        // stompClient.subscribe(`/user/queue/notifications`, (notice) => {
-        //   const noticeMsg = JSON.parse(notice.body);
-        //   console.log("새 알림: ", noticeMsg.message);
-        //   alert(noticeMsg.message);
-        // });
       },
       onWebSocketError: (error) => {
         console.log(`채팅방 ${chatRoomId}번 websocket 연결 오류:`, error);
@@ -409,10 +402,10 @@ const ChatRoom = ({
 
   // 메시지를 클릭하면 해당 메시지를 선택
   const handleMessageClick = (messages) => {
-    console.log("답장할 메시지:", messages);
+    // console.log("답장할 메시지:", messages);
     // setSelectedMessageId(messageId);
     setReplyToMessage(messages);
-    console.log("입력창에 표시된 답장 대상:", `${messages.text}`);
+    // console.log("입력창에 표시된 답장 대상:", `${messages.text}`);
   };
 
   return (
@@ -446,7 +439,8 @@ const ChatRoom = ({
         replyToMessage={replyToMessage}
         setReplyToMessage={setReplyToMessage}
         currentMemberInfo={currentMemberInfo}
-        wsMembers={wsMembers}
+        currentChatRoomId={chatRoomId}
+        participants={chatRoomInfo.participants}
       />
     </div>
   );

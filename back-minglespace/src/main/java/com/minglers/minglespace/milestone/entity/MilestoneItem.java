@@ -21,9 +21,6 @@ public class MilestoneItem {
   private Long start_time;
   private Long end_time;
 
-  public void changeTaskStatus(TaskStatus taskStatus) {
-    this.taskStatus = taskStatus;
-  }
 
   @Enumerated(EnumType.STRING)
   @ColumnDefault("'NOT_START'")
@@ -33,6 +30,10 @@ public class MilestoneItem {
   @JoinColumn(name = "milestonegroup_id" )
   private MilestoneGroup milestoneGroup;
 
+  public void changeTaskStatus(TaskStatus taskStatus) {
+    this.taskStatus = taskStatus;
+  }
+  
   public void changeMilestoneGroup(MilestoneGroup milestoneGroup) {
     this.milestoneGroup = milestoneGroup;
   }
