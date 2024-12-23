@@ -37,8 +37,11 @@ const Header = () => {
       const workspaceData = await WorkspaceApi.getOne(workspaceId);
       setWorkspaceData(workspaceData);
     } catch (error) {
-      if (getErrorStatus(error) === 403) {
+      if (getErrorStatus(error) === 403 || getErrorStatus(error) === 400) {
         navigate("/workspace");
+        alert(
+          `워크스페이스 정보조회에 실패하였습니다.\n${getErrorMessage(error)}`
+        );
       } else {
         alert(
           `워크스페이스 정보조회에 실패하였습니다.\n원인:${getErrorMessage(
@@ -126,7 +129,10 @@ const Header = () => {
       )}
 
       {/* 버튼을 우측 정렬하는 div */}
-      <div className="button-container" style={{ display: "flex", alignItems: "center" }}>
+      <div
+        className="button-container"
+        style={{ display: "flex", alignItems: "center" }}
+      >
         <NotificationIcon />
         <UserInfoPopup />
       </div>

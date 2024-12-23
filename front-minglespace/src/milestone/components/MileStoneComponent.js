@@ -13,6 +13,10 @@ import { useParams } from "react-router-dom";
 import MileStoneModal from "./MileStoneModal";
 import MileStoneHelpModal from "./MileStoneHelpModal";
 import { WSMemberRoleContext } from "../../workspace/context/WSMemberRoleContext";
+import {
+  getErrorStatus,
+  getErrorMessage,
+} from "../../common/Exception/errorUtils";
 
 const initGroup = [{ id: 0, title: "" }];
 
@@ -51,26 +55,36 @@ const MileStoneComponent = () => {
     console.warn(...args);
   };
   useEffect(() => {
-    MilestoneApi.getList(workspaceId).then((data) => {
-      const updateGroup = data.map(({ id, title }) => ({
-        id: id,
-        title: title,
-      }));
-      setGroups(updateGroup);
+    MilestoneApi.getList(workspaceId)
+      .then((data) => {
+        const updateGroup = data.map(({ id, title }) => ({
+          id: id,
+          title: title,
+        }));
+        setGroups(updateGroup);
 
-      const updateItem = data.flatMap((groups) =>
-        groups.milestoneItemDTOList.map((items) => ({
-          id: items.id,
-          group: groups.id,
-          title: items.title,
-          start_time: items.start_time,
-          end_time: items.end_time,
-          taskStatus: items.taskStatus,
-        }))
-      );
-      setItems(updateItem);
-      console.log("task:", updateItem);
-    });
+        const updateItem = data.flatMap((groups) =>
+          groups.milestoneItemDTOList.map((items) => ({
+            id: items.id,
+            group: groups.id,
+            title: items.title,
+            start_time: items.start_time,
+            end_time: items.end_time,
+            taskStatus: items.taskStatus,
+          }))
+        );
+        setItems(updateItem);
+        console.log("task:", updateItem);
+      })
+      .catch((error) => {
+        if (getErrorStatus === 400) {
+          alert(
+            `마일스톤 목록 조회 중 에러가 발생했습니다. \n원인 : ${getErrorMessage(
+              error
+            )}`
+          );
+        }
+      });
   }, [workspaceId]);
 
   const [visibleTimeStart, setVisibleTimeStart] = useState(
@@ -102,8 +116,8 @@ const MileStoneComponent = () => {
     // 아이템 이동 후 서버에 업데이트 요청
     const movedItem = updatedItems.find((item) => item.id === itemId);
     if (movedItem) {
-      MilestoneApi.modifyItem(workspaceId, movedItem.id, movedItem).then(
-        ({ id, title, start_time, end_time }) => {
+      MilestoneApi.modifyItem(workspaceId, movedItem.id, movedItem)
+        .then(({ id, title, start_time, end_time }) => {
           // 서버 응답으로 업데이트된 아이템을 상태에 반영
           setItems(
             updatedItems.map((item) =>
@@ -117,8 +131,14 @@ const MileStoneComponent = () => {
                 : item
             )
           );
-        }
-      );
+        })
+        .catch((error) => {
+          alert(
+            `마일스톤 아이템 수정 중 에러가 발생했습니다.\n원인 : ${getErrorMessage(
+              error
+            )}`
+          );
+        });
     }
     setItems(updatedItems); // 로컬 상태에서 아이템 위치 업데이트
   };
@@ -141,8 +161,8 @@ const MileStoneComponent = () => {
     // 크기 조정 후 서버에 업데이트 요청
     const resizedItem = updatedItems.find((item) => item.id === itemId);
     if (resizedItem) {
-      MilestoneApi.modifyItem(workspaceId, resizedItem.id, resizedItem).then(
-        ({ id, title, start_time, end_time }) => {
+      MilestoneApi.modifyItem(workspaceId, resizedItem.id, resizedItem)
+        .then(({ id, title, start_time, end_time }) => {
           // 서버 응답으로 업데이트된 아이템을 상태에 반영
           setItems(
             updatedItems.map((item) =>
@@ -156,8 +176,14 @@ const MileStoneComponent = () => {
                 : item
             )
           );
-        }
-      );
+        })
+        .catch((error) => {
+          alert(
+            `마일스톤 아이템 수정 중 에러가 발생했습니다.\n원인 : ${getErrorMessage(
+              error
+            )}`
+          );
+        });
     }
     setItems(updatedItems); // 로컬 상태에서 아이템 크기 업데이트
   };
@@ -241,8 +267,8 @@ const MileStoneComponent = () => {
         taskStatus: "NOT_START",
       };
 
-      MilestoneApi.postAddItem(workspaceId, groupId, newItem).then(
-        ({ id, title, start_time, end_time, taskStatus }) => {
+      MilestoneApi.postAddItem(workspaceId, groupId, newItem)
+        .then(({ id, title, start_time, end_time, taskStatus }) => {
           console.log(newItem.taskStatus);
           setItems([
             ...items,
@@ -255,9 +281,14 @@ const MileStoneComponent = () => {
               taskStatus,
             },
           ]);
-        }
-      );
-      console.log("add : ", items);
+        })
+        .catch((error) => {
+          alert(
+            `마일스톤 아이템 추가 중 에러가 발생했습니다.\n원인 : ${getErrorMessage(
+              error
+            )}`
+          );
+        });
     } else {
       return false;
     }
@@ -268,9 +299,17 @@ const MileStoneComponent = () => {
     const newGroup = {
       title: "New Group",
     };
-    MilestoneApi.postAddGroup(workspaceId, newGroup).then(({ id, title }) => {
-      setGroups([...groups, { id, title }]);
-    });
+    MilestoneApi.postAddGroup(workspaceId, newGroup)
+      .then(({ id, title }) => {
+        setGroups([...groups, { id, title }]);
+      })
+      .catch((error) => {
+        alert(
+          `마일스톤 그룹 추가 중 에러가 발생했습니다.\n원인 : ${getErrorMessage(
+            error
+          )}`
+        );
+      });
   };
 
   //아이템 더블클릭 핸들러(아이템 title 수정)
@@ -323,8 +362,8 @@ const MileStoneComponent = () => {
         taskStatus: newTaskStatus,
       };
 
-      MilestoneApi.modifyItem(workspaceId, selectedItem.id, updatedItem).then(
-        ({ id, title, start_time, end_time, taskStatus }) => {
+      MilestoneApi.modifyItem(workspaceId, selectedItem.id, updatedItem)
+        .then(({ id, title, start_time, end_time, taskStatus }) => {
           setItems(
             items.map((item) =>
               item.id === id
@@ -341,41 +380,69 @@ const MileStoneComponent = () => {
           console.log(taskStatus);
           setModalOpen(false);
           handleClick();
-        }
-      );
+        })
+        .catch((error) => {
+          alert(
+            `마일스톤 아이템 수정 중 에러가 발생했습니다.\n원인 : ${getErrorMessage(
+              error
+            )}`
+          );
+        });
     } else if (selectedGroup) {
       const updatedGroup = {
         ...selectedGroup,
         title: newTitle,
       };
-      MilestoneApi.modifyGroup(
-        workspaceId,
-        selectedGroup.id,
-        updatedGroup
-      ).then(({ id, title }) => {
-        setGroups(
-          groups.map((group) => (group.id === id ? { ...group, title } : group))
-        );
-        handleClick();
-        setModalOpen(false);
-      });
+      MilestoneApi.modifyGroup(workspaceId, selectedGroup.id, updatedGroup)
+        .then(({ id, title }) => {
+          setGroups(
+            groups.map((group) =>
+              group.id === id ? { ...group, title } : group
+            )
+          );
+          handleClick();
+          setModalOpen(false);
+        })
+        .catch((error) => {
+          alert(
+            `마일스톤 그룹 수정 중 에러가 발생했습니다.\n원인 : ${getErrorMessage(
+              error
+            )}`
+          );
+        });
     }
   };
 
   //모달 Delete클릭 실행 함수
   const handleModalDelete = () => {
     if (selectedItem) {
-      MilestoneApi.deleteItem(workspaceId, selectedItem.id).then(() => {
-        setItems(items.filter((item) => item.id !== selectedItem.id));
-        handleClick();
-        setModalOpen(false);
-      });
+      MilestoneApi.deleteItem(workspaceId, selectedItem.id)
+        .then(() => {
+          setItems(items.filter((item) => item.id !== selectedItem.id));
+          handleClick();
+          setModalOpen(false);
+        })
+        .catch((error) => {
+          alert(
+            `마일스톤 아이템 삭제 중 에러가 발생했습니다.\n원인 : ${getErrorMessage(
+              error
+            )}`
+          );
+        });
     } else if (selectedGroup) {
-      MilestoneApi.deleteGroup(workspaceId, selectedGroup.id).then(() => {
-        setItems(groups.filter((group) => group.id !== selectedGroup.id));
-        handleClick();
-        setModalOpen(false);
-      });
+      MilestoneApi.deleteGroup(workspaceId, selectedGroup.id)
+        .then(() => {
+          setItems(groups.filter((group) => group.id !== selectedGroup.id));
+          handleClick();
+          setModalOpen(false);
+        })
+        .catch((error) => {
+          alert(
+            `마일스톤 그룹 삭제 중 에러가 발생했습니다.\n원인 : ${getErrorMessage(
+              error
+            )}`
+          );
+        });
     }
   };
 
@@ -418,25 +485,33 @@ const MileStoneComponent = () => {
 
   //수정 후 렌더링을 위한 클릭 핸들러
   const handleOneClick = () => {
-    MilestoneApi.getList(workspaceId).then((data) => {
-      const updateGroup = data.map(({ id, title }) => ({
-        id: id,
-        title: title,
-      }));
-      setGroups(updateGroup);
+    MilestoneApi.getList(workspaceId)
+      .then((data) => {
+        const updateGroup = data.map(({ id, title }) => ({
+          id: id,
+          title: title,
+        }));
+        setGroups(updateGroup);
 
-      const updateItem = data.flatMap((groups) =>
-        groups.milestoneItemDTOList.map((items) => ({
-          id: items.id,
-          group: groups.id,
-          title: items.title,
-          start_time: items.start_time,
-          end_time: items.end_time,
-          taskStatus: items.taskStatus,
-        }))
-      );
-      setItems(updateItem);
-    });
+        const updateItem = data.flatMap((groups) =>
+          groups.milestoneItemDTOList.map((items) => ({
+            id: items.id,
+            group: groups.id,
+            title: items.title,
+            start_time: items.start_time,
+            end_time: items.end_time,
+            taskStatus: items.taskStatus,
+          }))
+        );
+        setItems(updateItem);
+      })
+      .catch((error) => {
+        alert(
+          `마일스톤 조회 중 에러가 발생했습니다.\n원인 : ${getErrorMessage(
+            error
+          )}`
+        );
+      });
   };
   //handleOneClick 실행을 위한 트리거
   const handleClick = () => {

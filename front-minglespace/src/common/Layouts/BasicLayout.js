@@ -18,8 +18,9 @@ const BasicLayout = ({ children }) => {
       const wsMemberRoleData = await WorkspaceApi.getWsMemberRole(workspaceId);
       setWsMEmberData(wsMemberRoleData);
     } catch (error) {
-      if (getErrorStatus(error) === 403) {
+      if (getErrorStatus(error) === 403 || getErrorStatus(error) === 400) {
         navigate("/workspace");
+        alert(`권한 조회에 실패하였습니다.\n원인:${getErrorMessage(error)}`);
       } else {
         alert(`권한 조회에 실패하였습니다.\n원인:${getErrorMessage(error)}`);
       }

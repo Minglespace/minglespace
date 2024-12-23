@@ -10,7 +10,7 @@ import { formatDateToKST } from "../common/DateFormat/dateUtils";
 import { WSMemberRoleContext } from "../workspace/context/WSMemberRoleContext";
 import { getErrorMessage } from "../common/Exception/errorUtils";
 import Tooltip from "tooltip.js";
-import { end } from "@popperjs/core";
+import { end, start } from "@popperjs/core";
 import CalendarFormModal from "./componenets/CalendarFormModal";
 
 const initData = [
@@ -152,12 +152,19 @@ const Calendar = () => {
   //캘린더에 날짜 클릭 시 Add모달을 통해 데이터 추가
   const handleDateClick = (arg) => {
     const formattedStart = formatDateToKST(arg.dateStr);
-    setFormData({
-      title: "",
-      description: "",
-      start: formattedStart,
-      end: formattedStart,
-    });
+    addType == "TIME"
+      ? setFormData({
+          title: "",
+          description: "",
+          start: formattedStart,
+          end: formattedStart,
+        })
+      : setFormData({
+          title: "",
+          description: "",
+          start: formattedStart,
+          end: formattedStart,
+        });
     setModalOpen(true);
   };
 
@@ -202,13 +209,20 @@ const Calendar = () => {
       focusDescription.current.focus();
       return false;
     }
-    if (formData.start > formData.end) {
+    if (formData.start > formData.end && addType === "DAY") {
       alert("종료일이 시작일보다 먼저일수 없습니다.");
       setFormData((prevDate) => ({
         ...prevDate,
         end: prevDate.start,
       }));
       return false;
+    }
+    if (formData.start > formData.end && addType === "TIME") {
+      setFormData((prevDate) => ({
+        ...prevDate,
+        end: null,
+      }));
+      return true;
     }
     // const startDate = new Date(formData.start.split("T")[0]);
     // const endDate = new Date(formData.end.split("T")[0]);
@@ -274,19 +288,30 @@ const Calendar = () => {
         <FullCalendar
           plugins={[dayGridPlugin, interactionPlugin]}
           initialView="dayGridMonth"
+          locale="ko"
           events={calendarData}
           eventDidMount={(info) => {
             new Tooltip(info.el, {
-              title: "제목" + info.event.extendedProps.description,
+              title: "세부내용 :" + info.event.extendedProps.description,
               placement: "top",
               trigger: "hover",
             });
+            const eventDuration = Math.ceil(
+              (info.event.end - info.event.start) / (1000 * 60 * 60 * 24)
+            );
             if (info.event.extendedProps.type === "TODO") {
-              info.el.style.backgroundColor = "green";
+              info.el.style.backgroundColor = "#7ADDD1";
               info.el.style.cursor = "default";
             } else if (info.event.extendedProps.type === "MILESTONE") {
-              info.el.style.backgroundColor = "orange";
+              info.el.style.backgroundColor = "#F0CC96";
               info.el.style.cursor = "default";
+            } else if (info.event.extendedProps.type === "NOTICE") {
+              info.el.style.backgroundColor = "#FFB1B9";
+            } else if (info.event.extendedProps.type === "PRIVATE") {
+              info.el.style.backgroundColor = "#71A4D9";
+            }
+            if (eventDuration <= 1) {
+              info.el.style.backgroundColor = "transparent";
             }
           }}
           dayMaxEventRows={5}
@@ -331,6 +356,7 @@ const Calendar = () => {
         <FullCalendar
           key={calendarData.length + new Date().getTime()}
           plugins={[dayGridPlugin, interactionPlugin]}
+          locale="ko"
           initialView="dayGridMonth"
           events={calendarData}
           dateClick={handleDateClick}
@@ -341,9 +367,19 @@ const Calendar = () => {
               placement: "top",
               trigger: "hover",
             });
+            const eventDuration = Math.ceil(
+              (info.event.end - info.event.start) / (1000 * 60 * 60 * 24)
+            );
             if (info.event.extendedProps.type === "TODO") {
-              info.el.style.backgroundColor = "green";
+              info.el.style.backgroundColor = "#7ADDD1";
               info.el.style.cursor = "default";
+            } else if (info.event.extendedProps.type === "PRIVATE") {
+              info.el.style.backgroundColor = "#71A4D9";
+            } else if (info.event.extendedProps.type === "NOTICE") {
+              info.el.style.backgroundColor = "#FFB1B9";
+            }
+            if (eventDuration <= 1) {
+              info.el.style.backgroundColor = "transparent";
             }
           }}
           dayMaxEventRows={5}
@@ -355,11 +391,22 @@ const Calendar = () => {
               minute: "2-digit",
               hour12: false, // 24시간 형식
             });
+            const eventType = info.event.extendedProps.type;
+            let typeString = "";
+
+            if (eventType === "NOTICE") {
+              typeString = "공지";
+            } else if (eventType === "PRIVATE") {
+              typeString = "개인";
+            } else if (eventType === "TODO") {
+              typeString = "할일";
+            }
 
             const timeString = end ? "" : `ㆍ${startTime}`;
             return (
               <div>
                 <p>
+                  {typeString}
                   {timeString}
                   <b> {title}</b>
                 </p>
@@ -372,6 +419,7 @@ const Calendar = () => {
       return (
         <FullCalendar
           plugins={[dayGridPlugin, interactionPlugin]}
+          locale="ko"
           initialView="dayGridMonth"
           events={calendarData}
           eventDidMount={(info) => {
@@ -380,6 +428,9 @@ const Calendar = () => {
               placement: "top",
               trigger: "hover",
             });
+            if (info.event.extendedProps.type === "NOTICE") {
+              info.el.style.backgroundColor = "#FFB1B9";
+            }
           }}
           dayMaxEventRows={5}
           eventContent={(info) => {
