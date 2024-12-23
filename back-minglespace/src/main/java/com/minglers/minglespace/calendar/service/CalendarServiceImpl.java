@@ -65,7 +65,7 @@ public class CalendarServiceImpl implements CalendarService{
     WorkSpace workspace = findByWorkspaceId(workspaceId);
     WSMember wsMember = findByWsMemberId(wsMemberId, workspaceId);
 
-    List<Calendar> calendarList = calendarRepository.findCalendarByWorkspaceId(workspaceId);
+    List<Calendar> calendarList = calendarRepository.findAllByWorkspaceIdAndWsMemberId(workspaceId, wsMember.getId());
 
     List<CalendarResponseDTO> calendarResponseDTO = calendarList.stream().map(calendar ->
             modelMapper.map(calendar, CalendarResponseDTO.class)).collect(Collectors.toList());
