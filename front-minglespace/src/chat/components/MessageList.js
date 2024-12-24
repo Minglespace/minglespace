@@ -13,7 +13,7 @@ const MessageList = ({
   fetchMoreMessages,
   msgHasMore,
   currentChatRoomId,
-  wsMembers
+  wsMembers,
 }) => {
   const [announcement, setAnnouncement] = useState(null);
   const [isAnnouncementModalOpen, setIsAnnouncementModalOpen] = useState(false);
@@ -55,7 +55,6 @@ const MessageList = ({
     return messages.find((message) => message.id === replyId);
   };
 
-
   const openAnnouncementModal = (message) => {
     // console.log("openAnnounce_msg: ", message);
     setSelectedAnnounce(message);
@@ -80,6 +79,7 @@ const MessageList = ({
     return messageContent.length > 10
       ? `${messageContent.slice(0, 10)}...`
       : messageContent;
+  };
 
   //메시지 삭제 모달
   const openDeleteModal = (message) => {
@@ -136,7 +136,9 @@ const MessageList = ({
             <MessageListItem
               key={message.id}
               message={message}
-              isSameSender={message.writerWsMemberId === currentMemberInfo.wsMemberId}
+              isSameSender={
+                message.writerWsMemberId === currentMemberInfo.wsMemberId
+              }
               currentMemberInfo={currentMemberInfo}
               onMessageClick={onMessageClick}
               onFindParentMessage={findParentMessage}
@@ -171,24 +173,53 @@ const MessageList = ({
 
       <Modal open={isDeleteModalOpen} onClose={handleDeleteCancel}>
         <div>
-          <p style={{ fontSize: "20px", margin: "20px" }}>이 메시지를 삭제하시겠습니까?</p>
-          <div style={{ display: 'flex', justifyContent: 'space-around', gap: '10px', marginTop: '20px' }}>
+          <p style={{ fontSize: "20px", margin: "20px" }}>
+            이 메시지를 삭제하시겠습니까?
+          </p>
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "space-around",
+              gap: "10px",
+              marginTop: "20px",
+            }}
+          >
             <button
               onClick={handleDeleteConfirm}
-              style={{ backgroundColor: "rgb(253, 113, 113)", padding: "10px", borderRadius: "5px", width: "80px", height: "30px", display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: "pointer" }}
+              style={{
+                backgroundColor: "rgb(253, 113, 113)",
+                padding: "10px",
+                borderRadius: "5px",
+                width: "80px",
+                height: "30px",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                cursor: "pointer",
+              }}
             >
               Delete
             </button>
             <button
               onClick={handleDeleteCancel}
-              style={{ backgroundColor: "gray", padding: "10px", borderRadius: "5px", width: "80px", height: "30px", display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: "pointer" }}
+              style={{
+                backgroundColor: "gray",
+                padding: "10px",
+                borderRadius: "5px",
+                width: "80px",
+                height: "30px",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                cursor: "pointer",
+              }}
             >
               Cancel
             </button>
           </div>
         </div>
       </Modal>
-    </div >
+    </div>
   );
 };
 
