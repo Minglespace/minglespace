@@ -8,6 +8,9 @@ import com.minglers.minglespace.auth.repository.UserFriendRepository;
 import com.minglers.minglespace.auth.repository.UserRepository;
 import com.minglers.minglespace.auth.type.FriendshipStatus;
 import com.minglers.minglespace.common.entity.Image;
+import com.minglers.minglespace.common.entity.Notification;
+import com.minglers.minglespace.common.service.NotificationService;
+import com.minglers.minglespace.common.type.NotificationType;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Pageable;
@@ -28,6 +31,7 @@ public class UserFriendService {
   private final UserRepository userRepository;
   private final UserFriendRepository userFriendRepository;
   private final ModelMapper modelMapper;
+  private final NotificationService notificationService;
 
   //공통메서드////////////////////////////////
   //유저 정보 가져오기
@@ -109,6 +113,8 @@ public class UserFriendService {
             .friend(user)
             .friendshipStatus(FriendshipStatus.PENDING)
             .build());
+
+    notificationService.sendNotification(friend.getId(), user.getName()+"님으로부터 친구 요청이 도착했습니다.", "/myfriends" , NotificationType.FRIEND);
 
     return modelMapper.map(friend, UserResponse.class);
   }

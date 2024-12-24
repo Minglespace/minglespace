@@ -48,7 +48,6 @@ public class NotificationServiceImpl implements NotificationService{
             .build();
 
     Notification saved = notificationRepository.save(notification);
-
     //실시간 전송하기
     sendNotificationToUser(recipientUserId, saved.toDTO());
   }

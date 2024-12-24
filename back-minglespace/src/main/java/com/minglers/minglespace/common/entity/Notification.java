@@ -5,10 +5,7 @@ import com.minglers.minglespace.common.converter.LocalDateTimeAttributeConverter
 import com.minglers.minglespace.common.dto.NotificationDTO;
 import com.minglers.minglespace.common.type.NotificationType;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.time.LocalDateTime;
 

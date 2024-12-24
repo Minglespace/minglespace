@@ -2,6 +2,8 @@ package com.minglers.minglespace.todo.service;
 
 import com.minglers.minglespace.auth.entity.User;
 import com.minglers.minglespace.auth.repository.UserRepository;
+import com.minglers.minglespace.common.service.NotificationService;
+import com.minglers.minglespace.common.type.NotificationType;
 import com.minglers.minglespace.todo.dto.TodoRequestDTO;
 import com.minglers.minglespace.todo.dto.TodoResponseDTO;
 import com.minglers.minglespace.todo.entity.Todo;
@@ -17,16 +19,13 @@ import com.minglers.minglespace.workspace.repository.WSMemberRepository;
 import com.minglers.minglespace.workspace.repository.WorkspaceRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.*;
 import org.springframework.http.HttpStatus;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -35,11 +34,10 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class TodoServiceImpl implements TodoService {
   private final TodoRepository todoRepository;
-  private final TodoAssigneeRepository todoAssigneeRepository;
   private final WorkspaceRepository workspaceRepository;
   private final WSMemberRepository wsMemberRepository;
   private final UserRepository userRepository;
-  private final ModelMapper modelMapper;
+  private final NotificationService notificationService;
 
   @Override
   @Transactional(readOnly = true)
@@ -228,6 +226,12 @@ public class TodoServiceImpl implements TodoService {
     }
     newTodo.changeTodoAssigneeList(assignees);
     todoRepository.save(newTodo);
+    
+    assignees.forEach((wsmember) ->
+            notificationService.sendNotification(wsmember.getWsMember().getUser().getId(),
+                    workSpace.getName()+"워크스페이스에 새로운 할일이 부여되었습니다.",
+                    "/workspace/"+workSpace.getId()+"/todo",
+                    NotificationType.TODO));
 
     List<WSMemberResponseDTO> assigneeList =
             newTodo.getTodoAssigneeList().stream()
