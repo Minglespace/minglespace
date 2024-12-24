@@ -1,4 +1,5 @@
 import React from 'react'
+import { useNotification } from './context/NotificationContext';
 
 const dotColorMap = {
 	CHAT: "#e6ccd2", //채팅
@@ -8,11 +9,12 @@ const dotColorMap = {
 	default: "#dfe6e9", // 기본 (타입이 지정되지 않은 경우)
 };
 
-const NotificationItem = ({ notification, onClick }) => {
+const NotificationItem = ({ notification }) => {
+	const { handleConfirmNotification } = useNotification();
 	return (
 		<div
 			className={`notification-item`}
-			onClick={() => onClick(notification.id, notification.path)} //경로 옮기는 함수
+			onClick={() => handleConfirmNotification(notification.id, notification.path)} //경로 옮기는 함수
 		>
 			{!notification.read && (
 				<span
