@@ -183,7 +183,7 @@ const TodoComponent = () => {
     },
     [loading, hasMore, modalOpen]
   );
-
+  console.log("todo:", todoItem);
   return (
     <div>
       <div className="todo_search_and_button">
@@ -217,23 +217,33 @@ const TodoComponent = () => {
       <div className="todo_list_section">
         <div className="todo_item_container">
           {todoItem.length <= 0 ? (
-            <div>검색결과 없음</div>
+            <div>부여된 할일이 없습니다.</div>
           ) : (
             todoItem.map((todo, index) => (
               <div
                 key={todo.id}
-                className="todo_item_contents"
-                ref={todoItem.length === index + 1 ? lastTodoElementRef : null}
+                className={
+                  todo.complete === false
+                    ? "todo_completed_area"
+                    : "todo_completed_area _completed"
+                }
               >
-                <TodoItem
-                  todo={todo}
-                  members={members}
-                  onDelete={handleDeleteTodo}
-                  onModify={handleModifyTodo}
-                  onModalOpen={handleModalOpen}
-                  onRendering={handleRendering}
-                  role={role}
-                />
+                <div
+                  className="todo_item_contents"
+                  ref={
+                    todoItem.length === index + 1 ? lastTodoElementRef : null
+                  }
+                >
+                  <TodoItem
+                    todo={todo}
+                    members={members}
+                    onDelete={handleDeleteTodo}
+                    onModify={handleModifyTodo}
+                    onModalOpen={handleModalOpen}
+                    onRendering={handleRendering}
+                    role={role}
+                  />
+                </div>
               </div>
             ))
           )}
