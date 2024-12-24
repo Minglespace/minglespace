@@ -1,7 +1,7 @@
 import { useState } from "react";
 import ChatRoomModal from "./ChatRoomModal";
 import { FcExport } from "react-icons/fc";
-import { PiUserCirclePlusFill } from "react-icons/pi";
+import { FiSettings } from "react-icons/fi";
 // import e from "cors";
 
 const ChatRoomHeader = ({
@@ -53,7 +53,7 @@ const ChatRoomHeader = ({
           }}
           className="chatroom-invite-btn"
         >
-          <PiUserCirclePlusFill className="icon" />
+          <FiSettings className="icon" />
         </button>
       )}
       <ChatRoomModal

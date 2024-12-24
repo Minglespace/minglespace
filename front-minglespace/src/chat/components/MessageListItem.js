@@ -33,7 +33,7 @@ const MessageListItem = ({
   onFindParentMessage,
   openAnnounceMentModal,
   openDeleteModal,
-  wsMembers
+  wsMembers,
 }) => {
   const parentMessage = message.replyId
     ? onFindParentMessage(message.replyId)
@@ -55,15 +55,20 @@ const MessageListItem = ({
     else return null;
   };
 
-
   const formatMessage = (message) => {
     const regex = /@(\w+)/g;
-    return message
-      .split(regex)
-      .map((part, index) => {
-        const isMention = wsMembers.some((member) => member.name === part) || part === currentMemberInfo.name;
-        return isMention ? <span style={{ fontWeight: "bold", color: "#6495ED" }} key={index}>@{part}</span> : part;
-      });
+    return message.split(regex).map((part, index) => {
+      const isMention =
+        wsMembers.some((member) => member.name === part) ||
+        part === currentMemberInfo.name;
+      return isMention ? (
+        <span style={{ fontWeight: "bold", color: "#6495ED" }} key={index}>
+          @{part}
+        </span>
+      ) : (
+        part
+      );
+    });
   };
 
   const openLightbox = (index) => {
@@ -326,31 +331,12 @@ const MessageListItem = ({
             cursor: "pointer",
             color: "blue",
             textDecoration: "underline",
+            fontsize: "20px",
           }}
         >
           <TbPinFilled />
         </span>
-        {/* 안읽은 카운트 */}
-        {message.unReadMembers && message.unReadMembers.length > 0
-          && (
-            <span
-              style={{ fontWeight: "bold", color: "#FA8072", marginLeft: "10px", cursor: "pointer" }}
-              onMouseEnter={() => handleUnreadMouseEnter(message.unReadMembers)}
-              onMouseLeave={handleUnreadMouseLeave}
-            >
-              {message.unReadMembers.length}
-              {
-                hoveredUnread.length > 0 && (
-                  hoveredUnread.map((member) => (
-                    <div key={member.wsMemberId} style={{ display: "flex", marginLeft: "30px", marginBottom: "5px" }}>
-                      <ProfileImage src={imageUrlPathCheck(member.profileImagePath)} userName={member.name} size={30} />
-                      <span style={{ marginLeft: "10px", fontSize: "18px" }}>{member.name}</span>
-                    </div>
-                  ))
-                )
-              }
-            </span>
-          )}
+
         {/* 삭제 아이콘 */}
         <button
           className="delete-button"
@@ -360,20 +346,77 @@ const MessageListItem = ({
             border: "none",
             color: "red",
             cursor: "pointer",
-            fontSize: "20px",
+            fontSize: "18px",
           }}
         >
           <FiTrash2 />
         </button>
+
+        {/* 안읽은 카운트 */}
+        {message.unReadMembers && message.unReadMembers.length > 0 && (
+          <span
+            style={{
+              fontWeight: "bold",
+              color: "#FA8072",
+              marginLeft: "10px",
+              cursor: "pointer",
+              fontSize: "15px",
+              //display: "inline-block",
+            }}
+            onMouseEnter={() => handleUnreadMouseEnter(message.unReadMembers)}
+            onMouseLeave={handleUnreadMouseLeave}
+          >
+            {message.unReadMembers.length}
+            {hoveredUnread.length > 0 &&
+              hoveredUnread.map((member) => (
+                <div
+                  key={member.wsMemberId}
+                  style={{
+                    display: "flex",
+                    marginLeft: "30px",
+                    marginBottom: "5px",
+                    textAlign: "left",
+                    justifyContent: isSameSender ? "flex-end" : "flex-start",
+                  }}
+                >
+                  <ProfileImage
+                    src={imageUrlPathCheck(member.profileImagePath)}
+                    userName={member.name}
+                    size={30}
+                  />
+                  <span
+                    style={{
+                      marginLeft: "10px",
+                      fontSize: "18px",
+                    }}
+                  >
+                    {member.name}
+                  </span>
+                </div>
+              ))}
+          </span>
+        )}
       </div>
       {isImageOpen && (
         <Lightbox
           mainSrc={`${HOST_URL}${message.imageUriPaths[photoIndex]}`}
-          nextSrc={`${HOST_URL}${message.imageUriPaths[(photoIndex + 1) % message.imageUriPaths.length]}`}
-          prevSrc={`${HOST_URL}${message.imageUriPaths[(photoIndex + message.imageUriPaths.length - 1) % message.imageUriPaths.length]}`}
+          nextSrc={`${HOST_URL}${
+            message.imageUriPaths[
+              (photoIndex + 1) % message.imageUriPaths.length
+            ]
+          }`}
+          prevSrc={`${HOST_URL}${
+            message.imageUriPaths[
+              (photoIndex + message.imageUriPaths.length - 1) %
+                message.imageUriPaths.length
+            ]
+          }`}
           onCloseRequest={() => setIsImageOpen(false)}
           onMovePrevRequest={() =>
-            setPhotoIndex((photoIndex + message.imageUriPaths.length - 1) % message.imageUriPaths.length)
+            setPhotoIndex(
+              (photoIndex + message.imageUriPaths.length - 1) %
+                message.imageUriPaths.length
+            )
           }
           onMoveNextRequest={() =>
             setPhotoIndex((photoIndex + 1) % message.imageUriPaths.length)
@@ -382,16 +425,22 @@ const MessageListItem = ({
             <React.Fragment>
               <div className="toolbar-buttons">
                 <button
-                  onClick={() => handleDownload(`${HOST_URL}${message.imageUriPaths[photoIndex]}`, `chatImage-${photoIndex}`)}
-                  className="imageDownload-button" >
+                  onClick={() =>
+                    handleDownload(
+                      `${HOST_URL}${message.imageUriPaths[photoIndex]}`,
+                      `chatImage-${photoIndex}`
+                    )
+                  }
+                  className="imageDownload-button"
+                >
                   <FiDownload />
                 </button>
               </div>
-            </React.Fragment>
+            </React.Fragment>,
           ]}
         />
       )}
-    </div >
+    </div>
   );
 };
 
