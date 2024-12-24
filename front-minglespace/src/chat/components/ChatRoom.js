@@ -23,7 +23,7 @@ const initChatRoomInfo = {
 const ChatRoom = ({
   isFold
 }) => {
-  const {wsMemberState, workspaceId, updateRoomParticipantCount, removeRoom} = useChatApp();
+  const { wsMemberState, workspaceId, updateRoomParticipantCount, removeRoom } = useChatApp();
 
 
   const [chatRoomInfo, setChatRoomInfo] = useState(initChatRoomInfo);
@@ -431,7 +431,6 @@ const ChatRoom = ({
         fetchMoreMessages={fetchMoreMessages}
         msgHasMore={chatRoomInfo.msgHasMore}
         currentChatRoomId={chatRoomId}
-        wsMembers={wsMemberState} ///<<<<
       />
 
       <MessageInput

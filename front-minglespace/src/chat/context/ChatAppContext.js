@@ -1,5 +1,4 @@
 import { createContext, useContext, useEffect, useReducer, useRef, useState } from "react";
-import { initialRoomsState, roomsReducer } from "../components/reducer/chatRoomReducer";
 import { initialWsMemberState, wsMemberReducer } from "../components/reducer/wsMemberReducer";
 import SockJS from "sockjs-client";
 import { HOST_URL } from "../../api/Api";
@@ -7,53 +6,80 @@ import { Client } from "@stomp/stompjs";
 import Repo from "../../auth/Repo";
 import ChatApi from "../../api/chatApi";
 import { useParams } from "react-router-dom";
+import { chatListReducer, initialRoomsState } from "../components/reducer/chatListReducer";
 
 const ChatAppContext = createContext();
 
 export const useChatApp = () => useContext(ChatAppContext);
 
 export const ChatAppProvider = ({ children }) => {
-	const [roomsState, roomsDispatch] = useReducer(roomsReducer, initialRoomsState);
+	const [roomsState, roomsDispatch] = useReducer(chatListReducer, initialRoomsState);
 	const [wsMemberState, wsMemberDispatch] = useReducer(wsMemberReducer, initialWsMemberState);
 
-	const [validChatRoomId, setValidChatRoomId] = useState(null);
-
+	const [chatRoomId, setChatRoomId] = useState(null);
 	const socketRef = useRef(null);
-
 	const { workspaceId } = useParams();
 
-	useEffect(() => {
-		const fetchChatRooms = async () => {
-      try {
-        const roomsData = await ChatApi.getChatList(workspaceId);
-				roomsDispatch({
-					type:"SET_ROOMS",
-					payload:roomsData
-				});
-      } catch (e) {
-        // console.log("chatrooms: ", roomsData);
-        console.error("채팅방 데이터를 가져오는 데 문제가 발생했습니다.");
-      }
-    };
+	const fetchChatRooms = async () => {
+		try {
+			const roomsData = await ChatApi.getChatList(workspaceId);
+			// console.log("원인 제공: ", Array.isArray(roomsData));
+			roomsDispatch({
+				type: "SET_ROOMS",
+				payload: roomsData
+			});
+		} catch (e) {
+			console.error("채팅방 데이터를 가져오는 데 문제가 발생했습니다.");
+		}
+	};
 
-    //워크스페이스 멤버 목록
-    const fetchWsMembers = async () => {
-      try {
-        const wsmembersData = await ChatApi.getwsMembers(workspaceId);
-				wsMemberDispatch({
-					type:"SET_WS_MEMBERS",
-					payload: wsmembersData.filter(
-            (member) => member.userId !== Number(Repo.getUserId())
-          )
-				});
-      } catch (e) {
-        console.error("Error fetching ws members:", e);
-      }
-    };
+	//워크스페이스 멤버 목록
+	const fetchWsMembers = async () => {
+		try {
+			const wsmembersData = await ChatApi.getwsMembers(workspaceId);
+			wsMemberDispatch({
+				type: "SET_WS_MEMBERS",
+				payload: wsmembersData.filter(
+					(member) => member.userId !== Number(Repo.getUserId())
+				)
+			});
+		} catch (e) {
+			console.error("Error fetching ws members:", e);
+		}
+	};
 
-    fetchChatRooms();
-    fetchWsMembers();
-	},[workspaceId]);
+	// useEffect(() => {
+	// 	const fetchChatRooms = async () => {
+	// 		try {
+	// 			const roomsData = await ChatApi.getChatList(workspaceId);
+	// 			// console.log("원인 제공: ", Array.isArray(roomsData));
+	// 			roomsDispatch({
+	// 				type: "SET_ROOMS",
+	// 				payload: roomsData
+	// 			});
+	// 		} catch (e) {
+	// 			console.error("채팅방 데이터를 가져오는 데 문제가 발생했습니다.");
+	// 		}
+	// 	};
+
+	// 	//워크스페이스 멤버 목록
+	// 	const fetchWsMembers = async () => {
+	// 		try {
+	// 			const wsmembersData = await ChatApi.getwsMembers(workspaceId);
+	// 			wsMemberDispatch({
+	// 				type: "SET_WS_MEMBERS",
+	// 				payload: wsmembersData.filter(
+	// 					(member) => member.userId !== Number(Repo.getUserId())
+	// 				)
+	// 			});
+	// 		} catch (e) {
+	// 			console.error("Error fetching ws members:", e);
+	// 		}
+	// 	};
+
+	// 	fetchChatRooms();
+	// 	fetchWsMembers();
+	// }, [workspaceId]);
 
 	useEffect(() => {
 		if (socketRef.current) {
@@ -73,16 +99,16 @@ export const ChatAppProvider = ({ children }) => {
 
 				stompClient.subscribe(`/topic/workspaces/${workspaceId}`, (msg) => {
 					const newMsg = JSON.parse(msg.body);
-					if (validChatRoomId == null || Number(validChatRoomId) !== Number(newMsg.chatRoomId)) {
+					if (chatRoomId == null || Number(chatRoomId) !== Number(newMsg.chatRoomId)) {
 						roomsDispatch({
-							type: "UPDATE_ROOM_SUB",
+							type: "UPDATE_ROOMS_SUB",
 							payload: {
-								newMsg:newMsg
+								newMsg: newMsg
 							},
 						});
 					} else {
 						roomsDispatch({
-							type: "UPDATE_ROOM",
+							type: "UPDATE_ROOMS",
 							payload: {
 								chatRoomId: newMsg.chatRoomId,
 								updates: { lastMessage: newMsg.content }
@@ -109,7 +135,7 @@ export const ChatAppProvider = ({ children }) => {
 				socketRef.current = null;
 			}
 		};
-	}, [workspaceId, validChatRoomId]);
+	}, [workspaceId, chatRoomId]);
 
 
 	const handleCreateRoom = async (newRoomData, imageFile) => {
@@ -127,7 +153,7 @@ export const ChatAppProvider = ({ children }) => {
 			await ChatApi.readMessage(workspaceId, chatRoomId);
 
 			roomsDispatch({
-				type: "SET_ROOMS",
+				type: "UPDATE_ROOMS",
 				payload: {
 					chatRoomId: chatRoomId,
 					updates: {
@@ -142,10 +168,10 @@ export const ChatAppProvider = ({ children }) => {
 
 	const updateRoomParticipantCount = (chatRoomId, change) => {
 		roomsDispatch({
-			type: "UPDATE_ROOM_PARTICIPANT",
+			type: "UPDATE_ROOMS_PARTICIPANT",
 			payload: {
 				chatRoomId: chatRoomId,
-				change:change
+				change: change
 			}
 		});
 	};
@@ -167,11 +193,14 @@ export const ChatAppProvider = ({ children }) => {
 				wsMemberState,
 				wsMemberDispatch,
 				socketRef,
-				setValidChatRoomId,
+				chatRoomId,
+				setChatRoomId,
 				handleCreateRoom,
 				handleReadMsg,
 				updateRoomParticipantCount,
 				removeRoom,
+				fetchChatRooms,
+				fetchWsMembers,
 			}}
 		>
 			{children}

@@ -1,32 +1,51 @@
-const initialRoomsState = [];
+const initialRoomState = {
+	chatRoomInfo: {
+		chatRoomId: 0,
+		name: "",
+		imageUriPath: "",
+		workSpaceId: 0,
+		messages: [],
+		participants: [],
+		msgHasMore: false,
+	},
+	inviteMembers: [],
+	isRoomOwner: false,
+	// isModalOpen: false,
+	currentMemberInfo: null,
+	// replyToMessage: null,
+	// page: 0,
+};
 
-const roomsReducer = (state, action) => {
+const roomReducer = (state, action) => {
+	console.log("action.payload: ", action.payload)
 	switch (action.type) {
-		case "SET_ROOMS":
-			return action.payload;
-		case "UPDATE_ROOM":
-			return state.map(room =>
-				room.chatRoomId === action.payload.chatRoomId
-					? { ...room, ...action.payload.updates }
-					: room
-			);
-		case "UPDATE_ROOM_SUB":
-			return state.map(room => 
-				room.chatRoomId === action.payload.newMsg.chatRoomId
-					? { ...room, lastMessage: action.payload.newMsg.content, notReadMsgCount: room.notReadMsgCount + 1 }
-					: room
-			);
-		case "UPDATE_ROOM_PARTICIPANT":
-			return state.map(room => 
-				room.chatRoomId === action.payload.chatRoomId
-					? { ...room, participantCount: Number(room.participantCount) + Number(action.payload.change)}
-					: room
-			);
-		case "REMOVE_ROOM":
-			return state.filter(room => room.chatRoomId !== action.payload.chatRoomId);
+		case "SET_CHAT_ROOM_INFO":
+			return { ...state, chatRoomInfo: action.payload }
+		case "SET_INVITE_MEMBERS":
+			return { ...state, inviteMembers: action.payload }
+		case "SET_CURRENT_MEMBER_INFO":
+			return { ...state, currentMemberInfo: action.payload }
+		case "SET_IS_ROOM_OWNER":
+			return { ...state, isRoomOwner: action.payload }
+		case "UPDATE_CHAT_ROOM_INFO_MSG":
+			return {
+				...state,
+				chatRoomInfo: {
+					...state.chatRoomInfo,
+					messages: action.payload.messages,
+				}
+			};
+
+		// case "SET_REPLY_TO_MESSAGE":
+		// 	return { ...state, replyToMessage: action.payload }
+		// case "SET_PAGE":
+		// 	return { ...state, page: action.payload }
+		// case "SET_IS_MODAL_OPEN":
+		// 	return { ...state, isModalOpen: action.payload }
 		default:
 			return state;
 	}
+
 };
 
-export { roomsReducer, initialRoomsState };
+export { roomReducer, initialRoomState };

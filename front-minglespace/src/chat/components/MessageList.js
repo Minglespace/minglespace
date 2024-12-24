@@ -12,7 +12,6 @@ const MessageList = ({
   fetchMoreMessages,
   msgHasMore,
   currentChatRoomId,
-  wsMembers
 }) => {
   const [announcement, setAnnouncement] = useState(null);
   const [isAnnouncementModalOpen, setIsAnnouncementModalOpen] = useState(false);
@@ -139,7 +138,6 @@ const MessageList = ({
               onFindParentMessage={findParentMessage}
               openAnnounceMentModal={openAnnouncementModal}
               openDeleteModal={openDeleteModal}
-              wsMembers={wsMembers}
             />
           );
         })}

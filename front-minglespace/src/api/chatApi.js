@@ -60,8 +60,9 @@ class ChatApi {
 			return res.data;
 		} catch (error) {
 			if (error.response && error.response.status === 404) {
-				alert("채팅방 정보 겟 실패:", error.response.data.message);
+				alert("채팅방에 참여하실 수 없습니다.", error.response.message);
 				window.location.href = `/workspace/${workspaceId}/chat`;
+				return;
 			} else {
 				console.error("채팅방 정보 겟 실패:", error.message);
 			}
@@ -75,7 +76,7 @@ class ChatApi {
 			return res.data;
 		} catch (error) {
 			if (error.response && error.response.status === 403) {
-				alert("채팅방 멤버 추가 실패:", error.response.data.message);
+				alert("채팅방 멤버 추가 실패", error.response.data.message);
 			} else {
 				console.error("채팅방 멤버 추가 실패:", error.message);
 			}

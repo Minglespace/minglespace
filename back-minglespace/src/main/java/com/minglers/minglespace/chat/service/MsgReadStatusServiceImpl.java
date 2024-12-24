@@ -1,5 +1,6 @@
 package com.minglers.minglespace.chat.service;
 
+import com.minglers.minglespace.chat.dto.MessageStatusDTO;
 import com.minglers.minglespace.chat.entity.ChatMessage;
 import com.minglers.minglespace.chat.entity.ChatRoomMember;
 import com.minglers.minglespace.chat.entity.MsgReadStatus;
@@ -15,6 +16,7 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.http.HttpStatus;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -29,6 +31,9 @@ public class MsgReadStatusServiceImpl implements MsgReadStatusService {
   private final ChatRoomMemberRepository chatRoomMemberRepository;
   private final WSMemberRepository wsMemberRepository;
   private final NotificationService notificationService;
+
+  private final SimpMessagingTemplate simpMessagingTemplate;
+
 
   @Override
   @Transactional
@@ -52,6 +57,11 @@ public class MsgReadStatusServiceImpl implements MsgReadStatusService {
 
       for (ChatRoomMember member : members) {
         Long memberId = member.getWsMember().getUser().getId();
+
+        if(activeUserIds.contains(memberId)){
+          continue;
+        }
+
         String path = "/workspace/" + saveMsg.getChatRoom().getWorkSpace().getId() + "/chat";
         boolean isMentioned = mentionedIds.contains(memberId);
         //작성 유저 제외
@@ -82,7 +92,14 @@ public class MsgReadStatusServiceImpl implements MsgReadStatusService {
       WSMember wsMember = wsMemberRepository.findByUserIdAndWorkSpaceId(userId, workspaceId)
               .orElseThrow(() -> new ChatException(HttpStatus.NOT_FOUND.value(), "워크 스페이스 멤버가 아닙니다."));
       long deletedCount = msgReadStatusRepository.deleteByMessage_ChatRoom_IdAndWsMemberId(chatRoomId, wsMember.getId());
-
+//      if(deletedCount > 0){
+//        MessageStatusDTO messageStatusDTO = MessageStatusDTO.builder()
+//                .chatRoomId(chatRoomId)
+//                .wsMemberId(wsMember.getId())
+//                .type("READ")
+//                .build();
+//        simpMessagingTemplate.convertAndSend("/topic/chatRooms/" + chatRoomId + "/message-status", messageStatusDTO);
+//      }
       log.info("Messages marked as read and deleted for chat room ID: " + chatRoomId + " and user ID: " + wsMember.getId());
 
     } catch (Exception e) {

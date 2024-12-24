@@ -151,20 +151,26 @@ public class ChatRoomServiceImpl implements ChatRoomService {
 
     String imageUriPath = (chatRoom.getImage() != null && chatRoom.getImage().getUripath() != null) ? chatRoom.getImage().getUripath() : "";
 
-    return ChatListResponseDTO.builder()
+
+
+    ChatListResponseDTO responseDTO = ChatListResponseDTO.builder()
             .chatRoomId(chatRoom.getId())
             .name(chatRoom.getName())
             .imageUriPath(imageUriPath)
             .workSpaceId(chatRoom.getWorkSpace().getId())
             .date(chatRoom.getDate())
             .lastMessage("")
-            .participantCount(chatRoom.getChatRoomMembers().size()) // 처음 생성이니까 떠난 유저가 없다는 전제
+            .participantCount(chatRoom.getChatRoomMembers().size())
             .build();
+    //participantIds 들에게 새 채팅방 정보를.. 줘야할듯함
+//    simpMessagingTemplate.convertAndSend("/topic/workspaces/"+responseDTO.getWorkSpaceId()+"/chat", responseDTO);
+    return responseDTO;
   }
 
   @Override
   @Transactional
   public void deleteChatRoomData(Long chatRoomId) {
+    msgReadStatusRepository.deleteByMessage_ChatRoom_Id(chatRoomId);
     chatMessageRepository.deleteByChatRoomId(chatRoomId);
     chatRoomMemberRepository.deleteByChatRoomId(chatRoomId);
     chatRoomRepository.deleteById(chatRoomId);
@@ -180,6 +186,11 @@ public class ChatRoomServiceImpl implements ChatRoomService {
 
     WSMember wsMember = wsMemberRepository.findByUserIdAndWorkSpaceId(userId, workspaceId)
             .orElseThrow(() -> new ChatException(HttpStatus.NOT_FOUND.value(), "워크스페이스 멤버에서 찾을 수 없습니다."));
+
+    if (!chatRoomMemberRepository.existsByChatRoomIdAndWsMemberIdAndIsLeftFalse(chatRoomId, wsMember.getId())) {
+      throw new ChatException(HttpStatus.NOT_FOUND.value(), "채팅방에 참여중이지 않습니다.");
+    }
+
     msgReadStatusRepository.deleteByMessage_ChatRoom_IdAndWsMemberId(chatRoomId, wsMember.getId()); //요청 유저가 안 읽은 메시지가 있다면 읽음 처리하기.
 
     notifyReadStatus(chatRoomId, wsMember.getId()); //읽음 처리 알림보내기
@@ -200,6 +211,8 @@ public class ChatRoomServiceImpl implements ChatRoomService {
             .imageUriPath(imageUriPath)
             .msgHasMore(msgHasMore)
             .build();
+
+
   }
 
   @Override

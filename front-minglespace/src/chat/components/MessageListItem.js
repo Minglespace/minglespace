@@ -9,6 +9,7 @@ import { AiOutlineFileExcel, AiOutlineFileMarkdown, AiOutlineFilePdf, AiOutlineF
 import { SiCss3, SiJavascript, SiMysql, SiPython, SiTableau, SiTypescript, SiYaml } from "react-icons/si";
 import { RiJavaLine } from "react-icons/ri";
 import { VscJson } from "react-icons/vsc";
+import { useChatApp } from "../context/ChatAppContext";
 
 const MessageListItem = ({
   message,
@@ -18,8 +19,10 @@ const MessageListItem = ({
   onFindParentMessage,
   openAnnounceMentModal,
   openDeleteModal,
-  wsMembers
 }) => {
+  const { wsMemberState } = useChatApp();
+
+
   const parentMessage = message.replyId
     ? onFindParentMessage(message.replyId)
     : null;
@@ -47,7 +50,7 @@ const MessageListItem = ({
     return message
       .split(regex)
       .map((part, index) => {
-        const isMention = wsMembers.some((member) => member.name === part) || part === currentMemberInfo.name;
+        const isMention = wsMemberState.some((member) => member.name === part) || part === currentMemberInfo.name;
         return isMention ? <span style={{ fontWeight: "bold", color: "#6495ED" }} key={index}>@{part}</span> : part;
       });
   };

@@ -7,8 +7,8 @@ import { useChatApp } from "../context/ChatAppContext";
 const ChatList = ({
   isFold
 }) => {
-  const {roomsState} = useChatApp();
-  const [isModalOpen, setIsModalOpen] = useState(false); 
+  const { roomsState } = useChatApp();
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   const getTotalUnreadMessages = () => {
     return roomsState.reduce((total, room) => total + (room.notReadMsgCount || 0), 0);
