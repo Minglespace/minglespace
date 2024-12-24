@@ -80,8 +80,8 @@ const InviteFriendModal = ({
   };
 
   return (
-    <div className="modal_wrapper">
-      <div className="modal_content">
+    <div className="invite_modal_wrapper">
+      <div className="invite_modal_content">
         <h1>채팅방 관리</h1>
 
         {/* 탭 선택 */}
@@ -105,7 +105,7 @@ const InviteFriendModal = ({
           <div className="info_section">
             <div className="modal_img">
               <img
-                className="chat_create_Img"
+                className="chat_update_Img"
                 src={selectedImage || default_img}
                 alt="채팅방 이미지"
               />
@@ -138,7 +138,6 @@ const InviteFriendModal = ({
         {/* 초대/강퇴 섹션 */}
         {selectedTab === "invite" && (
           <div className="invite_section">
-            <h2>채팅방 초대/강퇴하기</h2>
             <div className="invite-friends-list">
               <p>강퇴할 멤버를 선택하세요:</p>
               <ul>
