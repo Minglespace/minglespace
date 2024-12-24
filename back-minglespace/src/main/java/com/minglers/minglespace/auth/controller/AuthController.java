@@ -2,6 +2,8 @@ package com.minglers.minglespace.auth.controller;
 
 import com.minglers.minglespace.auth.dto.*;
 import com.minglers.minglespace.auth.entity.User;
+import com.minglers.minglespace.auth.exception.JwtExceptionCode;
+import com.minglers.minglespace.auth.oauth2.OAuth2UserMs;
 import com.minglers.minglespace.auth.repository.UserRepository;
 import com.minglers.minglespace.auth.security.JWTUtils;
 import com.minglers.minglespace.auth.service.AuthEmailService;
@@ -14,6 +16,7 @@ import com.minglers.minglespace.common.apistatus.AuthStatus;
 import com.minglers.minglespace.common.entity.Image;
 import com.minglers.minglespace.common.service.ImageService;
 import com.minglers.minglespace.common.util.CookieManager;
+import com.minglers.minglespace.common.util.MsConfig;
 import jakarta.mail.MessagingException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -21,6 +24,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
@@ -30,6 +34,7 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.util.Base64;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
@@ -85,7 +90,7 @@ class AuthController {
 //  }
 
   @GetMapping("/auth/verify/{code}/{encodedEmail}/{encodedVerifyType}")
-  public ResponseEntity<DefaultResponse> verifyEmail(
+  public ResponseEntity<EmailVerifyResponse> verifyEmail(
           @PathVariable String code,
           @PathVariable String encodedEmail,
           @PathVariable String encodedVerifyType) {
@@ -95,22 +100,23 @@ class AuthController {
     User user = userService.getUserByEmail(email);
     VerifyType verifyType = VerifyType.valueOf(strVerifyType);
 
-    DefaultResponse res = null;
+    EmailVerifyResponse res = null;
 
     if(verifyType == VerifyType.SIGNUP){
       res = authEmailService.checkVerifyCode(user, code);
       if(res.getMsStatus() == AuthStatus.Ok) {
         user.setVerificationCode("");
-        userService.updateUser(user.getId(), user, null, false);
+        userService.update(user);
       }
     }else if(verifyType == VerifyType.WITHDRAWAL){
       res = withdrawalService.checkVerifyCode(user, code);
       if(res.getMsStatus() == AuthStatus.Ok){
         user.setWithdrawalType(WithdrawalType.ABLE);
-        userService.updateUser(user.getId(), user, null, false);
+        userService.update(user);
       }
     }
 
+    res.setVerifyType(verifyType);
     log.info("verifyEmail res : {}", res.toString());
 
     return ResponseEntity.ok(res);
@@ -118,7 +124,8 @@ class AuthController {
 
   @PostMapping("/auth/login")
   public ResponseEntity<LoginResponse> login(@RequestBody LoginRequest req, HttpServletResponse response) {
-    return ResponseEntity.ok(userService.login(req, response));
+    LoginResponse res = userService.login(req, response);
+    return ResponseEntity.ok(res);
   }
 
   @PostMapping("auth/logout")
@@ -145,11 +152,11 @@ class AuthController {
   }
 
   @GetMapping("/auth/token")
-  private ResponseEntity<DefaultResponse> token(
+  private ResponseEntity<LoginResponse> token(
           HttpServletRequest request,
-          HttpServletResponse response){
+          HttpServletResponse response) throws IOException {
 
-    DefaultResponse res = new DefaultResponse();
+    LoginResponse res = new LoginResponse();
     String accessToken = CookieManager.get("Authorization", request);
     if(accessToken == null){
       res.setStatus(AuthStatus.NotFoundAccessTokenInCookie);
@@ -157,8 +164,13 @@ class AuthController {
       // accessToken은 쿠키에서 빼서, 헤더에 넣어 준다.
       CookieManager.clear("Authorization", response);
       response.setHeader("Authorization", "Bearer " + accessToken);
+
+      String userEmail = jwtUtils.extractUsername(accessToken);
+      User user = userService.getUserByEmail(userEmail);
+      res.setWithdrawalType(user.getWithdrawalType());
       res.setStatus(AuthStatus.Ok);
     }
+
     return ResponseEntity.ok(res);
   }
 
@@ -177,7 +189,7 @@ class AuthController {
 
     UserResponse response = new UserResponse();
 
-    response.map(modelMapper, user);
+    response.map(user, modelMapper);
 
     response.setStatus(AuthStatus.Ok);
     return ResponseEntity.ok(response);
@@ -253,7 +265,7 @@ class AuthController {
 
     // user WithdrawalType 저장
     user.setWithdrawalType(WithdrawalType.EMAIL);
-    UserResponse userResponse = userService.updateUser(user, null, false);
+    UserResponse userResponse = userService.update(user);
 
     // withdrawal table 저장
     withdrawalService.add(user, code);

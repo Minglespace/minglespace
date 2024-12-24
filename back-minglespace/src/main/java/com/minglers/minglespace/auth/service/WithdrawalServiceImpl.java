@@ -1,6 +1,7 @@
 package com.minglers.minglespace.auth.service;
 
 import com.minglers.minglespace.auth.dto.DefaultResponse;
+import com.minglers.minglespace.auth.dto.EmailVerifyResponse;
 import com.minglers.minglespace.auth.entity.User;
 import com.minglers.minglespace.auth.entity.Withdrawal;
 import com.minglers.minglespace.auth.repository.WithdrawalRepository;
@@ -29,27 +30,27 @@ public class WithdrawalServiceImpl implements WithdrawalService{
   }
 
   @Override
-  public DefaultResponse checkVerifyCode(User user, String verifyCode) {
+  public EmailVerifyResponse checkVerifyCode(User user, String verifyCode) {
 
     Optional<Withdrawal> opt = withdrawalRepository.findByUserId(user.getId());
     if(!opt.isPresent()){
-      return new DefaultResponse(AuthStatus.NotFoundAccount);
+      return new EmailVerifyResponse(AuthStatus.NotFoundAccount);
     }
 
     Withdrawal withdrawal = opt.get();
     String storedCode = withdrawal.getVerifyCode();
     if(storedCode == null || storedCode.isEmpty()){
-      return new DefaultResponse(AuthStatus.NotFoundVerifyCode);
+      return new EmailVerifyResponse(AuthStatus.NotFoundVerifyCode);
     }
 
     if(!storedCode.equals(verifyCode)){
-      return new DefaultResponse(AuthStatus.MismatchVerifyCode);
+      return new EmailVerifyResponse(AuthStatus.MismatchVerifyCode);
     }
 
     // 인증 완료시 인증 코드 제거
     withdrawal.setVerifyCode(null);
     withdrawalRepository.save(withdrawal);
 
-    return new DefaultResponse(AuthStatus.Ok);
+    return new EmailVerifyResponse(AuthStatus.Ok);
   }
 }

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+﻿import React, { useEffect, useState } from "react";
 
 
 import { X, Eye, EyeOff } from "lucide-react";
@@ -52,8 +52,15 @@ const LoginPage = () => {
       setTimeout(()=>{
         AuthApi.verify(code, encodedEmail, encodedVerifyType).then((data) => {
           console.log("AuthApi.verify data : ", data);
-           if (AuthStatusOk(data.msStatus)) {
-            setIsOpenPopup(true);
+           
+          if (AuthStatusOk(data.msStatus)) {
+
+            if(data.verifyType === "SIGNUP"){
+              setIsOpenPopup(true);
+            }else{
+              setMessage({title: "확인", content: AuthStatus[AuthStatus.WithdrawalAble.value].desc,});
+            }
+
           } else{
             setIsOpenPopup(false);
           }
@@ -92,8 +99,17 @@ const LoginPage = () => {
       const data = await AuthApi.login(email, password);
       
       if(AuthStatusOk(data.msStatus)){
-        // navigate("/main");
-        navigate(getUriPath(location), { replace: true });
+        
+        console.log("AuthApi.login data : ", data);
+
+        Repo.setItem(data);
+
+        if(data.withdrawalType === "ABLE"){
+          navigate("/auth/withdrawal");
+        }else{
+          // navigate("/main");
+          navigate(getUriPath(location), { replace: true });
+        }
       }else if(data.msStatus && AuthStatus[data.msStatus]){
         setMessage({
           title: "확인", 

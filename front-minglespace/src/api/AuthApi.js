@@ -15,16 +15,25 @@ class AuthApi{
     }
   };
 
+  // static login = async (email, password) => {
+  //   try {
+  //     const response = await api.axiosIns.post("/auth/login", { email, password });
+  //     if (response.data.code === 200) {
+  //       console.log("로그인 성공 : ", response.data);
+  //       Repo.setItem(response.data);
+  //     } else {
+  //       console.log("로그인 실패 : ");
+  //     }
+
+  //     return response.data;
+  //   } catch (err) {
+  //     console.error("로그인 에러 : ", err);
+  //     throw err;
+  //   }
+  // };
   static login = async (email, password) => {
     try {
       const response = await api.axiosIns.post("/auth/login", { email, password });
-      if (response.data.code === 200) {
-        console.log("로그인 성공 : ", response.data);
-        Repo.setItem(response.data);
-      } else {
-        console.log("로그인 실패 : ");
-      }
-
       return response.data;
     } catch (err) {
       console.error("로그인 에러 : ", err);

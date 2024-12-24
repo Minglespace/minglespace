@@ -9,6 +9,7 @@ class Repo{
 
     this.setRole(data.role);
     this.setUserId(data.id);
+    this.setWithdrawalType(data.withdrawalType);
     
   }
 
@@ -18,6 +19,7 @@ class Repo{
     localStorage.removeItem(this.USER_ROLE);
     localStorage.removeItem(this.USER_ID);
 
+    Repo.clearWithdrawalType();
   }
 
   static setAccessToken(accessToken){
@@ -50,6 +52,28 @@ class Repo{
   static isAuthenticated() {
     const accessToken = this.getAccessToken();
     return !!accessToken;
+  }
+
+  static isWithdrawalABLE() {
+    const withdrawalType = this.getWithdrawalType();
+    return withdrawalType === "ABLE";
+  }
+
+  static setWithdrawalType(withdrawalType){
+    
+    console.log("setWithdrawalType : ", withdrawalType);
+
+    if(withdrawalType){
+      localStorage.setItem("WithdrawalType", withdrawalType);
+    }
+  }
+
+  static getWithdrawalType() {
+    return localStorage.getItem("WithdrawalType");
+  }
+  
+  static clearWithdrawalType(){
+    localStorage.removeItem("WithdrawalType");
   }
 
   static setProfileColor(color){

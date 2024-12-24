@@ -2,6 +2,7 @@ package com.minglers.minglespace.auth.oauth2;
 
 import com.minglers.minglespace.auth.entity.User;
 import com.minglers.minglespace.auth.security.JWTUtils;
+import com.minglers.minglespace.auth.type.WithdrawalType;
 import com.minglers.minglespace.common.apistatus.AuthStatus;
 import com.minglers.minglespace.common.util.CookieManager;
 import com.minglers.minglespace.common.util.MsConfig;
@@ -10,6 +11,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
 
@@ -31,20 +33,21 @@ public class SuccessHandlerOAuth2 extends SimpleUrlAuthenticationSuccessHandler 
     OAuth2UserMs oAuth2UserMs = (OAuth2UserMs) authentication.getPrincipal();
 
     // 자체 로그인과 통합 필요
+    // 필터나 인터셉터로 처리하자
     AuthStatus authStatus = oAuth2UserMs.getStatus();
-    if(authStatus != AuthStatus.Ok){
-
-      String uri = "/auth/login/";
-      switch (authStatus){
-        case AlreadyJoinedEmail ->      uri += MsConfig.UriType.MESSAGE.name();
-        case WithdrawalEmailFirst ->    uri += MsConfig.UriType.WITHDRAWAL.name();
-        case WithdrawalAble ->          uri += MsConfig.UriType.WITHDRAWAL.name();
-        case WithdrawalDeliveration ->  uri += MsConfig.UriType.WITHDRAWAL.name();
-        case WithdrawalDone ->          uri += MsConfig.UriType.WITHDRAWAL.name();
-      }
-
+    if(authStatus == AuthStatus.AlreadyJoinedEmail){
       log.info("[MIRO] 돌려 보내는 사유 : {}", authStatus.getDesc());
-      response.sendRedirect(MsConfig.getClientUrl(uri + "/" +  authStatus));
+      String url = MsConfig.getClientUrl("/auth/login/" +  authStatus);
+      log.info("[MIRO] url : {}", url);
+      response.sendRedirect(url);
+      return;
+    }
+
+    if(oAuth2UserMs.getUser().getWithdrawalType() == WithdrawalType.EMAIL){
+      log.info("[MIRO] 돌려 보내는 사유 : {}", AuthStatus.WithdrawalEmailFirst.getDesc());
+      String url = MsConfig.getClientUrl("/auth/login/" + AuthStatus.WithdrawalEmailFirst);
+      log.info("[MIRO] url : {}", url);
+      response.sendRedirect(url);
       return;
     }
 
@@ -65,4 +68,6 @@ public class SuccessHandlerOAuth2 extends SimpleUrlAuthenticationSuccessHandler 
     // sendRedirect
     response.sendRedirect(MsConfig.getClientUrl("/auth/token"));
   }
+
+
 }

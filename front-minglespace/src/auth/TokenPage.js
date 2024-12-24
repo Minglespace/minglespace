@@ -2,6 +2,7 @@ import React, { useEffect } from 'react'
 import api from '../api/Api'
 import { useNavigate } from 'react-router-dom';
 import { AuthStatusOk } from '../api/AuthStatus';
+import Repo from './Repo';
 
 //===============================================================
 // 소셜 로그인 로그인시 성공시
@@ -21,8 +22,17 @@ const TokenPage = () => {
 
   const getAccessToken = async () =>{
     await api.axiosIns.get("/auth/token").then((res)=>{
+
+      console.log("/auth/token res.data : {}", res.data);
+
       if(AuthStatusOk(res.data.msStatus)){
-        navigate("/main");
+
+        if(res.data.withdrawalType === "ABLE"){
+          Repo.setWithdrawalType(res.data.withdrawalType);
+          navigate("/auth/withdrawal");
+        }else{
+          navigate("/main");
+        }
       }
     });
   }

@@ -85,11 +85,11 @@ public class User implements UserDetails {
   }
 
   public void change(
-          ModelMapper modelMapper,
-          Image image,
-          PasswordEncoder passwordEncoder,
           User from,
-          boolean dontUse){
+          Image image,
+          boolean dontUse,
+          PasswordEncoder passwordEncoder,
+          ModelMapper modelMapper  ){
 
     modelMapper.map(from, this);
 

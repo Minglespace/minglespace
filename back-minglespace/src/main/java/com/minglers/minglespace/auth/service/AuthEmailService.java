@@ -1,6 +1,7 @@
 package com.minglers.minglespace.auth.service;
 
 import com.minglers.minglespace.auth.dto.DefaultResponse;
+import com.minglers.minglespace.auth.dto.EmailVerifyResponse;
 import com.minglers.minglespace.auth.entity.User;
 import com.minglers.minglespace.auth.repository.UserRepository;
 import com.minglers.minglespace.auth.type.VerifyType;
@@ -58,9 +59,9 @@ public class AuthEmailService extends EmailService {
 
 
 
-  public DefaultResponse checkVerifyCode(User user, String code) {
+  public EmailVerifyResponse checkVerifyCode(User user, String code) {
 
-    DefaultResponse res = new DefaultResponse();
+    EmailVerifyResponse res = new EmailVerifyResponse();
 
     String storedCode = user.getVerificationCode();
     if(storedCode.isEmpty()){

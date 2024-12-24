@@ -12,7 +12,6 @@ public enum AuthStatus {
   //유저
   NotFoundAccount("사용자가 존재하지 않은 경우"),
   MismatchPw("비밀번호가 틀림"),
-  NullProperty("유저 입력 프로퍼티가 비어 있음"),
   ImageUploadException("이미지 업로드 예외"),
 
   //로그인
@@ -30,6 +29,7 @@ public enum AuthStatus {
   EmailVerificationFirst("이메일 인증 먼저"),
   EmailVerificationAlready("이미 유저 이메일 인증 성공"),
   EmailVerificationCodeMismatch("유저 이메일 인증 번호 틀림"),
+  NullProperty("유저 입력 프로퍼티가 비어 있음"),
 
   //회원 탈퇴
   WithdrawalEmailFirst("회원탈퇴 이메일 인증 먼저"),

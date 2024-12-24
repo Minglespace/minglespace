@@ -141,19 +141,6 @@ public class UserServiceOAuth2 extends DefaultOAuth2UserService {
 
     if(userOpt.isPresent()){
       user = userOpt.get();
-
-      // 자체 로그인과 통합필요
-      WithdrawalType withdrawalType = user.getWithdrawalType();
-      if(withdrawalType != WithdrawalType.NOT){
-        AuthStatus authStatus = AuthStatus.WithdrawalEmailFirst;
-        switch (withdrawalType){
-          case EMAIL ->         authStatus = AuthStatus.WithdrawalEmailFirst;
-          case ABLE ->          authStatus = AuthStatus.WithdrawalAble;
-          case DELIVERATION ->  authStatus = AuthStatus.WithdrawalDeliveration;
-          case DONE ->          authStatus = AuthStatus.WithdrawalDone;
-        }
-        return new OAuth2UserMs(user, authStatus);
-      }
     }else{
       user = new User();
       user.setWithdrawalType(WithdrawalType.NOT);
@@ -163,8 +150,8 @@ public class UserServiceOAuth2 extends DefaultOAuth2UserService {
       user.setRole("ROLE_USER");
     }
 
+    // 1. 소셜 로그인 중인데, 자체계정의 유저가 찾아진 경우
     Provider provider = user.getProvider();
-
     if (provider != null && !provider.equals(responseOAuth2.getProvider())) {
       log.info("[MIRO] 이미 등록한 이메일(소셜 포함) 유저 입니다.");
 
@@ -191,6 +178,7 @@ public class UserServiceOAuth2 extends DefaultOAuth2UserService {
       throw new RuntimeException(e);
     }
 
+    // userservice 사용하게 수정 필요
     // 디비 저장
     User userResult = userRepository.save(user);
 

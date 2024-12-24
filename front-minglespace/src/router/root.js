@@ -6,6 +6,8 @@ const Loading = <div>Loading....</div>;
 const LoginPage = lazy(() => import("../auth/LoginPage"));
 const SignupPage = lazy(() => import("../auth/SignupPage"));
 const TokenPage = lazy(() => import("../auth/TokenPage"));
+const WithdrawalPage = lazy(() => import("../auth/WithdrawalPage"));
+
 const Main = lazy(() => import("../page/MainPage"));
 const Chat = lazy(() => import("../page/ChatPage"));
 const Todo = lazy(() => import("../page/TodoPage"));
@@ -58,6 +60,10 @@ const root = createBrowserRouter([
     path: "/workspace/:workspaceId/calendar",
     element: <SuspenseWithPrivateRoute page={Calendar} />,
   },
+  {
+    path: "/auth/withdrawal",
+    element: <SuspenseWithPrivateRoute page={WithdrawalPage} />,
+  },
 
   // Suspense
   // 로그인 유무 체크하지 않는 대상 페이지들
@@ -81,6 +87,10 @@ const root = createBrowserRouter([
     path: "/auth/token",
     element: (<Suspense fallback={Loading}><TokenPage /></Suspense>),
   },
+  // {
+  //   path: "/auth/withdrawal",
+  //   element: (<Suspense fallback={Loading}><WithdrawalPage /></Suspense>),
+  // },
 
   //잘못된 경로
   {

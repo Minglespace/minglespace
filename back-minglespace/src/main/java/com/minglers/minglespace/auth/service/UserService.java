@@ -98,22 +98,19 @@ public class UserService {
 
       User user = userOpt.get();
 
-      // 소셜로그인과 통합필요
-      // 회원탈퇴 중인 유저인지 체크
-      WithdrawalType withdrawalType = user.getWithdrawalType();
-      if(withdrawalType != WithdrawalType.NOT){
-        switch (withdrawalType){
-          case EMAIL ->         res.setStatus(AuthStatus.WithdrawalEmailFirst);
-          case ABLE ->          res.setStatus(AuthStatus.WithdrawalAble);
-          case DELIVERATION ->  res.setStatus(AuthStatus.WithdrawalDeliveration);
-          case DONE ->          res.setStatus(AuthStatus.WithdrawalDone);
-        }
+      // 1. 자체 로그인 중인데, 소셜계정의 유저가 찾아진 경우
+      if(user.isSocialProvider()){
+        res.setStatus(AuthStatus.AlreadyJoinedEmail);
         return res;
       }
 
-      // 자체 로그인 중인데, 소셜계정의 유저가 찾아진 경우
-      if(user.isSocialProvider()){
-        res.setStatus(AuthStatus.AlreadyJoinedEmail);
+      // 2. 회원탈퇴 중인 유저인지 체크
+      // 필터나 인터셉터로 처리하자
+      // 소셜로그인과 통합필요
+      res.setWithdrawalType(user.getWithdrawalType());
+      WithdrawalType withdrawalType = user.getWithdrawalType();
+      if(withdrawalType == WithdrawalType.EMAIL){
+        res.setStatus(AuthStatus.WithdrawalEmailFirst);
         return res;
       }
 
@@ -195,16 +192,21 @@ public class UserService {
     UserResponse res = new UserResponse();
 
     try {
-      Optional<User> userOptional = usersRepo.findById(userId);
+      Optional<User> opt = usersRepo.findById(userId);
 
-      if (userOptional.isPresent()) {
-        User existingUser = userOptional.get();
+      if (opt.isPresent()) {
+        User existingUser = opt.get();
 
-        existingUser.change(modelMapper, image, passwordEncoder, updateUser, dontUse);
+        // 변경되지 말아야할 값들을 널처리해서
+        // 매퍼에서 스킵하게 한다.
+        updateUser.setId(null);
+        updateUser.setPassword(null);
+
+        existingUser.change(updateUser, image, dontUse, passwordEncoder, modelMapper);
 
         User savedUser = usersRepo.save(existingUser);
 
-        res.map(modelMapper, savedUser);
+        res.map(savedUser, modelMapper);
 
         res.setStatus(AuthStatus.Ok);
       } else {
@@ -213,6 +215,18 @@ public class UserService {
     } catch (Exception e) {
       res.setStatus(AuthStatus.Exception);
     }
+
+    return res;
+  }
+
+  // updateUser 함수 버그 이슈 추후 통합필요
+  public UserResponse update(User updateUser){
+
+    UserResponse res = new UserResponse();
+
+    usersRepo.save(updateUser);
+
+    res.setStatus(AuthStatus.Ok);
 
     return res;
   }
@@ -242,11 +256,11 @@ public class UserService {
       if (opt.isPresent()) {
         return opt.get();
       } else {
-        log.info("[MIRO] getUserByEmail : ", AuthStatus.NotFoundAccount);
+        log.info("[MIRO] getUserByEmail : {}, {}", AuthStatus.NotFoundAccount, email);
         return null;
       }
     }catch (Exception e){
-      log.info("[MIRO] getUserByEmail 에외 : ", AuthStatus.Exception);
+      log.info("[MIRO] getUserByEmail 에외 : {}", AuthStatus.Exception);
       return null;
     }
   }
