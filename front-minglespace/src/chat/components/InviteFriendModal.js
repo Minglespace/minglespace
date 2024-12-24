@@ -68,7 +68,7 @@ const InviteFriendModal = ({
   };
 
   // 채팅방 정보 저장 및 업데이트
-  const handleSave = () => {
+  const handleSave = (e) => {
     // onUpdateChatRoom으로 부모에게 변경된 채팅방 정보를 전달
     if (newChatRoomData.name && newChatRoomData.image) {
       onUpdateChatRoom(newChatRoomData); // 부모로 변경된 정보를 전달

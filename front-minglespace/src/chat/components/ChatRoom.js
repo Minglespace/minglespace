@@ -426,7 +426,12 @@ const ChatRoom = ({
   };
 
   const handleUpdateChatRoom = (updatedData) => {
-    setUpdateChatroom(updatedData); // 수정된 데이터로 상태 업데이트
+    // setUpdateChatroom(updatedData); // 수정된 데이터로 상태 업데이트
+    setChatRoomInfo((prev) => ({
+      ...prev,
+      name: updatedData.name,
+      imageUriPath: updatedData.image, // 이미지 경로 업데이트
+    }));
     console.log("Updated Chat Room Data: ", updatedData);
   };
 
