@@ -23,7 +23,7 @@ export const ChatAppProvider = ({ children }) => {
 	const fetchChatRooms = async () => {
 		try {
 			const roomsData = await ChatApi.getChatList(workspaceId);
-			// console.log("원인 제공: ", Array.isArray(roomsData));
+			console.log("원인 제공: ", roomsData);
 			roomsDispatch({
 				type: "SET_ROOMS",
 				payload: roomsData
@@ -115,6 +115,12 @@ export const ChatAppProvider = ({ children }) => {
 							},
 						});
 					}
+				});
+
+				stompClient.subscribe(`/user/queue/workspaces/${workspaceId}/chat`, (room) => {
+					const newRoom = JSON.parse(room.body);
+					console.log("새 채팅방 알림: ", newRoom);
+					roomsDispatch({ type: "ADD_ROOMS", payload:newRoom});
 				});
 			},
 			onWebSocketError: (error) => {

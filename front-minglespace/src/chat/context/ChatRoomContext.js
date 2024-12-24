@@ -24,7 +24,6 @@ export const ChatRoomProvider = ({ children }) => {
 	const navigate = useNavigate();
 
 
-	console.log("context끼리 전달: ", updateRoomParticipantCount)
 	useEffect(() => {
 		console.log("Updated chatRoomInfo:", roomState.chatRoomInfo); // 상태가 바뀔 때마다 콘솔로 확인
 	}, [roomState.chatRoomInfo]);

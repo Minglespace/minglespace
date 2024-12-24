@@ -4,6 +4,8 @@ const chatListReducer = (state, action) => {
 	switch (action.type) {
 		case "SET_ROOMS":
 			return action.payload;
+		case "ADD_ROOMS":
+			return [action.payload, ...state];
 		case "UPDATE_ROOMS":
 			return state.map(room =>
 				room.chatRoomId === Number(action.payload.chatRoomId)
