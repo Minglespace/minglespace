@@ -12,8 +12,6 @@ const CalendarFormModal = ({
   addType,
   focusDescription,
 }) => {
-  console.log("form end : ", formData.end);
-  console.log(formData.id);
   return (
     <div className="calendar_modal_container">
       <div className="calendar_type_buttons">

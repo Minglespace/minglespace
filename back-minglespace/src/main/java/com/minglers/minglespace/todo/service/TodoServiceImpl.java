@@ -41,10 +41,16 @@ public class TodoServiceImpl implements TodoService {
 
   @Override
   @Transactional(readOnly = true)
-  public Slice<TodoResponseDTO> getTodoWithAssigneeInfo(Long workspaceId, String searchKeyword, Long userId, String sortType, String searchType, Pageable pageable) {
+  public Slice<TodoResponseDTO> getTodoWithAssigneeInfo(Long workspaceId, String searchKeywords, Long userId, String sortType, String searchType, Pageable pageable) {
     WSMember wsMember = wsMemberRepository.findByUserIdAndWorkSpaceId(userId, workspaceId)
             .orElseThrow(() -> new RuntimeException("Workspace member not found"));
 
+    String searchKeyword ="";
+    if(searchKeywords != null) {
+      searchKeyword = searchKeywords.replaceAll("([%_])", "\\\\$1");
+    }
+
+//    String searchKeyword = searchKeywords.replaceAll("[^\\w\\s]", "");
 //    List<Todo> todoList = todoRepository.findTodosByAssigneeWsMemberId(wsMember.getId());
 
 //    Slice<Todo> pageResult = null; // 초기화
@@ -128,9 +134,14 @@ public class TodoServiceImpl implements TodoService {
 
   @Override
   @Transactional(readOnly = true)
-  public Slice<TodoResponseDTO> getAllTodo(Long workspaceId, String searchKeyword, String sortType, String searchType, Pageable pageable) {
+  public Slice<TodoResponseDTO> getAllTodo(Long workspaceId, String searchKeywords, String sortType, String searchType, Pageable pageable) {
     WorkSpace workSpace = workspaceRepository.findById(workspaceId)
             .orElseThrow(() -> new WorkspaceException(HttpStatus.NOT_FOUND.value(), "워크스페이스를 찾을 수 없습니다."));
+
+    String searchKeyword ="";
+    if(searchKeywords != null) {
+      searchKeyword = searchKeywords.replaceAll("([%_])", "\\\\$1");
+    }
     Sort sort;
     switch(sortType.toLowerCase()){
       case "content_asc":

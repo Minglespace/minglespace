@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import Modal from "../../common/Layouts/components/Modal"; // Modal 컴포넌트 임포트
 import WorkspaceApi from "../../api/workspaceApi";
 import { getErrorMessage } from "../../common/Exception/errorUtils";
@@ -9,6 +9,8 @@ const initState = {
 
 const WorkspaceAdd = ({ open, onClose, onAddWorkspace, editingWorkspace }) => {
   const [newWorkspace, setNewWorkspace] = useState({ ...initState });
+  const focusName = useRef(null);
+  const focusWsdesc = useRef(null);
 
   useEffect(() => {
     if (editingWorkspace) {
@@ -24,6 +26,16 @@ const WorkspaceAdd = ({ open, onClose, onAddWorkspace, editingWorkspace }) => {
   };
 
   const handleClickAdd = () => {
+    if (newWorkspace.name === null || newWorkspace.name === "") {
+      alert("워크스페이스 제목을 입력해 주세요.");
+      focusName.current.focus();
+      return false;
+    } else if (newWorkspace.wsdesc === null || newWorkspace.wsdesc === "") {
+      alert("워크스페이스 설명을 입력해 주세요.");
+      focusWsdesc.current.focus();
+      return false;
+    }
+
     WorkspaceApi.postAdd(newWorkspace)
       .then((result) => {
         setNewWorkspace({ ...initState });
@@ -45,15 +57,20 @@ const WorkspaceAdd = ({ open, onClose, onAddWorkspace, editingWorkspace }) => {
         <h1>Create Workspace</h1>
         <p className="input_label1">WorkSpace Name</p>
         <input
+          ref={focusName}
           className="workspace_name_input"
           name="name"
           type={"text"}
+          maxLength={20}
           value={newWorkspace.name}
           onChange={handleChangeNewWorkspace}
           placeholder="워크스페이스 제목을 기입하세요"
         />
         <p className="input_label2">WorkSpace Description</p>
-        <textarea
+        <input
+          ref={focusWsdesc}
+          type="text"
+          maxLength={40}
           className="workspace_desc_input"
           name="wsdesc"
           value={newWorkspace.wsdesc}

@@ -76,8 +76,10 @@ public class TodoController {
   public ResponseEntity<TodoResponseDTO> putTodo(@RequestHeader("Authorization") String token,
                                                  @PathVariable("todoId") Long todoId, @RequestBody TodoRequestDTO todoRequestDTO){
     Long userId = jwtUtils.extractUserId(token.substring(7));
+    log.info("qwerasdf"+todoRequestDTO.toString());
     return ResponseEntity.ok(todoService.putTodoWithAssigneeInfo(todoId, todoRequestDTO));
   }
+
 
   @DeleteMapping("/{todoId}")
   public ResponseEntity<String> deleteTodo(@RequestHeader("Authorization") String token,

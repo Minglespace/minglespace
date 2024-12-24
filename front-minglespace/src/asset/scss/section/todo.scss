@@ -77,7 +77,10 @@
         .todo_item_title {
           margin: 0 auto;
           margin-top: 10px;
-          width: 80%;
+          max-width: 80%;
+          white-space: nowrap;
+          text-overflow: ellipsis;
+          overflow: hidden;
           height: 40px;
           border-bottom: 2px solid black;
           font-size: 20px;

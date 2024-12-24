@@ -17,7 +17,6 @@ const TodoModal = React.memo(
   ({
     open,
     onClose,
-    todo,
     onAdd,
     onModify,
     editingTodo,
@@ -25,11 +24,13 @@ const TodoModal = React.memo(
     onRendering,
     role,
     members,
+    isValidCharacter,
   }) => {
     const [newTodo, setNewTodo] = useState({ ...initTodo });
     const { workspaceId } = useParams("workspaceId");
-    const titleRef = useRef();
-    const contentRef = useRef();
+    const titleRef = useRef(null);
+    const contentRef = useRef(null);
+    const [complete, setComplete] = useState(false);
 
     useEffect(() => {
       if (editingTodo) {
@@ -37,10 +38,23 @@ const TodoModal = React.memo(
           ? editingTodo.assignee_list.map((member) => member.memberId)
           : [];
         setNewTodo({ ...editingTodo, wsMember_id: wsMemberIdArray });
+        console.log(editingTodo.complete);
+        setComplete(editingTodo.complete);
       } else {
         setNewTodo({ ...initTodo });
       }
     }, [editingTodo]);
+
+    const handleComplete = (e) => {
+      if (e.target.value === "true") {
+        setNewTodo({ ...newTodo, complete: false });
+        setComplete(false);
+      } else {
+        setNewTodo({ ...newTodo, complete: true });
+        setComplete(true);
+      }
+      console.log(newTodo);
+    };
 
     const handleChangeNewTodo = (e) => {
       const { name, value } = e.target;
@@ -69,7 +83,13 @@ const TodoModal = React.memo(
     };
 
     const handleClickAdd = () => {
-      if (!newTodo.title.trim()) {
+      if (
+        !isValidCharacter(newTodo.title) ||
+        !isValidCharacter(newTodo.content)
+      ) {
+        alert("특수문자만 입력하실수는 없습니다.");
+        return false;
+      } else if (!newTodo.title.trim()) {
         alert("제목을 입력해 주세요.");
         titleRef.current.focus();
         return;
@@ -116,6 +136,7 @@ const TodoModal = React.memo(
               ) : (
                 <input
                   className="todo_modal_title_input"
+                  maxLength={15}
                   ref={titleRef}
                   name="title"
                   type="text"
@@ -131,6 +152,7 @@ const TodoModal = React.memo(
                 <p className="todo_modal_content_p">{newTodo.content}</p>
               ) : (
                 <input
+                  maxLength={30}
                   className="todo_modal_content_input"
                   name="content"
                   type="text"
@@ -216,6 +238,14 @@ const TodoModal = React.memo(
                   ))}
                 </div>
               )}
+              <div>
+                <input
+                  type="checkbox"
+                  value={complete}
+                  checked={complete}
+                  onChange={handleComplete}
+                />
+              </div>
               <br />
             </div>
             <div className="todo_modal_button_area">
@@ -227,10 +257,12 @@ const TodoModal = React.memo(
               <button className="cancle_button" onClick={onClose}>
                 Cancel
               </button>
-              {(role === "LEADER" || role === "SUB_LEADER") && (
+              {editingTodo && (role === "LEADER" || role === "SUB_LEADER") ? (
                 <button className="exit_button" onClick={onDelete}>
                   Delete
                 </button>
+              ) : (
+                <></>
               )}
             </div>
           </div>

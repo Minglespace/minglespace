@@ -4,7 +4,15 @@ import TodoModal from "./TodoModal";
 import TodoApi from "../../api/TodoApi";
 import { useParams } from "react-router-dom";
 const TodoItem = React.memo(
-  ({ todo, onDelete, onRendering, role, members, onModify }) => {
+  ({
+    todo,
+    onDelete,
+    onRendering,
+    role,
+    members,
+    onModify,
+    isValidCharacter,
+  }) => {
     const [modalOpen, setModalOpen] = useState(false);
     const [modifyTodo, setModifyTodo] = useState([]);
     const [localTodo, setLocalTodo] = useState(todo);
@@ -94,6 +102,7 @@ const TodoItem = React.memo(
           editingTodo={editingTodo}
           onEdit={handleEditTodo}
           onDelete={(todoId) => handleDeleteTodo(workspaceId, todo)}
+          isValidCharacter={isValidCharacter}
           onRendering={onRendering}
         />
       </div>

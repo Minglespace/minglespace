@@ -27,6 +27,14 @@ const TodoComponent = () => {
 
   const observer = useRef();
 
+  const isValidCharacter = useCallback((char) => {
+    const regex = /^[a-zA-Z0-9가-힣ㄱ-ㅎㅏ-ㅣ\s]*$/;
+    if (char.trim() === ".") {
+      return false;
+    }
+    return regex.test(char);
+  }, []);
+
   const fetchData = useCallback(
     async (searchKeyword, sortType, searchType, page) => {
       setLoading(true);
@@ -144,6 +152,10 @@ const TodoComponent = () => {
   const handleSearch = useCallback(
     (e) => {
       if (e.key === "Enter") {
+        if (!isValidCharacter(e.target.value)) {
+          alert("특수문자만 입력하실수는 없습니다.");
+          return false;
+        }
         e.preventDefault();
         const changeTrim = e.target.value.trim().toLowerCase();
         setSearchKeyword(changeTrim);
@@ -183,6 +195,7 @@ const TodoComponent = () => {
     },
     [loading, hasMore, modalOpen]
   );
+
   console.log("todo:", todoItem);
   return (
     <div>
@@ -223,9 +236,9 @@ const TodoComponent = () => {
               <div
                 key={todo.id}
                 className={
-                  todo.complete === false
-                    ? "todo_completed_area"
-                    : "todo_completed_area _completed"
+                  todo.complete
+                    ? "todo_completed_area _completed"
+                    : "todo_completed_area"
                 }
               >
                 <div
@@ -241,6 +254,7 @@ const TodoComponent = () => {
                     onModify={handleModifyTodo}
                     onModalOpen={handleModalOpen}
                     onRendering={handleRendering}
+                    isValidCharacter={isValidCharacter}
                     role={role}
                   />
                 </div>
@@ -256,6 +270,7 @@ const TodoComponent = () => {
             onAdd={handleAddTodo}
             onModify={handleModifyTodo}
             onRendering={handleRendering}
+            isValidCharacter={isValidCharacter}
             role={role}
           />
         )}

@@ -4,7 +4,6 @@ import Button from "../common/Layouts/components/Button";
 import MainNotification from "./MainNotification";
 import { NotificationProvider } from "../notification/context/NotificationContext";
 
-
 const MainComponent = () => {
   return (
     <div style={{ display: "flex" }}>
@@ -18,11 +17,21 @@ const MainComponent = () => {
       <Button btnStyle="add_button" title="추가" />
       <Button btnStyle="add_button_2" title="추가" />
       <Button btnStyle="exit_button" title="나가기" /> */}
-      <div style={{ position: "relative", width: "660px", border: "2px solid orange" }}>
-        <p>일정 영역</p>
+      <div
+        style={{
+          position: "relative",
+          width: "660px",
+          border: "2px solid orange",
+        }}
+      >
+        <div>최신공지</div>
+        <div>마감임박 공지</div>
+        <div>마감임박 마일스톤</div>
+        <div>마감임박 할일</div>
+        {/* <p>일정 영역</p>
       </div>
       <div style={{ position: "relative", width: "500px", border: "2px solid lightblue" }}>
-        <p>채팅방 영역</p>
+        <p>채팅방 영역</p> */}
       </div>
 
       {/* 알림 목록 */}

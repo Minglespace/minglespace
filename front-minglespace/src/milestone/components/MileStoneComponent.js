@@ -148,6 +148,7 @@ const MileStoneComponent = () => {
     if (role === "MEMBER") {
       return false;
     }
+
     const updatedItems = items.map((item) =>
       item.id === itemId
         ? {
@@ -160,6 +161,10 @@ const MileStoneComponent = () => {
 
     // 크기 조정 후 서버에 업데이트 요청
     const resizedItem = updatedItems.find((item) => item.id === itemId);
+    if (resizedItem.end_time - resizedItem.start_time < 3600000) {
+      alert("X");
+      return false;
+    }
     if (resizedItem) {
       MilestoneApi.modifyItem(workspaceId, resizedItem.id, resizedItem)
         .then(({ id, title, start_time, end_time }) => {
@@ -314,7 +319,6 @@ const MileStoneComponent = () => {
 
   //아이템 더블클릭 핸들러(아이템 title 수정)
   const handleItemDoubleClick = (itemId) => {
-    console.log("role : ", role);
     if (role === "LEADER" || role === "SUB_LEADER") {
       const item = items.find((i) => i.id === itemId);
       setSelectedItem(item);
@@ -325,9 +329,7 @@ const MileStoneComponent = () => {
       setNewTaskStatus(item.taskStatus);
       setMode("default");
       setModalOpen(true);
-      console.log("true");
     } else {
-      console.log("false");
       return false;
     }
   };
@@ -361,7 +363,11 @@ const MileStoneComponent = () => {
         end_time: new Date(newEndTime).getTime(),
         taskStatus: newTaskStatus,
       };
-
+      const time = updatedItem.end_time - updatedItem.start_time;
+      if (time < 3600000) {
+        alert("종료시간은 시작시간과 한시간 이상 차이나야 합니다.");
+        return false;
+      }
       MilestoneApi.modifyItem(workspaceId, selectedItem.id, updatedItem)
         .then(({ id, title, start_time, end_time, taskStatus }) => {
           setItems(

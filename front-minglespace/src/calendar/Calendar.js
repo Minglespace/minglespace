@@ -12,6 +12,7 @@ import { getErrorMessage } from "../common/Exception/errorUtils";
 import Tooltip from "tooltip.js";
 import { end, start } from "@popperjs/core";
 import CalendarFormModal from "./componenets/CalendarFormModal";
+import { all } from "axios";
 
 const initData = [
   {
@@ -38,7 +39,7 @@ const Calendar = () => {
   const focusDescription = useRef(null);
 
   //캘린더 ALL 조회
-  const getCalendarAll = useCallback(async () => {
+  const getCalendarAll = async () => {
     try {
       const result = await CalendarApi.getCalendarAll(workspaceId);
       setCalendarData(result);
@@ -47,10 +48,10 @@ const Calendar = () => {
         `캘린더 조회 중 에러가 발생했습니다.\n원인:${getErrorMessage(error)}`
       );
     }
-  }, [workspaceId]);
+  };
 
   //캘린더 NOTICE 조회
-  const getCalendarNotice = useCallback(async () => {
+  const getCalendarNotice = async () => {
     try {
       const result = await CalendarApi.getCalendarNotice(workspaceId);
       setCalendarData(result);
@@ -59,10 +60,10 @@ const Calendar = () => {
         `캘린더 조회 중 에러가 발생했습니다.\n원인:${getErrorMessage(error)}`
       );
     }
-  }, [workspaceId]);
+  };
 
   //캘린더 PRIVATE 조회
-  const getCalendarPrivate = useCallback(async () => {
+  const getCalendarPrivate = async () => {
     try {
       const result = await CalendarApi.getCalendarPrivate(workspaceId);
       setCalendarData(result);
@@ -71,7 +72,7 @@ const Calendar = () => {
         `캘린더 조회 중 에러가 발생했습니다.\n원인:${getErrorMessage(error)}`
       );
     }
-  }, [workspaceId]);
+  };
 
   //캘린더 추가
   const addCalendar = async (newCalendar) => {
@@ -116,7 +117,6 @@ const Calendar = () => {
 
   //캘린더 목록 조회
   useEffect(() => {
-    // calendarType === "NOTICE" ? getCalendarNotice() : getCalendarPrivate();
     if (calendarType === "ALL") {
       getCalendarAll();
     } else if (calendarType === "NOTICE") {
@@ -124,13 +124,8 @@ const Calendar = () => {
     } else if (calendarType === "PRIVATE") {
       getCalendarPrivate();
     }
-  }, [
-    workspaceId,
-    calendarType,
-    getCalendarAll,
-    getCalendarNotice,
-    getCalendarPrivate,
-  ]);
+  }, [workspaceId, calendarType]);
+  console.log("data :", calendarData);
 
   //캘린더에 추가되는 내용을 formData에 저장
   const handleChangeData = (e) => {
@@ -224,14 +219,13 @@ const Calendar = () => {
       }));
       return true;
     }
-    // const startDate = new Date(formData.start.split("T")[0]);
-    // const endDate = new Date(formData.end.split("T")[0]);
-    // const timeDifference = endDate - startDate;
-    // const dayDifference = timeDifference / (1000 * 60 * 60 * 24);
-    // if (dayDifference < 1) {
-    //   alert("2일 이상 날짜를 선택해 주세요.");
-    //   return false;
-    // }
+    if (
+      new Date(formData.end).getTime() - new Date(formData.start).getTime() <
+      86400000
+    ) {
+      alert("2일 이상 날짜를 선택해 주세요.");
+      return false;
+    }
     return true;
   };
 
@@ -284,8 +278,11 @@ const Calendar = () => {
 
   const fullcalendarRender = () => {
     if (calendarType === "ALL") {
+      console.log("ALL");
+      console.log("data : ", calendarData);
       return (
         <FullCalendar
+          key={calendarData.length + new Date().getTime()}
           plugins={[dayGridPlugin, interactionPlugin]}
           initialView="dayGridMonth"
           locale="ko"
@@ -310,7 +307,7 @@ const Calendar = () => {
             } else if (info.event.extendedProps.type === "PRIVATE") {
               info.el.style.backgroundColor = "#71A4D9";
             }
-            if (eventDuration <= 1) {
+            if (eventDuration < 1) {
               info.el.style.backgroundColor = "transparent";
             }
           }}
@@ -348,10 +345,12 @@ const Calendar = () => {
         />
       );
     } else if (
+      // NOTICE LEADER면 수정가능, PRIVATE 개인이면 수정가능
       role === "LEADER" ||
       role === "SUB_LEADER" ||
       calendarType === "PRIVATE"
     ) {
+      console.log("PRIVATE");
       return (
         <FullCalendar
           key={calendarData.length + new Date().getTime()}
@@ -378,7 +377,7 @@ const Calendar = () => {
             } else if (info.event.extendedProps.type === "NOTICE") {
               info.el.style.backgroundColor = "#FFB1B9";
             }
-            if (eventDuration <= 1) {
+            if (eventDuration < 1) {
               info.el.style.backgroundColor = "transparent";
             }
           }}
