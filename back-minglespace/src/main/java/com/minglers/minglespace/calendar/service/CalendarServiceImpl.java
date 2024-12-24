@@ -6,6 +6,8 @@ import com.minglers.minglespace.calendar.entity.Calendar;
 import com.minglers.minglespace.calendar.exception.CalendarException;
 import com.minglers.minglespace.calendar.repository.CalendarRepository;
 import com.minglers.minglespace.calendar.type.CalendarType;
+import com.minglers.minglespace.common.service.NotificationService;
+import com.minglers.minglespace.common.type.NotificationType;
 import com.minglers.minglespace.milestone.entity.MilestoneGroup;
 import com.minglers.minglespace.milestone.entity.MilestoneItem;
 import com.minglers.minglespace.milestone.repository.MilestoneGroupRepository;
@@ -42,6 +44,7 @@ public class CalendarServiceImpl implements CalendarService{
   private final TodoAssigneeRepository todoAssigneeRepository;
   private final MilestoneGroupRepository milestoneGroupRepository;
   private final ModelMapper modelMapper;
+  private final NotificationService notificationService;
 
   private WorkSpace findByWorkspaceId(Long workspaceId){
     return workspaceRepository.findById(workspaceId).orElseThrow(
@@ -144,6 +147,13 @@ public class CalendarServiceImpl implements CalendarService{
     }
 
     Calendar savedCalendar = calendarRepository.save(calendar);
+    if(CalendarType.NOTICE == savedCalendar.getType()){
+      workspace.getWsMemberList().forEach((wsmember) ->
+              notificationService.sendNotification(wsmember.getUser().getId(),
+                      workspace.getName()+"의 캘린더에 새로운 공지가 등록되었습니다.",
+                      "/workspace/"+workspace.getId()+"/calendar",
+                      NotificationType.CALENDAR));
+    }
     return modelMapper.map(savedCalendar,CalendarResponseDTO.class);
   }
 

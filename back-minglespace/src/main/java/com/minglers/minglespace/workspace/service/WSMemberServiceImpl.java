@@ -5,6 +5,8 @@ import com.minglers.minglespace.auth.exception.UserException;
 import com.minglers.minglespace.auth.repository.UserFriendRepository;
 import com.minglers.minglespace.auth.repository.UserRepository;
 import com.minglers.minglespace.auth.type.FriendshipStatus;
+import com.minglers.minglespace.common.service.NotificationService;
+import com.minglers.minglespace.common.type.NotificationType;
 import com.minglers.minglespace.workspace.dto.FriendWithWorkspaceStatusDTO;
 import com.minglers.minglespace.workspace.dto.MemberWithUserInfoDTO;
 import com.minglers.minglespace.workspace.dto.WSMemberResponseDTO;
@@ -39,7 +41,7 @@ public class WSMemberServiceImpl implements WSMemberService {
   private final UserFriendRepository userFriendRepository;
   private final ModelMapper modelMapper;
   private final EmailInviteService emailInviteService;
-
+  private final NotificationService notificationService;
 
   ///////////공통 메서드
   //유저정보 가져오기
@@ -160,6 +162,7 @@ public class WSMemberServiceImpl implements WSMemberService {
               .user(user)
               .build();
       WSMember savedMember = wsMemberRepository.save(wsMember);
+      notificationService.sendNotification(user.getId(), workSpace.getName()+"에 초대되었습니다..", "/workspace/"+workSpace.getId() , NotificationType.MEMBER);
       return savedMember.getUser().getName()+"님 초대에 성공했습니다";
     } else {
       return "이미 워크스페이스에 참여중입니다";
@@ -169,8 +172,10 @@ public class WSMemberServiceImpl implements WSMemberService {
   @Override
   @Transactional
   public String removeMember(Long memberId, Long workSpaceId) {
+    WorkSpace workSpace = findWorkSpaceById(workSpaceId);
     WSMember wsMember = findById(memberId);
     wsMemberRepository.delete(wsMember);
+    notificationService.sendNotification(wsMember.getUser().getId(), workSpace.getName()+"에서 추방되었습니다..", "/main" , NotificationType.KICK);
     return wsMember.getUser().getName()+"님을 추방하였습니다.";
   }
 
@@ -190,6 +195,7 @@ public class WSMemberServiceImpl implements WSMemberService {
   @Override
   @Transactional
   public String transferLeader(Long userId, Long memberId, Long workspaceId) {
+    WorkSpace workSpace = findWorkSpaceById((workspaceId));
     WSMember wsLeader = findWSMemberBy(userId,workspaceId); //원래 리더확인
     WSMember wsMember = findById(memberId); //멤버 id(ws쪽 pk임)
 
@@ -198,6 +204,8 @@ public class WSMemberServiceImpl implements WSMemberService {
 
     wsMember.changeRole(WSMemberRole.LEADER);
     WSMember savedLeader = wsMemberRepository.save(wsMember);//멤버or서브리더 를 리더로
+
+    notificationService.sendNotification(wsMember.getUser().getId(), workSpace.getName()+"워크스페이스의 리더로 위임되었습니다.", "/workspace/"+workSpace.getId()+"/member" , NotificationType.MEMBER);
     return savedLeader.getUser().getName()+"님을 리더로 위임하였습니다.";
   }
 
