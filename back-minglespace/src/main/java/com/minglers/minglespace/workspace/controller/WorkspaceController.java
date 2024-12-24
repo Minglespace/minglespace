@@ -143,6 +143,12 @@ public class WorkspaceController {
     return ResponseEntity.ok(wsMemberService.sendInviteEmail(workspaceId,requestEmail.get("email")));
   }
 
+  @GetMapping("/{workspaceId}/invite/{uuid}")
+  public ResponseEntity<String> checkInvite(@PathVariable("workspaceId") Long workspaceId,
+                                            @PathVariable("uuid") String uuid){
+    return ResponseEntity.ok(wsMemberService.checkInvite(workspaceId,uuid));
+  }
+
   //////////////////////공통 유효성검사(리더확인)
   //워크스페이스등 수정삭제시 리더인지 확인체크
   private void checkLeader(Long userId, Long workSpaceId) {

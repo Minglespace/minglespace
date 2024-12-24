@@ -3,9 +3,16 @@ import { IoPersonSharp } from "react-icons/io5";
 
 const WorkspaceItem = ({ id, name, count, wsdesc, onClick, data }) => {
   console.log("dataaaa : ", data);
+  const completeRate = Math.round((data.completed / data.total) * 100);
+  console.log("진행률 : ", completeRate);
   return (
     <div key={id} className="workspace_item_container" onClick={onClick}>
-      <div>
+      <div className="workspace_item_width">
+        <div className="complete_bar_container"></div>
+        <div
+          className="complete_bar"
+          style={{ width: `${completeRate}%` }}
+        ></div>
         <div className="workspace_flex">
           <h1 className="workspace_name">{name}</h1>
           <div className="workspace_members_icon">

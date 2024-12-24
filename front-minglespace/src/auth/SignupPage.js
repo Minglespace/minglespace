@@ -1,6 +1,6 @@
 import { X, Eye, EyeOff } from "lucide-react";
-import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import React, { useEffect, useState } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
 import AuthApi from "../api/AuthApi";
 import Modal from "../common/Layouts/components/Modal";
 import { AuthStatus, AuthStatusOk } from "../api/AuthStatus";
@@ -11,7 +11,6 @@ import { AuthStatus, AuthStatusOk } from "../api/AuthStatus";
  */
 //========================================================================
 const SignupPage = () => {
-
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [formData, setFormData] = useState({
@@ -24,11 +23,23 @@ const SignupPage = () => {
     role: "ROLE_ADMIN",
     position: "CTO",
     introduction: "Test Data",
+    inviteWorkspace: false,
   });
 
   const [errors, setErrors] = useState({});
   const navigate = useNavigate();
+  const location = useLocation();
   const [isOpenPopup, setIsOpenPopup] = useState(false);
+  //워크스페이스에 비회원 초대를 받았을 경우
+  console.log("asfbafb", location.state);
+  useEffect(() => {
+    if (location.state) {
+      setFormData((prevFormData) => ({
+        ...prevFormData,
+        inviteWorkspace: true,
+      }));
+    }
+  }, [location.state]);
 
   //========================================================================
   //========================================================================
@@ -55,7 +66,7 @@ const SignupPage = () => {
     if (!formData.position) {
       newErrors.position = "직책을 입력해주세요";
     }
-    setErrors(newErrors);  
+    setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
@@ -68,10 +79,10 @@ const SignupPage = () => {
         console.log("Form submitted data : ", data);
         if (AuthStatusOk(data.msStatus)) {
           setIsOpenPopup(true);
-        }else if(data.msStatus && AuthStatus[data.msStatus]){
+        } else if (data.msStatus && AuthStatus[data.msStatus]) {
           setMessage({
-            title: "확인", 
-            content: AuthStatus[data.msStatus].desc,  
+            title: "확인",
+            content: AuthStatus[data.msStatus].desc,
           });
         }
       });
@@ -79,7 +90,7 @@ const SignupPage = () => {
   };
 
   const handlePopupClose = () => {
-    navigate("/auth/login");
+    navigate("/auth/login", { state: { from: location.state?.from } });
   };
 
   const handleChange = (e) => {
@@ -98,9 +109,9 @@ const SignupPage = () => {
 
   // 에러 팝업 관련
   const [message, setMessage] = useState(null);
-  const handleClickMsgPopup = () =>{
+  const handleClickMsgPopup = () => {
     setMessage(null);
-  }
+  };
 
   //========================================================================
   //========================================================================
@@ -108,28 +119,33 @@ const SignupPage = () => {
 
   return (
     <div className="signup-page-overlay">
-      
       <Modal open={isOpenPopup} onClose={handlePopupClose}>
         <div className="workspace_add_modal_container">
           <h2>인증 이메일 발송되었습니다.</h2>
-          <p className="input_label1">
-            이메일 인증하면 회원등록이 완료됩니다</p>
+          <p className="input_label1">이메일 인증하면 회원등록이 완료됩니다</p>
           <div className="workspace_button_container">
-            <button className="add_button"  onClick={handlePopupClose}>
-              확인</button>
+            <button className="add_button" onClick={handlePopupClose}>
+              확인
+            </button>
           </div>
         </div>
       </Modal>
 
       {/* 에러 팝업 관련 */}
       <Modal open={message !== null} onClose={handleClickMsgPopup}>
-        {(message) && (
+        {message && (
           <div className="workspace_add_modal_container">
             <p className="form-title">{message.title}</p>
             <p>{message.content}</p>
-            <button type="submit" className="add_button" onClick={handleClickMsgPopup}>확인</button>
+            <button
+              type="submit"
+              className="add_button"
+              onClick={handleClickMsgPopup}
+            >
+              확인
+            </button>
           </div>
-        )}  
+        )}
       </Modal>
 
       <div className="signup-page-container">
@@ -158,7 +174,9 @@ const SignupPage = () => {
                   placeholder="이메일을 입력하세요"
                 />
               </div>
-              {errors.email && <span className="error-message">{errors.email}</span>}
+              {errors.email && (
+                <span className="error-message">{errors.email}</span>
+              )}
             </div>
 
             <div className="form-group">
@@ -172,11 +190,17 @@ const SignupPage = () => {
                   className={`input ${errors.password ? "error" : ""}`}
                   placeholder="비밀번호를 입력하세요"
                 />
-                <button type="button" onClick={() => setShowPassword(!showPassword)} className="password-toggle">
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="password-toggle"
+                >
                   {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
                 </button>
               </div>
-              {errors.password && <span className="error-message">{errors.password}</span>}
+              {errors.password && (
+                <span className="error-message">{errors.password}</span>
+              )}
             </div>
 
             <div className="form-group">
@@ -195,10 +219,16 @@ const SignupPage = () => {
                   onClick={() => setShowConfirmPassword(!showConfirmPassword)}
                   className="password-toggle"
                 >
-                  {showConfirmPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                  {showConfirmPassword ? (
+                    <EyeOff size={20} />
+                  ) : (
+                    <Eye size={20} />
+                  )}
                 </button>
               </div>
-              {errors.confirmPassword && <span className="error-message">{errors.confirmPassword}</span>}
+              {errors.confirmPassword && (
+                <span className="error-message">{errors.confirmPassword}</span>
+              )}
             </div>
 
             <div className="form-group">
@@ -211,7 +241,9 @@ const SignupPage = () => {
                 className={`input ${errors.name ? "error" : ""}`}
                 placeholder="이름을 입력하세요"
               />
-              {errors.name && <span className="error-message">{errors.name}</span>}
+              {errors.name && (
+                <span className="error-message">{errors.name}</span>
+              )}
             </div>
 
             <div className="form-group">
@@ -224,7 +256,9 @@ const SignupPage = () => {
                 className={`input ${errors.phone ? "error" : ""}`}
                 placeholder="전화번호를 입력하세요"
               />
-              {errors.phone && <span className="error-message">{errors.phone}</span>}
+              {errors.phone && (
+                <span className="error-message">{errors.phone}</span>
+              )}
             </div>
 
             <div className="form-group">
@@ -237,7 +271,9 @@ const SignupPage = () => {
                 className={`input ${errors.position ? "error" : ""}`}
                 placeholder="직책을 입력하세요"
               />
-              {errors.position && <span className="error-message">{errors.position}</span>}
+              {errors.position && (
+                <span className="error-message">{errors.position}</span>
+              )}
             </div>
 
             <div className="form-group">

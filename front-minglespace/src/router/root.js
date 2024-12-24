@@ -1,4 +1,4 @@
-﻿﻿import { Suspense, lazy } from "react";
+﻿import { Suspense, lazy } from "react";
 import { createBrowserRouter, Navigate } from "react-router-dom";
 import SuspenseWithPrivateRoute from "./SuspenseWithPrivateRoute";
 
@@ -14,6 +14,7 @@ const Workspace = lazy(() => import("../page/WorkspacePage"));
 const MyFriends = lazy(() => import("../page/MyFriendsPage"));
 const MileStone = lazy(() => import("../page/MileStonePage"));
 const Member = lazy(() => import("../page/MemberPage"));
+const InviteCheck = lazy(() => import("../member/components/InviteCheck"));
 
 const root = createBrowserRouter([
   // SuspenseWithPrivateRoute
@@ -63,23 +64,51 @@ const root = createBrowserRouter([
   // 로그인 유무 체크하지 않는 대상 페이지들
   {
     path: "/auth/login",
-    element: (<Suspense fallback={Loading}><LoginPage /></Suspense>),
+    element: (
+      <Suspense fallback={Loading}>
+        <LoginPage />
+      </Suspense>
+    ),
   },
   {
     path: "/auth/login/:code/:encodedEmail",
-    element: (<Suspense fallback={Loading}><LoginPage /></Suspense>),
+    element: (
+      <Suspense fallback={Loading}>
+        <LoginPage />
+      </Suspense>
+    ),
   },
   {
     path: "/auth/login/:msg",
-    element: (<Suspense fallback={Loading}><LoginPage /></Suspense>),
+    element: (
+      <Suspense fallback={Loading}>
+        <LoginPage />
+      </Suspense>
+    ),
   },
   {
     path: "/auth/signup",
-    element: (<Suspense fallback={Loading}><SignupPage /></Suspense>),
+    element: (
+      <Suspense fallback={Loading}>
+        <SignupPage />
+      </Suspense>
+    ),
   },
   {
     path: "/auth/token",
-    element: (<Suspense fallback={Loading}><TokenPage /></Suspense>),
+    element: (
+      <Suspense fallback={Loading}>
+        <TokenPage />
+      </Suspense>
+    ),
+  },
+  {
+    path: "/workspace/:workspaceId/invite/:uuid",
+    element: (
+      <Suspense fallback={Loading}>
+        <InviteCheck />
+      </Suspense>
+    ),
   },
 
   //잘못된 경로

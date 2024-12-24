@@ -9,6 +9,12 @@ import com.minglers.minglespace.auth.type.Provider;
 import com.minglers.minglespace.common.apistatus.AuthStatus;
 import com.minglers.minglespace.common.entity.Image;
 import com.minglers.minglespace.common.util.CookieManager;
+import com.minglers.minglespace.workspace.entity.WSMember;
+import com.minglers.minglespace.workspace.entity.WorkspaceInvite;
+import com.minglers.minglespace.workspace.repository.WSMemberRepository;
+import com.minglers.minglespace.workspace.repository.WorkspaceInviteRepository;
+import com.minglers.minglespace.workspace.repository.WorkspaceRepository;
+import com.minglers.minglespace.workspace.role.WSMemberRole;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
@@ -38,6 +44,8 @@ public class UserService {
   private final AuthenticationManager authenticationManager;
   private final PasswordEncoder passwordEncoder;
   private final ModelMapper modelMapper;
+  private final WorkspaceInviteRepository workspaceInviteRepository;
+  private final WSMemberRepository wsMemberRepository;
 
   public DefaultResponse signup(SignupRequest req) {
     try {
@@ -55,6 +63,16 @@ public class UserService {
 
         // 디비 저장
         User userResult = usersRepo.save(user);
+
+        // 만약 초대받아서 회원가입할경우 ws멤버에도 저장
+        if(req.isInviteWorkspace()){
+          Optional<WorkspaceInvite> workspaceInvite = workspaceInviteRepository.findByEmail(userResult.getEmail());
+          workspaceInvite.ifPresent(invite -> wsMemberRepository.save(WSMember.builder()
+                  .workSpace(invite.getWorkSpace())
+                  .role(WSMemberRole.MEMBER)
+                  .user(userResult)
+                  .build()));
+        }
 
         if (userResult.getId() > 0) {
           return new DefaultResponse().setStatus(AuthStatus.Ok);

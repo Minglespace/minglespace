@@ -7,4 +7,5 @@ import java.util.Optional;
 
 public interface WorkspaceInviteRepository extends JpaRepository<WorkspaceInvite,Long> {
   Optional<WorkspaceInvite> findByEmail(String email);
+  Optional<WorkspaceInvite> findByUuid(String uuid);
 }

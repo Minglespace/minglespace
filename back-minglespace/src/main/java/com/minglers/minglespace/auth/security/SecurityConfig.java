@@ -105,6 +105,7 @@ public class SecurityConfig {
 
     http.authorizeHttpRequests(request -> request
             .requestMatchers("/auth/**", "/public/**","/upload/images/**","/ws/**").permitAll()
+            .requestMatchers("/workspace/{workspaceId}/invite/{uuid}").permitAll()
             .requestMatchers("/admin/**").hasAnyAuthority("ADMIN")
             .requestMatchers("/user/**").hasAnyAuthority("USER")
             .requestMatchers("/adminuser/**").hasAnyAuthority("ADMIN", "USER")

@@ -71,6 +71,10 @@
   }
   .workspace_name {
     margin-right: 10px;
+    max-width: 300px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
   .workspace_members {
     padding-bottom: 5px;
@@ -107,11 +111,24 @@
   .menu_item:hover {
     background-color: #f5f5f5;
   }
+  .workspace_item_width {
+    width: 100%;
+  }
+  .complete_bar_container {
+    width: 100%;
+    height: 10px;
+    display: block;
+    background-color: #000000;
+  }
+  .complete_bar {
+    height: 10px;
+    display: block;
+    background-color: #0061f3;
+  }
   .workspace_milestone_category {
+    margin-left: auto !important;
     display: flex;
     width: auto;
-    border: 1px solid #000;
-    justify-content: end;
     align-items: center;
     div {
       margin-right: 10px;
