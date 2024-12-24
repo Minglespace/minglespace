@@ -31,7 +31,6 @@ const SignupPage = () => {
   const location = useLocation();
   const [isOpenPopup, setIsOpenPopup] = useState(false);
   //워크스페이스에 비회원 초대를 받았을 경우
-  console.log("asfbafb", location.state);
   useEffect(() => {
     if (location.state) {
       setFormData((prevFormData) => ({

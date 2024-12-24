@@ -26,7 +26,6 @@ const LoginPage = () => {
 
   const navigate = useNavigate();
   const location = useLocation();
-  console.log(location.state);
   const [isOpenPopup, setIsOpenPopup] = useState(false);
   const { code, encodedEmail } = useParams();
   const { msg } = useParams();
@@ -85,6 +84,7 @@ const LoginPage = () => {
       const data = await AuthApi.login(email, password);
 
       if (AuthStatusOk(data.msStatus)) {
+        Repo.setItem(data);
         // navigate("/main");
         navigate(getUriPath(), { replace: true });
       } else if (data.msStatus && AuthStatus[data.msStatus]) {
