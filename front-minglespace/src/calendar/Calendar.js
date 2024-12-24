@@ -147,7 +147,7 @@ const Calendar = () => {
   //캘린더에 날짜 클릭 시 Add모달을 통해 데이터 추가
   const handleDateClick = (arg) => {
     const formattedStart = formatDateToKST(arg.dateStr);
-    addType == "TIME"
+    addType === "TIME"
       ? setFormData({
           title: "",
           description: "",
@@ -212,13 +212,15 @@ const Calendar = () => {
       }));
       return false;
     }
-    if (formData.start > formData.end && addType === "TIME") {
+    if (formData.start >= formData.end && addType === "TIME") {
       setFormData((prevDate) => ({
         ...prevDate,
         end: null,
       }));
       return true;
     }
+    console.log("start", formData.start);
+    console.log("end", formData.end);
     if (
       new Date(formData.end).getTime() - new Date(formData.start).getTime() <
       86400000
@@ -278,8 +280,6 @@ const Calendar = () => {
 
   const fullcalendarRender = () => {
     if (calendarType === "ALL") {
-      console.log("ALL");
-      console.log("data : ", calendarData);
       return (
         <FullCalendar
           key={calendarData.length + new Date().getTime()}
