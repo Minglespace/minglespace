@@ -120,7 +120,7 @@ const LoginPage = () => {
   };
 
   const getUriPath = () => {
-    const uri = location.state?.from || "main";
+    const uri = location.state?.from || "/main";
     return uri;
   };
 
