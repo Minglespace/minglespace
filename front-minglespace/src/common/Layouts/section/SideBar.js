@@ -14,8 +14,7 @@ const SideBar = () => {
         </li>
         {workspaceId && (
           <>
-            <p>*****</p>
-            <p>*****</p>
+            <p className="workspace_sidemenu">WorkSpace Menu</p>
             <li>
               <Link to={`/workspace/${workspaceId}/mileStone`}>MileStone</Link>
             </li>
