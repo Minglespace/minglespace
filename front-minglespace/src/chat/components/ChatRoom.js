@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+﻿import React, { useEffect, useRef, useState } from "react";
 import ChatRoomHeader from "./ChatRoomHeader";
 import MessageList from "./MessageList";
 import MessageInput from "./MessageInput";
@@ -35,6 +35,7 @@ const ChatRoom = ({
   const [chatRoomId, setChatRoomId] = useState(
     new URLSearchParams(useLocation().search).get("chatRoomId")
   );
+  const [updateChatroom, setUpdateChatroom] = useState();
 
   const [page, setPage] = useState(0);//messagelist 무한 스크롤
 
@@ -228,7 +229,6 @@ const ChatRoom = ({
     }
   };
 
-
   /////message
   const handleRegisterAnnouncement = async (message) => {
     try {
@@ -252,14 +252,15 @@ const ChatRoom = ({
       await ChatApi.deleteMessage(chatRoomId, message.id);
 
       setChatRoomInfo((prev) => {
-        const updatedMessages = prev.messages.filter((msg) =>
-          Number(msg.id) !== Number(message.id))
+        const updatedMessages = prev.messages.filter(
+          (msg) => Number(msg.id) !== Number(message.id)
+        );
         return { ...prev, messages: updatedMessages };
-      })
+      });
     } catch (error) {
       console.error("chatroom _ 공지 등록 에러: ", error);
     }
-  }
+  };
 
   const fetchMoreMessages = async () => {
     if (!chatRoomInfo.msgHasMore) return;
@@ -270,7 +271,7 @@ const ChatRoom = ({
           ...prev,
           messages: [...res.messages.reverse(), ...prev.messages],
           msgHasMore: Boolean(res.msgHasMore),
-        }))
+        }));
         setPage(page + 1);
       } else {
         setChatRoomInfo((prev) => ({
@@ -281,7 +282,7 @@ const ChatRoom = ({
     } catch (error) {
       console.error("추가 메시지 로드 실패: ", error);
     }
-  }
+  };
 
   /////////////////////websocket 연결///////////////////
   useEffect(() => {
@@ -319,28 +320,34 @@ const ChatRoom = ({
         });
 
         //메시지 읽음/삭제 실시간 구독
-        stompClient.subscribe(`/topic/chatRooms/${chatRoomId}/message-status`, (status) => {
-          const statusData = JSON.parse(status.body);
-          console.log("읽음 처리 메시지", statusData);
+        stompClient.subscribe(
+          `/topic/chatRooms/${chatRoomId}/message-status`,
+          (status) => {
+            const statusData = JSON.parse(status.body);
+            console.log("읽음 처리 메시지", statusData);
 
-          if (status.type === "READ") {
-            ///특정 유저가 실시간으로 읽은 메시지 상태 반영
-            setChatRoomInfo((prev) => ({
-              ...prev,
-              messages: prev.messages.map((message) => ({
-                ...message,
-                unReadMembers: message.unReadMembers.filter(
-                  (member) => Number(member.wsMemberId) !== statusData.wsMemberId
-                ),
-              })),
-            }));
-          } else if (status.type === "DELETE") {
-            setChatRoomInfo((prev) => {
-              const updatedMessages = prev.messages.filter((msg) => Number(msg.id) !== status.messageId);
-              return { ...prev, messages: updatedMessages };
-            });
+            if (status.type === "READ") {
+              ///특정 유저가 실시간으로 읽은 메시지 상태 반영
+              setChatRoomInfo((prev) => ({
+                ...prev,
+                messages: prev.messages.map((message) => ({
+                  ...message,
+                  unReadMembers: message.unReadMembers.filter(
+                    (member) =>
+                      Number(member.wsMemberId) !== statusData.wsMemberId
+                  ),
+                })),
+              }));
+            } else if (status.type === "DELETE") {
+              setChatRoomInfo((prev) => {
+                const updatedMessages = prev.messages.filter(
+                  (msg) => Number(msg.id) !== status.messageId
+                );
+                return { ...prev, messages: updatedMessages };
+              });
+            }
           }
-        });
+        );
       },
       onWebSocketError: (error) => {
         console.log(`채팅방 ${chatRoomId}번 websocket 연결 오류:`, error);
@@ -366,8 +373,8 @@ const ChatRoom = ({
   }, [chatRoomId]);
 
 
-  // 메시지 전송 처리 함수  
-  const handleSendMessage = async (newMessage, files) => {
+  // 메시지 전송 처리 함수 
+  const handleSendMessage = async (newMessage, files, messageContent) => {
     try {
       let uploadedFileIds = [];
       if (files && files.length > 0) {
@@ -408,6 +415,16 @@ const ChatRoom = ({
     // console.log("입력창에 표시된 답장 대상:", `${messages.text}`);
   };
 
+  const handleUpdateChatRoom = (updatedData) => {
+    // setUpdateChatroom(updatedData); // 수정된 데이터로 상태 업데이트
+    setChatRoomInfo((prev) => ({
+      ...prev,
+      name: updatedData.name,
+      imageUriPath: updatedData.image, // 이미지 경로 업데이트
+    }));
+    console.log("Updated Chat Room Data: ", updatedData);
+  };
+
   return (
     <div className={`chatroom-container ${isFold ? "folded" : ""}`}>
       <ChatRoomHeader
@@ -420,6 +437,7 @@ const ChatRoom = ({
         handleKick={handleKick}
         handleDelegate={handleDelegate}
         handleExit={handleExit}
+        onUpdateChatRoom={handleUpdateChatRoom}
       />
 
       <MessageList

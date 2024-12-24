@@ -1,12 +1,27 @@
-import React, { useState } from "react";
+﻿import React, { useState, useEffect } from "react";
 import { FiCornerDownRight, FiDownload, FiTrash2 } from "react-icons/fi";
 import { HOST_URL } from "../../api/Api";
 import ProfileImage from "../../common/Layouts/components/ProfileImage";
 import Lightbox from "react-18-image-lightbox";
 import "react-18-image-lightbox/style.css";
 import ChatApi from "../../api/chatApi";
-import { AiOutlineFileExcel, AiOutlineFileMarkdown, AiOutlineFilePdf, AiOutlineFileUnknown, AiOutlineFileWord } from "react-icons/ai";
-import { SiCss3, SiJavascript, SiMysql, SiPython, SiTableau, SiTypescript, SiYaml } from "react-icons/si";
+import { TbPinFilled } from "react-icons/tb";
+import {
+  AiOutlineFileExcel,
+  AiOutlineFileMarkdown,
+  AiOutlineFilePdf,
+  AiOutlineFileUnknown,
+  AiOutlineFileWord,
+} from "react-icons/ai";
+import {
+  SiCss3,
+  SiJavascript,
+  SiMysql,
+  SiPython,
+  SiTableau,
+  SiTypescript,
+  SiYaml,
+} from "react-icons/si";
 import { RiJavaLine } from "react-icons/ri";
 import { VscJson } from "react-icons/vsc";
 
@@ -26,7 +41,6 @@ const MessageListItem = ({
   const [hoveredUnread, setHoveredUnread] = useState([]);
   const [isImageOpen, setIsImageOpen] = useState(false);
   const [photoIndex, setPhotoIndex] = useState(0);
-
 
   const handleUnreadMouseEnter = (unReadMembers) => {
     setHoveredUnread(unReadMembers);
@@ -55,7 +69,7 @@ const MessageListItem = ({
   const openLightbox = (index) => {
     setPhotoIndex(index);
     setIsImageOpen(true);
-  }
+  };
 
   const handleDownload = async (url, filename) => {
     const blob = await ChatApi.downloadFile(url);
@@ -65,154 +79,257 @@ const MessageListItem = ({
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
-  }
+  };
 
   const visibleImages = message.imageUriPaths.slice(0, 3);
   const remainingImageCount = message.imageUriPaths.length - 3;
 
   const getFileIcon = (fileExtension) => {
     switch (fileExtension) {
-      case 'pdf':
+      case "pdf":
         return <AiOutlineFilePdf style={{ color: "red" }} />;
-      case 'doc':
-      case 'docx':
+      case "doc":
+      case "docx":
         return <AiOutlineFileWord style={{ color: "blue" }} />;
-      case 'xlsx':
-      case 'xls':
+      case "xlsx":
+      case "xls":
         return <AiOutlineFileExcel style={{ color: "green" }} />;
-      case 'js':
+      case "js":
         return <SiJavascript style={{ color: "#FFEB3B" }} />;
-      case 'ts':
-      case 'tsx':
+      case "ts":
+      case "tsx":
         return <SiTypescript style={{ color: "blue" }} />;
-      case 'css':
-      case 'scss':
+      case "css":
+      case "scss":
         return <SiCss3 style={{ color: "blue" }} />;
-      case 'java':
+      case "java":
         return <RiJavaLine style={{ color: "red" }} />;
-      case 'py':
+      case "py":
         return <SiPython style={{ color: "blue" }} />;
-      case 'json':
+      case "json":
         return <VscJson style={{ color: "orange" }} />;
-      case 'md':
+      case "md":
         return <AiOutlineFileMarkdown style={{ color: "purple" }} />;
-      case 'sql':
-        return <SiMysql style={{ color: 'blue' }} />;
-      case 'csv':
-        return <SiTableau style={{ color: 'blue' }} />;
-      case 'yaml':
-      case 'yml':
-        return <SiYaml style={{ color: 'grey' }} />;
+      case "sql":
+        return <SiMysql style={{ color: "blue" }} />;
+      case "csv":
+        return <SiTableau style={{ color: "blue" }} />;
+      case "yaml":
+      case "yml":
+        return <SiYaml style={{ color: "grey" }} />;
       default:
         return <AiOutlineFileUnknown style={{ color: "grey" }} />;
     }
-  }
+  };
 
   const renderDocumentPreview = (uri) => {
-    const fileExtension = uri.split('.').pop().toLowerCase();
-    let filename = uri.split('/').pop();
-    const filenameParts = filename.split('_');
+    const fileExtension = uri.split(".").pop().toLowerCase();
+    let filename = uri.split("/").pop();
+    const filenameParts = filename.split("_");
     if (filenameParts.length > 1) {
-      filename = filenameParts.slice(1).join('_');
+      filename = filenameParts.slice(1).join("_");
     }
 
     return (
       <div className="document-card">
-        <div className="document-icon">
-          {getFileIcon(fileExtension)}
-        </div>
+        <div className="document-icon">{getFileIcon(fileExtension)}</div>
         <div className="document-info">
           <span className="document-name">{filename}</span>
-          <button onClick={() => handleDownload(uri, filename)} className="download-button">
+          <button
+            onClick={() => handleDownload(uri, filename)}
+            className="download-button"
+          >
             <FiDownload />
           </button>
         </div>
       </div>
-    )
-  }
+    );
+  };
+
+  const [currentTime, setCurrentTime] = useState(new Date());
+  // 1초마다 시간을 갱신하는 useEffect
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentTime(new Date()); // 1초마다 현재 시간을 갱신
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, []);
+
+  const getFormattedTime = (timestamp) => {
+    console.log("Timestamp:", timestamp);
+    if (typeof timestamp === "string") {
+      timestamp = Date.parse(timestamp);
+    }
+    const date = new Date(timestamp);
+
+    if (isNaN(date.getTime())) {
+      console.error("Invalid Date:", timestamp);
+      return "Invalid Date";
+    }
+    return date.toLocaleTimeString("ko-KR", {
+      hour: "2-digit",
+      minute: "2-digit",
+
+      hour12: false,
+    });
+  };
 
   return (
-    <div
-      key={message.message_id}
-      className={`message-item ${isSameSender ? "sender" : "received"}`}
-    >
-      {/* 발신자 이름 출력 */}
-      {!isSameSender && (
-        <span className="message-sender">{message.sender}</span>
-      )}
+    <div className="message-container">
+      <div
+        key={message.message_id}
+        className={`message-item ${isSameSender ? "sender" : "received"}`}
+      >
+        {/* 발신자 이름 출력 */}
+        {!isSameSender && (
+          <span className="message-sender">{message.sender}</span>
+        )}
 
-      {/* 메시지 텍스트 */}
-      <div className="message-text-container">
-        <span className="message-text">
-          {parentMessage
-            ? Number(parentMessage.writerWsMemberId) ===
-              Number(currentMemberInfo.wsMemberId)
-              ? "나에게 답장"
-              : `${parentMessage.sender}에게 답장`
-            : formatMessage(message.content)}
-        </span>
+        {/* 메시지 텍스트 */}
+        <div className="message-text-container">
+          <span className="message-text">
+            {parentMessage
+              ? Number(parentMessage.writerWsMemberId) ===
+                Number(currentMemberInfo.wsMemberId)
+                ? "나에게 답장"
+                : `${parentMessage.sender}에게 답장`
+              : formatMessage(message.content)}
+          </span>
+        </div>
+
+        {/* 답장 내용 추가 */}
+        {parentMessage && (
+          <>
+            <div className="reply-to-text">{parentMessage.content}</div>
+            <div className="reply-line"></div>
+            <div className="reply-text">{message.content}</div>
+          </>
+        )}
+
+        {/* 메시지 시간 표시  */}
+        <div className="message-time">{getFormattedTime(message.date)}</div>
+
+        {/* 메시지의 포함된 이미지 표시 */}
+        {message.imageUriPaths && message.imageUriPaths.length > 0 && (
+          <div
+            style={{
+              marginTop: "10px",
+              display: "grid",
+              gridTemplateColumns: "repeat(auto-fill, minmax(100px, 1fr))",
+              gap: "10px",
+            }}
+          >
+            {visibleImages.map((imageUri, index) => (
+              <img
+                key={index}
+                src={`${HOST_URL}${imageUri}`}
+                alt={`chatImage-${index}`}
+                style={{
+                  maxWidth: "200px",
+                  marginRight: "10px",
+                  marginBottom: "10px",
+                }}
+                onClick={() => openLightbox(index)}
+              />
+            ))}
+            {remainingImageCount > 0 && (
+              <div
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  backgroundColor: "#f0f0f0",
+                  cursor: "pointer",
+                  fontSize: "18px",
+                  color: "#555",
+                  height: "100px",
+                }}
+                onClick={() => openLightbox(3)}
+              >
+                +{remainingImageCount} more
+              </div>
+            )}
+          </div>
+        )}
+        {/* 문서 파일 */}
+        {message.documentUriPaths && message.documentUriPaths.length > 0 && (
+          <div style={{ marginTop: "10px" }}>
+            {message.documentUriPaths.map((uri, index) => (
+              <div key={index} style={{ marginBottom: "10px" }}>
+                {renderDocumentPreview(`${HOST_URL}${uri}`)}
+              </div>
+            ))}
+          </div>
+        )}
+
+        {isImageOpen && (
+          <Lightbox
+            mainSrc={`${HOST_URL}${message.imageUriPaths[photoIndex]}`}
+            nextSrc={`${HOST_URL}${
+              message.imageUriPaths[
+                (photoIndex + 1) % message.imageUriPaths.length
+              ]
+            }`}
+            prevSrc={`${HOST_URL}${
+              message.imageUriPaths[
+                (photoIndex + message.imageUriPaths.length - 1) %
+                  message.imageUriPaths.length
+              ]
+            }`}
+            onCloseRequest={() => setIsImageOpen(false)}
+            onMovePrevRequest={() =>
+              setPhotoIndex(
+                (photoIndex + message.imageUriPaths.length - 1) %
+                  message.imageUriPaths.length
+              )
+            }
+            onMoveNextRequest={() =>
+              setPhotoIndex((photoIndex + 1) % message.imageUriPaths.length)
+            }
+            toolbarButtons={[
+              <React.Fragment>
+                <div className="toolbar-buttons">
+                  <button
+                    onClick={() =>
+                      handleDownload(
+                        `${HOST_URL}${message.imageUriPaths[photoIndex]}`,
+                        `chatImage-${photoIndex}`
+                      )
+                    }
+                    className="imageDownload-button"
+                  >
+                    <FiDownload />
+                  </button>
+                </div>
+              </React.Fragment>,
+            ]}
+          />
+        )}
       </div>
 
-      {/* 답장 내용 추가 */}
-      {parentMessage && (
-        <>
-          <div className="reply-to-text">{formatMessage(parentMessage.content)}</div>
-          <div className="reply-line">--------------------------</div>
-          <div className="reply-text">{formatMessage(message.content)}</div>
-        </>
-      )}
-
-      {/* 메시지의 포함된 이미지 표시 */}
-      {message.imageUriPaths && message.imageUriPaths.length > 0 && (
-        <div style={{ marginTop: "10px", display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(100px, 1fr))", gap: "10px" }}>
-          {visibleImages.map((imageUri, index) => (
-            <img
-              key={index}
-              src={`${HOST_URL}${imageUri}`}
-              alt={`chatImage-${index}`}
-              style={{ maxWidth: "200px", marginRight: "10px", marginBottom: "10px" }}
-              onClick={() => openLightbox(index)}
-            />
-          ))}
-          {remainingImageCount > 0 && (
-            <div style={{
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              backgroundColor: "#f0f0f0",
-              cursor: "pointer",
-              fontSize: "18px",
-              color: "#555",
-              height: "100px"
-            }}
-              onClick={() => openLightbox(3)}>
-              +{remainingImageCount} more
-            </div>
-          )}
-        </div>
-      )}
-      {/* 문서 파일 */}
-      {message.documentUriPaths && message.documentUriPaths.length > 0 && (
-        <div style={{ marginTop: "10px" }}>
-          {message.documentUriPaths.map((uri, index) => (
-            <div key={index} style={{ marginBottom: "10px" }}>
-              {renderDocumentPreview(`${HOST_URL}${uri}`)}
-            </div>
-          ))}
-        </div>
-      )}
-
-
-      <div>
+      <div
+        className="message-footer"
+        style={{
+          textAlign: isSameSender ? "right" : "left",
+        }}
+      >
         <button
           className="reply-button"
           onClick={() => onMessageClick(message)}
         >
-          답글
           <FiCornerDownRight />
         </button>
-        <span onClick={() => openAnnounceMentModal(message)} style={{ cursor: "pointer", color: "blue", textDecoration: "underline" }} > 공지사항 등록</span>
-
+        <span
+          onClick={() => openAnnounceMentModal(message)}
+          style={{
+            cursor: "pointer",
+            color: "blue",
+            textDecoration: "underline",
+          }}
+        >
+          <TbPinFilled />
+        </span>
         {/* 안읽은 카운트 */}
         {message.unReadMembers && message.unReadMembers.length > 0
           && (

@@ -120,7 +120,8 @@
   overflow-y: auto;
   transition: width 0.3s ease, visibility 0.3s ease;
 
-  .p {}
+  .p {
+  }
 
   &.collapsed {
     width: 0;
@@ -182,8 +183,6 @@
     color: #d32f2f;
   }
 }
-
-
 
 // ChatListItem.js
 
