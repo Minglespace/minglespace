@@ -204,7 +204,7 @@ Kakao - 완료
 2.1.2.2. 공지 : 이메일 인증을 통해서 회원탈퇴 페이지로 이동 한다.
 2.1.3. User.withdrawalType 변경 : withdrawalType.EMAIL
 2.1.4. withdrawal table에 등록 : userId, email, verifyCode, regDate
-2.2. 패킷 : /auth/withdrawal/인증타입/인증코드
+2.2. 패킷 : /auth/withdrawalEmail/인증타입/인증코드
 2.3. 신청이후 이메일 인증 없이 로그인시 
 2.3.1. 회원 탈퇴 페이지로 이동
 2.3.2. 탈퇴 신청, 즉시 탈퇴 버튼들을 비활성화 한다.

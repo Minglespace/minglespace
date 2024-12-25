@@ -54,11 +54,6 @@ class Repo{
     return !!accessToken;
   }
 
-  static isWithdrawalABLE() {
-    const withdrawalType = this.getWithdrawalType();
-    return withdrawalType === "ABLE";
-  }
-
   static setWithdrawalType(withdrawalType){
     
     console.log("setWithdrawalType : ", withdrawalType);

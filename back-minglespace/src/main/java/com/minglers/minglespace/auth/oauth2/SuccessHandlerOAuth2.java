@@ -43,14 +43,6 @@ public class SuccessHandlerOAuth2 extends SimpleUrlAuthenticationSuccessHandler 
       return;
     }
 
-    if(oAuth2UserMs.getUser().getWithdrawalType() == WithdrawalType.EMAIL){
-      log.info("[MIRO] 돌려 보내는 사유 : {}", AuthStatus.WithdrawalEmailFirst.getDesc());
-      String url = MsConfig.getClientUrl("/auth/login/" + AuthStatus.WithdrawalEmailFirst);
-      log.info("[MIRO] url : {}", url);
-      response.sendRedirect(url);
-      return;
-    }
-
     User user = oAuth2UserMs.getUser();
 
     log.info("[MIRO] 로그인 성공, user : {}", user.getEmail());

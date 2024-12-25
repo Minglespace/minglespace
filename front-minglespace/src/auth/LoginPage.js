@@ -104,7 +104,9 @@ const LoginPage = () => {
 
         Repo.setItem(data);
 
-        if(data.withdrawalType === "ABLE"){
+        if(data.withdrawalType === "EMAIL"
+        || data.withdrawalType === "ABLE"
+        || data.withdrawalType === "DELIVERATION"){
           navigate("/auth/withdrawal");
         }else{
           // navigate("/main");

@@ -2,6 +2,7 @@
 import api, { HOST_URL } from "./Api";
 import Repo from "../auth/Repo";
 import axios from "axios";
+import { AuthStatusOk } from "./AuthStatus";
 
 class AuthApi{
 
@@ -43,7 +44,11 @@ class AuthApi{
 
   static logout = async () => {
     try{
-      return (await api.axiosIns.post("/auth/logout")).data;
+      const res = await api.axiosIns.post("/auth/logout");
+      if (AuthStatusOk(res.data.msStatus)) {
+        Repo.clearItem();
+        // navigate("/auth/login");
+      }
     }catch(err){
       throw err;
     }
@@ -96,14 +101,41 @@ class AuthApi{
     }
   };
 
-  static withdrawal = async () => {
+  static withdrawalEmail = async () => {
     try {
-      const res = await api.axiosIns.get("/auth/withdrawal");
+      const res = await api.axiosIns.get("/auth/withdrawalEmail");
       return res.data;
     } catch (err) {
       throw err; 
     }
   };
+
+  static withdrawalEnroll = async () => {
+    try {
+      const res = await api.axiosIns.get("/auth/withdrawalEntroll");
+      return res.data;
+    } catch (err) {
+      throw err; 
+    }    
+  }
+  
+  static withdrawalImmadiate = async () => {
+    try {
+      const res = await api.axiosIns.get("/auth/withdrawalImmadiate");
+      return res.data;
+    } catch (err) {
+      throw err; 
+    }    
+  }
+  
+  static withdrawalCancel = async () => {
+    try {
+      const res = await api.axiosIns.get("/auth/withdrawalCancel");
+      return res.data;
+    } catch (err) {
+      throw err; 
+    }    
+  }
   
 }
 

@@ -6,5 +6,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.Optional;
 
 public interface WithdrawalRepository extends JpaRepository<Withdrawal, Long> {
-  Optional<Withdrawal> findByUserId(Long userId);
+  Optional<Withdrawal> findByEmail(String email);
+  void deleteByEmail(String email);
 }

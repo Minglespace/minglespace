@@ -251,7 +251,7 @@ class AuthController {
   // DB 설정 후
   // 이후 로그인시
   // 회원탈퇴로 이동 시킨다.
-  @GetMapping("/auth/withdrawal")
+  @GetMapping("/auth/withdrawalEmail")
   public ResponseEntity<DefaultResponse> withdrawal(HttpServletRequest request, HttpServletResponse response){
 
     // 유저 찾기
@@ -265,7 +265,7 @@ class AuthController {
 
     // user WithdrawalType 저장
     user.setWithdrawalType(WithdrawalType.EMAIL);
-    UserResponse userResponse = userService.update(user);
+    userService.update(user);
 
     // withdrawal table 저장
     withdrawalService.add(user, code);
@@ -281,6 +281,25 @@ class AuthController {
     logoutCommon(request, response);
 
     // 클라에서는 로그아웃 패킷 보낼 필요 없이 자체 로그 아웃 하면 된다.
+
+    return ResponseEntity.ok(new DefaultResponse(AuthStatus.Ok));
+  }
+
+  @GetMapping("/auth/withdrawalCancel")
+  public ResponseEntity<DefaultResponse> withdrawalCancel(HttpServletRequest request, HttpServletResponse response) {
+
+    // 유저 찾기
+    User user = getUser();
+    if(user == null){
+      return ResponseEntity.ok(new UserResponse(AuthStatus.NotFoundAccount));
+    }
+
+    // withdrawal table 제거
+    withdrawalService.del(user);
+
+    // user WithdrawalType 변경
+    user.setWithdrawalType(WithdrawalType.NOT);
+    userService.update(user);
 
     return ResponseEntity.ok(new DefaultResponse(AuthStatus.Ok));
   }

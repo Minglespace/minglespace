@@ -104,16 +104,6 @@ public class UserService {
         return res;
       }
 
-      // 2. 회원탈퇴 중인 유저인지 체크
-      // 필터나 인터셉터로 처리하자
-      // 소셜로그인과 통합필요
-      res.setWithdrawalType(user.getWithdrawalType());
-      WithdrawalType withdrawalType = user.getWithdrawalType();
-      if(withdrawalType == WithdrawalType.EMAIL){
-        res.setStatus(AuthStatus.WithdrawalEmailFirst);
-        return res;
-      }
-
       // 인증 시도
       authenticationManager.authenticate(
               new UsernamePasswordAuthenticationToken(
@@ -137,6 +127,8 @@ public class UserService {
         // refreshToken은 cookie에 넣어 준다.
         CookieManager.add(JWTUtils.REFRESH_TOKEN, refreshToken, JWTUtils.EXPIRATION_REFRESH, response);
 
+        // 회원탈퇴 중인 유저인지 체크
+        res.setWithdrawalType(user.getWithdrawalType());
         res.setStatus(AuthStatus.Ok, accessToken);
       }else{
         res.setStatus(AuthStatus.EmailVerificationFirst);
@@ -219,16 +211,8 @@ public class UserService {
     return res;
   }
 
-  // updateUser 함수 버그 이슈 추후 통합필요
-  public UserResponse update(User updateUser){
-
-    UserResponse res = new UserResponse();
-
+  public void update(User updateUser){
     usersRepo.save(updateUser);
-
-    res.setStatus(AuthStatus.Ok);
-
-    return res;
   }
 
   public User getUserById(Long id) {

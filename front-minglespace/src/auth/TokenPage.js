@@ -26,8 +26,9 @@ const TokenPage = () => {
       console.log("/auth/token res.data : {}", res.data);
 
       if(AuthStatusOk(res.data.msStatus)){
-
-        if(res.data.withdrawalType === "ABLE"){
+        if(res.data.withdrawalType === "EMAIL"
+        || res.data.withdrawalType === "ABLE"
+        || res.data.withdrawalType === "DELIVERATION"){
           Repo.setWithdrawalType(res.data.withdrawalType);
           navigate("/auth/withdrawal");
         }else{

@@ -87,10 +87,7 @@ const root = createBrowserRouter([
     path: "/auth/token",
     element: (<Suspense fallback={Loading}><TokenPage /></Suspense>),
   },
-  // {
-  //   path: "/auth/withdrawal",
-  //   element: (<Suspense fallback={Loading}><WithdrawalPage /></Suspense>),
-  // },
+
 
   //잘못된 경로
   {

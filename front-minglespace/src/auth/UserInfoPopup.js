@@ -123,7 +123,7 @@ export default function UserInfoPopup() {
   };
   
   const handleClickWithdrawal = async () => {
-    const data = await AuthApi.withdrawal();
+    const data = await AuthApi.withdrawalEmail();
     if (AuthStatusOk(data.msStatus)) {
       Repo.clearItem();
       navigate("/auth/login");
@@ -140,10 +140,8 @@ export default function UserInfoPopup() {
   };
 
   const handleClickLogout = async () => {
-    await AuthApi.logout().then((data)=>{
-      if (AuthStatusOk(data.msStatus)) {
-        navigate("/auth/login");
-      }
+    await AuthApi.logout().then(()=>{
+      navigate("/auth/login");
     });
   };
 

@@ -8,6 +8,7 @@ import com.minglers.minglespace.auth.repository.WithdrawalRepository;
 import com.minglers.minglespace.common.apistatus.AuthStatus;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
 
@@ -29,10 +30,16 @@ public class WithdrawalServiceImpl implements WithdrawalService{
     withdrawalRepository.save(withdrawal);
   }
 
+  @Transactional
+  @Override
+  public void del(User user) {
+    withdrawalRepository.deleteByEmail(user.getEmail());
+  }
+
   @Override
   public EmailVerifyResponse checkVerifyCode(User user, String verifyCode) {
 
-    Optional<Withdrawal> opt = withdrawalRepository.findByUserId(user.getId());
+    Optional<Withdrawal> opt = withdrawalRepository.findByEmail(user.getEmail());
     if(!opt.isPresent()){
       return new EmailVerifyResponse(AuthStatus.NotFoundAccount);
     }
