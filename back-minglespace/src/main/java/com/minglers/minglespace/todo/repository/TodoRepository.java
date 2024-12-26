@@ -8,6 +8,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 public interface TodoRepository extends JpaRepository<Todo, Long> {
@@ -27,4 +28,18 @@ public interface TodoRepository extends JpaRepository<Todo, Long> {
 
   Slice<Todo> findAllTodoByWorkSpaceId(Long workspaceId, Pageable pageable);
   List<Todo> findAllTodoByWorkSpaceId(Long workspaceId);
+
+  @Query("SELECT t FROM Todo t "
+          + "JOIN t.workSpace w "
+          + "JOIN w.wsMemberList wm "
+          + "JOIN t.todoAssigneeList ta "
+          + "JOIN ta.wsMember assignee "
+          + "JOIN wm.user u "
+          + "WHERE u.id = :userId AND assignee.id = wm.id "
+          + "AND t.endDate BETWEEN :currentDate AND :currentPlusDate "
+          + "ORDER BY t.endDate ASC")
+  List<Todo> findTodosByUserIdAndAssigneeId(@Param("userId") Long userId,
+                                            @Param("currentDate")LocalDateTime currentDate,
+                                            @Param("currentPlusDate") LocalDateTime currentPlusDate,
+                                            Pageable pageable);
 }

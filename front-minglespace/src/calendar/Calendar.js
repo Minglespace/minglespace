@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect } from "react";
+import React, { useEffect } from "react";
 import FullCalendar from "@fullcalendar/react";
 import dayGridPlugin from "@fullcalendar/daygrid";
 import interactionPlugin from "@fullcalendar/interaction";
@@ -10,9 +10,7 @@ import { formatDateToKST } from "../common/DateFormat/dateUtils";
 import { WSMemberRoleContext } from "../workspace/context/WSMemberRoleContext";
 import { getErrorMessage } from "../common/Exception/errorUtils";
 import Tooltip from "tooltip.js";
-import { end, start } from "@popperjs/core";
 import CalendarFormModal from "./componenets/CalendarFormModal";
-import { all } from "axios";
 
 const initData = [
   {
@@ -77,6 +75,9 @@ const Calendar = () => {
   //캘린더 추가
   const addCalendar = async (newCalendar) => {
     try {
+      if (addType === "TIME") {
+        newCalendar.end = newCalendar.start;
+      }
       const result = await CalendarApi.addCalendar(workspaceId, newCalendar);
     } catch (error) {
       alert(
@@ -88,6 +89,12 @@ const Calendar = () => {
   //캘린더 수정
   const modifyCalendar = async (updatedCalendar) => {
     try {
+      if (addType === "TIME") {
+        updatedCalendar.end = updatedCalendar.start;
+      } else if (addType === "DAY") {
+        updatedCalendar.start = formatDateToKST(updatedCalendar.start);
+        updatedCalendar.end = formatDateToKST(updatedCalendar.end);
+      }
       const result = await CalendarApi.modifyCalendar(
         workspaceId,
         updatedCalendar.id,
@@ -125,7 +132,6 @@ const Calendar = () => {
       getCalendarPrivate();
     }
   }, [workspaceId, calendarType]);
-  console.log("data :", calendarData);
 
   //캘린더에 추가되는 내용을 formData에 저장
   const handleChangeData = (e) => {
@@ -219,11 +225,10 @@ const Calendar = () => {
       }));
       return true;
     }
-    console.log("start", formData.start);
-    console.log("end", formData.end);
     if (
+      addType === "DAY" &&
       new Date(formData.end).getTime() - new Date(formData.start).getTime() <
-      86400000
+        86400000
     ) {
       alert("2일 이상 날짜를 선택해 주세요.");
       return false;
@@ -275,14 +280,21 @@ const Calendar = () => {
   };
 
   const handleAddTypeChange = (type) => {
+    if (type === "TIME") {
+      formData.end = null;
+    } else if (type === "DAY") {
+      formData.end = formData.start;
+    }
     setAddType(type);
   };
 
   const fullcalendarRender = () => {
+    console.log("All data", calendarData);
     if (calendarType === "ALL") {
       return (
+        //리더 멤버 구분없이 모든 일정 종합캘린더
         <FullCalendar
-          key={calendarData.length + new Date().getTime()}
+          key={"ALLUSERCALENDAR"}
           plugins={[dayGridPlugin, interactionPlugin]}
           initialView="dayGridMonth"
           locale="ko"
@@ -350,10 +362,11 @@ const Calendar = () => {
       role === "SUB_LEADER" ||
       calendarType === "PRIVATE"
     ) {
-      console.log("PRIVATE");
+      console.log("LEDAR or PRIVATE", calendarData);
       return (
+        //LEADER권한 있는 NOTICE 및 개인 PRIVATE
         <FullCalendar
-          key={calendarData.length + new Date().getTime()}
+          key={"LEADERNOTICEANDPRIVATE"}
           plugins={[dayGridPlugin, interactionPlugin]}
           locale="ko"
           initialView="dayGridMonth"
@@ -415,8 +428,11 @@ const Calendar = () => {
         />
       );
     } else {
+      console.log("else", calendarData);
       return (
+        //일반MEMBER NOTICE캘린더
         <FullCalendar
+          key={"MEMBERNOTICE"}
           plugins={[dayGridPlugin, interactionPlugin]}
           locale="ko"
           initialView="dayGridMonth"

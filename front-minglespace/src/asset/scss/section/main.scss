@@ -1,0 +1,23 @@
+.main_dashboard_container {
+  position: relative;
+  width: 1150px;
+  border: 2px solid orange;
+
+  .main_milestone_data_container {
+    width: 1120px;
+    height: 340px;
+    border: solid 1px #000;
+    margin: 10px;
+    border-radius: 5px;
+  }
+  .main_flex_box {
+    display: flex;
+    .main_content_box {
+      width: 360px;
+      height: 340px;
+      border: 1px solid #000;
+      border-radius: 10px;
+      margin: 10px;
+    }
+  }
+}

@@ -26,10 +26,10 @@ const WorkspaceItem = ({ id, name, count, wsdesc, onClick, data }) => {
           </div>
         </div>
         <div className="workspace_desc_complete_flex">
-          <p className="workspace_desc">
+          <div className="workspace_desc">
             <div className="circle"></div>
             {wsdesc}
-          </p>
+          </div>
           <div className="complete_progress_container">
             <div className="complete_bar_container">
               <div
