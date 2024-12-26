@@ -48,39 +48,6 @@ export const ChatAppProvider = ({ children }) => {
 		}
 	};
 
-	// useEffect(() => {
-	// 	const fetchChatRooms = async () => {
-	// 		try {
-	// 			const roomsData = await ChatApi.getChatList(workspaceId);
-	// 			// console.log("원인 제공: ", Array.isArray(roomsData));
-	// 			roomsDispatch({
-	// 				type: "SET_ROOMS",
-	// 				payload: roomsData
-	// 			});
-	// 		} catch (e) {
-	// 			console.error("채팅방 데이터를 가져오는 데 문제가 발생했습니다.");
-	// 		}
-	// 	};
-
-	// 	//워크스페이스 멤버 목록
-	// 	const fetchWsMembers = async () => {
-	// 		try {
-	// 			const wsmembersData = await ChatApi.getwsMembers(workspaceId);
-	// 			wsMemberDispatch({
-	// 				type: "SET_WS_MEMBERS",
-	// 				payload: wsmembersData.filter(
-	// 					(member) => member.userId !== Number(Repo.getUserId())
-	// 				)
-	// 			});
-	// 		} catch (e) {
-	// 			console.error("Error fetching ws members:", e);
-	// 		}
-	// 	};
-
-	// 	fetchChatRooms();
-	// 	fetchWsMembers();
-	// }, [workspaceId]);
-
 	useEffect(() => {
 		if (socketRef.current) {
 			socketRef.current.deactivate();
@@ -182,6 +149,19 @@ export const ChatAppProvider = ({ children }) => {
 		});
 	};
 
+	const handleUpdateChatRoomInfo = (chatRoomId, updatedName, updatedImage) => {
+		roomsDispatch({
+			type: "UPDATE_ROOMS",
+			payload: {
+				chatRoomId: chatRoomId,
+				updates: {
+					name: updatedName,
+					imageUriPath: updatedImage
+				}
+			},
+		});
+	}
+
 	const removeRoom = (chatRoomId) => {
 		roomsDispatch({
 			type: "REMOVE_ROOM",
@@ -207,6 +187,7 @@ export const ChatAppProvider = ({ children }) => {
 				removeRoom,
 				fetchChatRooms,
 				fetchWsMembers,
+				handleUpdateChatRoomInfo
 			}}
 		>
 			{children}

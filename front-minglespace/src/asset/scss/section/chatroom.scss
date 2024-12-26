@@ -60,6 +60,7 @@
   width: 90%;
   border: solid 2px #888;
 }
+
 .chat_update_Img {
   display: block;
   margin: 20px 177px;
@@ -171,6 +172,7 @@
       }
     }
   }
+
   .close_btn {
     margin-left: 0px;
   }
@@ -314,6 +316,7 @@
   position: relative;
   z-index: 10;
 }
+
 .chatroominfo-name {
   flex-grow: 1;
   align-items: center;
@@ -570,14 +573,29 @@
   justify-content: center;
 }
 
+
 .new-messages-preview {
   position: absolute;
   bottom: 100px;
-  background: #f0f0f0;
   text-align: center;
   padding: 10px;
   cursor: pointer;
+
+  left: 10px;
+  right: 10px;
+  background: #e0e7ff;
+  border-radius: 8px;
+  box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+  font-size: 14px;
+  color: #333;
+  font-weight: bold;
 }
+
+.new-messages-preview span {
+  font-weight: normal;
+  color: #1e2a47;
+}
+
 .text1 {
   font-size: 18px;
   margin: 10px;
@@ -589,6 +607,7 @@
   margin: 0 10px 10px 10px;
   padding: 0px 10px 10px 10px;
 }
+
 .save-btn {
   background-color: rgb(92, 173, 240);
   padding: 10px;
@@ -600,6 +619,7 @@
   justify-content: center;
   cursor: pointer;
 }
+
 .cancel-btn {
   background-color: gray;
   padding: 10px;
@@ -648,6 +668,7 @@
   margin-bottom: -10px;
   margin-top: 12px;
 }
+
 .reply-line {
   display: inline-block;
   border-top: 1px solid #000;

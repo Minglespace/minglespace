@@ -148,18 +148,8 @@ const MessageListItem = ({
     );
   };
 
-  const [currentTime, setCurrentTime] = useState(new Date());
-  // 1초마다 시간을 갱신하는 useEffect
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setCurrentTime(new Date()); // 1초마다 현재 시간을 갱신
-    }, 1000);
-
-    return () => clearInterval(interval);
-  }, []);
-
   const getFormattedTime = (timestamp) => {
-    console.log("Timestamp:", timestamp);
+    // console.log("Timestamp:", timestamp);
     if (typeof timestamp === "string") {
       timestamp = Date.parse(timestamp);
     }
@@ -218,19 +208,23 @@ const MessageListItem = ({
             style={{
               marginTop: "10px",
               display: "grid",
-              gridTemplateColumns: "repeat(auto-fill, minmax(100px, 1fr))",
+              gridTemplateColumns: message.imageUriPaths.length === 1 ? "1fr" : "repeat(2, 1fr)",
               gap: "10px",
+              gridAutoRows: "130px"
             }}
           >
             {visibleImages.map((imageUri, index) => (
+
               <img
                 key={index}
                 src={`${HOST_URL}${imageUri}`}
                 alt={`chatImage-${index}`}
                 style={{
-                  maxWidth: "200px",
-                  marginRight: "10px",
-                  marginBottom: "10px",
+                  width: "100%",
+                  height: "100%",
+                  objectFit: "cover",
+                  minWidth: "130px",
+                  maxWidth: "250px",
                 }}
                 onClick={() => openLightbox(index)}
               />
@@ -245,7 +239,7 @@ const MessageListItem = ({
                   cursor: "pointer",
                   fontSize: "18px",
                   color: "#555",
-                  height: "100px",
+                  height: "130px",
                 }}
                 onClick={() => openLightbox(3)}
               >
@@ -268,22 +262,20 @@ const MessageListItem = ({
         {isImageOpen && (
           <Lightbox
             mainSrc={`${HOST_URL}${message.imageUriPaths[photoIndex]}`}
-            nextSrc={`${HOST_URL}${
-              message.imageUriPaths[
-                (photoIndex + 1) % message.imageUriPaths.length
-              ]
-            }`}
-            prevSrc={`${HOST_URL}${
-              message.imageUriPaths[
-                (photoIndex + message.imageUriPaths.length - 1) %
-                  message.imageUriPaths.length
-              ]
-            }`}
+            nextSrc={`${HOST_URL}${message.imageUriPaths[
+              (photoIndex + 1) % message.imageUriPaths.length
+            ]
+              }`}
+            prevSrc={`${HOST_URL}${message.imageUriPaths[
+              (photoIndex + message.imageUriPaths.length - 1) %
+              message.imageUriPaths.length
+            ]
+              }`}
             onCloseRequest={() => setIsImageOpen(false)}
             onMovePrevRequest={() =>
               setPhotoIndex(
                 (photoIndex + message.imageUriPaths.length - 1) %
-                  message.imageUriPaths.length
+                message.imageUriPaths.length
               )
             }
             onMoveNextRequest={() =>
@@ -397,22 +389,20 @@ const MessageListItem = ({
       {isImageOpen && (
         <Lightbox
           mainSrc={`${HOST_URL}${message.imageUriPaths[photoIndex]}`}
-          nextSrc={`${HOST_URL}${
-            message.imageUriPaths[
-              (photoIndex + 1) % message.imageUriPaths.length
-            ]
-          }`}
-          prevSrc={`${HOST_URL}${
-            message.imageUriPaths[
-              (photoIndex + message.imageUriPaths.length - 1) %
-                message.imageUriPaths.length
-            ]
-          }`}
+          nextSrc={`${HOST_URL}${message.imageUriPaths[
+            (photoIndex + 1) % message.imageUriPaths.length
+          ]
+            }`}
+          prevSrc={`${HOST_URL}${message.imageUriPaths[
+            (photoIndex + message.imageUriPaths.length - 1) %
+            message.imageUriPaths.length
+          ]
+            }`}
           onCloseRequest={() => setIsImageOpen(false)}
           onMovePrevRequest={() =>
             setPhotoIndex(
               (photoIndex + message.imageUriPaths.length - 1) %
-                message.imageUriPaths.length
+              message.imageUriPaths.length
             )
           }
           onMoveNextRequest={() =>
