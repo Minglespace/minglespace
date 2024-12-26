@@ -214,6 +214,20 @@ public class UserService {
   public void update(User updateUser){
     usersRepo.save(updateUser);
   }
+  public void updateWithdrawalEnroll(User updateUser){
+    updateUser.setWithdrawalType(WithdrawalType.DELIVERATION);
+    usersRepo.save(updateUser);
+  }
+  public void updateWithdrawalImmediately(User updateUser, String modifyEmail){
+    // 이메일을 만료시간 꼬리표를 붙여 추후 해당 이메일로 재가입을 가능하게 한다.
+    updateUser.setEmail(modifyEmail);
+    updateUser.setWithdrawalType(WithdrawalType.DONE);
+    usersRepo.save(updateUser);
+  }
+  public void updateWithdrawalCancel(User updateUser){
+    updateUser.setWithdrawalType(WithdrawalType.NOT);
+    usersRepo.save(updateUser);
+  }
 
   public User getUserById(Long id) {
 
@@ -223,11 +237,11 @@ public class UserService {
       if (opt.isPresent()) {
         return opt.get();
       } else {
-        log.info("[MIRO] getUserById : ", AuthStatus.NotFoundAccount);
+        log.info("[MIRO] getUserById : {}", AuthStatus.NotFoundAccount);
         return null;
       }
     }catch (Exception e){
-      log.info("[MIRO] getUserById 에외 : ", AuthStatus.Exception);
+      log.info("[MIRO] getUserById 에외 : {}", AuthStatus.Exception);
       return null;
     }
   }

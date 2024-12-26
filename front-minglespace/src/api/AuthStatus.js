@@ -28,8 +28,11 @@ export const AuthStatus = Object.freeze({
 
   //회원 탈퇴
   WithdrawalEmailFirst:     {value:"WithdrawalEmailFirst",    desc:"먼저 회원탈퇴 이메일 인증을 완료하세요."},
-  WithdrawalAble:           {value:"WithdrawalAble",          desc:"회원탈퇴 페이지에서 신청 가능합니다."},
+  WithdrawalEmailAlready:   {value:"WithdrawalEmailAlready",  desc:"이미 회원탈퇴 이메일 인증을 완료 했습니다."},
+  
+  WithdrawalAble:           {value:"WithdrawalAble",          desc:"이메일 인증이 완료되었습니다. 로그인후 회원탈퇴 페이지에서 신청 가능합니다."},
   WithdrawalDeliveration:   {value:"WithdrawalDeliveration",  desc:"회원탈퇴 숙려기간 중입니다."},
+  WithdrawalDeliverationAlready:   {value:"WithdrawalDeliverationAlready",  desc:" 이미 회원탈퇴 신청중 입니다."},
   WithdrawalDone:           {value:"WithdrawalDone",          desc:"회원탈퇴가 완료 되었습니다."},
   NotFoundWithdrawal:       {value:"NotFoundWithdrawal",      desc:"회원탈퇴 신청정보가 없습니다."},
   NotFoundVerifyCode:       {value:"NotFoundVerifyCode",      desc:"회원탈퇴 인증코드를 찾을 수 없습니다."},

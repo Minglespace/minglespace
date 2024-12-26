@@ -33,26 +33,19 @@ public enum AuthStatus {
 
   //회원 탈퇴
   WithdrawalEmailFirst("회원탈퇴 이메일 인증 먼저"),
+  WithdrawalEmailAlready("회원탈퇴 이메일 인증 이미 완료상태"),
   WithdrawalAble("회원탈퇴 신청가능."),
   WithdrawalDeliveration("회원탈퇴 숙려기간."),
+  WithdrawalDeliverationAlready("회원탈퇴 이미 신청상태."),
+
   WithdrawalDone("회원탈퇴 완료."),
   NotFoundWithdrawal("탈퇴정보를 찾을 수 없음."),
   NotFoundVerifyCode("탈퇴 인증 코드를 찾을 수 없음."),
   MismatchVerifyCode("탈퇴 인증 코드 불일치."),
-
-
   ;
 
   private final String desc;
-
   AuthStatus(String desc) {
     this.desc = desc;
   }
-
-//  // `@JsonValue` 어노테이션을 추가하여, JSON 직렬화 시 `desc`를 값으로 사용하도록 변경
-//  @JsonValue
-//  public String getStatusValue() {
-//    return this.name();  // 혹은 원하는 필드를 반환할 수 있습니다. (여기서는 `name()`을 반환)
-//  }
-
 }

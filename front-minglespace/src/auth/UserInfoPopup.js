@@ -108,6 +108,7 @@ export default function UserInfoPopup() {
       setMessage({
         title: "확인", 
         content: AuthStatus[data.msStatus].desc,  
+        callbackOk: ()=>{setMessage(null);}
       });
     }
 
@@ -122,18 +123,40 @@ export default function UserInfoPopup() {
     }
   };
   
-  const handleClickWithdrawal = async () => {
+  const handleClickWithdrawalEmail = async () => {
+    setMessage({
+      title: "확인", 
+      content: "회원탙퇴를 진행하시겠습니까?",  
+      callbackYes: ()=>{
+        setMessage(null);
+        sendWithdrawalEmail();
+      },
+      callbackNo: ()=>{
+        setMessage(null);
+      }
+    });
+  };
+
+  const sendWithdrawalEmail = async () => {
     const data = await AuthApi.withdrawalEmail();
     if (AuthStatusOk(data.msStatus)) {
-      Repo.clearItem();
-      navigate("/auth/login");
+      setMessage({
+        title: "확인", 
+        content: "회원탈퇴 인증 이메일을 보냈습니다.",  
+        callbackOk: ()=>{
+          setMessage(null);
+          Repo.clearItem();
+          navigate("/auth/login");
+        }
+      });
     }else if(data.msStatus && AuthStatus[data.msStatus]){
       setMessage({
         title: "확인", 
         content: AuthStatus[data.msStatus].desc,  
+        callbackOk: ()=>{setMessage(null);}
       });
     }
-  };
+  }
 
   const handleClickSetting = () => {
     setIsEditing(true);
@@ -257,11 +280,13 @@ export default function UserInfoPopup() {
       </button>
 
       {message && (
-        <Modal open={message !== null} onClose={() => setMessage(null)}>
+        <Modal open={message !== null} onClose={message.callbackOk || message.callbackNo || setMessage(null)}>
           <div className="workspace_add_modal_container">
             <p className="form-title">{message.title}</p>
             <p>{message.content}</p>
-            <button type="submit" className="add_button" onClick={() => setMessage(null)}>확인</button>
+            {message.callbackOk && <button type="submit" className="add_button" onClick={message.callbackOk}>확인</button> }
+            {message.callbackYes && <button type="submit" className="add_button" onClick={message.callbackYes}>네</button> }
+            {message.callbackNo && <button type="submit" className="add_button" onClick={message.callbackNo}>아니요</button> }
           </div>
         </Modal>
       )}
@@ -399,7 +424,7 @@ export default function UserInfoPopup() {
               </>
             ) : (
               <>
-                <button onClick={handleClickWithdrawal} className="logout-button">
+                <button onClick={handleClickWithdrawalEmail} className="logout-button">
                   <Settings size={16} />
                   회원탈퇴
                 </button>

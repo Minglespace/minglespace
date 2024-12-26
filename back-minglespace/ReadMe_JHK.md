@@ -235,7 +235,13 @@ Kakao - 완료
 
 5. 즉시 탈퇴
 5.1. 탈퇴 처리 후 로그아웃 처리한다.
-5.2. 이후 로그인시 신규유저로 처리된다.
+5.1.1. Withdrawal.expireDate 변경 : Withdrawal.regDate 과 일치
+5.1.1.1. 즉시탈퇴를 의미한다.
+5.1.2. Withdrawal.email 변경, 형식 : asdf@asdf.com.expireDate
+5.1.3. User.email 변경 : Withdrawal.email 과 일치
+5.1.4. User.withdrawalType 변경 : WithdrawalType.DONE
+5.2. 로그아웃 처리
+5.3. 이후 로그인시 신규유저로 처리된다.
 
 6. 탈퇴 취소
 6.1. User.withdrawalType 변경 : withdrawalType.NOT
@@ -256,7 +262,7 @@ email,
 verifyCode,
 regDate,
 expireDate, 
-cancelDate,
+
 ```
 ### 논의
 1. 탈퇴를 진행중인 유저, 탈퇴완료한 유저는 다른 유저에게 어떻게 보여지나?

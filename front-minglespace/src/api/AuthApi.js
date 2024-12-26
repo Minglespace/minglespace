@@ -101,27 +101,36 @@ class AuthApi{
     }
   };
 
-  static withdrawalEmail = async () => {
+  static withdrawalInfo = async () => {
     try {
-      const res = await api.axiosIns.get("/auth/withdrawalEmail");
+      const res = await api.axiosIns.get("/auth/withdrawal/Info");
       return res.data;
     } catch (err) {
       throw err; 
     }
   };
 
+  static withdrawalEmail = async () => {
+    try {
+      const res = await api.axiosIns.get("/auth/withdrawal/Email");
+      return res.data;
+    } catch (err) {
+      throw err; 
+    }
+  };
+    
   static withdrawalEnroll = async () => {
     try {
-      const res = await api.axiosIns.get("/auth/withdrawalEntroll");
+      const res = await api.axiosIns.get("/auth/withdrawal/Enroll");
       return res.data;
     } catch (err) {
       throw err; 
     }    
   }
   
-  static withdrawalImmadiate = async () => {
+  static withdrawalImmediately = async () => {
     try {
-      const res = await api.axiosIns.get("/auth/withdrawalImmadiate");
+      const res = await api.axiosIns.get("/auth/withdrawal/Immediately");
       return res.data;
     } catch (err) {
       throw err; 
@@ -130,12 +139,13 @@ class AuthApi{
   
   static withdrawalCancel = async () => {
     try {
-      const res = await api.axiosIns.get("/auth/withdrawalCancel");
+      const res = await api.axiosIns.get("/auth/withdrawal/Cancel");
       return res.data;
     } catch (err) {
       throw err; 
     }    
   }
+
   
 }
 

@@ -34,10 +34,8 @@ public class WithdrawalFilter extends OncePerRequestFilter {
   // 검사대상 제외 URL 목록
   String[] checkUrlList = {
           "/auth/logout",
-          "/auth/withdrawalEmail",
-          "/auth/withdrawalEnroll",
-          "/auth/withdrawalImmediately",
-          "/auth/withdrawalCancel"
+          "/auth/verify",
+          "/auth/withdrawal/",
   };
 
   @Override

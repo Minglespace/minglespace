@@ -34,6 +34,7 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.util.Base64;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
@@ -246,18 +247,53 @@ class AuthController {
     return ResponseEntity.ok(userService.deleteUser(userId));
   }
 
-  // 유저가 회원탈퇴 요청시
+  @GetMapping("/auth/withdrawal/Info")
+  public ResponseEntity<WithdrawalInfoResponse> withdrawalInfo() {
+
+    WithdrawalInfoResponse res = new WithdrawalInfoResponse();
+
+    // 유저 찾기
+    User user = getUser();
+    if(user == null){
+      res.setStatus(AuthStatus.NotFoundAccount);
+      return ResponseEntity.ok(res);
+    }
+
+    // 만료일 가져오기
+    Map<String, Object> result = withdrawalService.getInfo(user);
+    AuthStatus status = (AuthStatus) result.get("status");
+    if(status != AuthStatus.Ok){
+      return ResponseEntity.ok(new WithdrawalInfoResponse(status));
+    }
+
+    LocalDateTime expireDate = (LocalDateTime) result.get("expireDate");
+
+    res.setEmail(user.getEmail());
+    res.setName(user.getName());
+    res.setExpireDate(expireDate);
+    res.setWithdrawalType(user.getWithdrawalType());
+    res.setStatus(AuthStatus.Ok);
+
+    return ResponseEntity.ok(res);
+  }
+    // 유저가 회원탈퇴 요청시
   // 이메일 인증 보내고
   // DB 설정 후
   // 이후 로그인시
   // 회원탈퇴로 이동 시킨다.
-  @GetMapping("/auth/withdrawalEmail")
-  public ResponseEntity<DefaultResponse> withdrawal(HttpServletRequest request, HttpServletResponse response){
+  @GetMapping("/auth/withdrawal/Email")
+  public ResponseEntity<DefaultResponse> withdrawalEmail(HttpServletRequest request, HttpServletResponse response){
 
     // 유저 찾기
     User user = getUser();
     if(user == null){
       return ResponseEntity.ok(new UserResponse(AuthStatus.NotFoundAccount));
+    }
+
+    // 이메일 인증을 재전송시 체크
+    WithdrawalType withdrawalType = user.getWithdrawalType();
+    if(!(withdrawalType == WithdrawalType.NOT || withdrawalType == WithdrawalType.EMAIL)){
+      return ResponseEntity.ok(new UserResponse(AuthStatus.WithdrawalEmailAlready));
     }
 
     // 회원 탈퇴 이메일 인증 코드 생성
@@ -267,7 +303,7 @@ class AuthController {
     user.setWithdrawalType(WithdrawalType.EMAIL);
     userService.update(user);
 
-    // withdrawal table 저장
+    // withdrawal 저장
     withdrawalService.add(user, code);
 
     // 이메일 전송
@@ -285,8 +321,9 @@ class AuthController {
     return ResponseEntity.ok(new DefaultResponse(AuthStatus.Ok));
   }
 
-  @GetMapping("/auth/withdrawalCancel")
-  public ResponseEntity<DefaultResponse> withdrawalCancel(HttpServletRequest request, HttpServletResponse response) {
+  @GetMapping("/auth/withdrawal/Enroll")
+  public ResponseEntity<DefaultResponse> withdrawalEnroll(
+          HttpServletRequest request, HttpServletResponse response) {
 
     // 유저 찾기
     User user = getUser();
@@ -294,12 +331,68 @@ class AuthController {
       return ResponseEntity.ok(new UserResponse(AuthStatus.NotFoundAccount));
     }
 
-    // withdrawal table 제거
+    // 이미 신청 상태이다.
+    if(user.getWithdrawalType() == WithdrawalType.DELIVERATION){
+      return ResponseEntity.ok(new UserResponse(AuthStatus.WithdrawalDeliverationAlready));
+    }
+
+    // 만료일 등록 하고
+    Map<String, Object> result = withdrawalService.updateEnroll(user);
+    AuthStatus status = (AuthStatus) result.get("status");
+    if(status != AuthStatus.Ok){
+      return ResponseEntity.ok(new DefaultResponse(status));
+    }
+
+    // 유저 상태 변경하고
+    userService.updateWithdrawalEnroll(user);
+
+    // 로그 아웃처리
+    logoutCommon(request, response);
+
+    return ResponseEntity.ok(new DefaultResponse(AuthStatus.Ok));
+  }
+
+  @GetMapping("/auth/withdrawal/Immediately")
+  public ResponseEntity<DefaultResponse> withdrawalImmediately(
+          HttpServletRequest request, HttpServletResponse response) {
+
+    // 유저 찾기
+    User user = getUser();
+    if(user == null){
+      return ResponseEntity.ok(new UserResponse(AuthStatus.NotFoundAccount));
+    }
+
+    // 만료시간 설정
+    Map<String, Object> result = withdrawalService.updateImmediately(user);
+    AuthStatus status = (AuthStatus) result.get("status");
+    if(status != AuthStatus.Ok){
+      return ResponseEntity.ok(new DefaultResponse(status));
+    }
+
+    // 탈퇴유저의 상태, 이메일 변경
+    String modifyEmail = (String) result.get("email");
+    userService.updateWithdrawalImmediately(user, modifyEmail);
+
+    // 로그 아웃처리
+    logoutCommon(request, response);
+
+    return ResponseEntity.ok(new DefaultResponse(AuthStatus.Ok));
+  }
+
+  @GetMapping("/auth/withdrawal/Cancel")
+  public ResponseEntity<DefaultResponse> withdrawalCancel() {
+
+    // 유저 찾기
+    User user = getUser();
+    if(user == null){
+      return ResponseEntity.ok(new UserResponse(AuthStatus.NotFoundAccount));
+    }
+
+    // withdrawal 제거
     withdrawalService.del(user);
 
-    // user WithdrawalType 변경
-    user.setWithdrawalType(WithdrawalType.NOT);
-    userService.update(user);
+    // 유저 상태 원상 복구
+    userService.updateWithdrawalCancel(user);
 
     return ResponseEntity.ok(new DefaultResponse(AuthStatus.Ok));
   }

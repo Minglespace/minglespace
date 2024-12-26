@@ -26,6 +26,21 @@ public class Withdrawal {
 
   private LocalDateTime expireDate;
 
-  private LocalDateTime cancelDate;
+  private boolean processed = false; // 처리 여부
 
+  public void setExpireDate(int duration, String unit) {
+    switch (unit.toLowerCase()) {
+      case "hours":
+        this.expireDate = LocalDateTime.now().plusHours(duration);
+        break;
+      case "minutes":
+        this.expireDate = LocalDateTime.now().plusMinutes(duration);
+        break;
+      case "days":
+        this.expireDate = LocalDateTime.now().plusDays(duration);
+        break;
+      default:
+        throw new IllegalArgumentException("Invalid unit: " + unit);
+    }
+  }
 }
