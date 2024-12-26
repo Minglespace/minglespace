@@ -7,6 +7,7 @@
     "@fullcalendar/daygrid": "^6.1.15",
     "@fullcalendar/interaction": "^6.1.15",
     "@fullcalendar/react": "^6.1.15",
+    "@nivo/pie": "^0.88.0",
     "@popperjs/core": "^2.11.8",
     "@stomp/stompjs": "^7.0.0",
     "@testing-library/jest-dom": "^5.17.0",
@@ -25,8 +26,10 @@
     "react-mentions": "^4.4.10",
     "react-router-dom": "^6.28.0",
     "react-scripts": "5.0.1",
+    "react-slick": "^0.30.3",
     "react-spinners": "^0.15.0",
     "sass": "^1.81.0",
+    "slick-carousel": "^1.8.1",
     "sockjs-client": "^1.6.1",
     "tooltip.js": "^1.3.3",
     "web-vitals": "^2.1.4"

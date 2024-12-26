@@ -5,19 +5,63 @@
 
   .main_milestone_data_container {
     width: 1120px;
-    height: 340px;
-    border: solid 1px #000;
+    height: 330px;
+    border: solid 1px #ccc;
     margin: 10px;
     border-radius: 5px;
+    background-color: #fff;
+    box-shadow: 3px 3px 3px #ccc;
   }
   .main_flex_box {
     display: flex;
     .main_content_box {
       width: 360px;
-      height: 340px;
-      border: 1px solid #000;
+      height: 330px;
+      border: 1px solid #ccc;
       border-radius: 10px;
       margin: 10px;
+      background-color: #fff;
+      box-shadow: 3px 3px 3px #ccc;
+      .main_content_flex {
+        display: flex;
+        cursor: pointer;
+        .descname {
+          text-align: center;
+          padding: 10px;
+          font-size: 14px;
+          overflow: hidden;
+          white-space: nowrap;
+          margin-bottom: 15px;
+        }
+        .wsname {
+          width: 105px;
+        }
+        .title {
+          width: 80px;
+        }
+
+        .end {
+          width: 173px;
+          font-size: 10px;
+        }
+      }
+    }
+    .main_content_menubar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: solid 1px #ccc;
+      padding: 5px 30px;
+      font-size: 12px;
+      text-align: center;
+      &:last-child {
+        margin-right: 30px;
+        // border-right: none !important;
+      }
+      .main_separator {
+        height: 15px;
+        border-left: 1px solid #aaa;
+      }
     }
   }
 }

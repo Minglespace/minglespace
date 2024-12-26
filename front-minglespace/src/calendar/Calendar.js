@@ -30,6 +30,7 @@ const Calendar = () => {
   const [calendarType, setCalendarType] = useState("ALL");
   const [formData, setFormData] = useState({});
   const [addType, setAddType] = useState("TIME");
+  const [clickDate, setClickDate] = useState(null);
   const {
     wsMemberData: { role },
   } = useContext(WSMemberRoleContext);
@@ -128,8 +129,10 @@ const Calendar = () => {
       getCalendarAll();
     } else if (calendarType === "NOTICE") {
       getCalendarNotice();
+      setClickDate(null);
     } else if (calendarType === "PRIVATE") {
       getCalendarPrivate();
+      setClickDate(null);
     }
   }, [workspaceId, calendarType]);
 
@@ -167,6 +170,7 @@ const Calendar = () => {
           end: formattedStart,
         });
     setModalOpen(true);
+    setClickDate(arg.dateStr);
   };
 
   //모달 On, Off 핸들러
@@ -294,7 +298,7 @@ const Calendar = () => {
       return (
         //리더 멤버 구분없이 모든 일정 종합캘린더
         <FullCalendar
-          key={"ALLUSERCALENDAR"}
+          key={new Date().getTime()}
           plugins={[dayGridPlugin, interactionPlugin]}
           initialView="dayGridMonth"
           locale="ko"
@@ -366,10 +370,11 @@ const Calendar = () => {
       return (
         //LEADER권한 있는 NOTICE 및 개인 PRIVATE
         <FullCalendar
-          key={"LEADERNOTICEANDPRIVATE"}
+          key={new Date().getTime()}
           plugins={[dayGridPlugin, interactionPlugin]}
           locale="ko"
           initialView="dayGridMonth"
+          initialDate={clickDate}
           events={calendarData}
           dateClick={handleDateClick}
           eventClick={handleEventClick}
