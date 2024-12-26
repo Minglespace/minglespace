@@ -1,4 +1,4 @@
-﻿package com.minglers.minglespace.auth.security;
+package com.minglers.minglespace.auth.security;
 
 import com.minglers.minglespace.auth.exception.CustomAuthenticationEntryPoint;
 import com.minglers.minglespace.auth.oauth2.SuccessHandlerOAuth2;
