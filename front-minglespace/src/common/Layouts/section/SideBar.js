@@ -12,6 +12,9 @@ const SideBar = () => {
         <li>
           <Link to="/myfriends/">My Friends</Link>
         </li>
+        <li>
+          <Link to="/aboutus">Aboutus</Link>
+        </li>
         {workspaceId && (
           <>
             <p className="workspace_sidemenu">WorkSpace Menu</p>

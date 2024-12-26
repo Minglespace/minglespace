@@ -15,6 +15,7 @@ const MyFriends = lazy(() => import("../page/MyFriendsPage"));
 const MileStone = lazy(() => import("../page/MileStonePage"));
 const Member = lazy(() => import("../page/MemberPage"));
 const InviteCheck = lazy(() => import("../member/components/InviteCheck"));
+const Aboutus = lazy(() => import("../page/AboutusPage"));
 
 const root = createBrowserRouter([
   // SuspenseWithPrivateRoute
@@ -58,6 +59,10 @@ const root = createBrowserRouter([
   {
     path: "/workspace/:workspaceId/calendar",
     element: <SuspenseWithPrivateRoute page={Calendar} />,
+  },
+  {
+    path: "/aboutus",
+    element: <SuspenseWithPrivateRoute page={Aboutus} />,
   },
 
   // Suspense
