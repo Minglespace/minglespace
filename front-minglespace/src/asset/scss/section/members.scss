@@ -1,6 +1,7 @@
 .member_inviteBox {
   display: flex;
   flex-direction: column;
+  height: 100%;
   gap: 10px;
 }
 
@@ -12,4 +13,8 @@
 .member_inviteItem:nth-child(2) {
   flex-grow: 1;
   width: 100%;
+}
+
+.member_infoItem {
+  max-height: 400px;
 }

@@ -2,10 +2,7 @@ package com.minglers.minglespace.milestone.entity;
 
 import com.minglers.minglespace.workspace.entity.WorkSpace;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.ToString;
+import lombok.*;
 
 import java.util.List;
 
@@ -15,6 +12,7 @@ import java.util.List;
 @AllArgsConstructor
 @ToString
 @Getter
+@Builder
 public class MilestoneGroup {
 
   @Id

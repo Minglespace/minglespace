@@ -5,6 +5,7 @@ import lombok.*;
 @AllArgsConstructor
 @ToString
 @Getter
+@Setter
 public class MilestoneGroupRequestDTO {
     private Long id;
     private String title;
