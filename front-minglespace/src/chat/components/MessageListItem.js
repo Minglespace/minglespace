@@ -148,16 +148,6 @@ const MessageListItem = ({
     );
   };
 
-  const [currentTime, setCurrentTime] = useState(new Date());
-  // 1초마다 시간을 갱신하는 useEffect
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setCurrentTime(new Date()); // 1초마다 현재 시간을 갱신
-    }, 1000);
-
-    return () => clearInterval(interval);
-  }, []);
-
   const getFormattedTime = (timestamp) => {
     // console.log("Timestamp:", timestamp);
     if (typeof timestamp === "string") {

@@ -3,17 +3,16 @@ import MessageListItem from "./MessageListItem";
 import Modal from "../../common/Layouts/components/Modal";
 import useMessageListScroll from "../hooks/useMessageListScroll";
 import { FaBell } from "react-icons/fa";
+import { useChatRoom } from "../context/ChatRoomContext";
 
 const MessageList = ({
   messages,
   onMessageClick,
-  currentMemberInfo,
-  onRegisterAnnouncement,
-  onDeleteMessage,
   fetchMoreMessages,
   msgHasMore,
   currentChatRoomId,
 }) => {
+  const { currentMemberInfo, handleRegisterAnnouncement, handleDeleteMessage } = useChatRoom();
   const [announcement, setAnnouncement] = useState(null);
   const [isAnnouncementModalOpen, setIsAnnouncementModalOpen] = useState(false);
   const [selectedAnnounce, setSelectedAnnounce] = useState(null);
@@ -43,7 +42,7 @@ const MessageList = ({
   }, [messages]);
 
   const registerAnnouncment = async (msg) => {
-    await onRegisterAnnouncement(msg);
+    await handleRegisterAnnouncement(msg);
     setAnnouncement(msg);
     // console.log(msg);
   };
@@ -85,7 +84,7 @@ const MessageList = ({
 
   const handleDeleteConfirm = async () => {
     if (selectedDelete) {
-      await onDeleteMessage(selectedDelete);
+      await handleDeleteMessage(selectedDelete);
       setIsDeleteModalOpen(false);
       setSelectedDelete(null);
     }
@@ -106,9 +105,6 @@ const MessageList = ({
               공지사항: {/*{announcement.sender}*/} {announcement.content}
             </span>
           </div>
-          {/* 공지사항
-          <span className="message-sender">{announcement.sender} : </span>
-          <span className="message-text">{announcement.content} </span> */}
         </div>
       )}
 

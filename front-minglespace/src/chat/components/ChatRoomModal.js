@@ -2,45 +2,31 @@ import React from "react";
 import ExitModal from "./ExitModal";
 import InviteFriendModal from "./InviteFriendModal";
 import DelegateModal from "./DelegateModal";
+import { useChatRoom } from "../context/ChatRoomContext";
 
 const ChatRoomModal = ({
-  chatRoomInfo,
   modalType,
-  isOpen,
   onClose,
   roomMembers,
-  isRoomOwner,
-  inviteUsers,
-  onInvite,
-  onDelegate,
-  onKick,
-  onExit,
   onUpdateChatRoom,
 }) => {
-  if (!isOpen) return null;
+  const { isModalOpen } = useChatRoom();
+  if (!isModalOpen) return null;
 
   const renderModal = () => {
     switch (modalType) {
       case "exit":
         return (
           <ExitModal
-            isOpen={isOpen}
             onClose={onClose}
-            isRoomOwner={isRoomOwner}
-            onExit={onExit}
           />
         );
       case "invite":
         // console.log("InviteFriendModal props:", inviteUsers);
         return (
           <InviteFriendModal
-            chatRoomInfo={chatRoomInfo}
-            isOpen={isOpen}
             onClose={onClose}
-            inviteUsers={inviteUsers}
             participants={roomMembers}
-            onInvite={onInvite}
-            onKick={onKick}
             onUpdateChatRoom={onUpdateChatRoom}
           />
         );
@@ -48,10 +34,8 @@ const ChatRoomModal = ({
         // console.log("delegateModal 렌더링");
         return (
           <DelegateModal
-            isOpen={isOpen}
             onClose={onClose}
             participants={roomMembers}
-            onDelegate={onDelegate}
           />
         );
       default:

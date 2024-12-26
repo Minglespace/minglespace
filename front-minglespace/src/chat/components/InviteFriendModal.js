@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from "react";
 import Repo from "../../auth/Repo";
 import default_img from "../../asset/imgs/profile1.png";
 import { HOST_URL } from "../../api/Api";
+import { useChatRoom } from "../context/ChatRoomContext";
 
 const initUpdateRoom = {
   name: "",
@@ -10,19 +11,13 @@ const initUpdateRoom = {
 }
 
 const InviteFriendModal = ({
-  chatRoomInfo,
-  isOpen,
   onClose,
-  inviteUsers,
   participants,
-  onInvite,
-  onKick,
   onUpdateChatRoom,
 }) => {
+  const { chatRoomInfo, isModalOpen, inviteMembers, handleInvite, handleKick } = useChatRoom();
   const [updateRoom, setUpdateRoom] = useState(initUpdateRoom);
   const [selectedImage, setSelectedImage] = useState(null);
-  // const [isImageDelete, setIsImageDelete] = useState("false");
-  // const [selectedUser, setSelectedUser] = useState(null); //선택된 사용자
   const [selectedTab, setSelectedTab] = useState("info");
   const fileInputRef = useRef(null);
 
@@ -36,7 +31,7 @@ const InviteFriendModal = ({
     }
   }, [chatRoomInfo]);
 
-  if (!isOpen) return null;
+  if (!isModalOpen) return null;
 
 
   //폼에서 채팅방 이름을 변경하는 함수
@@ -86,9 +81,9 @@ const InviteFriendModal = ({
   };
 
 
-  const handleInvite = async (addMember) => {
+  const handleInviteModal = async (addMember) => {
     if (addMember) {
-      await onInvite(addMember);
+      await handleInvite(addMember);
       alert(`${addMember.name}님이 초대되었습니다.`);
       onClose();
     } else {
@@ -96,9 +91,9 @@ const InviteFriendModal = ({
     }
   };
 
-  const handleKick = async (kickMember) => {
+  const handleKickModal = async (kickMember) => {
     if (kickMember) {
-      await onKick(kickMember);
+      await handleKick(kickMember);
       alert(`${kickMember.name}님이 강퇴되었습니다.`);
       onClose();
     } else {
@@ -187,7 +182,7 @@ const InviteFriendModal = ({
                       {member.email}
                       <button
                         className="invite-btn"
-                        onClick={() => handleKick(member)}
+                        onClick={() => handleKickModal(member)}
                       >
                         강퇴
                       </button>
@@ -197,15 +192,15 @@ const InviteFriendModal = ({
 
               <p>초대할 멤버를 선택하세요:</p>
               <ul>
-                {inviteUsers.length === 0 ? (
+                {inviteMembers.length === 0 ? (
                   <li>초대할 멤버가 없습니다.</li>
                 ) : (
-                  inviteUsers.map((member) => (
+                  inviteMembers.map((member) => (
                     <li key={member.wsMemberId}>
                       {member.email}
                       <button
                         className="invite-btn"
-                        onClick={() => handleInvite(member)}
+                        onClick={() => handleInviteModal(member)}
                       >
                         초대
                       </button>
