@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react'
 import AuthApi from '../api/AuthApi';
-import Button from '../common/Layouts/components/Button';
 import { useNavigate } from 'react-router-dom';
 import Repo from './Repo';
 import { AuthStatus, AuthStatusOk } from '../api/AuthStatus';
@@ -260,63 +259,42 @@ const WithdrawalPage = () => {
         <div className="form-container">
           <div className="form-wrapper">
             <h2 className="form-title">회원탈퇴</h2>
-
             {info && (
               <>
                 <div className="form-group">
-                  <label>이메일</label>
-                  <div className="input-group">
-                    <input
-                      type="email"
-                      name="email"
-                      value={info.email}
-                      
-                      
-                      placeholder="이메일을 입력하세요"
-                    />
-                  </div>
-                  
+                  <p >이메일</p>
+                  <p className="input-field" >{info.email}</p>
                 </div>
-
-                <div className="input-group">
-                  <p className="input-label">이메일</p>
-                  <p className="input-label" >{info.email}</p>
+                <div className="form-group">
+                  <p >이름</p>
+                  <p className="input-field" >{info.name}</p>
                 </div>
-                <div className="input-group">
-                  <p className="input-label">이름</p>
-                  <p className="input-label" >{info.name}</p>
-                </div>
-                <div className="input-group">
+                <div className="form-group">
                   <p className="input-label">상태</p>
-                  <p className="input-label" >{getWithdrawalMessage(info.withdrawalType)}</p>
+                  <p className="input-field" >{getWithdrawalMessage(info.withdrawalType)}</p>
                 </div>
-                <div className="input-group">
-                  <p className="input-label">만료일</p>
-                  <p className="input-label">{info.expireDate && `${formatDate(info.expireDate)} 이후에 회원탈퇴 처리 됩니다.`}</p>
-                </div>
+                {info.expireDate &&
+                  <div className="form-group">
+                    <p >만료일</p>
+                    <p className="input-field">{info.expireDate && `${formatDate(info.expireDate)} 이후에 회원탈퇴 처리 됩니다.`}</p>
+                  </div>
+                }
               </>
-          )}
-
-          <div className="divider-container">
-            <div className="divider"></div>
-          </div>
-
-          <button className="submit-button" onClick={handleClickEnroll}>회원 탈퇴 신청</button>
-          <button className="submit-button" onClick={handleClickImmediately}>즉시 회원 탈퇴</button>
-          <button className="submit-button" onClick={handleClickCancel}>회원 탈퇴 취소</button>
-          <button className="submit-button" onClick={handleClickReEmail}>이메일 인증 재전송</button>
-          
-          <div className="divider-container">
-            <div className="divider"></div>
-          </div>
-          
-          <button className="submit-button" onClick={handleClickLogout}>로그아웃</button>
-
-
+            )}
+            <div className="divider-container">
+              <div className="divider"></div>
+            </div>
+            <button className="submit-button" onClick={handleClickEnroll}>회원 탈퇴 신청</button>
+            <button className="submit-button" onClick={handleClickImmediately}>즉시 회원 탈퇴</button>
+            <button className="submit-button" onClick={handleClickCancel}>회원 탈퇴 취소</button>
+            <button className="submit-button" onClick={handleClickReEmail}>이메일 인증 재전송</button>
+            <div className="divider-container">
+              <div className="divider"></div>
+              {/* <span className="divider-text">-</span> */}
+            </div>
+            <button className="logout-button" onClick={handleClickLogout}>로그아웃</button>
           </div>
         </div>
-
-
       </div>
     </div>
 
@@ -325,36 +303,3 @@ const WithdrawalPage = () => {
 }
 
 export default WithdrawalPage
-
-// <div>
-
-// {message && (
-//   <Modal open={message !== null} onClose={message.callbackOk || message.callbackNo }>
-//     <div className="workspace_add_modal_container">
-//       <p className="form-title">{message.title}</p>
-//       <p>{message.content}</p>
-//       {message.callbackOk && <button type="submit" className="add_button" onClick={message.callbackOk}>확인</button> }
-//       {message.callbackYes && <button type="submit" className="add_button" onClick={message.callbackYes}>네</button> }
-//       {message.callbackNo && <button type="submit" className="add_button" onClick={message.callbackNo}>아니요</button> }
-//     </div>
-//   </Modal>
-// )}
-
-
-// {info && (
-//   <>
-//     <p>{info.email}</p>
-//     <p>{info.name}</p>
-//     <p>{getWithdrawalMessage(info.withdrawalType)}</p>
-//     <p>{info.expireDate && `${formatDate(info.expireDate)} 이후에 회원탈퇴 처리 됩니다.`}</p>
-//   </>
-// )}
-
-
-// <Button btnStyle="add_button" title="회원 탈퇴 신청" onClick={handleClickEnroll} /><br></br>
-// <Button btnStyle="add_button" title="회원 탈퇴 즉시" onClick={handleClickImmediately} /><br></br>
-// <Button btnStyle="add_button" title="회원 탈퇴 취소" onClick={handleClickCancel} /><br></br>
-// <Button btnStyle="add_button" title="회원 탈퇴 이메일 인증 재전송" onClick={handleClickReEmail} /><br></br>
-// <Button btnStyle="exit_button" title="로그아웃" onClick={handleClickLogout} />
-
-// </div>

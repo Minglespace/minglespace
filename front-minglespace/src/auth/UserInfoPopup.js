@@ -412,27 +412,27 @@ export default function UserInfoPopup() {
           <div className="popup-footer">
             {isEditing ? (
               <>
-                <button onClick={handleSaveChanges} className="logout-button">
+                <button onClick={handleSaveChanges} className="logout-button-info">
                   저장
                 </button>
                 <button
                   onClick={() => setIsEditing(false)} // Exit edit mode
-                  className="logout-button"
+                  className="logout-button-info"
                 >
                   취소
                 </button>
               </>
             ) : (
               <>
-                <button onClick={handleClickWithdrawalEmail} className="logout-button">
+                <button onClick={handleClickWithdrawalEmail} className="logout-button-info">
                   <Settings size={16} />
                   회원탈퇴
                 </button>
-                <button onClick={handleClickSetting} className="logout-button">
+                <button onClick={handleClickSetting} className="logout-button-info">
                   <Settings size={16} />
                   정보변경
                 </button>
-                <button onClick={handleClickLogout} className="logout-button">
+                <button onClick={handleClickLogout} className="logout-button-info">
                   <LogOut size={16} />
                   로그아웃
                 </button>
