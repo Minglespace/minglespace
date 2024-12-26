@@ -1,4 +1,4 @@
-package com.minglers.minglespace.auth.security;
+﻿package com.minglers.minglespace.auth.security;
 
 import com.minglers.minglespace.auth.exception.CustomAuthenticationEntryPoint;
 import com.minglers.minglespace.auth.oauth2.SuccessHandlerOAuth2;
@@ -104,7 +104,7 @@ public class SecurityConfig {
     http.cors(c->c.configurationSource(corsConfigurationSource()));
 
     http.authorizeHttpRequests(request -> request
-            .requestMatchers("/auth/**", "/public/**","/upload/images/**","/ws/**").permitAll()
+            .requestMatchers("/auth/**", "/public/**","/upload/**","/ws/**").permitAll()
             .requestMatchers("/workspace/{workspaceId}/invite/{uuid}").permitAll()
             .requestMatchers("/admin/**").hasAnyAuthority("ADMIN")
             .requestMatchers("/user/**").hasAnyAuthority("USER")

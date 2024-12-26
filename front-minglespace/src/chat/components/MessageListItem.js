@@ -1,4 +1,4 @@
-﻿import React, { useState, useEffect } from "react";
+﻿﻿import React, { useState, useEffect } from "react";
 import { FiCornerDownRight, FiDownload, FiTrash2 } from "react-icons/fi";
 import { HOST_URL } from "../../api/Api";
 import ProfileImage from "../../common/Layouts/components/ProfileImage";
@@ -24,6 +24,7 @@ import {
 } from "react-icons/si";
 import { RiJavaLine } from "react-icons/ri";
 import { VscJson } from "react-icons/vsc";
+import { useChatApp } from "../context/ChatAppContext";
 
 const MessageListItem = ({
   message,
@@ -33,8 +34,10 @@ const MessageListItem = ({
   onFindParentMessage,
   openAnnounceMentModal,
   openDeleteModal,
-  wsMembers,
 }) => {
+  const { wsMemberState } = useChatApp();
+
+
   const parentMessage = message.replyId
     ? onFindParentMessage(message.replyId)
     : null;
@@ -57,18 +60,12 @@ const MessageListItem = ({
 
   const formatMessage = (message) => {
     const regex = /@(\w+)/g;
-    return message.split(regex).map((part, index) => {
-      const isMention =
-        wsMembers.some((member) => member.name === part) ||
-        part === currentMemberInfo.name;
-      return isMention ? (
-        <span style={{ fontWeight: "bold", color: "#6495ED" }} key={index}>
-          @{part}
-        </span>
-      ) : (
-        part
-      );
-    });
+    return message
+      .split(regex)
+      .map((part, index) => {
+        const isMention = wsMemberState.some((member) => member.name === part) || part === currentMemberInfo.name;
+        return isMention ? <span style={{ fontWeight: "bold", color: "#6495ED" }} key={index}>@{part}</span> : part;
+      });
   };
 
   const openLightbox = (index) => {

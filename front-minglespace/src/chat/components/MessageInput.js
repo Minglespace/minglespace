@@ -146,7 +146,7 @@ const MessageInput = ({
 
   //멘션 목록에서 항목 선택한 경우
   const handleMentionSelect = (member) => {
-    console.log("클릭된 멤버 멘션: ", member);
+    // console.log("클릭된 멤버 멘션: ", member);
     const updatedMessage = newMessage.replace(
       /@(\S*)$/,
       `@${member.name} `

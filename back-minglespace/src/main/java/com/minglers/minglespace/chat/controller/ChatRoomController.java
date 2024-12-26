@@ -3,6 +3,7 @@ package com.minglers.minglespace.chat.controller;
 import com.minglers.minglespace.auth.security.JWTUtils;
 import com.minglers.minglespace.chat.dto.*;
 import com.minglers.minglespace.chat.entity.ChatRoom;
+import com.minglers.minglespace.chat.exception.ChatException;
 import com.minglers.minglespace.chat.service.ChatMessageService;
 import com.minglers.minglespace.chat.service.ChatRoomMemberService;
 import com.minglers.minglespace.chat.service.ChatRoomService;
@@ -65,6 +66,9 @@ public class ChatRoomController {
     try {
       ChatRoomResponseDTO chatRoomResponseDTO = chatRoomService.getChatRoomWithMsgAndParticipants(chatRoomId, workspaceId, userId);
       return ResponseEntity.ok(chatRoomResponseDTO);
+    }catch (ChatException e) {
+      return ResponseEntity.status(HttpStatus.valueOf(e.getStatusCode()))
+              .body(e.getMessage());
     } catch (RuntimeException e) {
       return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
     }
@@ -125,7 +129,7 @@ public class ChatRoomController {
     chatRoomMemberService.updateIsLeftFromLeave(chatRoomId, wsMemberId);
 
     //방에 아무도 없으면 폭파
-    if (!chatRoomMemberService.isChatRoomEmpty(chatRoomId)) {
+    if (chatRoomMemberService.isChatRoomEmpty(chatRoomId)) {
       chatRoomService.deleteChatRoomData(chatRoomId);
     }
 

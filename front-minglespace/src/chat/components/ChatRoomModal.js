@@ -43,7 +43,7 @@ const ChatRoomModal = ({
           />
         );
       case "invite":
-        console.log("InviteFriendModal props:", inviteUsers);
+        // console.log("InviteFriendModal props:", inviteUsers);
         return (
           <InviteFriendModal
             isOpen={isOpen}
@@ -56,7 +56,7 @@ const ChatRoomModal = ({
           />
         );
       case "transfer":
-        console.log("delegateModal 렌더링");
+        // console.log("delegateModal 렌더링");
         return (
           <DelegateModal
             isOpen={isOpen}
