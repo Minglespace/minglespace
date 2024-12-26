@@ -120,7 +120,7 @@ export const ChatAppProvider = ({ children }) => {
 				stompClient.subscribe(`/user/queue/workspaces/${workspaceId}/chat`, (room) => {
 					const newRoom = JSON.parse(room.body);
 					console.log("새 채팅방 알림: ", newRoom);
-					roomsDispatch({ type: "ADD_ROOMS", payload:newRoom});
+					roomsDispatch({ type: "ADD_ROOMS", payload: newRoom });
 				});
 			},
 			onWebSocketError: (error) => {

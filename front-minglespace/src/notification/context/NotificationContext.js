@@ -29,7 +29,7 @@ export const NotificationProvider = ({ children }) => {
 		const fetchNotifications = async () => {
 			try {
 				const notifications = await NotificationApi.getNotifications();
-				console.log("알림 목록: ", notifications);
+				// console.log("알림 목록: ", notifications);
 				if (notifications) {
 					setNotifications(notifications);
 					setUnreadCount(notifications.filter((notice) => !notice.read).length); // 읽지 않은 알림만 카운트
@@ -77,7 +77,7 @@ export const NotificationProvider = ({ children }) => {
 
 				stompClient.subscribe(`/user/queue/notifications`, (notice) => {
 					const noticeMsg = JSON.parse(notice.body);
-					console.log("알림 메시지: ", noticeMsg.noticeMsg)
+					// console.log("알림 메시지: ", noticeMsg.noticeMsg)
 
 					if (noticeMsg.type === "CHAT_NEW_MESSAGE") {
 						handleChatNewMessage(noticeMsg);
@@ -88,7 +88,7 @@ export const NotificationProvider = ({ children }) => {
 				});
 			},
 			onWebSocketError: (error) => {
-				console.log(`알림 websocket 연결 오류:`, error);
+				console.error(`알림 websocket 연결 오류:`, error);
 				alert("실시간 연결 오류가 발생했습니다. 다시 시도");
 				window.location.reload();
 			},

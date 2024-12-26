@@ -10,8 +10,8 @@ const initCreateChatRoomRequest = {
   participantIds: [],
 };
 
-const CreateChatRoomModal = ({ isOpen, onClose}) => {
-  const {handleCreateRoom, wsMemberState} = useChatApp();
+const CreateChatRoomModal = ({ isOpen, onClose }) => {
+  const { handleCreateRoom, wsMemberState } = useChatApp();
   const [newChatRoomData, setNewChatRoomData] = useState(
     initCreateChatRoomRequest
   );
@@ -20,7 +20,7 @@ const CreateChatRoomModal = ({ isOpen, onClose}) => {
   const fileInputRef = useRef(null);
 
   // useEffect(() => {
-  console.log("selectedFriends : ", wsMemberState);
+  // console.log("selectedFriends : ", wsMemberState);
   // }, [newChatRoomData.participantIds]);
 
   //폼에서 채팅방 이름을 변경하는 함수

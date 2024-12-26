@@ -45,7 +45,7 @@ const MessageList = ({
   const registerAnnouncment = async (msg) => {
     await onRegisterAnnouncement(msg);
     setAnnouncement(msg);
-    console.log(msg);
+    // console.log(msg);
   }
 
   //부모 댓글 찾기

@@ -8,9 +8,7 @@ const ChatPage = () => {
   return (
     <BasicLayout props="1">
       <ChatAppProvider>
-        <ChatRoomProvider>
-          <Chat />
-        </ChatRoomProvider>
+        <Chat />
       </ChatAppProvider>
     </BasicLayout>
   );
