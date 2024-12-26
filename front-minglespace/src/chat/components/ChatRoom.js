@@ -1,4 +1,4 @@
-﻿﻿import React, { useEffect, useRef, useState } from "react";
+﻿import React, { useEffect, useRef, useState } from "react";
 import ChatRoomHeader from "./ChatRoomHeader";
 import MessageList from "./MessageList";
 import MessageInput from "./MessageInput";
@@ -23,7 +23,7 @@ const initChatRoomInfo = {
 const ChatRoom = ({
   isFold
 }) => {
-  const { wsMemberState, workspaceId, updateRoomParticipantCount, removeRoom } = useChatApp();
+  const { handleUpdateChatRoomInfo, wsMemberState, workspaceId, updateRoomParticipantCount, removeRoom } = useChatApp();
 
 
   const [chatRoomInfo, setChatRoomInfo] = useState(initChatRoomInfo);
@@ -35,7 +35,7 @@ const ChatRoom = ({
   const [chatRoomId, setChatRoomId] = useState(
     new URLSearchParams(useLocation().search).get("chatRoomId")
   );
-  const [updateChatroom, setUpdateChatroom] = useState();
+  // const [updateChatroom, setUpdateChatroom] = useState();
 
   const [page, setPage] = useState(0);//messagelist 무한 스크롤
 
@@ -324,27 +324,27 @@ const ChatRoom = ({
           const statusData = JSON.parse(status.body);
           // console.log("읽음 처리 메시지", statusData);
 
-            if (status.type === "READ") {
-              ///특정 유저가 실시간으로 읽은 메시지 상태 반영
-              setChatRoomInfo((prev) => ({
-                ...prev,
-                messages: prev.messages.map((message) => ({
-                  ...message,
-                  unReadMembers: message.unReadMembers.filter(
-                    (member) =>
-                      Number(member.wsMemberId) !== statusData.wsMemberId
-                  ),
-                })),
-              }));
-            } else if (status.type === "DELETE") {
-              setChatRoomInfo((prev) => {
-                const updatedMessages = prev.messages.filter(
-                  (msg) => Number(msg.id) !== status.messageId
-                );
-                return { ...prev, messages: updatedMessages };
-              });
-            }
+          if (status.type === "READ") {
+            ///특정 유저가 실시간으로 읽은 메시지 상태 반영
+            setChatRoomInfo((prev) => ({
+              ...prev,
+              messages: prev.messages.map((message) => ({
+                ...message,
+                unReadMembers: message.unReadMembers.filter(
+                  (member) =>
+                    Number(member.wsMemberId) !== statusData.wsMemberId
+                ),
+              })),
+            }));
+          } else if (status.type === "DELETE") {
+            setChatRoomInfo((prev) => {
+              const updatedMessages = prev.messages.filter(
+                (msg) => Number(msg.id) !== status.messageId
+              );
+              return { ...prev, messages: updatedMessages };
+            });
           }
+        }
         );
       },
       onWebSocketError: (error) => {
@@ -372,7 +372,7 @@ const ChatRoom = ({
 
 
   // 메시지 전송 처리 함수 
-  const handleSendMessage = async (newMessage, files, messageContent) => {
+  const handleSendMessage = async (newMessage, files) => {
     try {
       let uploadedFileIds = [];
       if (files && files.length > 0) {
@@ -407,20 +407,26 @@ const ChatRoom = ({
 
   // 메시지를 클릭하면 해당 메시지를 선택
   const handleMessageClick = (messages) => {
-    // console.log("답장할 메시지:", messages);
-    // setSelectedMessageId(messageId);
     setReplyToMessage(messages);
-    // console.log("입력창에 표시된 답장 대상:", `${messages.text}`);
   };
 
-  const handleUpdateChatRoom = (updatedData) => {
-    // setUpdateChatroom(updatedData); // 수정된 데이터로 상태 업데이트
-    setChatRoomInfo((prev) => ({
-      ...prev,
-      name: updatedData.name,
-      imageUriPath: updatedData.image, // 이미지 경로 업데이트
-    }));
-    console.log("Updated Chat Room Data: ", updatedData);
+  const handleUpdateChatRoom = async ({ updateName, image, isImageDelete }) => {
+    try {
+      // 서버에 업데이트 요청
+      const updatedData = await ChatApi.updateChatRoom(workspaceId, chatRoomId, updateName, image, isImageDelete);
+      // console.log("업데이트 정보: ", updatedData)
+      if (updatedData) {
+        setChatRoomInfo((prev) => ({
+          ...prev,  // 기존 객체를 그대로 복사하고,
+          name: updatedData.name,  // name을 새로 업데이트,
+          imageUriPath: updatedData.imageUriPath,  // imageUriPath를 새로 업데이트
+        }));
+
+        handleUpdateChatRoomInfo(chatRoomId, updatedData.name, updatedData.imageUriPath);
+      }
+    } catch (error) {
+      console.error("채팅방 업데이트 오류: ", error);
+    }
   };
 
   return (

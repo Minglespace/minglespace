@@ -4,6 +4,7 @@ import InviteFriendModal from "./InviteFriendModal";
 import DelegateModal from "./DelegateModal";
 
 const ChatRoomModal = ({
+  chatRoomInfo,
   modalType,
   isOpen,
   onClose,
@@ -17,19 +18,6 @@ const ChatRoomModal = ({
   onUpdateChatRoom,
 }) => {
   if (!isOpen) return null;
-
-  // console.log(`Rendering modal: ${modalType}`);
-  // console.log("ChatRoomModal_isRoomOwner: ", isRoomOwner);
-  // console.log("InviteFriendModal_ props:", inviteUsers);
-
-  const handleUpdateChatRoom = (updatedData) => {
-    // 여기서 updatedData는 채팅방 정보를 업데이트하는 함수
-    if (onUpdateChatRoom) {
-      onUpdateChatRoom(updatedData); // 부모에게 전달된 onUpdateChatRoom 함수 호출
-    } else {
-      console.error("onUpdateChatRoom is not defined");
-    }
-  };
 
   const renderModal = () => {
     switch (modalType) {
@@ -46,13 +34,14 @@ const ChatRoomModal = ({
         // console.log("InviteFriendModal props:", inviteUsers);
         return (
           <InviteFriendModal
+            chatRoomInfo={chatRoomInfo}
             isOpen={isOpen}
             onClose={onClose}
             inviteUsers={inviteUsers}
             participants={roomMembers}
             onInvite={onInvite}
             onKick={onKick}
-            onUpdateChatRoom={handleUpdateChatRoom}
+            onUpdateChatRoom={onUpdateChatRoom}
           />
         );
       case "transfer":

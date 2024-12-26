@@ -8,6 +8,7 @@ const initCreateChatRoomRequest = {
   name: "",
   workspaceId: 0,
   participantIds: [],
+  image: null
 };
 
 const CreateChatRoomModal = ({ isOpen, onClose }) => {

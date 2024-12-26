@@ -1,14 +1,16 @@
-﻿import React, { useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import Repo from "../../auth/Repo";
 import default_img from "../../asset/imgs/profile1.png";
+import { HOST_URL } from "../../api/Api";
 
-const initCreateChatRoomRequest = {
+const initUpdateRoom = {
   name: "",
-  workspaceId: 0,
-  participantIds: [],
-};
+  image: null,
+  isImageDelete: "false"
+}
 
 const InviteFriendModal = ({
+  chatRoomInfo,
   isOpen,
   onClose,
   inviteUsers,
@@ -17,23 +19,72 @@ const InviteFriendModal = ({
   onKick,
   onUpdateChatRoom,
 }) => {
-  const [newChatRoomData, setNewChatRoomData] = useState(
-    initCreateChatRoomRequest
-  );
+  const [updateRoom, setUpdateRoom] = useState(initUpdateRoom);
   const [selectedImage, setSelectedImage] = useState(null);
-  const [selectedUser, setSelectedUser] = useState(null); //선택된 사용자
+  // const [isImageDelete, setIsImageDelete] = useState("false");
+  // const [selectedUser, setSelectedUser] = useState(null); //선택된 사용자
   const [selectedTab, setSelectedTab] = useState("info");
   const fileInputRef = useRef(null);
 
+  useEffect(() => {
+    if (chatRoomInfo) {
+      setUpdateRoom((prev) => ({
+        ...prev,
+        name: chatRoomInfo.name
+      }));
+      setSelectedImage(chatRoomInfo.imageUriPath || default_img); // 기존 이미지 URI가 있으면 설정, 없으면 기본 이미지
+    }
+  }, [chatRoomInfo]);
+
   if (!isOpen) return null;
+
 
   //폼에서 채팅방 이름을 변경하는 함수
   const handleInputChange = (e) => {
-    setNewChatRoomData((prev) => ({
-      ...prev,
-      name: e.target.value,
+    setUpdateRoom(prev => ({
+      ...prev, name: e.target.value
     }));
   };
+
+  // 이미지 변경 함수
+  const handleImageChange = (e) => {
+    const file = e.target.files ? e.target.files[0] : null; // 파일이 있는지 확인
+    if (file) {
+      setSelectedImage(URL.createObjectURL(file));
+      setUpdateRoom((prev) => ({
+        ...prev,
+        image: file,
+        isImageDelete: "true",
+      }));
+      // setIsImageDelete("true");
+    }
+  };
+
+  const handleImageDelete = () => {
+    setSelectedImage(null);
+    setUpdateRoom((prev) => ({
+      ...prev,
+      image: null,
+      isImageDelete: "true",
+    }));
+
+    // setIsImageDelete("true");
+  };
+
+  const handleSave = () => {
+    if (updateRoom.name || selectedImage || updateRoom.isImageDelete) {
+      onUpdateChatRoom({
+        updateName: updateRoom.name,
+        image: updateRoom.image,
+        isImageDelete: updateRoom.isImageDelete
+      });
+      alert("채팅방 정보가 업데이트되었습니다.");
+      onClose();
+    } else {
+      alert("채팅방 이름과 이미지를 모두 입력해주세요.");
+    }
+  };
+
 
   const handleInvite = async (addMember) => {
     if (addMember) {
@@ -55,29 +106,7 @@ const InviteFriendModal = ({
     }
   };
 
-  // 이미지 변경 함수
-  const handleImageChange = (e) => {
-    const file = e.target.files ? e.target.files[0] : null; // 파일이 있는지 확인
-    if (file) {
-      setSelectedImage(URL.createObjectURL(file));
-      setNewChatRoomData((prev) => ({
-        ...prev,
-        image: file,
-      }));
-    }
-  };
 
-  // 채팅방 정보 저장 및 업데이트
-  const handleSave = (e) => {
-    // onUpdateChatRoom으로 부모에게 변경된 채팅방 정보를 전달
-    if (newChatRoomData.name && newChatRoomData.image) {
-      onUpdateChatRoom(newChatRoomData); // 부모로 변경된 정보를 전달
-      alert("채팅방 정보가 업데이트되었습니다.");
-      onClose();
-    } else {
-      alert("채팅방 이름과 이미지를 모두 입력해주세요.");
-    }
-  };
 
   return (
     <div className="invite_modal_wrapper">
@@ -106,7 +135,7 @@ const InviteFriendModal = ({
             <div className="modal_img">
               <img
                 className="chat_update_Img"
-                src={selectedImage || default_img}
+                src={`${HOST_URL}${selectedImage}` || default_img}
                 alt="채팅방 이미지"
               />
             </div>
@@ -117,6 +146,13 @@ const InviteFriendModal = ({
             >
               변경
             </button>
+            <button
+              className="select_img_btn"
+              style={{ marginLeft: "10px" }}
+              onClick={handleImageDelete} // 버튼 클릭 시 파일 선택창 열기
+            >
+              삭제
+            </button>
 
             <input
               className="hidden-file-input"
@@ -125,10 +161,11 @@ const InviteFriendModal = ({
               accept="image/*"
               onChange={handleImageChange}
             />
+
             <input
               className="chatroom_name"
               type="text"
-              value={newChatRoomData.name}
+              value={updateRoom.name}
               onChange={handleInputChange}
               placeholder="채팅방 이름을 입력해주세요"
             />

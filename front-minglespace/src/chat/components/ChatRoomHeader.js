@@ -14,6 +14,7 @@ const ChatRoomHeader = ({
   handleKick,
   handleDelegate,
   handleExit,
+  onUpdateChatRoom
 }) => {
   const [modalType, setModalType] = useState("");
 
@@ -57,6 +58,7 @@ const ChatRoomHeader = ({
         </button>
       )}
       <ChatRoomModal
+        chatRoomInfo={chatRoomInfo}
         modalType={modalType}
         isOpen={isModalOpen}
         onClose={closeModal}
@@ -67,6 +69,7 @@ const ChatRoomHeader = ({
         onDelegate={handleDelegate}
         onExit={handleExit}
         onKick={handleKick}
+        onUpdateChatRoom={onUpdateChatRoom}
       />
       <span className="chatroominfo-name">{chatRoomInfo.name}</span>
       <button
