@@ -111,7 +111,7 @@ const CreateChatRoomModal = ({ isOpen, onClose }) => {
           <div className="modal_img">
             <img
               className="chat_create_Img"
-              src={`${HOST_URL}${selectedImage}` || default_img}
+              src={selectedImage ? `${HOST_URL}${selectedImage}` : default_img}
               alt="채팅방 이미지"
             />
           </div>
