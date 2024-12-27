@@ -33,6 +33,8 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 
@@ -280,4 +282,53 @@ public class UserService {
       return null;
     }
   }
+
+  public Map<String, Object> saveChangePw(ChangePwRequest req, String code){
+    Map<String, Object> result = new HashMap<>();
+
+    User updateUser = getUserByEmail(req.getEmail());
+
+    if(updateUser == null){
+      result.put("status", AuthStatus.NotFoundAccount);
+      return result;
+    }
+
+    updateUser.setVerifyCodeForChangePw(code);
+    updateUser.setChangedPw(passwordEncoder.encode(req.getPassword()));
+    usersRepo.save(updateUser);
+
+    result.put("status", AuthStatus.Ok);
+    return result;
+  }
+
+  public EmailVerifyResponse checkVerifyCodeChangePw(User updateUser, String code){
+    EmailVerifyResponse res = new EmailVerifyResponse();
+
+    String storedCode = updateUser.getVerifyCodeForChangePw();
+    if(storedCode.isEmpty()){
+      res.setStatus(AuthStatus.ChangePwEmailVerifyAlready);
+      return res;
+    }
+
+    if(!storedCode.equals(code)){
+      res.setStatus(AuthStatus.ChangePwEmailVerifyMismatch);
+      return res;
+    }
+
+    String changedPw = updateUser.getChangedPw();
+    if(changedPw == null || changedPw.isEmpty()){
+      res.setStatus(AuthStatus.ChangePwEmpty);
+      return res;
+    }
+
+    updateUser.setVerifyCodeForChangePw(null);
+    updateUser.setChangedPw(null);
+    updateUser.setPassword(changedPw);
+    usersRepo.save(updateUser);
+
+    res.setStatus(AuthStatus.Ok);
+    return res;
+  }
+
+
 }

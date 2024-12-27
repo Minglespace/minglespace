@@ -25,40 +25,6 @@ public class AuthEmailService extends EmailService {
     super(mailSender);
   }
 
-//  private final UserRepository usersRepo;
-
-//  public AuthEmailService(JavaMailSender mailSender, UserRepository usersRepo) {
-//    super(mailSender);
-//      this.usersRepo = usersRepo;
-//  }
-
-//  public DefaultResponse verify(String code, String encodedEmail) {
-//
-//    DefaultResponse res = new DefaultResponse();
-//
-//    try {
-//      String email = new String(Base64.getDecoder().decode(encodedEmail), StandardCharsets.UTF_8);
-//      User user = usersRepo.findByEmail(email).orElseThrow();
-//      String storedCode = user.getVerificationCode();
-//
-//      if(storedCode.isEmpty()){
-//        res.setStatus(AuthStatus.EmailVerificationAlready);
-//      }else if(storedCode.equals(code)){
-//        user.setVerificationCode("");
-//        usersRepo.save(user);
-//        res.setStatus(AuthStatus.Ok);
-//      }else{
-//        res.setStatus(AuthStatus.EmailVerificationCodeMismatch);
-//      }
-//    } catch (Exception e) {
-//      res.setStatus(AuthStatus.Exception);
-//    }
-//
-//    return res;
-//  }
-
-
-
   public EmailVerifyResponse checkVerifyCode(User user, String code) {
 
     EmailVerifyResponse res = new EmailVerifyResponse();
@@ -67,8 +33,6 @@ public class AuthEmailService extends EmailService {
     if(storedCode.isEmpty()){
       res.setStatus(AuthStatus.EmailVerificationAlready);
     }else if(storedCode.equals(code)){
-//      user.setVerificationCode("");
-//      usersRepo.save(user);
       res.setStatus(AuthStatus.Ok);
     }else{
       res.setStatus(AuthStatus.EmailVerificationCodeMismatch);
@@ -100,6 +64,28 @@ public class AuthEmailService extends EmailService {
     String encodedVerifyType = "/" + Base64.getEncoder().encodeToString(verifyType.name().getBytes(StandardCharsets.UTF_8));
 
     return base + uri + encodedCode + encodedEmail + encodedVerifyType;
+  }
+
+  @Async
+  public CompletableFuture<String> sendChangePw(String code, String to, HttpServletRequest request) {
+    try {
+      String confirmationUrl = makeURL(code, to, VerifyType.CHANGE_PW, request);
+      String subject = "Mingle Space Email Verification";
+      String emailContent = geneEmailContent(
+              "비밀번호 변경 이메일 인증하기",
+              "비밀번호 변경 이메일 인증을 완료하려면 아래 버튼을 클릭하세요:",
+              confirmationUrl,
+              "#e08a39");
+
+      send(to, subject, emailContent);
+
+      log.info("confirmationUrl : {}", confirmationUrl);
+
+    } catch (MessagingException e) {
+      e.printStackTrace();
+    }
+
+    return CompletableFuture.completedFuture("비동기 비밀번호 변경 이메일 완료 sendWithdrawal");
   }
 
   @Async

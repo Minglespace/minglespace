@@ -7,6 +7,7 @@ const LoginPage = lazy(() => import("../auth/LoginPage"));
 const SignupPage = lazy(() => import("../auth/SignupPage"));
 const TokenPage = lazy(() => import("../auth/TokenPage"));
 const WithdrawalPage = lazy(() => import("../auth/WithdrawalPage"));
+const ChangePwPage = lazy(() => import("../auth/ChangePwPage"));
 
 const Main = lazy(() => import("../page/MainPage"));
 const Chat = lazy(() => import("../page/ChatPage"));
@@ -120,6 +121,10 @@ const root = createBrowserRouter([
         <InviteCheck />
       </Suspense>
     ),
+  },
+  {
+    path: "/auth/changepw",
+    element: (<Suspense fallback={Loading}><ChangePwPage /></Suspense>),
   },
 
 
