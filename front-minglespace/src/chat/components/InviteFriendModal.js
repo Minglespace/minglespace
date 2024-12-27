@@ -27,7 +27,7 @@ const InviteFriendModal = ({
         ...prev,
         name: chatRoomInfo.name
       }));
-      setSelectedImage(chatRoomInfo.imageUriPath || default_img); // 기존 이미지 URI가 있으면 설정, 없으면 기본 이미지
+      setSelectedImage(chatRoomInfo.imageUriPath);
     }
   }, [chatRoomInfo]);
 
@@ -130,7 +130,7 @@ const InviteFriendModal = ({
             <div className="modal_img">
               <img
                 className="chat_update_Img"
-                src={`${HOST_URL}${selectedImage}` || default_img}
+                src={selectedImage ? `${HOST_URL}${selectedImage}` : default_img}
                 alt="채팅방 이미지"
               />
             </div>
