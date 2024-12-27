@@ -4,6 +4,7 @@ import MyFriendsApi from "../../api/myFriendsApi";
 import Userinfo from "../../common/Layouts/components/Userinfo";
 import api, { HOST_URL } from "../../api/Api";
 import { getErrorMessage } from "../../common/Exception/errorUtils";
+import NoData from "../../common/Layouts/components/NoData";
 
 const MyFriendsSearch = ({ addFriendRequest }) => {
   const [user, setUser] = useState([]);
@@ -124,32 +125,36 @@ const MyFriendsSearch = ({ addFriendRequest }) => {
         onSearch={handleSearch}
         onKeyDown={handleKeyDown}
       />
-      <div className="myFriends_userInfo_container">
-        {user.map((userInfo, index) => (
-          <div
-            className="myFriends_userInfo_flex"
-            key={`${userInfo.id}-${index}`}
-            ref={index === user.length - 1 ? lastUserElementRef : null}
-          >
-            <Userinfo
-              name={userInfo.name}
-              role={userInfo.position}
-              email={userInfo.email}
-              src={imageUrlPathCheck(userInfo.profileImagePath)}
-            />
-            <button
-              className="add_button_2"
-              onClick={() => {
-                handleFriendRequest(userInfo.id);
-              }}
+      {user.length === 0 ? (
+        <NoData />
+      ) : (
+        <div className="myFriends_userInfo_container">
+          {user.map((userInfo, index) => (
+            <div
+              className="myFriends_userInfo_flex"
+              key={`${userInfo.id}-${index}`}
+              ref={index === user.length - 1 ? lastUserElementRef : null}
             >
-              친구 신청
-            </button>
-          </div>
-        ))}
-        {Loading && <p>Loading 중입니다...</p>}
-        {}
-      </div>
+              <Userinfo
+                name={userInfo.name}
+                role={userInfo.position}
+                email={userInfo.email}
+                src={imageUrlPathCheck(userInfo.profileImagePath)}
+              />
+              <button
+                className="add_button_2"
+                onClick={() => {
+                  handleFriendRequest(userInfo.id);
+                }}
+              >
+                친구 신청
+              </button>
+            </div>
+          ))}
+          {Loading && <p>Loading 중입니다...</p>}
+          {}
+        </div>
+      )}
     </div>
   );
 };

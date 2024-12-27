@@ -166,6 +166,7 @@ const Member = () => {
             friends={myFriends}
             handleInviteMember={handleInviteMember}
           />
+          <MemberLinkInvite />
           <div className="section_container myFriends_container_item">
             {selectedMember && (
               <UserInfoDetail

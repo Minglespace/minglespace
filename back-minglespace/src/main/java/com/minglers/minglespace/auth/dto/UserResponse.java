@@ -3,6 +3,7 @@ package com.minglers.minglespace.auth.dto;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.minglers.minglespace.auth.entity.User;
+import com.minglers.minglespace.auth.type.WithdrawalType;
 import com.minglers.minglespace.common.apistatus.AuthStatus;
 import com.minglers.minglespace.common.entity.Image;
 import lombok.Data;
@@ -25,6 +26,7 @@ public class UserResponse extends DefaultResponse {
   String position;
   String role;
   String profileImagePath;
+  WithdrawalType withdrawalType;
   boolean socialLogin;
 
   public UserResponse(AuthStatus authStatus){

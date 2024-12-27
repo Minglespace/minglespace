@@ -8,11 +8,16 @@
   background-color: #fff8ff;
 }
 //색션 내 제목
-.section_container_title{
+.section_container_title {
   text-align: center;
   font-weight: bold;
 }
-
+.flex_center {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+//
 // body {
 //     background-color: var(--black);
 //     color: var(--white);

@@ -11,7 +11,11 @@ const Userinfo = ({ name, role, email, src, size }) => {
           <h2>{name}</h2>
           <p>{role}</p>
         </div>
-        <p>{email}</p>
+        {email === "unsubscribe" ? (
+          <p style={{ color: "red" }}>탈퇴한 회원입니다</p>
+        ) : (
+          <p>{email}</p>
+        )}
       </div>
     </div>
   );
