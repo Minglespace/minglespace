@@ -4,6 +4,7 @@ class Repo{
   static ACCESS_TOKEN = "accessToken";
   static USER_ROLE = "role";
   static USER_ID = "userId";
+  static USER_NAME = "userName";
 
   static setItem(data){
 
@@ -18,6 +19,7 @@ class Repo{
     localStorage.removeItem(this.ACCESS_TOKEN);
     localStorage.removeItem(this.USER_ROLE);
     localStorage.removeItem(this.USER_ID);
+    localStorage.removeItem(this.USER_NAME);
 
     Repo.clearWithdrawalType();
   }
@@ -37,6 +39,11 @@ class Repo{
       localStorage.setItem(this.USER_ID, userId)
   }
 
+  static setUserName(userName){
+    if(userName)
+      localStorage.setItem(this.USER_NAME, userName)
+  }
+
   static getAccessToken(){
     return localStorage.getItem(this.ACCESS_TOKEN);
   }
@@ -47,6 +54,10 @@ class Repo{
 
   static getUserId(){
     return localStorage.getItem(this.USER_ID);
+  }
+
+  static getUserName(){
+    return localStorage.getItem(this.USER_NAME);
   }
 
   static isAuthenticated() {
@@ -73,16 +84,16 @@ class Repo{
 
   static setProfileColor(color){
     if(color){
-      localStorage.setItem("profileColor", color);
+      localStorage.setItem(Repo.getUserName(), color);
     }
   }
 
   static getProfileColor() {
-    return localStorage.getItem("profileColor");
+    return localStorage.getItem(Repo.getUserName());
   }
 
   static clearProfileColor(){
-    localStorage.removeItem("profileColor");
+    localStorage.removeItem(Repo.getUserName());
   }
 
 

@@ -100,8 +100,12 @@ export default function UserInfoPopup() {
     const data = await AuthApi.userInfo();
 
     if (AuthStatusOk(data.msStatus)) {
+      
       setUserInfo(data);
       setInitialUserInfo({ ...data }); // 초기 상태 저장
+
+      Repo.setUserName(data.name);
+
       console.log("저장 data : ", data);
 
     }else if(data.msStatus && AuthStatus[data.msStatus]){
