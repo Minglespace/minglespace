@@ -15,6 +15,7 @@ public interface WSMemberService {
   List<FriendWithWorkspaceStatusDTO> getFriendWithWorkspace(Long userId, Long workSpaceId);
   String inviteMember(Long friendId, Long workSpaceId);
   String removeMember(Long memberId, Long workSpaceId);
+  String exitWorkspaceMember(Long userId, Long workSpaceId);
   void checkLeader(Long userId, Long workSpaceId);
   void checkLeaderAndSubLeader(Long userId, Long workSpaceId);
   WSMemberResponseDTO getWorkSpaceRole(Long userId, Long workSpaceId);

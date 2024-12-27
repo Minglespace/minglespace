@@ -1,7 +1,6 @@
 .main_dashboard_container {
   position: relative;
   width: 1150px;
-  border: 2px solid orange;
 
   .main_milestone_data_container {
     width: 1120px;
@@ -11,6 +10,16 @@
     border-radius: 5px;
     background-color: #fff;
     box-shadow: 3px 3px 3px #ccc;
+
+    .milestone_content_box {
+      text-align: center;
+      margin: 0 auto;
+      width: 1000px;
+      .slick-prev:before,
+      .slick-next:before {
+        color: #000;
+      }
+    }
   }
   .main_flex_box {
     display: flex;
@@ -25,24 +34,20 @@
       .main_content_flex {
         display: flex;
         cursor: pointer;
+        justify-content: space-between;
+        height: 55px;
+        align-items: center;
         .descname {
           text-align: center;
           padding: 10px;
-          font-size: 14px;
+          font-size: 13px;
           overflow: hidden;
           white-space: nowrap;
-          margin-bottom: 15px;
+          margin: 5px 0;
         }
-        .wsname {
-          width: 105px;
-        }
-        .title {
-          width: 80px;
-        }
-
         .end {
-          width: 173px;
-          font-size: 10px;
+          width: 155px;
+          font-size: 11px;
         }
       }
     }
@@ -64,4 +69,13 @@
       }
     }
   }
+}
+.content_title {
+  margin-left: 15px;
+  height: 30px;
+  width: 120px;
+  text-align: center;
+  font-size: 18px;
+  border-bottom: solid 2px #aaa;
+  border-radius: 5px;
 }

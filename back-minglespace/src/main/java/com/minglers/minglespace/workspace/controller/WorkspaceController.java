@@ -113,6 +113,15 @@ public class WorkspaceController {
     checkLeader(userId,workspaceId);
     return ResponseEntity.ok(wsMemberService.removeMember(memberId,workspaceId));
   }
+
+  //워크스페이스 퇴장하기
+  @DeleteMapping("/{workspaceId}/exitMember")
+  public ResponseEntity<String> exitMember(@RequestHeader("Authorization") String token,
+                                           @PathVariable("workspaceId") Long workSpaceId){
+    Long userId = jwtUtils.extractUserId(token.substring(7));
+    return ResponseEntity.ok(wsMemberService.exitWorkspaceMember(userId, workSpaceId));
+  }
+
   //리더 위임하기(리더만가능)
   @PutMapping("/{workspaceId}/transferLeader/{memberId}")
   public ResponseEntity<String> transferLeader(@RequestHeader("Authorization") String token,

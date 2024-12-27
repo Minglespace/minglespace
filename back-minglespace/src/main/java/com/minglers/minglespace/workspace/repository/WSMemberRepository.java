@@ -11,6 +11,7 @@ import java.util.Optional;
 @Repository
 public interface WSMemberRepository extends JpaRepository<WSMember,Long> {
   Optional<WSMember> findByUserIdAndWorkSpaceId(Long userId, Long workspaceId);
+  WSMember findWsMemberByUserIdAndWorkSpaceId(Long userId, Long workspaceId);
 
   @Query("SELECT m FROM WSMember m " +
           "JOIN FETCH m.user " +

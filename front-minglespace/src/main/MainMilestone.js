@@ -7,13 +7,15 @@ import { ResponsivePie } from "@nivo/pie";
 const MainMilestone = ({ title, datas = [] }) => {
   const settings = {
     dots: true,
-    infinite: true,
+    infinite: false,
     speed: 1000,
-    slidesToShow: 3,
-    slidesToScroll: 3,
+    slidesToShow: Math.min(datas.length, 3),
+    slidesToScroll: 1,
+    // centerMode: true,
+    // centerPadding: "5px",
   };
   return (
-    <div style={{ textAlign: "center" }}>
+    <div className="milestone_content_box">
       <h2>{title}</h2>
       <Slider {...settings}>
         {datas.map((data, index) => {
@@ -24,7 +26,7 @@ const MainMilestone = ({ title, datas = [] }) => {
                 id: "No Data",
                 label: "No Data",
                 value: Math.max(data.milestoneTaskStatusDTO.total, 1),
-                color: "hsl(29, 70%, 50%)",
+                color: "hsl(108, 70%, 50%)",
               },
             ];
           } else {
@@ -39,7 +41,7 @@ const MainMilestone = ({ title, datas = [] }) => {
                 id: "진행중",
                 label: "진행중",
                 value: data.milestoneTaskStatusDTO.in_progress,
-                color: "hsl(108, 70%, 50%)",
+                color: "hsl(61, 70%, 50%)",
               },
               {
                 id: "시작전",
@@ -51,7 +53,7 @@ const MainMilestone = ({ title, datas = [] }) => {
                 id: "보류",
                 label: "보류",
                 value: data.milestoneTaskStatusDTO.on_hold,
-                color: "hsl(61, 70%, 50%)",
+                color: "hsl(108, 70%, 50%)",
               },
             ];
           }
@@ -60,7 +62,7 @@ const MainMilestone = ({ title, datas = [] }) => {
               <div style={{ width: "300px", height: "240px" }}>
                 <ResponsivePie
                   data={pieData}
-                  margin={{ top: 10, right: 80, bottom: 10, left: 80 }}
+                  margin={{ top: 10, right: 50, bottom: 10, left: 50 }}
                   innerRadius={0.5}
                   padAngle={8}
                   cornerRadius={1}
@@ -73,8 +75,8 @@ const MainMilestone = ({ title, datas = [] }) => {
                   }}
                   arcLinkLabelsTextColor="#333333"
                   arcLinkLabelsOffset={-7}
-                  arcLinkLabelsDiagonalLength={30}
-                  arcLinkLabelsStraightLength={30}
+                  arcLinkLabelsDiagonalLength={15}
+                  arcLinkLabelsStraightLength={15}
                   arcLinkLabelsColor={{ from: "color" }}
                   arcLabelsTextColor={{
                     from: "color",

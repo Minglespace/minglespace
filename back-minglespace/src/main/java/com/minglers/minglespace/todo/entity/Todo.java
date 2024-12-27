@@ -12,11 +12,12 @@ import java.util.List;
 
 @NoArgsConstructor
 @AllArgsConstructor
-@ToString(exclude = {"workSpace", "wsMember", "todoAssigneeList"})
+@ToString(exclude = {"workSpace", "todoAssigneeList"})
 @Entity
 @Table(name = "todo")
 @Getter
 @Builder
+@Setter
 public class Todo {
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -35,9 +36,9 @@ public class Todo {
   @JoinColumn(name = "workspace_id")
   private WorkSpace workSpace;
 
-  @ManyToOne(fetch = FetchType.LAZY)
-  @JoinColumn(name = "creator_id")
-  private WSMember wsMember;
+//  @ManyToOne(fetch = FetchType.LAZY)
+//  @JoinColumn(name = "creator_id")
+//  private WSMember wsMember;
 
   @OneToMany(mappedBy = "todo", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
   private List<TodoAssignee> todoAssigneeList;
@@ -88,7 +89,7 @@ public class Todo {
     this.complete = complete;
   }
 
-  public void changeWsMember(WSMember wsMember) {
-    this.wsMember = wsMember;
-  }
+//  public void changeWsMember(WSMember wsMember) {
+//    this.wsMember = wsMember;
+//  }
 }

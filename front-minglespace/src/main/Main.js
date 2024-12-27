@@ -40,7 +40,7 @@ const MainComponent = () => {
         </div>
         <div className="main_flex_box">
           <div className="main_newnotice_container">
-            <MainContent title={"최신 공지"} datas={newNotice} />
+            <MainContent title={"최신등록 공지"} datas={newNotice} />
           </div>
           <div className="main_deadlinenotice_container">
             <MainContent title={"마감임박 공지"} datas={deadlineNotice} />

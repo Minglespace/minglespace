@@ -11,6 +11,40 @@
 // .rct-item {
 //   background-color: red;
 // }
+.fc-scrollgrid-liquid {
+  border: 1px solid #888;
+  border-radius: 5px;
+  box-shadow: 5px 5px 5px #ccc;
+}
+.fc-scrollgrid-section {
+  border-bottom: 1px solid #000 !important;
+}
+
+.fc .fc-toolbar.fc-header-toolbar {
+  padding: 10px 20px;
+  background-color: #fff;
+  border: 1px solid #ccc;
+  font-size: 12px;
+  font-weight: 500;
+  border-radius: 20px;
+  margin-bottom: 5px;
+  margin-top: 5px;
+}
+.fc .fc-button {
+  background-color: transparent;
+  color: #555;
+  border: none;
+}
+
+.fc .fc-button:hover {
+  background-color: transparent;
+  color: #000;
+}
+
+.fc .fc-button-primary:focus {
+  border: none;
+  box-shadow: none;
+}
 .fc-day-sun a {
   color: red;
   font-weight: bold;
@@ -28,8 +62,8 @@
   font-weight: bold;
 }
 .fc-header-toolbar {
-  margin-bottom: 5px !important;
-  margin-left: auto;
+  // margin-bottom: 5px !important;
+  // margin-left: auto;
   .fc-toolbar-title {
     margin-right: 400px;
   }

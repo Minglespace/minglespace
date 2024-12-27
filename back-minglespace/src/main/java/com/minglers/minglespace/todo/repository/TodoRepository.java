@@ -27,6 +27,7 @@ public interface TodoRepository extends JpaRepository<Todo, Long> {
                                                Pageable pageable);
 
   Slice<Todo> findAllTodoByWorkSpaceId(Long workspaceId, Pageable pageable);
+
   List<Todo> findAllTodoByWorkSpaceId(Long workspaceId);
 
   @Query("SELECT t FROM Todo t "
@@ -39,7 +40,10 @@ public interface TodoRepository extends JpaRepository<Todo, Long> {
           + "AND t.endDate BETWEEN :currentDate AND :currentPlusDate "
           + "ORDER BY t.endDate ASC")
   List<Todo> findTodosByUserIdAndAssigneeId(@Param("userId") Long userId,
-                                            @Param("currentDate")LocalDateTime currentDate,
+                                            @Param("currentDate") LocalDateTime currentDate,
                                             @Param("currentPlusDate") LocalDateTime currentPlusDate,
                                             Pageable pageable);
+
+//  @Query("SELECT t FROM Todo t WHERE t.wsMember.id = :wsMemberId AND t.workSpace.id = :workspaceId")
+//  List<Todo> findTodosByCreatorIdAndWorkspaceId(@Param("workspaceId") Long workspaceId, @Param("wsMemberId") Long wsMemberId);
 }

@@ -31,11 +31,13 @@ const WorkspaceItem = ({ id, name, count, wsdesc, onClick, data }) => {
             {wsdesc}
           </div>
           <div className="complete_progress_container">
-            <div className="complete_bar_container">
-              <div
-                className="complete_bar"
-                style={{ width: `${completeRate}%` }}
-              ></div>
+            <div className="animation_contaienr">
+              <div className="complete_bar_container">
+                <div
+                  className="complete_bar"
+                  style={{ width: `${completeRate}%` }}
+                ></div>
+              </div>
             </div>
           </div>
         </div>

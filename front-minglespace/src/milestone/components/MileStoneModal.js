@@ -56,7 +56,7 @@ const MileStoneModal = ({
             value={title}
             onChange={(e) => onTitleChange(e.target.value)}
             required
-            maxLength={30}
+            maxLength={15}
           />
         </div>
         {mode != "titleOnly" && (
