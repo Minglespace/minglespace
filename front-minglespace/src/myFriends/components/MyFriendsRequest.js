@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import NoData from "../../common/Layouts/components/NoData";
 
 const MyFriendsRequest = ({ friendRequest }) => {
   return (
@@ -6,7 +7,7 @@ const MyFriendsRequest = ({ friendRequest }) => {
       <h2 className="section_container_title">친구 수락 대기중...</h2>
       <div className="myFriends_request_userInfo">
         {friendRequest.length === 0 ? (
-          <p>친구 신청 목록이 없습니다</p>
+          <NoData title={"친구 신청 목록이 없습니다"} />
         ) : (
           friendRequest.map((userInfo) => (
             <div key={userInfo.id} className="myFriend_request_info">

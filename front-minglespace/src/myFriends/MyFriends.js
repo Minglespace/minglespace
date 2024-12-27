@@ -15,6 +15,7 @@ const friendInit = [
     introduction: "",
     position: "",
     profileImagePath: "",
+    deleteFlag: false,
   },
 ];
 

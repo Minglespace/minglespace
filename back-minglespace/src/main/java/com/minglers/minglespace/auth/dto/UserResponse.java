@@ -25,6 +25,7 @@ public class UserResponse extends DefaultResponse {
   String position;
   String role;
   String profileImagePath;
+  boolean deleteFlag;
   boolean socialLogin;
 
   public UserResponse(AuthStatus authStatus){

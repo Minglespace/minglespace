@@ -21,14 +21,22 @@ import com.minglers.minglespace.workspace.repository.WorkspaceRepository;
 import com.minglers.minglespace.workspace.role.WSMemberRole;
 import com.minglers.minglespace.workspace.service.WorkspaceService;
 import com.minglers.minglespace.workspace.service.WorkspaceServiceImpl;
+import org.junit.jupiter.api.MethodOrderer;
+import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestMethodOrder;
+import org.junit.jupiter.api.parallel.Execution;
+import org.junit.jupiter.api.parallel.ExecutionMode;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.test.annotation.Commit;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Random;
 
 @SpringBootTest
+@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class SampleDataTest {
 
     @Autowired
@@ -85,8 +93,10 @@ public class SampleDataTest {
         Random random = new Random();
         return userPosition[random.nextInt(userPosition.length)];
     }
-
     @Test
+    @Order(1)
+    @Transactional
+    @Commit
     public void insertUserTest() {
         userRepository.save(User.builder()
                 .name(generateRandomKoreanName())
@@ -114,9 +124,11 @@ public class SampleDataTest {
                     .verificationCode("")
                     .build());
         }
-
     }
     @Test
+    @Transactional
+    @Order(2)
+    @Commit
     public void insertFriendTest() {
         User user = userRepository.findById(1L).orElseThrow();
         for (int i = 2; i < 50; i++) {
@@ -141,6 +153,9 @@ public class SampleDataTest {
             "고객의 성공을 돕기 위해 지원과 서비스를 제공하는 팀의 공간입니다.",
     };
     @Test
+    @Transactional
+    @Order(3)
+    @Commit
     public void insertWorkSpace(){
         User user = userRepository.findById(1L).orElseThrow();
         for (int i = 0; i < 4; i++) {
@@ -152,6 +167,9 @@ public class SampleDataTest {
     }
 
     @Test
+    @Transactional
+    @Order(4)
+    @Commit
     public void insertWorkSpaceMember(){
         WorkSpace workSpace = workspaceRepository.findById(1L).orElseThrow();
         for (int i = 2; i < 10; i++) {
@@ -179,6 +197,9 @@ public class SampleDataTest {
     private String[] msGroup = {"기획(Planning)", "분석(Analysis)",
             "설계(Design)", "개발(Development)", "Test", "배포(Deployment)"};
     @Test
+    @Transactional
+    @Order(5)
+    @Commit
     public void insertMileStone(){
         WorkSpace workSpace = workspaceRepository.findById(1L).orElseThrow();
         for (int i = 0; i < 6; i++) {
@@ -214,7 +235,7 @@ public class SampleDataTest {
         milestoneItemRepository.save(MilestoneItem.builder()
                 .end_time(1737026100000L)
                 .start_time(1736128800000L)
-                .taskStatus(TaskStatus.NOT_START)
+                .taskStatus(TaskStatus.ON_HOLD)
                 .title("와이어프레임 제작")
                 .milestoneGroup(milestoneGroupRepository.findById(3L).get())
                 .build());
@@ -235,5 +256,94 @@ public class SampleDataTest {
                 .milestoneGroup(milestoneGroupRepository.findById(3L).get())
                 .build());
 
+        milestoneItemRepository.save(MilestoneItem.builder()
+                .end_time(1737848700000L)
+                .start_time(1736670600000L)
+                .taskStatus(TaskStatus.NOT_START)
+                .title("프론트 진행")
+                .milestoneGroup(milestoneGroupRepository.findById(4L).get())
+                .build());
+
+        milestoneItemRepository.save(MilestoneItem.builder()
+                .end_time(1737848700000L)
+                .start_time(1736670600000L)
+                .taskStatus(TaskStatus.NOT_START)
+                .title("백엔드 진행")
+                .milestoneGroup(milestoneGroupRepository.findById(4L).get())
+                .build());
+
+        ////////두번째 워크스페이스////////////////////////
+        WorkSpace workSpace2 = workspaceRepository.findById(2L).orElseThrow();
+        for (int i = 0; i < 6; i++) {
+            milestoneGroupRepository.save(MilestoneGroup.builder()
+                    .workspace(workSpace2)
+                    .title(msGroup[i])
+                    .build());
+        }
+        milestoneItemRepository.save(MilestoneItem.builder()
+                .end_time(1736127900000L)
+                .start_time(1735225200000L)
+                .taskStatus(TaskStatus.COMPLETED)
+                .title("목표 설정")
+                .milestoneGroup(milestoneGroupRepository.findById(7L).get())
+                .build());
+
+        milestoneItemRepository.save(MilestoneItem.builder()
+                .end_time(1736599500000L)
+                .start_time(1735669800000L)
+                .taskStatus(TaskStatus.COMPLETED)
+                .title("요구사항 수집")
+                .milestoneGroup(milestoneGroupRepository.findById(7L).get())
+                .build());
+
+        milestoneItemRepository.save(MilestoneItem.builder()
+                .end_time(1736892000000L)
+                .start_time(1735884000000L)
+                .taskStatus(TaskStatus.COMPLETED)
+                .title("요구사항 분석")
+                .milestoneGroup(milestoneGroupRepository.findById(8L).get())
+                .build());
+
+        milestoneItemRepository.save(MilestoneItem.builder()
+                .end_time(1737026100000L)
+                .start_time(1736128800000L)
+                .taskStatus(TaskStatus.ON_HOLD)
+                .title("와이어프레임 제작")
+                .milestoneGroup(milestoneGroupRepository.findById(9L).get())
+                .build());
+
+        milestoneItemRepository.save(MilestoneItem.builder()
+                .end_time(1737160200000L)
+                .start_time(1736179200000L)
+                .taskStatus(TaskStatus.IN_PROGRESS)
+                .title("UI설계")
+                .milestoneGroup(milestoneGroupRepository.findById(9L).get())
+                .build());
+
+        milestoneItemRepository.save(MilestoneItem.builder()
+                .end_time(1736678700000L)
+                .start_time(1736092800000L)
+                .taskStatus(TaskStatus.NOT_START)
+                .title("DB 설계")
+                .milestoneGroup(milestoneGroupRepository.findById(9L).get())
+                .build());
+
+        milestoneItemRepository.save(MilestoneItem.builder()
+                .end_time(1737848700000L)
+                .start_time(1736670600000L)
+                .taskStatus(TaskStatus.NOT_START)
+                .title("프론트 진행")
+                .milestoneGroup(milestoneGroupRepository.findById(10L).get())
+                .build());
+
+        milestoneItemRepository.save(MilestoneItem.builder()
+                .end_time(1737848700000L)
+                .start_time(1736670600000L)
+                .taskStatus(TaskStatus.NOT_START)
+                .title("백엔드 진행")
+                .milestoneGroup(milestoneGroupRepository.findById(10L).get())
+                .build());
+
     }
+
 }
