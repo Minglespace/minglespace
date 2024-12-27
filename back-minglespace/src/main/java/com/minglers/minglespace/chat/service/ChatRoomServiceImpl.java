@@ -180,7 +180,7 @@ public class ChatRoomServiceImpl implements ChatRoomService {
           simpMessagingTemplate.convertAndSendToUser(cleanSession,"/queue/workspaces/"+responseDTO.getWorkSpaceId()+"/chat", responseDTO,headerAccessor.getMessageHeaders());
         });
       }
-      notificationService.sendNotification(id, responseDTO.getName()+"채팅방에 초대되셨습니다.", "/workspaces/"+responseDTO.getWorkSpaceId()+"/chat", NotificationType.CHAT);
+      notificationService.sendNotification(id, responseDTO.getName()+"채팅방에 초대되셨습니다.", "/workspace/"+responseDTO.getWorkSpaceId()+"/chat", NotificationType.CHAT);
     }
     return responseDTO;
   }

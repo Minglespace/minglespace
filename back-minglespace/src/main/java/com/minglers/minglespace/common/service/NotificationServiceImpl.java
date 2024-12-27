@@ -9,6 +9,7 @@ import com.minglers.minglespace.common.repository.NotificationRepository;
 import com.minglers.minglespace.common.type.NotificationType;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+import org.springframework.cglib.core.Local;
 import org.springframework.data.domain.Sort;
 import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
 import org.springframework.messaging.simp.SimpMessageType;
@@ -36,7 +37,7 @@ public class NotificationServiceImpl implements NotificationService{
     User user = userRepository.findById(recipientUserId)
             .orElseThrow(() -> new RuntimeException("알림 받을 유저를 찾지 못했습니다."));
     if(type.equals(NotificationType.CHAT_NEW_MESSAGE)){
-      if(handleChatNewMessageNotification(recipientUserId)){
+      if(handleChatNewMessageNotification(recipientUserId, path)){
         return;
       }
     }
@@ -101,16 +102,16 @@ public class NotificationServiceImpl implements NotificationService{
     }
   }
 
-  private boolean handleChatNewMessageNotification(Long recipientUserId){
-    Notification notification = notificationRepository.findByTypeAndUser_Id(NotificationType.CHAT_NEW_MESSAGE, recipientUserId).orElse(null);
-    if(notification != null){
-      if(notification.isRead()){
+  private boolean handleChatNewMessageNotification(Long recipientUserId, String path){
+    List<Notification> notifications = notificationRepository.findByTypeAndUser_Id(NotificationType.CHAT_NEW_MESSAGE, recipientUserId);
+    for(Notification notification : notifications){
+      if(notification.getPath().equals(path)){
+        notification.setNoticeTime(LocalDateTime.now());
         notification.setRead(false);
+        notificationRepository.save(notification);
+        sendNotificationToUser(recipientUserId, notification.toDTO());
+        return true;
       }
-      notification.setNoticeTime(LocalDateTime.now());
-      notificationRepository.save(notification);
-      sendNotificationToUser(recipientUserId, notification.toDTO());
-      return true;
     }
     return false;
   }
