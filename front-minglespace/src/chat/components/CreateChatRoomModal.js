@@ -91,6 +91,7 @@ const CreateChatRoomModal = ({ isOpen, onClose }) => {
   // 모달 닫기 버튼
   const handleClose = () => {
     setErrorMsg(null);
+    setSelectedImage(null);
     onClose(); // 부모 컴포넌트에게 모달을 닫을 것을 알림
   };
 

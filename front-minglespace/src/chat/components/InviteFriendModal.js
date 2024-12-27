@@ -15,7 +15,7 @@ const InviteFriendModal = ({
   participants,
   onUpdateChatRoom,
 }) => {
-  const { chatRoomInfo, isModalOpen, inviteMembers, handleInvite, handleKick } = useChatRoom();
+  const { chatRoomInfo, isModalOpen, inviteMembers, handleInvite, handleKick, handleDelegate } = useChatRoom();
   const [updateRoom, setUpdateRoom] = useState(initUpdateRoom);
   const [selectedImage, setSelectedImage] = useState(null);
   const [selectedTab, setSelectedTab] = useState("info");
@@ -98,7 +98,17 @@ const InviteFriendModal = ({
       alert(`${kickMember.name}님이 강퇴되었습니다.`);
       onClose();
     } else {
-      alert("초대할 멤버를 선택해주세요.");
+      alert("강퇴할 멤버를 선택해주세요.");
+    }
+  };
+
+  const handleDelegateModal = async (newLeader) => {
+    if (newLeader) {
+      await handleDelegate(newLeader);
+      alert(`${newLeader.name}님이 방장으로 위임되셨습니다.`);
+      onClose();
+    } else {
+      alert("위임할 멤버를 선택해주세요.");
     }
   };
 
@@ -227,7 +237,7 @@ const InviteFriendModal = ({
                         {member.email}
                         <button
                           className="invite-btn delegate"
-                          onClick={() => handleKickModal(member)}
+                          onClick={() => handleDelegateModal(member)}
                         >
                           위임
                         </button>
