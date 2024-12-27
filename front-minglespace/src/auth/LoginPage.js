@@ -1,4 +1,4 @@
-﻿import React, { useEffect, useState } from "react";
+﻿﻿import React, { useEffect, useState } from "react";
 
 import { X, Eye, EyeOff } from "lucide-react";
 
@@ -26,10 +26,12 @@ const LoginPage = () => {
 
   const navigate = useNavigate();
   const location = useLocation();
-  const [isOpenPopup, setIsOpenPopup] = useState(false);
-  const { code, encodedEmail } = useParams();
-  const { msg } = useParams();
 
+  const [isOpenPopup, setIsOpenPopup] = useState(false);
+
+  const {code, encodedEmail, encodedVerifyType} = useParams();
+  const {msg} = useParams();
+  
   //================================================================================================
   //================================================================================================
   //================================================================================================
@@ -38,18 +40,25 @@ const LoginPage = () => {
     if (msg && AuthStatus[msg]) {
       console.log("msg : ", msg);
 
-      setMessage({
-        title: "확인",
-        content: AuthStatus[msg].desc,
-      });
-    } else if (code && encodedEmail) {
+      setMessage({title: "확인", content: AuthStatus[msg].desc,});
+    }else if(code && encodedEmail && encodedVerifyType){
+
       console.log("code : ", code);
       console.log("encodedEmail : ", encodedEmail);
+      console.log("encodedVerifyType : ", encodedVerifyType);
 
       setTimeout(() => {
-        AuthApi.verify(code, encodedEmail).then((data) => {
+        AuthApi.verify(code, encodedEmail, encodedVerifyType).then((data) => {
+          console.log("AuthApi.verify data : ", data);
+           
           if (AuthStatusOk(data.msStatus)) {
-            setIsOpenPopup(true);
+
+            if(data.verifyType === "SIGNUP"){
+              setIsOpenPopup(true);
+            }else{
+              setMessage({title: "확인", content: AuthStatus[AuthStatus.WithdrawalAble.value].desc,});
+            }
+
           } else {
             setIsOpenPopup(false);
           }
@@ -80,14 +89,25 @@ const LoginPage = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (validate()) {
-      const { email, password } = formData;
-      const data = await AuthApi.login(email, password);
 
-      if (AuthStatusOk(data.msStatus)) {
+      const {email, password} = formData;
+      const data = await AuthApi.login(email, password);
+      
+      if(AuthStatusOk(data.msStatus)){
+        
+        console.log("AuthApi.login data : ", data);
+
         Repo.setItem(data);
-        // navigate("/main");
-        navigate(getUriPath(), { replace: true });
-      } else if (data.msStatus && AuthStatus[data.msStatus]) {
+
+        if(data.withdrawalType === "EMAIL"
+        || data.withdrawalType === "ABLE"
+        || data.withdrawalType === "DELIVERATION"){
+          navigate("/auth/withdrawal");
+        }else{
+          // navigate("/main");
+          navigate(getUriPath(location), { replace: true });
+        }
+      }else if(data.msStatus && AuthStatus[data.msStatus]){
         setMessage({
           title: "확인",
           content: AuthStatus[data.msStatus].desc,

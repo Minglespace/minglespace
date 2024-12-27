@@ -4,6 +4,7 @@ import com.minglers.minglespace.auth.entity.User;
 import com.minglers.minglespace.auth.exception.AuthException;
 import com.minglers.minglespace.auth.repository.UserRepository;
 import com.minglers.minglespace.auth.type.Provider;
+import com.minglers.minglespace.auth.type.WithdrawalType;
 import com.minglers.minglespace.common.apistatus.AuthStatus;
 import com.minglers.minglespace.common.entity.Image;
 import com.minglers.minglespace.common.service.ImageService;
@@ -142,14 +143,15 @@ public class UserServiceOAuth2 extends DefaultOAuth2UserService {
       user = userOpt.get();
     }else{
       user = new User();
+      user.setWithdrawalType(WithdrawalType.NOT);
 
       // 신규 소셜유저 비번은 필요없지만 에러방지 위해 넣어준다.
       user.setPassword("password");
       user.setRole("ROLE_USER");
     }
 
+    // 1. 소셜 로그인 중인데, 자체계정의 유저가 찾아진 경우
     Provider provider = user.getProvider();
-
     if (provider != null && !provider.equals(responseOAuth2.getProvider())) {
       log.info("[MIRO] 이미 등록한 이메일(소셜 포함) 유저 입니다.");
 
@@ -176,6 +178,7 @@ public class UserServiceOAuth2 extends DefaultOAuth2UserService {
       throw new RuntimeException(e);
     }
 
+    // userservice 사용하게 수정 필요
     // 디비 저장
     User userResult = userRepository.save(user);
 

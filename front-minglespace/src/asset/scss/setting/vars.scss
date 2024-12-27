@@ -39,6 +39,12 @@
   -moz-osx-font-smoothing: grayscale;
   -webkit-text-size-adjust: 100%;
 
+  // 폰트 색상
+  --color-button-submit: #007bff;
+  --color-button-submit-hover: #2563eb;
+  --color-button-logout: #afc8e2;
+  --color-button-logout-hover: #6b87c4;
+
   @media (max-width: 800px) {
     font-size: 14px;
     line-height: 1.4;

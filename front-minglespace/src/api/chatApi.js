@@ -25,7 +25,6 @@ class ChatApi {
 	};
 
 	static createChatRoom = async (workspaceId, requestDTO, imageFile) => {
-
 		const formData = new FormData();
 
 		formData.append('requestDTO', new Blob([JSON.stringify(requestDTO)], { type: 'application/json' }));
@@ -67,8 +66,29 @@ class ChatApi {
 				console.error("채팅방 정보 겟 실패:", error.message);
 			}
 		}
-
 	};
+
+	static updateChatRoom = async (workspaceId, chatRoomId, updateName, updateImage, isImageDelete) => {
+		try {
+			const formData = new FormData();
+			if (updateName) formData.append("name", updateName);
+			formData.append("isImageDelete", isImageDelete);
+			if (updateImage) formData.append("image", updateImage);
+
+			formData.forEach((value, key) => {
+				console.log(key, value);
+			});
+
+			const res = await api.axiosIns.put(`${chatroomPrefix}/${workspaceId}/chatRooms/${chatRoomId}`,
+				formData,
+				{
+					headers: { "Content-Type": "multipart/form-data", }
+				});
+			return res.data;
+		} catch (error) {
+			console.error("채팅방 정보 수정 실패:", error.message);
+		}
+	}
 
 	static addMemberToRoom = async (workspaceId, chatRoomId, addMemberId) => {
 		try {
@@ -80,7 +100,6 @@ class ChatApi {
 			} else {
 				console.error("채팅방 멤버 추가 실패:", error.message);
 			}
-
 		}
 	};
 

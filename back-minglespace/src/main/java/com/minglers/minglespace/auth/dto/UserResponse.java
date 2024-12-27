@@ -32,7 +32,7 @@ public class UserResponse extends DefaultResponse {
     super(authStatus);
   }
 
-  public void map(ModelMapper modelMapper, User from){
+  public void map(User from, ModelMapper modelMapper){
 
     modelMapper.map(from, this);
 

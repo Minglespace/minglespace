@@ -25,6 +25,9 @@ class Api{
     });
 
     this.axiosIns.defaults.withCredentials = true;
+    
+    // onWithdrawalAbleCallback을 직접 수정하는 대신 변경 가능한 객체로 처리
+    this._callbackData = { onWithdrawalAbleCallback: null };
 
     // 요청 인터셉터 설정
     this.axiosIns.interceptors.request.use(
@@ -53,7 +56,7 @@ class Api{
     // 응답 인터셉터 설정
     this.axiosIns.interceptors.response.use(
       (response) => {
-        //console.log("응답 : ", response);
+        console.log("응답 : ", response);
 
         // 응답 헤더에서 JWT 토큰 추출
         // 토큰이 존재하면 localStorage에 저장
@@ -75,6 +78,15 @@ class Api{
           console.log('[작업필요] 여기에서 팝업 띄우고 싶어');
           console.log('[작업필요] 로그인창으로 날려버려~');
           Repo.clearItem();
+        }
+
+        if(msStatus === AuthStatus.WithdrawalEmailFirst.value
+        || msStatus === AuthStatus.WithdrawalAble.value
+        || msStatus === AuthStatus.WithdrawalDeliveration.value){
+          if (this._callbackData.onWithdrawalAbleCallback) {
+            this._callbackData.onWithdrawalAbleCallback(msStatus);
+            // return;
+          }
         }
 
         return response;
@@ -102,6 +114,11 @@ class Api{
     );    
 
     Api.instance = this;
+  }
+
+  // 콜백 함수를 설정하는 메소드
+  setOnWithdrawalAbleCallback(callback) {
+    this._callbackData.onWithdrawalAbleCallback = callback;
   }
 
   isTokenSkipPacket = (url) => {

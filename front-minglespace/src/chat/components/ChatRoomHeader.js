@@ -2,20 +2,13 @@ import { useState } from "react";
 import ChatRoomModal from "./ChatRoomModal";
 import { FcExport } from "react-icons/fc";
 import { FiSettings } from "react-icons/fi";
-// import e from "cors";
+import { useChatRoom } from "../context/ChatRoomContext";
 
 const ChatRoomHeader = ({
-  chatRoomInfo,
-  inviteMembers,
-  isRoomOwner,
-  isModalOpen,
-  setIsModalOpen,
-  handleInvite,
-  handleKick,
-  handleDelegate,
-  handleExit,
+  onUpdateChatRoom
 }) => {
   const [modalType, setModalType] = useState("");
+  const { chatRoomInfo, isRoomOwner, setIsModalOpen } = useChatRoom();
 
   const openModal = (type) => {
     // console.log(`opening modal: ${type}`);
@@ -58,15 +51,9 @@ const ChatRoomHeader = ({
       )}
       <ChatRoomModal
         modalType={modalType}
-        isOpen={isModalOpen}
         onClose={closeModal}
         roomMembers={chatRoomInfo.participants}
-        isRoomOwner={isRoomOwner}
-        inviteUsers={inviteMembers}
-        onInvite={handleInvite}
-        onDelegate={handleDelegate}
-        onExit={handleExit}
-        onKick={handleKick}
+        onUpdateChatRoom={onUpdateChatRoom}
       />
       <span className="chatroominfo-name">{chatRoomInfo.name}</span>
       <button

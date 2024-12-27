@@ -1,4 +1,4 @@
-package com.minglers.minglespace.sampleData;
+﻿﻿package com.minglers.minglespace.sampleData;
 
 import com.minglers.minglespace.auth.entity.User;
 import com.minglers.minglespace.auth.entity.UserFriend;
