@@ -1,18 +1,20 @@
 import React, { useState } from "react";
 import Repo from "../../auth/Repo";
+import { useChatRoom } from "../context/ChatRoomContext";
 
-const DelegateModal = ({ isOpen, onClose, onDelegate, participants }) => {
+const DelegateModal = ({ onClose, participants }) => {
+  const { isModalOpen, handleDelegate } = useChatRoom();
   const [selectedUser, setSelectedUser] = useState(null); // 선택된 멤버 상태
 
   const handleUserSelect = (newLeader) => {
     setSelectedUser(newLeader);
-    console.log(`사용자 ${newLeader.name} 선택됨`);
+    // console.log(`사용자 ${newLeader.name} 선택됨`);
   };
 
   const handleDelegateAndExit = async () => {
     if (selectedUser) {
-      console.log("selected user :", selectedUser);
-      await onDelegate(selectedUser); // 새 방장으로 위임
+      // console.log("selected user :", selectedUser);
+      await handleDelegate(selectedUser); // 새 방장으로 위임
       alert(`${selectedUser.name}님이 방장으로 위임되었습니다.`);
       setSelectedUser(null);
       onClose(); // 모달 닫기
@@ -21,7 +23,7 @@ const DelegateModal = ({ isOpen, onClose, onDelegate, participants }) => {
     }
   };
 
-  if (!isOpen) return null;
+  if (!isModalOpen) return null;
 
   return (
     <div>

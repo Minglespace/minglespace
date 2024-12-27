@@ -1,5 +1,6 @@
 package com.minglers.minglespace.chat.service;
 
+import com.minglers.minglespace.chat.config.interceptor.StompInterceptor;
 import com.minglers.minglespace.chat.dto.*;
 import com.minglers.minglespace.chat.entity.ChatMessage;
 import com.minglers.minglespace.chat.entity.ChatRoom;
@@ -12,6 +13,8 @@ import com.minglers.minglespace.chat.repository.MsgReadStatusRepository;
 import com.minglers.minglespace.chat.role.ChatRole;
 import com.minglers.minglespace.common.entity.Image;
 import com.minglers.minglespace.common.service.ImageService;
+import com.minglers.minglespace.common.service.NotificationService;
+import com.minglers.minglespace.common.type.NotificationType;
 import com.minglers.minglespace.workspace.entity.WSMember;
 import com.minglers.minglespace.workspace.repository.WSMemberRepository;
 import com.minglers.minglespace.workspace.repository.WorkspaceRepository;
@@ -19,6 +22,8 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.http.HttpStatus;
+import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
+import org.springframework.messaging.simp.SimpMessageType;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -36,14 +41,15 @@ public class ChatRoomServiceImpl implements ChatRoomService {
   private final ChatRoomRepository chatRoomRepository;
   private final ChatRoomMemberRepository chatRoomMemberRepository;
   private final ChatMessageRepository chatMessageRepository;
-  private final WorkspaceRepository workspaceRepository;
   private final WSMemberRepository wsMemberRepository;
   private final MsgReadStatusRepository msgReadStatusRepository;
 
   private final ChatMessageService chatMessageService;
   private final ChatRoomMemberService chatRoomMemberService;
   private final ImageService imageService;
+  private final NotificationService notificationService;
 
+  private final StompInterceptor stompInterceptor;
   private final SimpMessagingTemplate simpMessagingTemplate;
 
   @Override
@@ -111,7 +117,6 @@ public class ChatRoomServiceImpl implements ChatRoomService {
       }
     }
 
-
     // 사진 처리 필요
     ChatRoom chatRoom = ChatRoom.builder()
             .image(saveFile)
@@ -133,6 +138,7 @@ public class ChatRoomServiceImpl implements ChatRoomService {
     chatRoom.addChatRoomMember(creatorChatRoomMember);
     chatRoomMemberRepository.save(creatorChatRoomMember);
 
+    List<Long> participantsUserIds = new ArrayList<>();
     // 일반 멤버 추가
     for (Long memberId : requestDTO.getParticipantIds()) {
       WSMember member = wsMemberRepository.findById(memberId)
@@ -144,27 +150,45 @@ public class ChatRoomServiceImpl implements ChatRoomService {
               .chatRole(ChatRole.CHATMEMBER)
               .date(LocalDateTime.now())
               .build();
-
+      participantsUserIds.add(member.getUser().getId());
       chatRoom.addChatRoomMember(chatRoomMember);
       chatRoomMemberRepository.save(chatRoomMember);
     }
 
     String imageUriPath = (chatRoom.getImage() != null && chatRoom.getImage().getUripath() != null) ? chatRoom.getImage().getUripath() : "";
 
-    return ChatListResponseDTO.builder()
+    ChatListResponseDTO responseDTO = ChatListResponseDTO.builder()
             .chatRoomId(chatRoom.getId())
             .name(chatRoom.getName())
             .imageUriPath(imageUriPath)
             .workSpaceId(chatRoom.getWorkSpace().getId())
             .date(chatRoom.getDate())
             .lastMessage("")
-            .participantCount(chatRoom.getChatRoomMembers().size()) // 처음 생성이니까 떠난 유저가 없다는 전제
+            .participantCount(chatRoom.getChatRoomMembers().size())
+            .notReadMsgCount(0)
             .build();
+
+    //새 채팅방 바로 실시간 알림
+    for(Long id: participantsUserIds){
+      Set<String> sessionIds = stompInterceptor.getSessionForUser(id);
+      if(sessionIds != null && !sessionIds.isEmpty()){
+        sessionIds.forEach(sessionId -> {
+          String cleanSession = sessionId.replaceAll("[\\[\\]]", "");
+          SimpMessageHeaderAccessor headerAccessor = SimpMessageHeaderAccessor.create(SimpMessageType.MESSAGE);
+          headerAccessor.setSessionId(cleanSession);
+          headerAccessor.setLeaveMutable(true);
+          simpMessagingTemplate.convertAndSendToUser(cleanSession,"/queue/workspaces/"+responseDTO.getWorkSpaceId()+"/chat", responseDTO,headerAccessor.getMessageHeaders());
+        });
+      }
+      notificationService.sendNotification(id, responseDTO.getName()+"채팅방에 초대되셨습니다.", "/workspace/"+responseDTO.getWorkSpaceId()+"/chat", NotificationType.CHAT);
+    }
+    return responseDTO;
   }
 
   @Override
   @Transactional
   public void deleteChatRoomData(Long chatRoomId) {
+    msgReadStatusRepository.deleteByMessage_ChatRoom_Id(chatRoomId);
     chatMessageRepository.deleteByChatRoomId(chatRoomId);
     chatRoomMemberRepository.deleteByChatRoomId(chatRoomId);
     chatRoomRepository.deleteById(chatRoomId);
@@ -180,6 +204,11 @@ public class ChatRoomServiceImpl implements ChatRoomService {
 
     WSMember wsMember = wsMemberRepository.findByUserIdAndWorkSpaceId(userId, workspaceId)
             .orElseThrow(() -> new ChatException(HttpStatus.NOT_FOUND.value(), "워크스페이스 멤버에서 찾을 수 없습니다."));
+
+    if (!chatRoomMemberRepository.existsByChatRoomIdAndWsMemberIdAndIsLeftFalse(chatRoomId, wsMember.getId())) {
+      throw new ChatException(HttpStatus.NOT_FOUND.value(), "채팅방에 참여중이지 않습니다.");
+    }
+
     msgReadStatusRepository.deleteByMessage_ChatRoom_IdAndWsMemberId(chatRoomId, wsMember.getId()); //요청 유저가 안 읽은 메시지가 있다면 읽음 처리하기.
 
     notifyReadStatus(chatRoomId, wsMember.getId()); //읽음 처리 알림보내기
@@ -200,6 +229,8 @@ public class ChatRoomServiceImpl implements ChatRoomService {
             .imageUriPath(imageUriPath)
             .msgHasMore(msgHasMore)
             .build();
+
+
   }
 
   @Override

@@ -197,7 +197,7 @@ public class ChatMessageServiceImpl implements ChatMessageService {
       MessageStatusDTO messageStatusDTO = MessageStatusDTO.builder()
               .chatRoomId(chatRoomId)
               .messageId(messageId)
-              .type("READ")
+              .type("DELETE")
               .build();
 
       simpMessagingTemplate.convertAndSend("/topic/chatRooms/" + chatRoomId + "/message-status", messageStatusDTO);

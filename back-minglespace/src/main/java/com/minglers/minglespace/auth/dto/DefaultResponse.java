@@ -4,8 +4,10 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.minglers.minglespace.common.apistatus.AuthStatus;
 import lombok.Getter;
+import lombok.ToString;
 import lombok.extern.log4j.Log4j2;
 
+@ToString
 @Log4j2
 @Getter
 @JsonInclude(JsonInclude.Include.NON_NULL)

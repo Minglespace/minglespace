@@ -1,15 +1,18 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef } from "react";
 import Userinfo from "../../common/Layouts/components/Userinfo";
 import default_img from "../../asset/imgs/profile1.png";
 import { HOST_URL } from "../../api/Api";
+import { useChatApp } from "../context/ChatAppContext";
 
 const initCreateChatRoomRequest = {
   name: "",
   workspaceId: 0,
   participantIds: [],
+  image: null
 };
 
-const CreateChatRoomModal = ({ isOpen, onClose, onCreate, wsMembers }) => {
+const CreateChatRoomModal = ({ isOpen, onClose }) => {
+  const { handleCreateRoom, wsMemberState } = useChatApp();
   const [newChatRoomData, setNewChatRoomData] = useState(
     initCreateChatRoomRequest
   );
@@ -18,7 +21,7 @@ const CreateChatRoomModal = ({ isOpen, onClose, onCreate, wsMembers }) => {
   const fileInputRef = useRef(null);
 
   // useEffect(() => {
-  console.log("selectedFriends : ", wsMembers);
+  // console.log("selectedFriends : ", wsMemberState);
   // }, [newChatRoomData.participantIds]);
 
   //폼에서 채팅방 이름을 변경하는 함수
@@ -73,7 +76,7 @@ const CreateChatRoomModal = ({ isOpen, onClose, onCreate, wsMembers }) => {
   const handleCreate = async () => {
     if (!validateForm()) return;
     try {
-      await onCreate(newChatRoomData, newChatRoomData.image);
+      await handleCreateRoom(newChatRoomData, newChatRoomData.image);
 
       //초기화
       setNewChatRoomData(initCreateChatRoomRequest);
@@ -108,7 +111,7 @@ const CreateChatRoomModal = ({ isOpen, onClose, onCreate, wsMembers }) => {
           <div className="modal_img">
             <img
               className="chat_create_Img"
-              src={selectedImage || default_img}
+              src={selectedImage ? `${HOST_URL}${selectedImage}` : default_img}
               alt="채팅방 이미지"
             />
           </div>
@@ -143,7 +146,7 @@ const CreateChatRoomModal = ({ isOpen, onClose, onCreate, wsMembers }) => {
           <div className="friends-list">
             <p>초대할 멤버를 선택하세요:</p>
             <ul>
-              {wsMembers.map((member) => (
+              {wsMemberState.map((member) => (
                 <li key={member.wsMemberId}>
                   <label>
                     <input

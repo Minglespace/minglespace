@@ -3,15 +3,16 @@ import { FaLock, FaLockOpen, FaTrashAlt, FaFileImage } from "react-icons/fa";
 import Modal from "../../common/Layouts/components/Modal";
 import ProfileImage from "../../common/Layouts/components/ProfileImage";
 import { HOST_URL } from "../../api/Api";
+import { useChatRoom } from "../context/ChatRoomContext";
 
 const MessageInput = ({
   onSendMessage,
   replyToMessage,
   setReplyToMessage,
-  currentMemberInfo,
   participants,
   currentChatRoomId
 }) => {
+  const { currentMemberInfo } = useChatRoom();
   const [newMessage, setNewMessage] = useState("");
   const [isLocked, setIsLocked] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -25,7 +26,6 @@ const MessageInput = ({
 
   //멘션 관리 상태
   const [mentioning, setMentioning] = useState(false);//멘션 활성화
-  // const [mentionQuery, setMentionQuery] = useState(""); //@뒤 텍스트
   const [filteredMembers, setFilteredMembers] = useState([]); //필터링된 멤버
   const [selectedIndex, setSelectedIndex] = useState(-1); //선택된 목록
   const mentionRef = useRef(null);
@@ -146,7 +146,7 @@ const MessageInput = ({
 
   //멘션 목록에서 항목 선택한 경우
   const handleMentionSelect = (member) => {
-    console.log("클릭된 멤버 멘션: ", member);
+    // console.log("클릭된 멤버 멘션: ", member);
     const updatedMessage = newMessage.replace(
       /@(\S*)$/,
       `@${member.name} `

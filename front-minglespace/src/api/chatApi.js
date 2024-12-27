@@ -25,7 +25,6 @@ class ChatApi {
 	};
 
 	static createChatRoom = async (workspaceId, requestDTO, imageFile) => {
-
 		const formData = new FormData();
 
 		formData.append('requestDTO', new Blob([JSON.stringify(requestDTO)], { type: 'application/json' }));
@@ -60,14 +59,36 @@ class ChatApi {
 			return res.data;
 		} catch (error) {
 			if (error.response && error.response.status === 404) {
-				alert("채팅방 정보 겟 실패:", error.response.data.message);
+				alert("채팅방에 참여하실 수 없습니다.", error.response.message);
 				window.location.href = `/workspace/${workspaceId}/chat`;
+				return;
 			} else {
 				console.error("채팅방 정보 겟 실패:", error.message);
 			}
 		}
-
 	};
+
+	static updateChatRoom = async (workspaceId, chatRoomId, updateName, updateImage, isImageDelete) => {
+		try {
+			const formData = new FormData();
+			if (updateName) formData.append("name", updateName);
+			formData.append("isImageDelete", isImageDelete);
+			if (updateImage) formData.append("image", updateImage);
+
+			formData.forEach((value, key) => {
+				console.log(key, value);
+			});
+
+			const res = await api.axiosIns.put(`${chatroomPrefix}/${workspaceId}/chatRooms/${chatRoomId}`,
+				formData,
+				{
+					headers: { "Content-Type": "multipart/form-data", }
+				});
+			return res.data;
+		} catch (error) {
+			console.error("채팅방 정보 수정 실패:", error.message);
+		}
+	}
 
 	static addMemberToRoom = async (workspaceId, chatRoomId, addMemberId) => {
 		try {
@@ -75,11 +96,10 @@ class ChatApi {
 			return res.data;
 		} catch (error) {
 			if (error.response && error.response.status === 403) {
-				alert("채팅방 멤버 추가 실패:", error.response.data.message);
+				alert("채팅방 멤버 추가 실패", error.response.data.message);
 			} else {
 				console.error("채팅방 멤버 추가 실패:", error.message);
 			}
-
 		}
 	};
 

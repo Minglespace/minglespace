@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+﻿import React, { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { LogOut, Settings } from "lucide-react";
 
@@ -104,10 +104,14 @@ export default function UserInfoPopup() {
       setUserInfo(data);
       setInitialUserInfo({ ...data }); // 초기 상태 저장
 
+      Repo.setUserName(data.name);
+
+
     }else if(data.msStatus && AuthStatus[data.msStatus]){
       setMessage({
         title: "확인", 
         content: AuthStatus[data.msStatus].desc,  
+        callbackOk: ()=>{setMessage(null);}
       });
     }
 
@@ -121,16 +125,49 @@ export default function UserInfoPopup() {
       getUserInfo();
     }
   };
+  
+  const handleClickWithdrawalEmail = async () => {
+    setMessage({
+      title: "확인", 
+      content: "회원탙퇴를 진행하시겠습니까?",  
+      callbackYes: ()=>{
+        setMessage(null);
+        sendWithdrawalEmail();
+      },
+      callbackNo: ()=>{
+        setMessage(null);
+      }
+    });
+  };
+
+  const sendWithdrawalEmail = async () => {
+    const data = await AuthApi.withdrawalEmail();
+    if (AuthStatusOk(data.msStatus)) {
+      setMessage({
+        title: "확인", 
+        content: "회원탈퇴 인증 이메일을 보냈습니다.",  
+        callbackOk: ()=>{
+          setMessage(null);
+          Repo.clearItem();
+          navigate("/auth/login");
+        }
+      });
+    }else if(data.msStatus && AuthStatus[data.msStatus]){
+      setMessage({
+        title: "확인", 
+        content: AuthStatus[data.msStatus].desc,  
+        callbackOk: ()=>{setMessage(null);}
+      });
+    }
+  }
 
   const handleClickSetting = () => {
     setIsEditing(true);
   };
 
   const handleClickLogout = async () => {
-    await AuthApi.logout().then((data)=>{
-      if (AuthStatusOk(data.msStatus)) {
-        navigate("/auth/login");
-      }
+    await AuthApi.logout().then(()=>{
+      navigate("/auth/login");
     });
     Repo.clearItem();
   };
@@ -247,11 +284,13 @@ export default function UserInfoPopup() {
       </button>
 
       {message && (
-        <Modal open={message !== null} onClose={() => setMessage(null)}>
+        <Modal open={message !== null} onClose={message.callbackOk || message.callbackNo || setMessage(null)}>
           <div className="workspace_add_modal_container">
             <p className="form-title">{message.title}</p>
             <p>{message.content}</p>
-            <button type="submit" className="add_button" onClick={() => setMessage(null)}>확인</button>
+            {message.callbackOk && <button type="submit" className="add_button" onClick={message.callbackOk}>확인</button> }
+            {message.callbackYes && <button type="submit" className="add_button" onClick={message.callbackYes}>네</button> }
+            {message.callbackNo && <button type="submit" className="add_button" onClick={message.callbackNo}>아니요</button> }
           </div>
         </Modal>
       )}
@@ -377,23 +416,27 @@ export default function UserInfoPopup() {
           <div className="popup-footer">
             {isEditing ? (
               <>
-                <button onClick={handleSaveChanges} className="logout-button">
+                <button onClick={handleSaveChanges} className="logout-button-info">
                   저장
                 </button>
                 <button
                   onClick={() => setIsEditing(false)} // Exit edit mode
-                  className="logout-button"
+                  className="logout-button-info"
                 >
                   취소
                 </button>
               </>
             ) : (
               <>
-                <button onClick={handleClickSetting} className="logout-button">
+                <button onClick={handleClickWithdrawalEmail} className="logout-button-info">
+                  <Settings size={16} />
+                  회원탈퇴
+                </button>
+                <button onClick={handleClickSetting} className="logout-button-info">
                   <Settings size={16} />
                   정보변경
                 </button>
-                <button onClick={handleClickLogout} className="logout-button">
+                <button onClick={handleClickLogout} className="logout-button-info">
                   <LogOut size={16} />
                   로그아웃
                 </button>

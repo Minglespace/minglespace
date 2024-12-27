@@ -28,7 +28,7 @@ const ProfileImage = ({ src, userName, size = 70 }) => {
     } else {
       // 이미지가 없으면 이름의 첫 글자로 기본 이미지를 생성
       const firstLetter = (userName) ? userName.charAt(0).toUpperCase() : "A";
-      const backgroundColor = getRandomColor();
+      const backgroundColor = getBkColor(userName);
 
       return (
         <div
@@ -51,20 +51,27 @@ const ProfileImage = ({ src, userName, size = 70 }) => {
     }
   };
 
-  const getRandomColor = () => {
-    let color = Repo.getProfileColor();
-    if (color) return color;
+  const getBkColor = (userName) => {
+    if(Repo.getUserName() === userName){
+      let color = Repo.getProfileColor();
+      if (color) return color;
+      color = getRandomColor();
+      Repo.setProfileColor(color);
+      return color;
+    }else{
+      return getRandomColor();  
+    }
+  }
 
+  const getRandomColor = () => {
     const letters = "0123456789ABCDEF";
-    color = "#";
+    let color = "#";
     for (let i = 0; i < 6; i++) {
       color += letters[Math.floor(Math.random() * 16)];
     }
-
-    Repo.setProfileColor(color);
-
     return color;
   };
+
   return <>{renderProfileImage()}</>;
 };
 

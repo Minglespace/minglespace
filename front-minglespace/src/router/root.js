@@ -1,4 +1,4 @@
-﻿import { Suspense, lazy } from "react";
+﻿﻿import { Suspense, lazy } from "react";
 import { createBrowserRouter, Navigate } from "react-router-dom";
 import SuspenseWithPrivateRoute from "./SuspenseWithPrivateRoute";
 
@@ -6,6 +6,8 @@ const Loading = <div>Loading....</div>;
 const LoginPage = lazy(() => import("../auth/LoginPage"));
 const SignupPage = lazy(() => import("../auth/SignupPage"));
 const TokenPage = lazy(() => import("../auth/TokenPage"));
+const WithdrawalPage = lazy(() => import("../auth/WithdrawalPage"));
+
 const Main = lazy(() => import("../page/MainPage"));
 const Chat = lazy(() => import("../page/ChatPage"));
 const Todo = lazy(() => import("../page/TodoPage"));
@@ -15,6 +17,7 @@ const MyFriends = lazy(() => import("../page/MyFriendsPage"));
 const MileStone = lazy(() => import("../page/MileStonePage"));
 const Member = lazy(() => import("../page/MemberPage"));
 const InviteCheck = lazy(() => import("../member/components/InviteCheck"));
+const Aboutus = lazy(() => import("../page/AboutusPage"));
 
 const root = createBrowserRouter([
   // SuspenseWithPrivateRoute
@@ -59,6 +62,14 @@ const root = createBrowserRouter([
     path: "/workspace/:workspaceId/calendar",
     element: <SuspenseWithPrivateRoute page={Calendar} />,
   },
+  {
+    path: "/aboutus",
+    element: <SuspenseWithPrivateRoute page={Aboutus} />,
+  },
+  {
+    path: "/auth/withdrawal",
+    element: <SuspenseWithPrivateRoute page={WithdrawalPage} />,
+  },
 
   // Suspense
   // 로그인 유무 체크하지 않는 대상 페이지들
@@ -71,7 +82,7 @@ const root = createBrowserRouter([
     ),
   },
   {
-    path: "/auth/login/:code/:encodedEmail",
+    path: "/auth/login/:code/:encodedEmail/:encodedVerifyType",
     element: (
       <Suspense fallback={Loading}>
         <LoginPage />
@@ -110,6 +121,7 @@ const root = createBrowserRouter([
       </Suspense>
     ),
   },
+
 
   //잘못된 경로
   {

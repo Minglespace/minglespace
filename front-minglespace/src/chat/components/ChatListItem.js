@@ -2,18 +2,18 @@ import React from "react";
 import { BsPeopleFill } from "react-icons/bs";
 import default_img from "../../asset/imgs/profile1.png";
 import { HOST_URL } from "../../api/Api";
-import { useNavigate, useParams } from "react-router-dom";
-import { TbPencil } from "react-icons/tb";
+import { useNavigate } from "react-router-dom";
+import { useChatApp } from "../context/ChatAppContext";
 
-const ChatListItem = ({ chat, onReadMsg }) => {
+const ChatListItem = ({ chat }) => {
+  const {handleReadMsg, workspaceId} = useChatApp();
   const navigate = useNavigate();
-  const { workspaceId } = useParams();
-
+  
   const handleClick = async () => {
     // console.log("chatlistitem_click: ", typeof chat.chatRoomId);
     try {
       if (chat.notReadMsgCount > 0) {
-        await onReadMsg(chat.chatRoomId);
+        await handleReadMsg(chat.chatRoomId);
       }
       navigate(`/workspace/${workspaceId}/chat?chatRoomId=${chat.chatRoomId}`);
     } catch (e) {
