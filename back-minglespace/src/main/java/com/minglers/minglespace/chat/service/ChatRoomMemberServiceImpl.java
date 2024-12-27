@@ -143,22 +143,25 @@ public class ChatRoomMemberServiceImpl implements ChatRoomMemberService {
   }
 
   @Override
+  @Transactional
   public void forceDelegateLeader(Long userId) {
     List<WSMember> wsMembers = wsMemberRepository.findAllByUserId(userId);
 
     for (WSMember wsMember : wsMembers) {
-//      log.info("강제 위임 전 wsmemberid: "+ wsMember.getId());
       List<ChatRoomMember> chatRoomMembers = chatRoomMemberRepository.findByWsMemberIdAndIsLeftFalse(wsMember.getId());
 
       for (ChatRoomMember chatRoomMember : chatRoomMembers) {
         if (this.isRoomLeader(chatRoomMember.getChatRoom().getId(), wsMember.getId())) {
+//          log.info("방장이어서 위임해야함: "+ chatRoomMember.getChatRoom().getId());
           List<ChatRoomMember> roomMembers = chatRoomMemberRepository.findByChatRoomIdAndIsLeftFalseAndUserWithdrawalTypeNot(chatRoomMember.getChatRoom().getId());
           if (roomMembers.size() > 1) {
             ChatRoomMember newLeader = roomMembers.stream()
                     .filter(member -> !member.getWsMember().getId().equals(wsMember.getId()))
                     .findFirst()
                     .orElseThrow(() -> new ChatException(HttpStatus.NOT_FOUND.value(), "새로운 방장 후보가 없습니다."));
+
             chatRoomMember.setChatRole(ChatRole.CHATMEMBER);
+            chatRoomMember.setLeft(true);
             newLeader.setChatRole(ChatRole.CHATLEADER);
 
             chatRoomMemberRepository.save(chatRoomMember);
@@ -169,15 +172,14 @@ public class ChatRoomMemberServiceImpl implements ChatRoomMemberService {
                     "/workspace/" + chatRoomMember.getChatRoom().getWorkSpace().getId() + "/chat",
                     NotificationType.CHAT);
           } else {
-            if (this.isChatRoomEmpty(chatRoomMember.getChatRoom().getId())) {
               msgReadStatusRepository.deleteByMessage_ChatRoom_Id(chatRoomMember.getChatRoom().getId());
               chatMessageRepository.deleteByChatRoomId(chatRoomMember.getChatRoom().getId());
               chatRoomMemberRepository.deleteByChatRoomId(chatRoomMember.getChatRoom().getId());
               chatRoomRepository.deleteById(chatRoomMember.getChatRoom().getId());
               log.info("채팅방 " + chatRoomMember.getChatRoom().getName() + "가 참여자가 없어서 삭제되었습니다.");
-            }
           }
         } else {
+//          log.info("방장아님 그냥 나가기: "+ chatRoomMember.getChatRoom().getId());
           chatRoomMember.setLeft(true);
           chatRoomMemberRepository.save(chatRoomMember);
         }

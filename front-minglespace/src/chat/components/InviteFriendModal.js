@@ -27,7 +27,8 @@ const InviteFriendModal = ({
         ...prev,
         name: chatRoomInfo.name
       }));
-      setSelectedImage(`${HOST_URL}${chatRoomInfo.imageUriPath}`);
+
+      chatRoomInfo.imageUriPath ? setSelectedImage(`${HOST_URL}${chatRoomInfo.imageUriPath}`) : setSelectedImage(null);
     }
   }, [chatRoomInfo]);
 
@@ -120,7 +121,7 @@ const InviteFriendModal = ({
             className={selectedTab === "invite" ? "active" : ""}
             onClick={() => setSelectedTab("invite")}
           >
-            초대/강퇴
+            초대/강퇴/위임
           </button>
         </div>
 
@@ -173,21 +174,24 @@ const InviteFriendModal = ({
             <div className="invite-friends-list">
               <p>강퇴할 멤버를 선택하세요:</p>
               <ul>
-                {participants
-                  .filter(
-                    (member) => member.userId !== Number(Repo.getUserId())
-                  )
-                  .map((member) => (
-                    <li key={member.wsMemberId}>
-                      {member.email}
-                      <button
-                        className="invite-btn"
-                        onClick={() => handleKickModal(member)}
-                      >
-                        강퇴
-                      </button>
-                    </li>
-                  ))}
+                {participants.filter((member) => member.userId !== Number(Repo.getUserId())).length === 0 ? (
+                  <li>강퇴할 멤버가 없습니다.</li>
+                ) : (
+                  participants
+                    .filter(
+                      (member) => member.userId !== Number(Repo.getUserId())
+                    )
+                    .map((member) => (
+                      <li key={member.wsMemberId}>
+                        {member.email}
+                        <button
+                          className="invite-btn kick"
+                          onClick={() => handleKickModal(member)}
+                        >
+                          강퇴
+                        </button>
+                      </li>
+                    )))}
               </ul>
 
               <p>초대할 멤버를 선택하세요:</p>
@@ -207,6 +211,28 @@ const InviteFriendModal = ({
                     </li>
                   ))
                 )}
+              </ul>
+
+              <p>위임할 멤버를 선택하세요:</p>
+              <ul>
+                {participants.filter((member) => member.userId !== Number(Repo.getUserId())).length === 0 ? (
+                  <li>위임할 멤버가 없습니다.</li>
+                ) : (
+                  participants
+                    .filter(
+                      (member) => member.userId !== Number(Repo.getUserId())
+                    )
+                    .map((member) => (
+                      <li key={member.wsMemberId}>
+                        {member.email}
+                        <button
+                          className="invite-btn delegate"
+                          onClick={() => handleKickModal(member)}
+                        >
+                          위임
+                        </button>
+                      </li>
+                    )))}
               </ul>
             </div>
           </div>

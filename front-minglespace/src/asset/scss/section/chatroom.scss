@@ -99,6 +99,7 @@
     border-radius: 8px;
     background-color: #f9f9f9;
     overflow-y: auto;
+    height: 350px;
 
     p {
       font-size: 16px;
@@ -131,12 +132,21 @@
           font-size: 14px;
           border: none;
           border-radius: 4px;
-          background-color: #dbb5b5;
-          color: #fff;
+          background-color: #A8D0D7;
+          color: #555;
           cursor: pointer;
 
           &:hover {
             background-color: #987070;
+          }
+
+          &.kick {
+            background-color: #dbb5b5;
+          }
+
+          &.delegate {
+            background-color: #E8D8B3;
+            color: #333
           }
         }
       }
@@ -299,6 +309,7 @@
         &:hover {
           background-color: #987070;
         }
+
       }
     }
   }
