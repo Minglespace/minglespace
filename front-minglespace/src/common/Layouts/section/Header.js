@@ -111,6 +111,8 @@ const Header = () => {
         <img className="logo_icon" src="/profile1.png" alt="" />
       </Link>
       <h1 className="title">{workspaceData.name}</h1>
+
+      {/* 버튼을 우측 정렬하는 div */}
       {role === "LEADER" ? (
         <div className="menu_container">
           <FiMoreVertical className="menu_icon" onClick={handleMenuToggle} />
@@ -128,8 +130,6 @@ const Header = () => {
       ) : (
         <></>
       )}
-
-      {/* 버튼을 우측 정렬하는 div */}
       <div
         className="button-container"
         style={{ display: "flex", alignItems: "center" }}

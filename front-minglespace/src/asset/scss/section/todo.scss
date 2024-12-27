@@ -1,7 +1,7 @@
 .todo_main_container {
   width: 100%;
   height: 100%;
-  border: 1px solid #a386e9;
+
   z-index: 900;
   overflow-y: hidden;
 
@@ -9,14 +9,22 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
+    margin-bottom: -10px;
     .todo_item_search {
       select {
         height: 30px;
         border: solid 1px #888;
+        margin-right: 10px;
+        border-radius: 5px;
       }
       input {
         height: 30px;
         border: solid 1px #888;
+        border-radius: 5px;
+        margin-right: 10px;
+      }
+      select[name="sort_type"] {
+        margin-right: 20px;
       }
     }
     .todo_item_add_button_section {
@@ -24,9 +32,13 @@
       button {
         width: 100px;
         height: 30px;
-        border: solid 1px #888;
         border-radius: 5px;
-        background-color: aqua;
+        background-color: #a386e9;
+        margin-left: 20px;
+        transform: background-color 1s ease;
+        &:hover {
+          background-color: #9370e4;
+        }
       }
     }
   }
@@ -35,14 +47,14 @@
     padding: 5px;
     min-width: 1500px;
     height: auto;
-    border: 1px solid rgb(109, 245, 245);
-    // overflow-y: scroll;
     display: flex;
 
     .todo_item_container {
       display: flex;
       flex-wrap: wrap;
-      border: 1px solid greenyellow;
+      border: 1px solid #ccc;
+      border-radius: 10px;
+      box-shadow: 5px 5px 5px #ccc;
       min-width: 100%;
       height: 640px;
       overflow-y: scroll;
@@ -62,18 +74,21 @@
       .todo_item_contents {
         width: 300px;
         height: 300px;
-        border: 1px solid #000;
+        border: 1px solid #ccc;
         background-color: white;
         border-radius: 8px;
         display: block;
         cursor: pointer;
-        box-shadow: 5px 5px 5px #888;
+        box-shadow: 5px 5px 5px #ccc;
         overflow-y: hidden;
+        transition: box-shadow 0.5s;
         // transition: transform 1s;
         // &:hover {
         //   transform: scale(1.02);
         // }
-
+        &:hover {
+          box-shadow: 10px 10px 5px #ccc;
+        }
         .todo_item_title {
           margin: 0 auto;
           margin-top: 10px;
@@ -172,6 +187,9 @@
     width: 100%;
     height: 300px;
     border: 1px solid #ccc;
+    border-radius: 10px;
+    box-shadow: 3px 3px 3px #ccc;
+
     overflow-y: scroll;
   }
   .userinfo_item {
