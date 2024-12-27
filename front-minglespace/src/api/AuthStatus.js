@@ -38,6 +38,15 @@ export const AuthStatus = Object.freeze({
   NotFoundVerifyCode:       {value:"NotFoundVerifyCode",      desc:"회원탈퇴 인증코드를 찾을 수 없습니다."},
   MismatchVerifyCode:       {value:"MismatchVerifyCode",      desc:"회원탈퇴 인증코드가 일치하지 않습니다."},
 
+  //비밀번호 변경
+  ChangePasswordEmail:          {value:"ChangePasswordEmail",           desc:"비밀번호 변경 페이지로 이동합니다."},
+  ChangePasswordDone:           {value:"ChangePasswordDone",            desc:"비밀번호 변경이 완료 되었습니다"},
+  ChangePwInvalid:              {value:"ChangePwInvalid",               desc:"비밀번호가 유효하지 않습니다."},
+  ChangePwEmpty:                {value:"ChangePwEmpty",                 desc:"변경할 비밀번호를 입력하세요."},
+  ChangePwEmailVerifyAlready:   {value:"ChangePwEmailVerifyAlready",    desc:"이미 비밀번호 변경 이메일 인증 되었습니다."},
+  ChangePwEmailVerifyMismatch:  {value:"ChangePwEmailVerifyMismatch",   desc:"비밀번호 변경 이메일 인증 코드가 맞지 않습니다."},
+  ChangePwNotFountUser:         {value:"ChangePwNotFountUser",          desc:"해당 유저를 찾지 못했습니다.."},
+
 
 });
 

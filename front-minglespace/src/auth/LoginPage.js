@@ -55,8 +55,12 @@ const LoginPage = () => {
 
             if(data.verifyType === "SIGNUP"){
               setIsOpenPopup(true);
-            }else{
+            }else if(data.verifyType === "WITHDRAWAL"){
               setMessage({title: "확인", content: AuthStatus[AuthStatus.WithdrawalAble.value].desc,});
+            }else if(data.verifyType === "CHANGE_PW"){
+              setMessage({title: "확인", content: AuthStatus[AuthStatus.ChangePasswordDone.value].desc,});
+            }else{
+              console.log("새로운 타입이 추가되었는지 확인하세요.");
             }
 
           } else {
@@ -287,7 +291,7 @@ const LoginPage = () => {
             </div>
 
             <div className="footer-links">
-              <Link to={`/auth/signup`}>비밀번호 찾기</Link>
+              <Link to={`/auth/changepw`}>비밀번호 변경</Link>
               <Link to={`/auth/signup`}>회원가입</Link>
             </div>
           </div>

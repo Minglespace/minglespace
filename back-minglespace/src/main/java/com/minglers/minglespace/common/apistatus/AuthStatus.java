@@ -42,6 +42,14 @@ public enum AuthStatus {
   NotFoundWithdrawal("탈퇴정보를 찾을 수 없음."),
   NotFoundVerifyCode("탈퇴 인증 코드를 찾을 수 없음."),
   MismatchVerifyCode("탈퇴 인증 코드 불일치."),
+
+  //비밀번호 변경
+  ChangePwInvalid("비밀번호가 유효하지 않습니다."),
+  ChangePwEmpty("변경할 비밀번호가 비어있음."),
+  ChangePwEmailVerifyAlready("이미 비밀번호 변경 이메일 인증 성공"),
+  ChangePwEmailVerifyMismatch("비밀번호 변경 이메일 인증 코드 틀림"),
+  ChangePwNotFountUser("비밀번호 변경 유저를 찾지 못함"),
+
   ;
 
   private final String desc;

@@ -58,6 +58,9 @@ public class User implements UserDetails {
   @Enumerated(EnumType.STRING)
   private WithdrawalType withdrawalType;
 
+  @JsonIgnore
+  private String changedPw;
+  private String verifyCodeForChangePw;
 
   //=============================================================
   // 유저 입력 필드

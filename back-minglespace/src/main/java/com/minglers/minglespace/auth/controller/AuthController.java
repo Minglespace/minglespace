@@ -2,9 +2,6 @@ package com.minglers.minglespace.auth.controller;
 
 import com.minglers.minglespace.auth.dto.*;
 import com.minglers.minglespace.auth.entity.User;
-import com.minglers.minglespace.auth.exception.JwtExceptionCode;
-import com.minglers.minglespace.auth.oauth2.OAuth2UserMs;
-import com.minglers.minglespace.auth.repository.UserRepository;
 import com.minglers.minglespace.auth.security.JWTUtils;
 import com.minglers.minglespace.auth.service.AuthEmailService;
 import com.minglers.minglespace.auth.service.TokenBlacklistService;
@@ -16,17 +13,17 @@ import com.minglers.minglespace.common.apistatus.AuthStatus;
 import com.minglers.minglespace.common.entity.Image;
 import com.minglers.minglespace.common.service.ImageService;
 import com.minglers.minglespace.common.util.CookieManager;
-import com.minglers.minglespace.common.util.MsConfig;
 import jakarta.mail.MessagingException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -35,7 +32,6 @@ import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.util.Base64;
 import java.util.Map;
-import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
@@ -63,7 +59,7 @@ class AuthController {
 
     // 회원가입 서비스 진행
     DefaultResponse res = userService.signup(reg);
-    if(res.equals(AuthStatus.Ok)){
+    if (res.equals(AuthStatus.Ok)) {
 
       log.info("비동기 이메일 전송 - Before");
       CompletableFuture<String> emailResult = authEmailService.sendEmail(code, reg.getEmail(), request);
@@ -79,17 +75,6 @@ class AuthController {
     return ResponseEntity.ok(res);
   }
 
-//  @GetMapping("/auth/verify/{code}/{encodedEmail}")
-//  public ResponseEntity<DefaultResponse> verifyEmail(
-//          @PathVariable String code,
-//          @PathVariable String encodedEmail) {
-//    DefaultResponse res = authEmailService.verify(code, encodedEmail);
-//
-//    log.info("verifyEmail res : {}", res);
-//
-//    return ResponseEntity.ok(res);
-//  }
-
   @GetMapping("/auth/verify/{code}/{encodedEmail}/{encodedVerifyType}")
   public ResponseEntity<EmailVerifyResponse> verifyEmail(
           @PathVariable String code,
@@ -103,17 +88,23 @@ class AuthController {
 
     EmailVerifyResponse res = null;
 
-    if(verifyType == VerifyType.SIGNUP){
-      res = authEmailService.checkVerifyCode(user, code);
-      if(res.getMsStatus() == AuthStatus.Ok) {
-        user.setVerificationCode("");
-        userService.update(user);
+    switch (verifyType){
+      case SIGNUP -> {
+        res = authEmailService.checkVerifyCode(user, code);
+        if (res.getMsStatus() == AuthStatus.Ok) {
+          user.setVerificationCode("");
+          userService.update(user);
+        }
       }
-    }else if(verifyType == VerifyType.WITHDRAWAL){
-      res = withdrawalService.checkVerifyCode(user, code);
-      if(res.getMsStatus() == AuthStatus.Ok){
-        user.setWithdrawalType(WithdrawalType.ABLE);
-        userService.update(user);
+      case WITHDRAWAL -> {
+        res = withdrawalService.checkVerifyCode(user, code);
+        if (res.getMsStatus() == AuthStatus.Ok) {
+          user.setWithdrawalType(WithdrawalType.ABLE);
+          userService.update(user);
+        }
+      }
+      case CHANGE_PW -> {
+        res = userService.checkVerifyCodeChangePw(user, code);
       }
     }
 
@@ -132,7 +123,7 @@ class AuthController {
   @PostMapping("auth/logout")
   public ResponseEntity<DefaultResponse> logout(
           HttpServletRequest request,
-          HttpServletResponse response){
+          HttpServletResponse response) {
 
     log.info("auth/logout");
 
@@ -141,11 +132,11 @@ class AuthController {
     return ResponseEntity.ok(new DefaultResponse().setStatus(AuthStatus.Ok));
   }
 
-  private void logoutCommon(HttpServletRequest request, HttpServletResponse response){
+  private void logoutCommon(HttpServletRequest request, HttpServletResponse response) {
     String refreshToken = CookieManager.get(JWTUtils.REFRESH_TOKEN, request);
     CookieManager.clear(JWTUtils.REFRESH_TOKEN, response);
 
-    if(refreshToken != null){
+    if (refreshToken != null) {
       LocalDateTime expiresAt = jwtUtils.extractExpiration(refreshToken);
       log.info("Token expires at: {}", expiresAt);
       tokenBlacklistService.addToBlacklist(refreshToken, expiresAt);
@@ -159,9 +150,9 @@ class AuthController {
 
     LoginResponse res = new LoginResponse();
     String accessToken = CookieManager.get("Authorization", request);
-    if(accessToken == null){
+    if (accessToken == null) {
       res.setStatus(AuthStatus.NotFoundAccessTokenInCookie);
-    }else{
+    } else {
       // accessToken은 쿠키에서 빼서, 헤더에 넣어 준다.
       CookieManager.clear("Authorization", response);
       response.setHeader("Authorization", "Bearer " + accessToken);
@@ -175,7 +166,7 @@ class AuthController {
     return ResponseEntity.ok(res);
   }
 
-  private User getUser(){
+  private User getLoinedUser() {
     Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
     String email = authentication.getName();
     return userService.getUserByEmail(email);
@@ -183,8 +174,8 @@ class AuthController {
 
   @GetMapping("/auth/user")
   public ResponseEntity<UserResponse> getMyProfile() {
-    User user = getUser();
-    if(user == null){
+    User user = getLoinedUser();
+    if (user == null) {
       return ResponseEntity.ok(new UserResponse(AuthStatus.NotFoundAccount));
     }
 
@@ -195,20 +186,6 @@ class AuthController {
     response.setStatus(AuthStatus.Ok);
     return ResponseEntity.ok(response);
   }
-
-//  @GetMapping("/auth/user/{userId}")
-//  public ResponseEntity<UserResponse> getUserById(@PathVariable Long userId) {
-//
-//    User user = userService.getUserById(userId);
-//    if(user == null){
-//      return ResponseEntity.ok(new UserResponse(AuthStatus.NotFoundAccount));
-//    }
-//
-//    UserResponse response = new UserResponse();
-//    modelMapper.map(user, response);
-//
-//    return ResponseEntity.ok(response);
-//  }
 
   @PutMapping("/auth/update")
   public ResponseEntity<DefaultResponse> updateUser(
@@ -221,10 +198,10 @@ class AuthController {
 
     Image saveFile = null;
     if (image == null) {
-      if(req.isDontUseProfileImage()){
+      if (req.isDontUseProfileImage()) {
         updateUser.setImage(null);
       }
-    }else{
+    } else {
       try {
         saveFile = imageService.uploadImage(image);
         updateUser.setImage(saveFile);
@@ -235,7 +212,7 @@ class AuthController {
 
     UserResponse res = userService.updateUser(updateUser, saveFile, req.isDontUseProfileImage());
 
-    if(saveFile != null){
+    if (saveFile != null) {
       res.setProfileImagePath(saveFile.getUripath());
     }
 
@@ -253,8 +230,8 @@ class AuthController {
     WithdrawalInfoResponse res = new WithdrawalInfoResponse();
 
     // 유저 찾기
-    User user = getUser();
-    if(user == null){
+    User user = getLoinedUser();
+    if (user == null) {
       res.setStatus(AuthStatus.NotFoundAccount);
       return ResponseEntity.ok(res);
     }
@@ -262,7 +239,7 @@ class AuthController {
     // 만료일 가져오기
     Map<String, Object> result = withdrawalService.getInfo(user);
     AuthStatus status = (AuthStatus) result.get("status");
-    if(status != AuthStatus.Ok){
+    if (status != AuthStatus.Ok) {
       return ResponseEntity.ok(new WithdrawalInfoResponse(status));
     }
 
@@ -276,23 +253,24 @@ class AuthController {
 
     return ResponseEntity.ok(res);
   }
-    // 유저가 회원탈퇴 요청시
+
+  // 유저가 회원탈퇴 요청시
   // 이메일 인증 보내고
   // DB 설정 후
   // 이후 로그인시
   // 회원탈퇴로 이동 시킨다.
   @GetMapping("/auth/withdrawal/Email")
-  public ResponseEntity<DefaultResponse> withdrawalEmail(HttpServletRequest request, HttpServletResponse response){
+  public ResponseEntity<DefaultResponse> withdrawalEmail(HttpServletRequest request, HttpServletResponse response) {
 
     // 유저 찾기
-    User user = getUser();
-    if(user == null){
+    User user = getLoinedUser();
+    if (user == null) {
       return ResponseEntity.ok(new UserResponse(AuthStatus.NotFoundAccount));
     }
 
     // 이메일 인증을 재전송시 체크
     WithdrawalType withdrawalType = user.getWithdrawalType();
-    if(!(withdrawalType == WithdrawalType.NOT || withdrawalType == WithdrawalType.EMAIL)){
+    if (!(withdrawalType == WithdrawalType.NOT || withdrawalType == WithdrawalType.EMAIL)) {
       return ResponseEntity.ok(new UserResponse(AuthStatus.WithdrawalEmailAlready));
     }
 
@@ -326,20 +304,20 @@ class AuthController {
           HttpServletRequest request, HttpServletResponse response) {
 
     // 유저 찾기
-    User user = getUser();
-    if(user == null){
+    User user = getLoinedUser();
+    if (user == null) {
       return ResponseEntity.ok(new UserResponse(AuthStatus.NotFoundAccount));
     }
 
     // 이미 신청 상태이다.
-    if(user.getWithdrawalType() == WithdrawalType.DELIVERATION){
+    if (user.getWithdrawalType() == WithdrawalType.DELIVERATION) {
       return ResponseEntity.ok(new UserResponse(AuthStatus.WithdrawalDeliverationAlready));
     }
 
     // 만료일 등록 하고
     Map<String, Object> result = withdrawalService.updateEnroll(user);
     AuthStatus status = (AuthStatus) result.get("status");
-    if(status != AuthStatus.Ok){
+    if (status != AuthStatus.Ok) {
       return ResponseEntity.ok(new DefaultResponse(status));
     }
 
@@ -357,15 +335,15 @@ class AuthController {
           HttpServletRequest request, HttpServletResponse response) {
 
     // 유저 찾기
-    User user = getUser();
-    if(user == null){
+    User user = getLoinedUser();
+    if (user == null) {
       return ResponseEntity.ok(new UserResponse(AuthStatus.NotFoundAccount));
     }
 
     // 만료시간 설정
     Map<String, Object> result = withdrawalService.updateImmediately(user);
     AuthStatus status = (AuthStatus) result.get("status");
-    if(status != AuthStatus.Ok){
+    if (status != AuthStatus.Ok) {
       return ResponseEntity.ok(new DefaultResponse(status));
     }
 
@@ -383,8 +361,8 @@ class AuthController {
   public ResponseEntity<DefaultResponse> withdrawalCancel() {
 
     // 유저 찾기
-    User user = getUser();
-    if(user == null){
+    User user = getLoinedUser();
+    if (user == null) {
       return ResponseEntity.ok(new UserResponse(AuthStatus.NotFoundAccount));
     }
 
@@ -396,4 +374,43 @@ class AuthController {
 
     return ResponseEntity.ok(new DefaultResponse(AuthStatus.Ok));
   }
+
+  @PostMapping("/auth/changepw/request")
+  public ResponseEntity<DefaultResponse> changepwImmediately(
+          @Valid
+          @RequestBody
+          ChangePwRequest req,
+          BindingResult bindingResult,
+          HttpServletRequest request,
+          HttpServletResponse response ) {
+
+    if(bindingResult.hasErrors()){
+      String error = bindingResult.getAllErrors().get(0).getDefaultMessage();
+      log.info("[MIRO] : {}, {}", AuthStatus.ChangePwInvalid, error);
+      return ResponseEntity.ok(new DefaultResponse(AuthStatus.ChangePwInvalid));
+    }
+
+    String code = UUID.randomUUID().toString();
+
+    // 저장
+    Map<String, Object> userResult = userService.saveChangePw(req, code);
+    AuthStatus status = (AuthStatus) userResult.get("status");
+    if (status != AuthStatus.Ok) {
+      return ResponseEntity.ok(new DefaultResponse(AuthStatus.ChangePwNotFountUser));
+    }
+
+    // 이메일 전송
+    CompletableFuture<String> emailResult = authEmailService.sendChangePw(code, req.getEmail(), request);
+    log.info("비동기 이메일 전송 : {}", emailResult.toString());
+    emailResult.thenAccept(result -> {
+      log.info("비동기 이메일 전송 결과: {}", result);
+    });
+
+    // 로그 아웃처리
+    logoutCommon(request, response);
+
+    return ResponseEntity.ok(new DefaultResponse(AuthStatus.Ok));
+  }
+
+
 }
