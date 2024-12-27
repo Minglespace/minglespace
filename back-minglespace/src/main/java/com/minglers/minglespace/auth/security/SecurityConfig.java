@@ -34,6 +34,7 @@ public class SecurityConfig {
 
   private final UserDetailsServiceImpl ourUserDetailsService;
   private final JWTAuthFilter jwtAuthFilter;
+  private final WithdrawalFilter withdrawalFilter;
   private final CustomAuthenticationEntryPoint customAuthenticationEntryPoint;
   private final UserServiceOAuth2 userServiceOAuth2;
   private final SuccessHandlerOAuth2 successHandlerOAuth2;
@@ -116,8 +117,11 @@ public class SecurityConfig {
     http.authenticationProvider(authenticationProvider());
 
     http.addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
+    http.addFilterAfter(withdrawalFilter, JWTAuthFilter.class);
 
     http.exceptionHandling(c -> c.authenticationEntryPoint(customAuthenticationEntryPoint));
+
+
 
     return http.build();
   }

@@ -15,4 +15,11 @@ public class MsConfig {
 
   public static String getClientUrl() {return clientUrl;}
   public static String getClientUrl(String uri) {return clientUrl + uri;}
+
+  public enum UriType{
+    SIGNUP,
+    WITHDRAWAL,
+    MESSAGE,
+  };
+
 }

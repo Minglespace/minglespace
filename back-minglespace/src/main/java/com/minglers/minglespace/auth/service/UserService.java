@@ -2,10 +2,12 @@ package com.minglers.minglespace.auth.service;
 
 import com.minglers.minglespace.auth.dto.*;
 import com.minglers.minglespace.auth.entity.User;
+import com.minglers.minglespace.auth.entity.Withdrawal;
 import com.minglers.minglespace.auth.exception.AuthException;
 import com.minglers.minglespace.auth.repository.UserRepository;
 import com.minglers.minglespace.auth.security.JWTUtils;
 import com.minglers.minglespace.auth.type.Provider;
+import com.minglers.minglespace.auth.type.WithdrawalType;
 import com.minglers.minglespace.common.apistatus.AuthStatus;
 import com.minglers.minglespace.common.entity.Image;
 import com.minglers.minglespace.common.util.CookieManager;
@@ -60,6 +62,7 @@ public class UserService {
         user.setPassword(passwordEncoder.encode(req.getPassword()));
         user.setRole(req.getRole());
         user.setProvider(Provider.MINGLESPACE);
+        user.setWithdrawalType(WithdrawalType.NOT);
 
         // 디비 저장
         User userResult = usersRepo.save(user);
@@ -113,6 +116,7 @@ public class UserService {
 
       User user = userOpt.get();
 
+      // 1. 자체 로그인 중인데, 소셜계정의 유저가 찾아진 경우
       if(user.isSocialProvider()){
         res.setStatus(AuthStatus.AlreadyJoinedEmail);
         return res;
@@ -141,6 +145,8 @@ public class UserService {
         // refreshToken은 cookie에 넣어 준다.
         CookieManager.add(JWTUtils.REFRESH_TOKEN, refreshToken, JWTUtils.EXPIRATION_REFRESH, response);
 
+        // 회원탈퇴 중인 유저인지 체크
+        res.setWithdrawalType(user.getWithdrawalType());
         res.setStatus(AuthStatus.Ok, accessToken);
       }else{
         res.setStatus(AuthStatus.EmailVerificationFirst);
@@ -188,7 +194,7 @@ public class UserService {
 
     Long userId = user.getId();
 
-    return updateUser(userId, updateUser, image,dontUse);
+    return updateUser(userId, updateUser, image, dontUse);
   }
 
   public UserResponse updateUser(Long userId, User updateUser, Image image, boolean dontUse) {
@@ -196,16 +202,21 @@ public class UserService {
     UserResponse res = new UserResponse();
 
     try {
-      Optional<User> userOptional = usersRepo.findById(userId);
+      Optional<User> opt = usersRepo.findById(userId);
 
-      if (userOptional.isPresent()) {
-        User existingUser = userOptional.get();
+      if (opt.isPresent()) {
+        User existingUser = opt.get();
 
-        existingUser.change(modelMapper, image, passwordEncoder, updateUser, dontUse);
+        // 변경되지 말아야할 값들을 널처리해서
+        // 매퍼에서 스킵하게 한다.
+        updateUser.setId(null);
+        updateUser.setPassword(null);
+
+        existingUser.change(updateUser, image, dontUse, passwordEncoder, modelMapper);
 
         User savedUser = usersRepo.save(existingUser);
 
-        res.map(modelMapper, savedUser);
+        res.map(savedUser, modelMapper);
 
         res.setStatus(AuthStatus.Ok);
       } else {
@@ -218,6 +229,24 @@ public class UserService {
     return res;
   }
 
+  public void update(User updateUser){
+    usersRepo.save(updateUser);
+  }
+  public void updateWithdrawalEnroll(User updateUser){
+    updateUser.setWithdrawalType(WithdrawalType.DELIVERATION);
+    usersRepo.save(updateUser);
+  }
+  public void updateWithdrawalImmediately(User updateUser, String modifyEmail){
+    // 이메일을 만료시간 꼬리표를 붙여 추후 해당 이메일로 재가입을 가능하게 한다.
+    updateUser.setEmail(modifyEmail);
+    updateUser.setWithdrawalType(WithdrawalType.DONE);
+    usersRepo.save(updateUser);
+  }
+  public void updateWithdrawalCancel(User updateUser){
+    updateUser.setWithdrawalType(WithdrawalType.NOT);
+    usersRepo.save(updateUser);
+  }
+
   public User getUserById(Long id) {
 
     Optional<User> opt = usersRepo.findById(id);
@@ -226,11 +255,11 @@ public class UserService {
       if (opt.isPresent()) {
         return opt.get();
       } else {
-        log.info("[MIRO] getUserById : ", AuthStatus.NotFoundAccount);
+        log.info("[MIRO] getUserById : {}", AuthStatus.NotFoundAccount);
         return null;
       }
     }catch (Exception e){
-      log.info("[MIRO] getUserById 에외 : ", AuthStatus.Exception);
+      log.info("[MIRO] getUserById 에외 : {}", AuthStatus.Exception);
       return null;
     }
   }
@@ -243,11 +272,11 @@ public class UserService {
       if (opt.isPresent()) {
         return opt.get();
       } else {
-        log.info("[MIRO] getUserByEmail : ", AuthStatus.NotFoundAccount);
+        log.info("[MIRO] getUserByEmail : {}, {}", AuthStatus.NotFoundAccount, email);
         return null;
       }
     }catch (Exception e){
-      log.info("[MIRO] getUserByEmail 에외 : ", AuthStatus.Exception);
+      log.info("[MIRO] getUserByEmail 에외 : {}", AuthStatus.Exception);
       return null;
     }
   }

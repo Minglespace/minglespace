@@ -1,4 +1,4 @@
-package com.minglers.minglespace.sampleData;
+﻿package com.minglers.minglespace.sampleData;
 
 import com.minglers.minglespace.auth.entity.User;
 import com.minglers.minglespace.auth.entity.UserFriend;
@@ -68,7 +68,7 @@ public class SampleDataTest {
                 .introduction("안녕하세요")
                 .password(passwordEncoder.encode("123123"))
                 .phone("000-0000-0000")
-                .deleteFlag(false)
+                //.deleteFlag(false)
                 .position("사원")
                 .role("ADMIN")
                 .provider(Provider.MINGLESPACE)

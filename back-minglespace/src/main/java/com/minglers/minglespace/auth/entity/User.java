@@ -1,8 +1,8 @@
 package com.minglers.minglespace.auth.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.minglers.minglespace.auth.dto.UserResponse;
 import com.minglers.minglespace.auth.type.Provider;
+import com.minglers.minglespace.auth.type.WithdrawalType;
 import com.minglers.minglespace.common.entity.Image;
 import com.minglers.minglespace.workspace.entity.WSMember;
 import jakarta.persistence.*;
@@ -48,12 +48,16 @@ public class User implements UserDetails {
   @CreationTimestamp
   private LocalDateTime regDate;
 
-  private boolean deleteFlag;
+//  private boolean deleteFlag;
 
   private String verificationCode;
 
   @Enumerated(EnumType.STRING)
   private Provider provider;
+
+  @Enumerated(EnumType.STRING)
+  private WithdrawalType withdrawalType;
+
 
   //=============================================================
   // 유저 입력 필드
@@ -81,11 +85,11 @@ public class User implements UserDetails {
   }
 
   public void change(
-          ModelMapper modelMapper,
-          Image image,
-          PasswordEncoder passwordEncoder,
           User from,
-          boolean dontUse){
+          Image image,
+          boolean dontUse,
+          PasswordEncoder passwordEncoder,
+          ModelMapper modelMapper  ){
 
     modelMapper.map(from, this);
 
