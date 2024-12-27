@@ -1,6 +1,7 @@
 import React from "react";
 import Userinfo from "../../common/Layouts/components/Userinfo";
 import { HOST_URL } from "../../api/Api";
+import NoData from "../../common/Layouts/components/NoData";
 
 const MemberInvite = ({ friends, handleInviteMember }) => {
   //이미지 체크함수
@@ -14,35 +15,39 @@ const MemberInvite = ({ friends, handleInviteMember }) => {
       <h2 className="section_container_title">
         워크스페이스 멤버를 <br />내 친구 목록에서 초대해보세요.
       </h2>
-      <div className="myFriends_userInfo_container">
-        {friends.map((userInfo) => (
-          <div className="myFriends_userInfo_flex" key={userInfo.friendId}>
-            <div>
-              <Userinfo
-                name={userInfo.name}
-                role={userInfo.position}
-                email={userInfo.email}
-                src={imageUrlPathCheck(userInfo.imageUriPath)}
-              />
+      {friends.length === 0 ? (
+        <NoData title={"친구를 추가해보세요!"} />
+      ) : (
+        <div className="myFriends_userInfo_container member_infoItem">
+          {friends.map((userInfo) => (
+            <div className="myFriends_userInfo_flex" key={userInfo.friendId}>
+              <div>
+                <Userinfo
+                  name={userInfo.name}
+                  role={userInfo.position}
+                  email={userInfo.email}
+                  src={imageUrlPathCheck(userInfo.imageUriPath)}
+                />
+              </div>
+              {userInfo.inWorkSpace ? (
+                <p>
+                  참여중인
+                  <br /> 멤버입니다
+                </p>
+              ) : (
+                <button
+                  className="add_button_2"
+                  onClick={() => {
+                    handleInviteMember(userInfo.friendId);
+                  }}
+                >
+                  초대하기
+                </button>
+              )}
             </div>
-            {userInfo.inWorkSpace ? (
-              <p>
-                참여중인
-                <br /> 멤버입니다
-              </p>
-            ) : (
-              <button
-                className="add_button_2"
-                onClick={() => {
-                  handleInviteMember(userInfo.friendId);
-                }}
-              >
-                초대하기
-              </button>
-            )}
-          </div>
-        ))}
-      </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 };

@@ -1,6 +1,7 @@
 import React, { useCallback } from "react";
 import MyFriendsApi from "../../api/myFriendsApi";
 import { getErrorMessage } from "../../common/Exception/errorUtils";
+import NoData from "../../common/Layouts/components/NoData";
 
 const MyFriendsPending = ({ friendPending, refuseFriend, acceptFriend }) => {
   //친구 거절핸들러
@@ -30,7 +31,7 @@ const MyFriendsPending = ({ friendPending, refuseFriend, acceptFriend }) => {
       <h2 className="section_container_title">친구 요청을 수락하세요!</h2>
       <div className="myFriends_request_userInfo">
         {friendPending.length === 0 ? (
-          <p>요청 온 목록이 없습니다</p>
+          <NoData title={"요청 온 친구가 없습니다"} />
         ) : (
           friendPending.map((userInfo) => (
             <div key={userInfo.id} className="myFriend_request_info">

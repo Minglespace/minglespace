@@ -6,6 +6,7 @@ import Modal from "../../common/Layouts/components/Modal";
 import UserInfoDetail from "../../common/Layouts/components/UserInfoDetail";
 import api, { HOST_URL } from "../../api/Api";
 import { getErrorMessage } from "../../common/Exception/errorUtils";
+import NoData from "../../common/Layouts/components/NoData";
 
 const MyFriendsList = ({ friends, getFriendList, handelSetFriends }) => {
   const [searchKeyword, setSearchKeyword] = useState("");
@@ -49,15 +50,18 @@ const MyFriendsList = ({ friends, getFriendList, handelSetFriends }) => {
 
   //친구삭제 핸들러
   const handleDeleteFriend = useCallback(
-    (friendId) => {
-      myFriendsApi
-        .remove(friendId)
-        .then((data) => {
-          handelSetFriends(data);
-        })
-        .catch((error) => {
-          alert(`친구삭제 실패 : \n원인:+${getErrorMessage(error)}`);
-        });
+    (friendId, event) => {
+      event.stopPropagation();
+      if (window.confirm("정말 삭제하시겠습니까?")) {
+        myFriendsApi
+          .remove(friendId)
+          .then((data) => {
+            handelSetFriends(data);
+          })
+          .catch((error) => {
+            alert(`친구삭제 실패 : \n원인:+${getErrorMessage(error)}`);
+          });
+      }
     },
     [handelSetFriends]
   );
@@ -79,45 +83,56 @@ const MyFriendsList = ({ friends, getFriendList, handelSetFriends }) => {
   return (
     <div className="section_container myFriends_container_item">
       <h1 className="section_container_title">My Friends</h1>
-      <Search
-        placeholder={"이름을 검색하세요"}
-        onSearch={handleSearch}
-        onKeyDown={handleKeyDown}
-      />
-      <div className="myFriends_userInfo_container">
-        {friends.map((userInfo) => (
-          <div
-            className="myFriends_userInfo_flex myFriends_userInfo_view"
-            key={userInfo.id}
-          >
-            <div onClick={() => handleUserClick(userInfo)}>
-              <Userinfo
-                name={userInfo.name}
-                role={userInfo.position}
-                email={userInfo.email}
-                src={imageUrlPathCheck(userInfo.profileImagePath)}
-              />
-            </div>
-            <button
-              className="add_button_2"
-              onClick={() => {
-                handleDeleteFriend(userInfo.id);
-              }}
-            >
-              친구 삭제
-            </button>
-          </div>
-        ))}
-      </div>
-      <Modal open={isModalOpen} onClose={handleCloseModal}>
-        {selectedUser && (
-          <UserInfoDetail
-            user={selectedUser}
-            isModal={true}
-            src={imageUrlPathCheck(selectedUser.profileImagePath)}
+      {friends.length === 0 ? (
+        <NoData title={"친구를 추가해보세요!"} />
+      ) : (
+        <div>
+          <Search
+            placeholder={"이름을 검색하세요"}
+            onSearch={handleSearch}
+            onKeyDown={handleKeyDown}
           />
-        )}
-      </Modal>
+          <div className="myFriends_userInfo_container">
+            {friends.map((userInfo) => (
+              <div
+                className="myFriends_userInfo_flex myFriends_userInfo_view"
+                key={userInfo.id}
+                onClick={() => handleUserClick(userInfo)}
+              >
+                <div>
+                  <Userinfo
+                    name={userInfo.name}
+                    role={userInfo.position}
+                    email={
+                      userInfo.withdrawalType === "DONE"
+                        ? "unsubscribe"
+                        : userInfo.email
+                    }
+                    src={imageUrlPathCheck(userInfo.profileImagePath)}
+                  />
+                </div>
+                <button
+                  className="add_button_2"
+                  onClick={(event) => {
+                    handleDeleteFriend(userInfo.id, event);
+                  }}
+                >
+                  친구 삭제
+                </button>
+              </div>
+            ))}
+          </div>
+          <Modal open={isModalOpen} onClose={handleCloseModal}>
+            {selectedUser && (
+              <UserInfoDetail
+                user={selectedUser}
+                isModal={true}
+                src={imageUrlPathCheck(selectedUser.profileImagePath)}
+              />
+            )}
+          </Modal>
+        </div>
+      )}
     </div>
   );
 };
