@@ -103,6 +103,18 @@ const Member = () => {
     [workspaceId, getFriendList, getMemberList]
   );
 
+  //워크스페이스 퇴장 아직 navigate 안붙인 상태
+  const handleExitMember = useCallback(() => {
+    if (role === "LEADER") {
+      alert("리더 권한을 먼저 위임해주시기 바랍니다.");
+      //navigate => member페이지로
+    } else {
+      MembersApi.exitMember(workspaceId).then((data) => {
+        alert(data);
+      });
+    }
+  });
+
   //리더 위임
   const handleTransferLeader = useCallback(
     (memberId) => {
@@ -205,6 +217,7 @@ const Member = () => {
 
   return (
     <div className="myFriends_container">
+      <button onClick={handleExitMember}>안녕히계세요</button>
       <MemberList members={members} onClickMember={handleMemberClick} />
       {renderContent()}
     </div>

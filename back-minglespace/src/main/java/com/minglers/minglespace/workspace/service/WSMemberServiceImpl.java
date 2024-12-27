@@ -7,6 +7,8 @@ import com.minglers.minglespace.auth.repository.UserRepository;
 import com.minglers.minglespace.auth.type.FriendshipStatus;
 import com.minglers.minglespace.common.service.NotificationService;
 import com.minglers.minglespace.common.type.NotificationType;
+import com.minglers.minglespace.todo.entity.Todo;
+import com.minglers.minglespace.todo.repository.TodoRepository;
 import com.minglers.minglespace.workspace.dto.FriendWithWorkspaceStatusDTO;
 import com.minglers.minglespace.workspace.dto.MemberWithUserInfoDTO;
 import com.minglers.minglespace.workspace.dto.WSMemberResponseDTO;
@@ -42,12 +44,13 @@ public class WSMemberServiceImpl implements WSMemberService {
   private final ModelMapper modelMapper;
   private final EmailInviteService emailInviteService;
   private final NotificationService notificationService;
+  private final TodoRepository todoRepository;
 
   ///////////공통 메서드
   //유저정보 가져오기
   private User findUserById(Long userId) {
     return userRepository.findById(userId)
-            .orElseThrow(() -> new UserException(HttpStatus.NOT_FOUND.value(),"유저정보를 찾을수 없습니다."));
+            .orElseThrow(() -> new UserException(HttpStatus.NOT_FOUND.value(), "유저정보를 찾을수 없습니다."));
   }
 
   //워크스페이스 가져오기
@@ -57,12 +60,13 @@ public class WSMemberServiceImpl implements WSMemberService {
   }
 
   //워크스페이스멤버 가져오기
-  private WSMember findWSMemberBy(Long userId, Long workSpaceId){
-    return wsMemberRepository.findByUserIdAndWorkSpaceId(userId,workSpaceId)
+  private WSMember findWSMemberBy(Long userId, Long workSpaceId) {
+    return wsMemberRepository.findByUserIdAndWorkSpaceId(userId, workSpaceId)
             .orElseThrow(() -> new WorkspaceException(HttpStatus.NOT_FOUND.value(), "워크스페이스 멤버가 아닙니다"));
   }
+
   //wsMemberId로 워크스페이스 멤버 조회(pk로)
-  private WSMember findById(Long wsMemberId){
+  private WSMember findById(Long wsMemberId) {
     return wsMemberRepository.findById(wsMemberId)
             .orElseThrow(() -> new WorkspaceException(HttpStatus.NOT_FOUND.value(), "워크스페이스 멤버가 아닙니다"));
   }
@@ -73,21 +77,22 @@ public class WSMemberServiceImpl implements WSMemberService {
   @Transactional(readOnly = true)
   public void checkLeader(Long userId, Long workSpaceId) {
 
-    WSMember wsMember = findWSMemberBy(userId,workSpaceId);
+    WSMember wsMember = findWSMemberBy(userId, workSpaceId);
 
-    if(WSMemberRole.LEADER != wsMember.getRole())
-      throw new WorkspaceException(HttpStatus.FORBIDDEN.value(),"워크스페이스 리더가 아닙니다");
+    if (WSMemberRole.LEADER != wsMember.getRole())
+      throw new WorkspaceException(HttpStatus.FORBIDDEN.value(), "워크스페이스 리더가 아닙니다");
   }
 
   //리더+서브리더 체크하기
   @Override
   @Transactional(readOnly = true)
   public void checkLeaderAndSubLeader(Long userId, Long workSpaceId) {
-    WSMember wsMember = findWSMemberBy(userId,workSpaceId);
+    WSMember wsMember = findWSMemberBy(userId, workSpaceId);
 
-    if(WSMemberRole.LEADER != wsMember.getRole() && WSMemberRole.SUB_LEADER != wsMember.getRole())
-      throw new WorkspaceException(HttpStatus.FORBIDDEN.value(),"워크스페이스 리더,서브리더가 아닙니다");
+    if (WSMemberRole.LEADER != wsMember.getRole() && WSMemberRole.SUB_LEADER != wsMember.getRole())
+      throw new WorkspaceException(HttpStatus.FORBIDDEN.value(), "워크스페이스 리더,서브리더가 아닙니다");
   }
+
   //ws멤버조회(유저와, workspaceId)
   @Override
   public WSMember findByUserIdAndWsId(Long userId, Long wsId) {
@@ -130,7 +135,7 @@ public class WSMemberServiceImpl implements WSMemberService {
     return wsMemberRepository.findByWorkSpaceIdOrderByCustomRoleAndUserName(workspaceId);
   }
 
-//친구목록을 불러오는데 내 워크스페이스에 참여중인지 아닌지 구분
+  //친구목록을 불러오는데 내 워크스페이스에 참여중인지 아닌지 구분
   @Override
   @Transactional(readOnly = true)
   public List<FriendWithWorkspaceStatusDTO> getFriendWithWorkspace(Long userId, Long workSpaceId) {
@@ -145,11 +150,12 @@ public class WSMemberServiceImpl implements WSMemberService {
               .imageUriPath(Objects.isNull(user.getImage()) ? null : user.getImage().getUripath())
               .position(user.getPosition())
               .inWorkSpace(wsMemberRepository
-                      .existsByWorkSpaceIdAndUserId(workSpaceId,user.getId()))
+                      .existsByWorkSpaceIdAndUserId(workSpaceId, user.getId()))
               .build();
     }).toList();
   }
-//유저를 방에 초대하기
+
+  //유저를 방에 초대하기
   @Override
   @Transactional
   public String inviteMember(Long friendId, Long workSpaceId) {
@@ -162,12 +168,13 @@ public class WSMemberServiceImpl implements WSMemberService {
               .user(user)
               .build();
       WSMember savedMember = wsMemberRepository.save(wsMember);
-      notificationService.sendNotification(user.getId(), workSpace.getName()+"에 초대되었습니다..", "/workspace/"+workSpace.getId() , NotificationType.MEMBER);
-      return savedMember.getUser().getName()+"님 초대에 성공했습니다";
+      notificationService.sendNotification(user.getId(), workSpace.getName() + "에 초대되었습니다..", "/workspace/" + workSpace.getId(), NotificationType.MEMBER);
+      return savedMember.getUser().getName() + "님 초대에 성공했습니다";
     } else {
       return "이미 워크스페이스에 참여중입니다";
     }
   }
+
   //멤버 내보내기(리더만가능)
   @Override
   @Transactional
@@ -175,8 +182,20 @@ public class WSMemberServiceImpl implements WSMemberService {
     WorkSpace workSpace = findWorkSpaceById(workSpaceId);
     WSMember wsMember = findById(memberId);
     wsMemberRepository.delete(wsMember);
-    notificationService.sendNotification(wsMember.getUser().getId(), workSpace.getName()+"에서 추방되었습니다..", "/main" , NotificationType.KICK);
-    return wsMember.getUser().getName()+"님을 추방하였습니다.";
+    notificationService.sendNotification(wsMember.getUser().getId(), workSpace.getName() + "에서 추방되었습니다..", "/main", NotificationType.KICK);
+    return wsMember.getUser().getName() + "님을 추방하였습니다.";
+  }
+
+  //워크스페이스 나가기
+  @Override
+  @Transactional
+  public String exitWorkspaceMember(Long userId, Long workSpaceId){
+    WorkSpace workSpace = findWorkSpaceById(workSpaceId);
+    User user = findUserById(userId);
+    WSMember wsMember = wsMemberRepository.findWsMemberByUserIdAndWorkSpaceId(userId, workSpaceId);
+    wsMemberRepository.delete(wsMember);
+
+    return workSpace.getName() + "에서 퇴장하셨습니다.";
   }
 
   //유저id+권한 가져오기
@@ -184,19 +203,20 @@ public class WSMemberServiceImpl implements WSMemberService {
   @Transactional(readOnly = true)
   public WSMemberResponseDTO getWorkSpaceRole(Long userId, Long workSpaceId) {
 
-    WSMember wsMember = findWSMemberBy(userId,workSpaceId);
+    WSMember wsMember = findWSMemberBy(userId, workSpaceId);
 
     return WSMemberResponseDTO.builder()
             .memberId(wsMember.getId())
             .role(wsMember.getRole().name())
             .build();
   }
+
   //리더 위임하기
   @Override
   @Transactional
   public String transferLeader(Long userId, Long memberId, Long workspaceId) {
     WorkSpace workSpace = findWorkSpaceById((workspaceId));
-    WSMember wsLeader = findWSMemberBy(userId,workspaceId); //원래 리더확인
+    WSMember wsLeader = findWSMemberBy(userId, workspaceId); //원래 리더확인
     WSMember wsMember = findById(memberId); //멤버 id(ws쪽 pk임)
 
     wsLeader.changeRole(WSMemberRole.MEMBER);
@@ -205,99 +225,100 @@ public class WSMemberServiceImpl implements WSMemberService {
     wsMember.changeRole(WSMemberRole.LEADER);
     WSMember savedLeader = wsMemberRepository.save(wsMember);//멤버or서브리더 를 리더로
 
-    notificationService.sendNotification(wsMember.getUser().getId(), workSpace.getName()+"워크스페이스의 리더로 위임되었습니다.", "/workspace/"+workSpace.getId()+"/member" , NotificationType.MEMBER);
-    return savedLeader.getUser().getName()+"님을 리더로 위임하였습니다.";
-  }
-
-  //권한 바꾸기
-  @Override
-  @Transactional
-  public String transferRole(Long workspaceId, Long memberId, String role) {
-    WSMember wsMember = findById(memberId);
-    if("MEMBER".equals(role))
-      wsMember.changeRole(WSMemberRole.MEMBER);
-    else if("SUB_LEADER".equals(role))
-      wsMember.changeRole(WSMemberRole.SUB_LEADER);
-    WSMember savedMember = wsMemberRepository.save(wsMember);
-
-    return savedMember.getUser().getName()+"님의 권한을 "+savedMember.getRole().name()+
-            "으로 변경하였습니다";
-  }
-
-  @Override
-  public void checkWSMember(Long userId, Long workSpaceId) {
-    if(!wsMemberRepository.existsByWorkSpaceIdAndUserId(workSpaceId,userId))
-      throw new WorkspaceException(HttpStatus.FORBIDDEN.value(), "잘못된 요청입니다.");
-  }
-
-  //링크방식 초대하기
-  @Override
-  @Transactional
-  public String sendInviteEmail(Long workspaceId, String email) {
-    WorkSpace workSpace = findWorkSpaceById(workspaceId);
-    Optional<User> targetUser = userRepository.findByEmail(email);
-
-    if(targetUser.isPresent()) {//이미 가입한 유저이면서,워크스페이스에 존재하면
-      if(wsMemberRepository.existsByWorkSpaceIdAndUserId(workspaceId, targetUser.get().getId())){
-        return targetUser.get().getEmail()+"님은 이미 워크스페이스 멤버입니다.";
-      }
+      notificationService.sendNotification(wsMember.getUser().getId(), workSpace.getName() + "워크스페이스의 리더로 위임되었습니다.", "/workspace/" + workSpace.getId() + "/member", NotificationType.MEMBER);
+      return savedLeader.getUser().getName() + "님을 리더로 위임하였습니다.";
     }
 
-    //1. 이메일을 보낸다.(링크+uuid)
-    String uuid = UUID.randomUUID().toString();
-    String url = "http://localhost:3000/workspace/"+workspaceId+"/invite/"
-            +uuid; //하나로 빌드후 수정해야함
+    //권한 바꾸기
+    @Override
+    @Transactional
+    public String transferRole (Long workspaceId, Long memberId, String role){
+      WSMember wsMember = findById(memberId);
+      if ("MEMBER".equals(role))
+        wsMember.changeRole(WSMemberRole.MEMBER);
+      else if ("SUB_LEADER".equals(role))
+        wsMember.changeRole(WSMemberRole.SUB_LEADER);
+      WSMember savedMember = wsMemberRepository.save(wsMember);
 
-    CompletableFuture<String> emailResult = emailInviteService.sendEmail(workSpace.getName(),url,email);
-    String returnString = emailResult.thenApply((result) ->{
-      if("success".equals(result)){
-        return "success";
-      }else{
-        return "fail";
+      return savedMember.getUser().getName() + "님의 권한을 " + savedMember.getRole().name() +
+              "으로 변경하였습니다";
+    }
+
+    @Override
+    public void checkWSMember (Long userId, Long workSpaceId){
+      if (!wsMemberRepository.existsByWorkSpaceIdAndUserId(workSpaceId, userId))
+        throw new WorkspaceException(HttpStatus.FORBIDDEN.value(), "잘못된 요청입니다.");
+    }
+
+    //링크방식 초대하기
+    @Override
+    @Transactional
+    public String sendInviteEmail (Long workspaceId, String email){
+      WorkSpace workSpace = findWorkSpaceById(workspaceId);
+      Optional<User> targetUser = userRepository.findByEmail(email);
+
+      if (targetUser.isPresent()) {//이미 가입한 유저이면서,워크스페이스에 존재하면
+        if (wsMemberRepository.existsByWorkSpaceIdAndUserId(workspaceId, targetUser.get().getId())) {
+          return targetUser.get().getEmail() + "님은 이미 워크스페이스 멤버입니다.";
+        }
       }
-    }).join();
-    //2. 실패시 실패응답을 한다.
-    if("fail".equals(returnString))
-      return "이메일 전송에 실패하였습니다";
 
-    //3. 전송완료시 db에 저장한다.(일단 기존이메일이 db에 있는지 확인후 기존꺼가 있으면 지운다.)
-    Optional<WorkspaceInvite> workspaceInvite = workspaceInviteRepository.findByEmail(email);
-    workspaceInvite.ifPresent(workspaceInviteRepository::delete);
+      //1. 이메일을 보낸다.(링크+uuid)
+      String uuid = UUID.randomUUID().toString();
+      String url = "http://localhost:3000/workspace/" + workspaceId + "/invite/"
+              + uuid; //하나로 빌드후 수정해야함
 
-    WorkspaceInvite workspaceInviteEntity = WorkspaceInvite.builder()
-            .email(email)
-            .urlLink(url)
-            .expirationTime(LocalDateTime.now().plusHours(24))
-            .workSpace(workSpace)
-            .uuid(uuid)
-            .build();
+      CompletableFuture<String> emailResult = emailInviteService.sendEmail(workSpace.getName(), url, email);
+      String returnString = emailResult.thenApply((result) -> {
+        if ("success".equals(result)) {
+          return "success";
+        } else {
+          return "fail";
+        }
+      }).join();
+      //2. 실패시 실패응답을 한다.
+      if ("fail".equals(returnString))
+        return "이메일 전송에 실패하였습니다";
 
-    WorkspaceInvite savedWorkspaceInvite = workspaceInviteRepository.save(workspaceInviteEntity);
+      //3. 전송완료시 db에 저장한다.(일단 기존이메일이 db에 있는지 확인후 기존꺼가 있으면 지운다.)
+      Optional<WorkspaceInvite> workspaceInvite = workspaceInviteRepository.findByEmail(email);
+      workspaceInvite.ifPresent(workspaceInviteRepository::delete);
 
-    return savedWorkspaceInvite.getEmail()+"님에게 이메일 링크를 전송하였습니다.";
-  }
+      WorkspaceInvite workspaceInviteEntity = WorkspaceInvite.builder()
+              .email(email)
+              .urlLink(url)
+              .expirationTime(LocalDateTime.now().plusHours(24))
+              .workSpace(workSpace)
+              .uuid(uuid)
+              .build();
 
-  @Override
-  @Transactional
-  public String checkInvite(Long workspaceId, String uuid) {
-    WorkspaceInvite workspaceInvite = workspaceInviteRepository.findByUuid(uuid).orElseThrow(
-            ()-> new WorkspaceException(HttpStatus.NOT_FOUND.value(), "초대링크가 존재하지 않습니다."));
+      WorkspaceInvite savedWorkspaceInvite = workspaceInviteRepository.save(workspaceInviteEntity);
 
-    if(LocalDateTime.now().isAfter(workspaceInvite.getExpirationTime()))
-      return "만료된 링크입니다.";
+      return savedWorkspaceInvite.getEmail() + "님에게 이메일 링크를 전송하였습니다.";
+    }
 
-    WorkSpace workSpace = findWorkSpaceById(workspaceId);
-    Optional<User> targetUser = userRepository.findByEmail(workspaceInvite.getEmail());
+    @Override
+    @Transactional
+    public String checkInvite (Long workspaceId, String uuid){
+      WorkspaceInvite workspaceInvite = workspaceInviteRepository.findByUuid(uuid).orElseThrow(
+              () -> new WorkspaceException(HttpStatus.NOT_FOUND.value(), "초대링크가 존재하지 않습니다."));
 
-    //이미 가입한 유저
-    if(targetUser.isPresent()){wsMemberRepository.save(WSMember.builder()
-            .role(WSMemberRole.MEMBER)
-            .user(targetUser.get())
-            .workSpace(workSpace)
-            .build());
-      return "existUser";
-    }else{//존재하지 않는 유저
-      return "notExistUser";
+      if (LocalDateTime.now().isAfter(workspaceInvite.getExpirationTime()))
+        return "만료된 링크입니다.";
+
+      WorkSpace workSpace = findWorkSpaceById(workspaceId);
+      Optional<User> targetUser = userRepository.findByEmail(workspaceInvite.getEmail());
+
+      //이미 가입한 유저
+      if (targetUser.isPresent()) {
+        wsMemberRepository.save(WSMember.builder()
+                .role(WSMemberRole.MEMBER)
+                .user(targetUser.get())
+                .workSpace(workSpace)
+                .build());
+        return "existUser";
+      } else {//존재하지 않는 유저
+        return "notExistUser";
+      }
     }
   }
-}

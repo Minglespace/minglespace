@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect } from "react";
+import React, { useEffect } from "react";
 import FullCalendar from "@fullcalendar/react";
 import dayGridPlugin from "@fullcalendar/daygrid";
 import interactionPlugin from "@fullcalendar/interaction";
@@ -10,9 +10,7 @@ import { formatDateToKST } from "../common/DateFormat/dateUtils";
 import { WSMemberRoleContext } from "../workspace/context/WSMemberRoleContext";
 import { getErrorMessage } from "../common/Exception/errorUtils";
 import Tooltip from "tooltip.js";
-import { end, start } from "@popperjs/core";
 import CalendarFormModal from "./componenets/CalendarFormModal";
-import { all } from "axios";
 
 const initData = [
   {
@@ -32,6 +30,7 @@ const Calendar = () => {
   const [calendarType, setCalendarType] = useState("ALL");
   const [formData, setFormData] = useState({});
   const [addType, setAddType] = useState("TIME");
+  const [clickDate, setClickDate] = useState(null);
   const {
     wsMemberData: { role },
   } = useContext(WSMemberRoleContext);
@@ -77,6 +76,9 @@ const Calendar = () => {
   //캘린더 추가
   const addCalendar = async (newCalendar) => {
     try {
+      if (addType === "TIME") {
+        newCalendar.end = newCalendar.start;
+      }
       const result = await CalendarApi.addCalendar(workspaceId, newCalendar);
     } catch (error) {
       alert(
@@ -88,6 +90,12 @@ const Calendar = () => {
   //캘린더 수정
   const modifyCalendar = async (updatedCalendar) => {
     try {
+      if (addType === "TIME") {
+        updatedCalendar.end = updatedCalendar.start;
+      } else if (addType === "DAY") {
+        updatedCalendar.start = formatDateToKST(updatedCalendar.start);
+        updatedCalendar.end = formatDateToKST(updatedCalendar.end);
+      }
       const result = await CalendarApi.modifyCalendar(
         workspaceId,
         updatedCalendar.id,
@@ -121,11 +129,12 @@ const Calendar = () => {
       getCalendarAll();
     } else if (calendarType === "NOTICE") {
       getCalendarNotice();
+      setClickDate(null);
     } else if (calendarType === "PRIVATE") {
       getCalendarPrivate();
+      setClickDate(null);
     }
   }, [workspaceId, calendarType]);
-  console.log("data :", calendarData);
 
   //캘린더에 추가되는 내용을 formData에 저장
   const handleChangeData = (e) => {
@@ -147,7 +156,7 @@ const Calendar = () => {
   //캘린더에 날짜 클릭 시 Add모달을 통해 데이터 추가
   const handleDateClick = (arg) => {
     const formattedStart = formatDateToKST(arg.dateStr);
-    addType == "TIME"
+    addType === "TIME"
       ? setFormData({
           title: "",
           description: "",
@@ -161,6 +170,7 @@ const Calendar = () => {
           end: formattedStart,
         });
     setModalOpen(true);
+    setClickDate(arg.dateStr);
   };
 
   //모달 On, Off 핸들러
@@ -212,7 +222,7 @@ const Calendar = () => {
       }));
       return false;
     }
-    if (formData.start > formData.end && addType === "TIME") {
+    if (formData.start >= formData.end && addType === "TIME") {
       setFormData((prevDate) => ({
         ...prevDate,
         end: null,
@@ -220,8 +230,9 @@ const Calendar = () => {
       return true;
     }
     if (
+      addType === "DAY" &&
       new Date(formData.end).getTime() - new Date(formData.start).getTime() <
-      86400000
+        86400000
     ) {
       alert("2일 이상 날짜를 선택해 주세요.");
       return false;
@@ -273,16 +284,21 @@ const Calendar = () => {
   };
 
   const handleAddTypeChange = (type) => {
+    if (type === "TIME") {
+      formData.end = null;
+    } else if (type === "DAY") {
+      formData.end = formData.start;
+    }
     setAddType(type);
   };
 
   const fullcalendarRender = () => {
+    console.log("All data", calendarData);
     if (calendarType === "ALL") {
-      console.log("ALL");
-      console.log("data : ", calendarData);
       return (
+        //리더 멤버 구분없이 모든 일정 종합캘린더
         <FullCalendar
-          key={calendarData.length + new Date().getTime()}
+          key={new Date().getTime()}
           plugins={[dayGridPlugin, interactionPlugin]}
           initialView="dayGridMonth"
           locale="ko"
@@ -350,13 +366,15 @@ const Calendar = () => {
       role === "SUB_LEADER" ||
       calendarType === "PRIVATE"
     ) {
-      console.log("PRIVATE");
+      console.log("LEDAR or PRIVATE", calendarData);
       return (
+        //LEADER권한 있는 NOTICE 및 개인 PRIVATE
         <FullCalendar
-          key={calendarData.length + new Date().getTime()}
+          key={new Date().getTime()}
           plugins={[dayGridPlugin, interactionPlugin]}
           locale="ko"
           initialView="dayGridMonth"
+          initialDate={clickDate}
           events={calendarData}
           dateClick={handleDateClick}
           eventClick={handleEventClick}
@@ -415,8 +433,11 @@ const Calendar = () => {
         />
       );
     } else {
+      console.log("else", calendarData);
       return (
+        //일반MEMBER NOTICE캘린더
         <FullCalendar
+          key={"MEMBERNOTICE"}
           plugins={[dayGridPlugin, interactionPlugin]}
           locale="ko"
           initialView="dayGridMonth"

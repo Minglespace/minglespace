@@ -99,13 +99,13 @@ public class TodoServiceImpl implements TodoService {
     }
 
     List<Todo> filteredTodos = pageResult.getContent().stream() .filter(todo -> {
-              boolean isCreator = todo.getWsMember().getUser().getId().equals(userId);
+//              boolean isCreator = todo.getWsMember().getUser().getId().equals(userId);
               boolean isAssignee = todo.getTodoAssigneeList().stream() .anyMatch(assignee -> assignee.getWsMember().getUser().getId().equals(userId));
-              return !isCreator || isAssignee; })
+              return isAssignee; })
             .collect(Collectors.toList());
 
     List<TodoResponseDTO> resultTodoList = filteredTodos.stream().map(todo -> {
-      String creatorname = todo.getWsMember() != null ? todo.getWsMember().getUser().getName() : "unknown";
+//      String creatorname = todo.getWsMember() != null ? todo.getWsMember().getUser().getName() : "unknown";
 
       List<WSMemberResponseDTO> assigneeList = todo.getTodoAssigneeList().stream()
               .map(assignee -> new WSMemberResponseDTO(
@@ -121,7 +121,7 @@ public class TodoServiceImpl implements TodoService {
               .start_date(todo.getStartDate())
               .end_date(todo.getEndDate())
               .complete(todo.isComplete())
-              .creator_name(creatorname)
+//              .creator_name(creatorname)
               .assignee_list(assigneeList)
               .build();
     }).collect(Collectors.toList());
@@ -177,7 +177,7 @@ public class TodoServiceImpl implements TodoService {
 
     }
     List<TodoResponseDTO> todoResponseDTOList = pageResult.getContent().stream().map(todo -> {
-      String creatorName = todo.getWsMember().getUser().getName();
+//      String creatorName = todo.getWsMember().getUser().getName();
       List<WSMemberResponseDTO> assigneeList = todo.getTodoAssigneeList().stream()
               .map(assignee -> new WSMemberResponseDTO(
                       assignee.getWsMember().getId(),
@@ -192,7 +192,7 @@ public class TodoServiceImpl implements TodoService {
               .start_date(todo.getStartDate())
               .end_date(todo.getEndDate())
               .complete(todo.isComplete())
-              .creator_name(creatorName)
+//              .creator_name(creatorName)
               .assignee_list(assigneeList)
               .build();
     }).collect(Collectors.toList());
@@ -221,7 +221,7 @@ public class TodoServiceImpl implements TodoService {
             .content(todoRequestDTO.getContent())
             .startDate(todoRequestDTO.getStart_date())
             .endDate(todoRequestDTO.getEnd_date())
-            .wsMember(wsMember)
+//            .wsMember(wsMember)
             .workSpace(workSpace).build();
 
     List<TodoAssignee> assignees = new ArrayList<>();
@@ -255,7 +255,7 @@ public class TodoServiceImpl implements TodoService {
             .content(newTodo.getContent())
             .start_date(newTodo.getStartDate())
             .end_date(newTodo.getEndDate())
-            .creator_name(newTodo.getWsMember().getUser().getName())
+//            .creator_name(newTodo.getWsMember().getUser().getName())
             .assignee_list(assigneeList).build();
   }
 
@@ -266,7 +266,7 @@ public class TodoServiceImpl implements TodoService {
 //    Todo todo = todoRepository.findById(todoId).orElseThrow();
     Todo filterTodo = todoList.stream().filter(todo -> todo.getId().equals(todoId)).findFirst().orElseThrow(() ->
             new TodoException(HttpStatus.NOT_FOUND.value(), "해당 할일 정보를 찾을수 없습니다."));
-    String creatorname = filterTodo.getWsMember().getUser().getName();
+//    String creatorname = filterTodo.getWsMember().getUser().getName();
 
     List<WSMemberResponseDTO> assigneeList = filterTodo.getTodoAssigneeList().stream()
             .map(assignee -> new WSMemberResponseDTO(
@@ -282,7 +282,7 @@ public class TodoServiceImpl implements TodoService {
             .start_date(filterTodo.getStartDate())
             .end_date(filterTodo.getEndDate())
             .complete(filterTodo.isComplete())
-            .creator_name(creatorname)
+//            .creator_name(creatorname)
             .assignee_list(assigneeList)
             .build();
   }
@@ -327,7 +327,7 @@ public class TodoServiceImpl implements TodoService {
             .start_date(todo.getStartDate())
             .end_date(todo.getEndDate())
             .complete(todo.isComplete())
-            .creator_name(todo.getWsMember().getUser().getName())
+//            .creator_name(todo.getWsMember().getUser().getName())
             .assignee_list(assigneeList).build();
   }
 

@@ -16,7 +16,7 @@ import java.util.List;
 @Table(name = "wsmember", uniqueConstraints = { @UniqueConstraint(columnNames = {"workspace_id", "user_id"}) })
 @NoArgsConstructor
 @AllArgsConstructor
-@ToString(exclude = {"workSpace", "todoList"})
+@ToString(exclude = {"workSpace"})
 @Getter
 @Builder
 public class WSMember {
@@ -41,8 +41,8 @@ public class WSMember {
     @Builder.Default
     private List<ChatRoomMember> chatRoomMembers = new ArrayList<>();
 
-    @OneToMany(mappedBy = "wsMember", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Todo> todoList ;
+//    @OneToMany(mappedBy = "wsMember", cascade = CascadeType.ALL, orphanRemoval = true)
+//    private List<Todo> todoList ;
 
     @OneToMany(mappedBy = "wsMember", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<TodoAssignee> todoAssignees ;

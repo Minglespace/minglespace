@@ -1,4 +1,4 @@
-package com.minglers.minglespace.sampleData;
+﻿package com.minglers.minglespace.sampleData;
 
 import com.minglers.minglespace.auth.entity.User;
 import com.minglers.minglespace.auth.entity.UserFriend;
@@ -26,6 +26,8 @@ import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
+import org.junit.jupiter.api.parallel.Execution;
+import org.junit.jupiter.api.parallel.ExecutionMode;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -73,7 +75,7 @@ public class SampleDataTest {
         char firstName = FIRST_NAMES[random.nextInt(FIRST_NAMES.length)]; // 이름 두 글자 선택
         char middleName = MIDDLE_LAST_NAMES[random.nextInt(MIDDLE_LAST_NAMES.length)];
         char lastName = MIDDLE_LAST_NAMES[random.nextInt(MIDDLE_LAST_NAMES.length)]; // 최종 이름 생성
-         return "" + firstName + middleName + lastName;
+        return "" + firstName + middleName + lastName;
     }
 
     private final String[] DOMAINS = {"gmail.com", "yahoo.com", "naver.com", "outlook.com", "example.com"};
@@ -84,8 +86,8 @@ public class SampleDataTest {
         for (int i = 0; i < 10; i++) {
             username.append(CHARACTERS.charAt(random.nextInt(CHARACTERS.length())));
         } // 랜덤한 도메인 선택
-     String domain = DOMAINS[random.nextInt(DOMAINS.length)]; // 최종 이메일 주소 생성
-     return username.toString() + "@" + domain;
+        String domain = DOMAINS[random.nextInt(DOMAINS.length)]; // 최종 이메일 주소 생성
+        return username.toString() + "@" + domain;
     }
 
     private String[] userPosition = {"사원","대리","과장","부장"};
@@ -100,9 +102,9 @@ public class SampleDataTest {
     public void insertUserTest() {
         userRepository.save(User.builder()
                 .name(generateRandomKoreanName())
-                .email("abc@abc.abc")
+                .email("123@123.com")
                 .introduction("안녕하세요")
-                .password(passwordEncoder.encode("123123"))
+                .password(passwordEncoder.encode("123"))
                 .phone("000-0000-0000")
                 .withdrawalType(WithdrawalType.NOT)
                 .position(generateRandomPosition())
@@ -124,6 +126,7 @@ public class SampleDataTest {
                     .verificationCode("")
                     .build());
         }
+
     }
     @Test
     @Transactional

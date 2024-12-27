@@ -1,0 +1,81 @@
+.main_dashboard_container {
+  position: relative;
+  width: 1150px;
+
+  .main_milestone_data_container {
+    width: 1120px;
+    height: 330px;
+    border: solid 1px #ccc;
+    margin: 10px;
+    border-radius: 5px;
+    background-color: #fff;
+    box-shadow: 3px 3px 3px #ccc;
+
+    .milestone_content_box {
+      text-align: center;
+      margin: 0 auto;
+      width: 1000px;
+      .slick-prev:before,
+      .slick-next:before {
+        color: #000;
+      }
+    }
+  }
+  .main_flex_box {
+    display: flex;
+    .main_content_box {
+      width: 360px;
+      height: 330px;
+      border: 1px solid #ccc;
+      border-radius: 10px;
+      margin: 10px;
+      background-color: #fff;
+      box-shadow: 3px 3px 3px #ccc;
+      .main_content_flex {
+        display: flex;
+        cursor: pointer;
+        justify-content: space-between;
+        height: 55px;
+        align-items: center;
+        .descname {
+          text-align: center;
+          padding: 10px;
+          font-size: 13px;
+          overflow: hidden;
+          white-space: nowrap;
+          margin: 5px 0;
+        }
+        .end {
+          width: 155px;
+          font-size: 11px;
+        }
+      }
+    }
+    .main_content_menubar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: solid 1px #ccc;
+      padding: 5px 30px;
+      font-size: 12px;
+      text-align: center;
+      &:last-child {
+        margin-right: 30px;
+        // border-right: none !important;
+      }
+      .main_separator {
+        height: 15px;
+        border-left: 1px solid #aaa;
+      }
+    }
+  }
+}
+.content_title {
+  margin-left: 15px;
+  height: 30px;
+  width: 120px;
+  text-align: center;
+  font-size: 18px;
+  border-bottom: solid 2px #aaa;
+  border-radius: 5px;
+}

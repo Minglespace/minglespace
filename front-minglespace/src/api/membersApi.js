@@ -65,6 +65,19 @@ class MembersApi {
     }
   };
 
+  //워크스페이스 나가기
+  static exitMember = async (workspaceId) => {
+    try {
+      const res = await api.axiosIns.delete(
+        `${prefix}/${workspaceId}/exitMember`
+      );
+      return res.data;
+    } catch (error) {
+      console.error("워크스페이스 퇴장 실패", error);
+      throw error;
+    }
+  };
+
   //리더 위임하기
   static transferLeader = async (workspaceId, memberId) => {
     try {

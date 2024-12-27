@@ -4,10 +4,7 @@ import com.minglers.minglespace.calendar.type.CalendarType;
 import com.minglers.minglespace.workspace.entity.WSMember;
 import com.minglers.minglespace.workspace.entity.WorkSpace;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.hibernate.annotations.ColumnDefault;
 
 import java.time.LocalDateTime;
@@ -16,6 +13,7 @@ import java.time.LocalDateTime;
 @Table(name = "calendar")
 @NoArgsConstructor
 @AllArgsConstructor
+@ToString
 @Getter
 @Builder
 public class Calendar{

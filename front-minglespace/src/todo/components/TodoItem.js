@@ -75,9 +75,9 @@ const TodoItem = React.memo(
             <p>{formatDate(todo.end_date)} 까지</p>
           </div>
           <div className="todo_createor_assignee">
-            <p className="todo_item_creator">담당자 : {todo.creator_name}</p>
+            <p className="todo_item_creator"></p>
             <p className="todo_item_asignee">
-              작업자 :
+              담당자 :
               {Array.isArray(todo.assignee_list) &&
               todo.assignee_list.length > 0 ? (
                 <span>

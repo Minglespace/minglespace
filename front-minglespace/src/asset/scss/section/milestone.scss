@@ -4,16 +4,33 @@
   justify-content: center;
   padding-top: 70px;
   .milestone_borderbox {
+    width: 100%;
     height: 600px;
-    border: 1px solid #ccc;
-    background-color: #eee7ea;
-    border-radius: 10px;
-    overflow-y: scroll;
+    padding-left: 20px;
+
+    // border: 1px solid #ccc;
+    // background-color: #eee7ea;
+    // border-radius: 10px;
+    // overflow-y: scroll;
+  }
+  .milestone_today_button {
+    position: absolute;
+    top: 30px;
+    left: 20px;
+    width: 100px;
+    height: 30px;
+    border-radius: 5px;
+    background-color: #2196f3;
+    color: white;
+    transition: background-color 0.3s;
+    &:hover {
+      background-color: #3e63eb;
+    }
   }
   .milestone_group_add_button {
     display: flex;
     position: absolute;
-    right: 65px;
+    right: 50px;
     bottom: -50px;
     justify-content: end;
     margin-bottom: 10px;
@@ -190,16 +207,16 @@
 }
 
 .timeline-container {
-  width: 100%;
-  height: 100%;
+  width: auto !important;
+  height: auto !important;
 }
 .react-calendar-timeline {
   overflow-x: hidden !important;
-  width: 1500px !important;
+  width: 1600px !important;
 }
 .react-calendar-timeline .rct-outer {
   display: block;
-  width: 1500px !important;
+  width: 1600px !important;
   overflow: hidden;
   white-space: nowrap;
 }
@@ -207,7 +224,7 @@
   display: inline-block;
   white-space: normal;
   vertical-align: top;
-  overflow-x: scroll;
+  overflow-x: hidden !important;
   overflow-y: hidden;
   -ms-touch-action: none;
   touch-action: none;
@@ -220,13 +237,11 @@
   font-size: 16px !important;
   font-weight: bold !important;
 }
-
 .react-calendar-timeline .rct-item:hover {
   z-index: 88;
 }
 .react-calendar-timeline .rct-item .rct-item-content {
   position: sticky;
-
   position: -webkit-sticky;
   left: 0;
   overflow: hidden;
@@ -235,14 +250,23 @@
   padding: 0 6px;
   height: 100%;
 }
+[data-testid="sidebarHeader"] {
+  width: 206px !important;
+  border-top: 1px solid #ccc !important;
+  border-left: 1px solid #ccc !important;
+  border-radius: 10px 0px 10px 0px !important;
+}
 .react-calendar-timeline .rct-sidebar {
-  overflow: hidden;
+  height: auto !important;
+  width: 200px !important;
+  // overflow: hidden;
   white-space: normal;
   display: inline-block;
   vertical-align: top;
   position: relative;
   box-sizing: border-box;
   border-right: 1px solid #bbb;
+  text-align: center !important;
 }
 .react-calendar-timeline .rct-sidebar.rct-sidebar-right {
   border-right: 0;
@@ -250,13 +274,25 @@
 }
 .react-calendar-timeline .rct-sidebar .rct-sidebar-row {
   padding: 0 4px;
-  overflow: hidden;
-  white-space: nowrap;
+  width: 200px !important;
+  overflow: none !important;
+  white-space: wrap !important;
   text-overflow: ellipsis;
   box-sizing: border-box;
   margin: 0;
   border-bottom: 1px solid #bbb;
   border-top: 1px solid #bbb;
+  * {
+    max-width: 200px !important;
+    white-space: pre-wrap !important;
+    // overflow: hidden !important;
+    // text-overflow: ellipsis !important;
+    line-height: normal !important;
+    display: inline-block !important;
+    text-align: center !important;
+    vertical-align: middle !important;
+    height: auto !important;
+  }
 }
 .react-calendar-timeline .rct-sidebar .rct-sidebar-row.rct-sidebar-row-odd {
   //짝수줄 그룹 배경 색상

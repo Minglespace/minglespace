@@ -193,7 +193,7 @@ const TodoModal = React.memo(
                 />
               )}
               <br />
-              <span>작업대상</span>
+              <span>담당자 지정</span>
               {editingTodo && role !== "LEADER" && role !== "SUB_LEADER" ? (
                 <div className="assignee_list">
                   {editingTodo.assignee_list.map((assignee, index) => (

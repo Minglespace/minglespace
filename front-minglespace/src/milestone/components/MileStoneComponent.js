@@ -543,7 +543,6 @@ const MileStoneComponent = () => {
         }}
       >
         <div className="milestone_header">
-          <button onClick={() => window.location.reload()}>Today</button>
           <div className="milestone_group_add_button">
             {role === "LEADER" || role === "SUB_LEADER" ? (
               <button onClick={handleGroupAdd}>그룹 추가하기</button>
@@ -551,6 +550,12 @@ const MileStoneComponent = () => {
               <></>
             )}
           </div>
+          <button
+            className="milestone_today_button"
+            onClick={() => window.location.reload()}
+          >
+            Today
+          </button>
           <div className="milestone_category">
             <p>전체 작업 : {total}건</p>
             <div className="milestone_not_start"></div>
@@ -595,7 +600,10 @@ const MileStoneComponent = () => {
                     return (
                       <div
                         onDoubleClick={() => handleGroupDoubleClick(group.id)}
-                        style={{ cursor: "pointer", textAlign: "center" }}
+                        style={{
+                          cursor: "pointer",
+                          textAlign: "center",
+                        }}
                       >
                         {group.title} ({completionRate}%)
                       </div>
