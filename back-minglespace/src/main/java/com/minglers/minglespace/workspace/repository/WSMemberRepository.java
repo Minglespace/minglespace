@@ -28,4 +28,5 @@ public interface WSMemberRepository extends JpaRepository<WSMember,Long> {
   //유저가 워크스페이스에 있는지 체크하기
   boolean existsByWorkSpaceIdAndUserId(Long workspaceId, Long userId);
 
+  List<WSMember> findAllByUserId(Long userId);
 }

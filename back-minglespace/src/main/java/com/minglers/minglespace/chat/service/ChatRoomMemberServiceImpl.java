@@ -7,8 +7,10 @@ import com.minglers.minglespace.chat.dto.ChatRoomMemberDTO;
 import com.minglers.minglespace.chat.entity.ChatRoom;
 import com.minglers.minglespace.chat.entity.ChatRoomMember;
 import com.minglers.minglespace.chat.exception.ChatException;
+import com.minglers.minglespace.chat.repository.ChatMessageRepository;
 import com.minglers.minglespace.chat.repository.ChatRoomMemberRepository;
 import com.minglers.minglespace.chat.repository.ChatRoomRepository;
+import com.minglers.minglespace.chat.repository.MsgReadStatusRepository;
 import com.minglers.minglespace.chat.role.ChatRole;
 import com.minglers.minglespace.common.service.NotificationService;
 import com.minglers.minglespace.common.type.NotificationType;
@@ -16,6 +18,9 @@ import com.minglers.minglespace.workspace.entity.WSMember;
 import com.minglers.minglespace.workspace.repository.WSMemberRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.log4j.Log4j2;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.http.HttpStatus;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
@@ -26,10 +31,14 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
+@Log4j2
 public class ChatRoomMemberServiceImpl implements ChatRoomMemberService {
   private final ChatRoomMemberRepository chatRoomMemberRepository;
   private final ChatRoomRepository chatRoomRepository;
   private final WSMemberRepository wsMemberRepository;
+  private final MsgReadStatusRepository msgReadStatusRepository;
+  private final ChatMessageRepository chatMessageRepository;
+
   private final NotificationService notificationService;
 
   @Override
@@ -67,7 +76,7 @@ public class ChatRoomMemberServiceImpl implements ChatRoomMemberService {
       chatRoom.addChatRoomMember(chatRoomMember);
       chatRoomMemberRepository.save(chatRoomMember);
     }
-    notificationService.sendNotification(member.getUser().getId(),"'"+ chatRoom.getName() + "' 채팅방에 초대되었습니다.", "/workspace/"+chatRoom.getWorkSpace().getId()+"/chat" ,NotificationType.CHAT);
+    notificationService.sendNotification(member.getUser().getId(), "'" + chatRoom.getName() + "' 채팅방에 초대되었습니다.", "/workspace/" + chatRoom.getWorkSpace().getId() + "/chat", NotificationType.CHAT);
 
     return "참여자 추가 완료";
   }
@@ -78,16 +87,16 @@ public class ChatRoomMemberServiceImpl implements ChatRoomMemberService {
     chatRoomMemberRepository.updateIsLeftStatus(true, chatRoomId, wsMemberId);
 
     ChatRoom chatRoom = chatRoomRepository.findById(chatRoomId)
-                    .orElseThrow(() -> new ChatException(HttpStatus.NOT_FOUND.value(), "채팅방을 찾지 못했습니다."));
+            .orElseThrow(() -> new ChatException(HttpStatus.NOT_FOUND.value(), "채팅방을 찾지 못했습니다."));
     WSMember wsMember = wsMemberRepository.findById(wsMemberId)
             .orElseThrow(() -> new ChatException(HttpStatus.NOT_FOUND.value(), "강퇴할 멤버를 찾지 못했습니다."));
-    notificationService.sendNotification(wsMember.getUser().getId(),"'"+ chatRoom.getName() + "' 채팅방에서 강퇴되었습니다.", "/workspace/"+chatRoom.getWorkSpace().getId()+"/chat" ,NotificationType.CHAT);
+    notificationService.sendNotification(wsMember.getUser().getId(), "'" + chatRoom.getName() + "' 채팅방에서 강퇴되었습니다.", "/workspace/" + chatRoom.getWorkSpace().getId() + "/chat", NotificationType.CHAT);
     return "참여자 강퇴 완료";
   }
 
   @Override
   public List<ChatRoomMemberDTO> getParticipantsByChatRoomId(Long chatRoomId) {
-    List<ChatRoomMember> chatRoomMembers = chatRoomMemberRepository.findByChatRoomIdAndIsLeftFalse(chatRoomId);
+    List<ChatRoomMember> chatRoomMembers = chatRoomMemberRepository.findByChatRoomIdAndIsLeftFalseAndUserWithdrawalTypeNot(chatRoomId);
 
     return chatRoomMembers.stream()
             .map(ChatRoomMember::toDTO)
@@ -102,7 +111,7 @@ public class ChatRoomMemberServiceImpl implements ChatRoomMemberService {
 
   @Override
   public String delegateLeader(Long chatRoomId, Long newLeaderId, Long leaderId) {
-    try{
+    try {
       ChatRoom chatRoom = chatRoomRepository.findById(chatRoomId)
               .orElseThrow(() -> new ChatException(HttpStatus.NOT_FOUND.value(), "채팅방이 존재하지 않습니다."));
       ChatRoomMember chatRoomMember = chatRoomMemberRepository.findByChatRoomIdAndWsMemberId(chatRoomId, leaderId)
@@ -122,23 +131,67 @@ public class ChatRoomMemberServiceImpl implements ChatRoomMemberService {
       chatRoomMemberRepository.save(newLeader);
 
       notificationService.sendNotification(newLeader.getWsMember().getUser().getId(),
-              "'"+ chatRoom.getName() + "' 채팅방의 새로운 방장으로 임명되셨습니다.",
-              "/workspace/"+chatRoom.getWorkSpace().getId()+"/chat",
+              "'" + chatRoom.getName() + "' 채팅방의 새로운 방장으로 임명되셨습니다.",
+              "/workspace/" + chatRoom.getWorkSpace().getId() + "/chat",
               NotificationType.CHAT);
-    }catch (ChatException e){
-      throw  e;
-    }catch(Exception e){
+    } catch (ChatException e) {
+      throw e;
+    } catch (Exception e) {
       throw new ChatException(HttpStatus.INTERNAL_SERVER_ERROR.value(), "방장 위임 중 오류 발생");
     }
     return "방장 위임 완료";
   }
 
   @Override
+  public void forceDelegateLeader(Long userId) {
+    List<WSMember> wsMembers = wsMemberRepository.findAllByUserId(userId);
+
+    for (WSMember wsMember : wsMembers) {
+//      log.info("강제 위임 전 wsmemberid: "+ wsMember.getId());
+      List<ChatRoomMember> chatRoomMembers = chatRoomMemberRepository.findByWsMemberIdAndIsLeftFalse(wsMember.getId());
+
+      for (ChatRoomMember chatRoomMember : chatRoomMembers) {
+        if (this.isRoomLeader(chatRoomMember.getChatRoom().getId(), wsMember.getId())) {
+          List<ChatRoomMember> roomMembers = chatRoomMemberRepository.findByChatRoomIdAndIsLeftFalseAndUserWithdrawalTypeNot(chatRoomMember.getChatRoom().getId());
+          if (roomMembers.size() > 1) {
+            ChatRoomMember newLeader = roomMembers.stream()
+                    .filter(member -> !member.getWsMember().getId().equals(wsMember.getId()))
+                    .findFirst()
+                    .orElseThrow(() -> new ChatException(HttpStatus.NOT_FOUND.value(), "새로운 방장 후보가 없습니다."));
+            chatRoomMember.setChatRole(ChatRole.CHATMEMBER);
+            newLeader.setChatRole(ChatRole.CHATLEADER);
+
+            chatRoomMemberRepository.save(chatRoomMember);
+            chatRoomMemberRepository.save(newLeader);
+
+            notificationService.sendNotification(newLeader.getWsMember().getUser().getId(),
+                    "'" + chatRoomMember.getChatRoom().getName() + "' 채팅방의 새로운 방장으로 강제 임명되셨습니다.",
+                    "/workspace/" + chatRoomMember.getChatRoom().getWorkSpace().getId() + "/chat",
+                    NotificationType.CHAT);
+          } else {
+            if (this.isChatRoomEmpty(chatRoomMember.getChatRoom().getId())) {
+              msgReadStatusRepository.deleteByMessage_ChatRoom_Id(chatRoomMember.getChatRoom().getId());
+              chatMessageRepository.deleteByChatRoomId(chatRoomMember.getChatRoom().getId());
+              chatRoomMemberRepository.deleteByChatRoomId(chatRoomMember.getChatRoom().getId());
+              chatRoomRepository.deleteById(chatRoomMember.getChatRoom().getId());
+              log.info("채팅방 " + chatRoomMember.getChatRoom().getName() + "가 참여자가 없어서 삭제되었습니다.");
+            }
+          }
+        } else {
+          chatRoomMember.setLeft(true);
+          chatRoomMemberRepository.save(chatRoomMember);
+        }
+      }
+    }
+  }
+
+
+  @Override
   public boolean existsByChatRoomIdAndWsMemberIdAndIsLeftFalse(Long chatRoomId, Long wsMemberId) {
     return chatRoomMemberRepository.existsByChatRoomIdAndWsMemberIdAndIsLeftFalse(chatRoomId, wsMemberId);
   }
 
-  public boolean isChatRoomEmpty(Long chatRoomId){
+  public boolean isChatRoomEmpty(Long chatRoomId) {
     return !chatRoomMemberRepository.existsByChatRoomIdAndIsLeftFalse(chatRoomId);
   }
 }

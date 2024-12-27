@@ -75,7 +75,7 @@ public class ChatRoomServiceImpl implements ChatRoomService {
 //              log.info("getRoomsByWsMember_lastMessage: " + lastMsgContent);
 
               // 참여 인원수
-              int participantCount = chatRoomMemberRepository.findByChatRoomIdAndIsLeftFalse(chatRoom.getId()).size();
+              int participantCount = chatRoomMemberRepository.findByChatRoomIdAndIsLeftFalseAndUserWithdrawalTypeNot(chatRoom.getId()).size();
 
               //안읽은 메시지
               long notReadMsgCount = msgReadStatusRepository.countByMessage_ChatRoom_IdAndWsMemberId(chatRoom.getId(), wsMember.getId());
@@ -215,7 +215,7 @@ public class ChatRoomServiceImpl implements ChatRoomService {
 
     Map<String, Object> messagesResponse = chatMessageService.getMessagesByChatRoom(chatRoomId, 0, 50);
     List<ChatMsgResponseDTO> messages = (List<ChatMsgResponseDTO>) messagesResponse.get("messages");
-    boolean msgHasMore = (boolean) messagesResponse.get("msgHasMore");
+    boolean msgHasMore = (Boolean) messagesResponse.get("msgHasMore");
     List<ChatRoomMemberDTO> participants = chatRoomMemberService.getParticipantsByChatRoomId(chatRoomId);
 
     String imageUriPath = (chatRoom.getImage() != null && chatRoom.getImage().getUripath() != null) ? chatRoom.getImage().getUripath() : "";

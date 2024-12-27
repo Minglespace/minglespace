@@ -39,7 +39,7 @@ public class MsgReadStatusServiceImpl implements MsgReadStatusService {
   @Transactional
   public void createMsgForMembers(ChatMessage saveMsg, Set<Long> activeUserIds, List<Long> mentionedIds) {
     try {
-      List<ChatRoomMember> members = chatRoomMemberRepository.findByChatRoomIdAndIsLeftFalse(saveMsg.getChatRoom().getId());
+      List<ChatRoomMember> members = chatRoomMemberRepository.findByChatRoomIdAndIsLeftFalseAndUserWithdrawalTypeNot(saveMsg.getChatRoom().getId());
 
       if (members.isEmpty()) {
         throw new ChatException(HttpStatus.NOT_FOUND.value(), "메시지 저장하는 채팅방에 멤버가 없습니다.");
