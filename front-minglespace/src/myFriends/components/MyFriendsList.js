@@ -103,7 +103,11 @@ const MyFriendsList = ({ friends, getFriendList, handelSetFriends }) => {
                   <Userinfo
                     name={userInfo.name}
                     role={userInfo.position}
-                    email={userInfo.deleteFlag ? "unsubscribe" : userInfo.email}
+                    email={
+                      userInfo.withdrawalType === "DONE"
+                        ? "unsubscribe"
+                        : userInfo.email
+                    }
                     src={imageUrlPathCheck(userInfo.profileImagePath)}
                   />
                 </div>

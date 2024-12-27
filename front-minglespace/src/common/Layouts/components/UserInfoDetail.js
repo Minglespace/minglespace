@@ -47,7 +47,7 @@ const UserInfoDetail = ({
   const renderContent = () => {
     if (isModal) {
       //모달형식으로 보여줄꺼면 이거
-      if (user.deleteFlag) {
+      if (user.withdrawalType === "DONE") {
         return (
           <div>
             <h2>유저 상세보기</h2>

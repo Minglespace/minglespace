@@ -20,7 +20,7 @@ public interface UserRepository extends JpaRepository<User, Long> {
     @Query("SELECT u FROM User u " +
             "WHERE u.id <> :userId " +
             "AND u.id NOT IN (SELECT f.friend.id FROM UserFriend f WHERE f.user.id = :userId) " +
-            "AND u.deleteFlag = false " +
+            "AND u.withdrawalType != DONE " +
             "AND (:searchKeyword IS NULL OR u.email LIKE CONCAT('%', :searchKeyword, '%') ESCAPE '\\') " +
             "ORDER BY u.name ASC")
     Slice<User> findNonFriends(@Param("userId") Long userId, @Param("searchKeyword") String searchKeyword, Pageable pageable);

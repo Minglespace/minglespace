@@ -1,4 +1,4 @@
-﻿﻿package com.minglers.minglespace.sampleData;
+package com.minglers.minglespace.sampleData;
 
 import com.minglers.minglespace.auth.entity.User;
 import com.minglers.minglespace.auth.entity.UserFriend;
@@ -6,6 +6,7 @@ import com.minglers.minglespace.auth.repository.UserFriendRepository;
 import com.minglers.minglespace.auth.repository.UserRepository;
 import com.minglers.minglespace.auth.type.FriendshipStatus;
 import com.minglers.minglespace.auth.type.Provider;
+import com.minglers.minglespace.auth.type.WithdrawalType;
 import com.minglers.minglespace.milestone.dto.MilestoneGroupRequestDTO;
 import com.minglers.minglespace.milestone.entity.MilestoneGroup;
 import com.minglers.minglespace.milestone.entity.MilestoneItem;
@@ -25,8 +26,7 @@ import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
-import org.junit.jupiter.api.parallel.Execution;
-import org.junit.jupiter.api.parallel.ExecutionMode;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -104,7 +104,7 @@ public class SampleDataTest {
                 .introduction("안녕하세요")
                 .password(passwordEncoder.encode("123123"))
                 .phone("000-0000-0000")
-                .deleteFlag(false)
+                .withdrawalType(WithdrawalType.NOT)
                 .position(generateRandomPosition())
                 .role("ADMIN")
                 .provider(Provider.MINGLESPACE)
@@ -117,7 +117,7 @@ public class SampleDataTest {
                     .introduction("안녕하세요")
                     .password(passwordEncoder.encode("123123"))
                     .phone("000-0000-0000")
-                    .deleteFlag(false)
+                    .withdrawalType(WithdrawalType.NOT)
                     .position(generateRandomPosition())
                     .role("ADMIN")
                     .provider(Provider.MINGLESPACE)
