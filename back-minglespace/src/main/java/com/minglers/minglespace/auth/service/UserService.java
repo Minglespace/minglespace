@@ -63,6 +63,7 @@ public class UserService {
         modelMapper.map(req, user);
         user.setPassword(passwordEncoder.encode(req.getPassword()));
         user.setRole(req.getRole());
+        user.setRole("ROLE_USER");
         user.setProvider(Provider.MINGLESPACE);
         user.setWithdrawalType(WithdrawalType.NOT);
 
@@ -162,6 +163,8 @@ public class UserService {
     } catch (BadCredentialsException e) {
       res.setStatus(AuthStatus.MismatchPw); // 잘못된 자격 증명 (비밀번호 틀림)
     } catch (Exception e) {
+      log.info("[MIRO] {}", e.getMessage());
+      e.printStackTrace();
       res.setStatus(AuthStatus.Exception);
     }
 

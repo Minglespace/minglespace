@@ -38,8 +38,8 @@ public class DefaultResponse {
 
     if (stackTrace.length > 3) {
       StackTraceElement caller = stackTrace[3];
-      log.info("{} .{}() - {} Line", caller.getClassName(), caller.getMethodName(), caller.getLineNumber());
-      log.info("{}, {}, {}", authStatus, authStatus.getDesc(), msg);
+      log.info("[MIRO] {} .{}() - {} Line", caller.getClassName(), caller.getMethodName(), caller.getLineNumber());
+      log.info("[MIRO] {}, {}, {}", authStatus, authStatus.getDesc(), msg);
     }
 
     return this;

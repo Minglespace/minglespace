@@ -1,18 +1,27 @@
 import { X, Eye, EyeOff } from "lucide-react";
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import AuthApi from "../api/AuthApi";
 import Modal from "../common/Layouts/components/Modal";
 import { AuthStatus, AuthStatusOk } from "../api/AuthStatus";
 
 //========================================================================
-/**
- * SignupPage 회원가입
- */
+//========================================================================
 //========================================================================
 const SignupPage = () => {
+  const navigate = useNavigate();
+  const location = useLocation();
+  
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [isOpenPopup, setIsOpenPopup] = useState(false);
+
+  const [message, setMessage] = useState(null);
+  const [errors, setErrors] = useState({});
+
+  // 렌더링을 처음 했는지 확인할 수 있는 useRef
+  const isFirstRender = useRef(true);
+  
   const [formData, setFormData] = useState({
     email: "codejay2018@gmail.com",
     verificationCode: "Aa!1Aa!1",
@@ -25,11 +34,19 @@ const SignupPage = () => {
     introduction: "Test Data",
     inviteWorkspace: false,
   });
+  // const [formData, setFormData] = useState({
+  //   email: "",
+  //   verificationCode: "",
+  //   password: "",
+  //   confirmPassword: "",
+  //   name: "",
+  //   phone: "",
+  //   role: "",
+  //   position: "",
+  //   introduction: "",
+  //   inviteWorkspace: false,
+  // });
 
-  const [errors, setErrors] = useState({});
-  const navigate = useNavigate();
-  const location = useLocation();
-  const [isOpenPopup, setIsOpenPopup] = useState(false);
   //워크스페이스에 비회원 초대를 받았을 경우
   useEffect(() => {
     if (location.state) {
@@ -40,38 +57,61 @@ const SignupPage = () => {
     }
   }, [location.state]);
 
-  //========================================================================
-  //========================================================================
-  //========================================================================
-  const validate = () => {
+  const validate = useCallback(() => {
     const newErrors = {};
+    
     if (!formData.email) {
       newErrors.email = "이메일을 입력해주세요";
     } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
       newErrors.email = "올바른 이메일 형식이 아닙니다";
     }
+
     if (!formData.password) {
       newErrors.password = "비밀번호를 입력해주세요";
+    } else if (!/(?=.*[a-z])(?=.*[A-Z])(?=.*[@$!%*?&]).{8,}$/.test(formData.password)) {
+      newErrors.password = "최소 8자 이상이며, 대소문자, 특수문자가 포함해야 합니다.";
     }
+    
     if (formData.password !== formData.confirmPassword) {
       newErrors.confirmPassword = "비밀번호가 일치하지 않습니다";
     }
+    
     if (!formData.name) {
       newErrors.name = "이름을 입력해주세요";
     }
+    
     if (!formData.phone) {
       newErrors.phone = "전화번호를 입력해주세요";
+    } else if (!/^(01[0-9]{1}-?[0-9]{3,4}-?[0-9]{4}|0[2-9]{1}[0-9]{1}-?[0-9]{3,4}-?[0-9]{4})$/.test(formData.phone)) {
+      newErrors.phone = "올바른 전화번호 형식이 아닙니다";
     }
-    if (!formData.position) {
-      newErrors.position = "직책을 입력해주세요";
-    }
+
     setErrors(newErrors);
+    
     return Object.keys(newErrors).length === 0;
+  }, [formData]);
+
+  useEffect(() => {
+    // 첫 번째 렌더링 이후에만 validate 실행
+    if (isFirstRender.current) {
+      isFirstRender.current = false;
+      return;
+    }
+    validate();
+  }, [formData, validate]);
+  //========================================================================
+  //========================================================================
+  //========================================================================
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
     if (validate()) {
       console.log("Form submitted:", formData);
       await AuthApi.signup(formData).then((data) => {
@@ -92,65 +132,52 @@ const SignupPage = () => {
     navigate("/auth/login", { state: { from: location.state?.from } });
   };
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
-    if (errors[name]) {
-      setErrors((prev) => ({
-        ...prev,
-        [name]: "",
-      }));
-    }
-  };
-
-  // 에러 팝업 관련
-  const [message, setMessage] = useState(null);
   const handleClickMsgPopup = () => {
     setMessage(null);
   };
-
   //========================================================================
   //========================================================================
   //========================================================================
-
   return (
     <div className="signup-page-overlay">
-      <Modal open={isOpenPopup} onClose={handlePopupClose}>
-        <div className="workspace_add_modal_container">
-          <h2>인증 이메일 발송되었습니다.</h2>
-          <p className="input_label1">이메일 인증하면 회원등록이 완료됩니다</p>
-          <div className="workspace_button_container">
-            <button className="add_button" onClick={handlePopupClose}>
-              확인
-            </button>
-          </div>
-        </div>
-      </Modal>
-
-      {/* 에러 팝업 관련 */}
-      <Modal open={message !== null} onClose={handleClickMsgPopup}>
-        {message && (
-          <div className="workspace_add_modal_container">
-            <p className="form-title">{message.title}</p>
-            <p>{message.content}</p>
-            <button
-              type="submit"
-              className="add_button"
-              onClick={handleClickMsgPopup}
-            >
-              확인
-            </button>
-          </div>
-        )}
-      </Modal>
-
       <div className="signup-page-container">
+
+        {/* 이메일 인증 팝업 */}
+        <Modal open={isOpenPopup} onClose={handlePopupClose}>
+          <div className="workspace_add_modal_container">
+            <h2>인증 이메일 발송되었습니다.</h2>
+            <p className="input_label1">이메일 인증하면 회원등록이 완료됩니다</p>
+            <div className="workspace_button_container">
+              <button className="add_button" onClick={handlePopupClose}>
+                확인
+              </button>
+            </div>
+          </div>
+        </Modal>
+
+        {/* 에러 팝업 관련 */}
+        <Modal open={message !== null} onClose={handleClickMsgPopup}>
+          {message && (
+            <div className="workspace_add_modal_container">
+              <p className="form-title">{message.title}</p>
+              <p>{message.content}</p>
+              <button
+                type="submit"
+                className="add_button"
+                onClick={handleClickMsgPopup}
+              >
+                확인
+              </button>
+            </div>
+          )}
+        </Modal>
+
+        {/* 닫기 */}
         <button onClick={handlePopupClose} className="signup-page-close-button">
           <X size={24} />
         </button>
+
+        {/* 왼쪽의 협업 이미지 */}
         <div className="image-container">
           <img
             src="https://images.unsplash.com/photo-1522071820081-009f0129c71c?auto=format&fit=crop&w=800"
@@ -158,8 +185,11 @@ const SignupPage = () => {
             className="signup-image"
           />
         </div>
+
+        {/* 오른쪽 패널 */}
         <div className="form-container">
           <h2 className="form-title">회원가입</h2>
+          {/* 폼 */}
           <form onSubmit={handleSubmit}>
             <div className="form-group">
               <label>이메일</label>

@@ -16,8 +16,8 @@ export const AuthStatus = Object.freeze({
 
   //DB
   DbError:                    {value:"DbError",                   desc:"시스템 오류가 발생했습니다(1)."},
-  DbDataIntegrityViolation:   {value:"DbDataIntegrityViolation",  desc:"시스템 오류가 발생했습니다(1)."},
-  DbInsertError:              {value:"DbInsertError",             desc:"시스템 오류가 발생했습니다(1)."},
+  DbDataIntegrityViolation:   {value:"DbDataIntegrityViolation",  desc:"시스템 오류가 발생했습니다(2)."},
+  DbInsertError:              {value:"DbInsertError",             desc:"시스템 오류가 발생했습니다(3)."},
 
   //회원 가입
   AlreadyJoinedEmail:             {value:"AlreadyJoinedEmail",            desc:"이미 가입한 이메일(소셜 포함) 입니다."},
@@ -25,7 +25,16 @@ export const AuthStatus = Object.freeze({
   EmailVerificationAlready:       {value:"EmailVerificationAlready",      desc:"이미 이메일 인증이 완료 되었습니다."},
   EmailVerificationCodeMismatch:  {value:"EmailVerificationCodeMismatch", desc:"이메일 인증 코드가 일치하지 않습니다."},
   NullProperty:                   {value:"NullProperty",                  desc:"비어있는 항목을 확인하세요."},
-
+  SinupValideEmailEmpty:            {value:"SinupValideEmailEmpty",         desc:"이메일을 입력해주세요."},
+  SinupValideEmailWrong:            {value:"SinupValideEmailWrong",         desc:"올바른 이메일 형식이 아닙니다."},
+  SinupValidePwWEmpty:              {value:"SinupValidePwWEmpty",           desc:"비밀번호를 입력해주세요."},
+  SinupValidePwWLength:             {value:"SinupValidePwWLength",          desc:"비밀번호는 최소 8자 이상이어야 합니다."},
+  SinupValidePwWrong:               {value:"SinupValidePwWrong",            desc:"최소 8자 이상이며, 대소문자, 특수문자가 포함해야 합니다."},
+  SinupValideNameEmpty:             {value:"SinupValideNameEmpty",          desc:"이름을 입력해주세요."},
+  SinupValidePhoneEmpty:            {value:"SinupValidePhoneEmpty",         desc:"전화번호를 입력해주세요."},
+  SinupValidePhoneWrong:            {value:"SinupValidePhoneWrong",         desc:"올바른 전화번호 형식이 아닙니다."},
+  SinupValideConfirmPwMismatch:     {value:"SinupValideConfirmPwMismatch",  desc:"비밀번호가 패스워드 확인과 일치하지 않습니다."},
+  
   //회원 탈퇴
   WithdrawalEmailFirst:     {value:"WithdrawalEmailFirst",    desc:"먼저 회원탈퇴 이메일 인증을 완료하세요."},
   WithdrawalEmailAlready:   {value:"WithdrawalEmailAlready",  desc:"이미 회원탈퇴 이메일 인증을 완료 했습니다."},

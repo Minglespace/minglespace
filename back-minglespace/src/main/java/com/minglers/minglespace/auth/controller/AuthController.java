@@ -49,20 +49,34 @@ class AuthController {
   private final WithdrawalService withdrawalService;
 
   @PostMapping("/auth/signup")
-  public ResponseEntity<DefaultResponse> signup(@RequestBody SignupRequest reg, HttpServletRequest request) throws MessagingException {
+  public ResponseEntity<DefaultResponse> signup(
+          @Valid
+          @RequestBody SignupRequest req,
+          BindingResult bindingResult,
+          HttpServletRequest request) throws MessagingException {
+
+    if(bindingResult.hasErrors()){
+      String error = bindingResult.getAllErrors().get(0).getDefaultMessage();
+      AuthStatus authStatus = AuthStatus.valueOf(error);
+      return ResponseEntity.ok(new DefaultResponse(authStatus));
+    }
+
+    if(!req.getPassword().equals(req.getConfirmPassword())){
+      return ResponseEntity.ok(new DefaultResponse(AuthStatus.SinupValideConfirmPwMismatch));
+    }
 
     // 이메일 인증 코드 생성
     String code = UUID.randomUUID().toString();
 
     // 유저에 세팅
-    reg.setVerificationCode(code);
+    req.setVerificationCode(code);
 
     // 회원가입 서비스 진행
-    DefaultResponse res = userService.signup(reg);
+    DefaultResponse res = userService.signup(req);
     if (res.equals(AuthStatus.Ok)) {
 
       log.info("비동기 이메일 전송 - Before");
-      CompletableFuture<String> emailResult = authEmailService.sendEmail(code, reg.getEmail(), request);
+      CompletableFuture<String> emailResult = authEmailService.sendEmail(code, req.getEmail(), request);
 
       // 비동기 작업이 완료된 후 결과를 기다림
       emailResult.thenAccept(result -> {
