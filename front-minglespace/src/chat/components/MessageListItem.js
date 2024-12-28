@@ -327,7 +327,8 @@ const MessageListItem = ({
         </span>
 
         {/* 삭제 아이콘 */}
-        <button
+        {message.writerWsMemberId === currentMemberInfo.wsMemberId && (
+          <button
           className="delete-button"
           onClick={() => openDeleteModal(message)}
           style={{
@@ -340,6 +341,8 @@ const MessageListItem = ({
         >
           <FiTrash2 />
         </button>
+        )}
+        
 
         {/* 안읽은 카운트 */}
         {message.unReadMembers && message.unReadMembers.length > 0 && (

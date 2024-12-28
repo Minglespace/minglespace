@@ -86,8 +86,23 @@ export const ChatAppProvider = ({ children }) => {
 
 				stompClient.subscribe(`/user/queue/workspaces/${workspaceId}/chat`, (room) => {
 					const newRoom = JSON.parse(room.body);
-					console.log("새 채팅방 알림: ", newRoom);
-					roomsDispatch({ type: "ADD_ROOMS", payload: newRoom });
+					// console.log("생성이냐 업데이트냐: ", room);
+
+					if(newRoom.type === "CREATE"){
+						roomsDispatch({ type: "ADD_ROOMS", payload: newRoom });
+					}else if(newRoom.type === "UPDATE"){
+						roomsDispatch({
+							type: "UPDATE_ROOMS",
+							payload: {
+								chatRoomId: newRoom.chatRoomId,
+								updates: { 
+									name: newRoom.name,
+									imageUriPath: newRoom.imageUriPath  
+								}
+							},
+						});
+					}
+					
 				});
 			},
 			onWebSocketError: (error) => {
