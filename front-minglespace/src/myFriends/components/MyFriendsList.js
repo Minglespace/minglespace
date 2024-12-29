@@ -82,16 +82,18 @@ const MyFriendsList = ({ friends, getFriendList, handelSetFriends }) => {
   };
   return (
     <div className="section_container myFriends_container_item">
-      <h1 className="section_container_title">My Friends</h1>
+      <div style={{display:"flex", alignItems: "center"}}>
+      <h1 style={{ flexGrow: 2 }} className="section_container_title">My Friends</h1>
+      <Search
+          placeholder={"Search by Name"}
+          onSearch={handleSearch}
+          onKeyDown={handleKeyDown}
+      />
+      </div>
+      <br />
       {friends.length === 0 ? (
         <NoData title={"친구를 추가해보세요!"} />
       ) : (
-        <div>
-          <Search
-            placeholder={"이름을 검색하세요"}
-            onSearch={handleSearch}
-            onKeyDown={handleKeyDown}
-          />
           <div className="myFriends_userInfo_container">
             {friends.map((userInfo) => (
               <div
@@ -99,7 +101,6 @@ const MyFriendsList = ({ friends, getFriendList, handelSetFriends }) => {
                 key={userInfo.id}
                 onClick={() => handleUserClick(userInfo)}
               >
-                <div>
                   <Userinfo
                     name={userInfo.name}
                     role={userInfo.position}
@@ -110,7 +111,6 @@ const MyFriendsList = ({ friends, getFriendList, handelSetFriends }) => {
                     }
                     src={imageUrlPathCheck(userInfo.profileImagePath)}
                   />
-                </div>
                 <button
                   className="add_button_2"
                   onClick={(event) => {
@@ -121,7 +121,6 @@ const MyFriendsList = ({ friends, getFriendList, handelSetFriends }) => {
                 </button>
               </div>
             ))}
-          </div>
           <Modal open={isModalOpen} onClose={handleCloseModal}>
             {selectedUser && (
               <UserInfoDetail

@@ -17,6 +17,7 @@
 .myFriends_userInfo_container {
   flex: 1;
   width: 100%;
+  height: 570px;
   overflow-y: auto;
 }
 
@@ -36,8 +37,7 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  border: 1px solid darkgray;
-  border-radius: 5px;
+  border-bottom: 2px solid darkgray;
   padding: 3px 10px;
   > div {
     > p:nth-child(2) {
@@ -60,6 +60,7 @@
 .myFriends_userInfo_flex {
   height: 90px;
   display: flex;
+  padding: 10px;
   justify-content: space-between;
   align-items: center;
 }

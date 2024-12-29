@@ -21,8 +21,8 @@ const UserInfoDetail = ({
   const renderUserInfo = () => {
     return (
       <>
-        <h2>유저 상세보기</h2>
-        <div className="flex_center">
+        <h2 className="section_container_title">유저 상세보기</h2>
+        <div className="flex_center user_pfi">
           <ProfileImage src={src} userName={user.name} size={200} />
         </div>
         <p>
@@ -65,46 +65,50 @@ const UserInfoDetail = ({
       if (handleRemoveMember && user.wsMemberId !== memberId) {
         //리더이면서 본인이 아니라면
         return (
-          <div className="userInfo_detail_modal_container">
-            <div className="flex_center">
-              <div>{renderUserInfo()}</div>
+            <div className="userInfo_detail_container">
+                <div className="flex_center">
+                    <div>{renderUserInfo()}</div>
+                </div>
+                <div className="member_Management_box">
+                    <h3>*멤버 관리하기*</h3>
+                <label htmlFor="roleOptions">멤버 권한 변경 : </label>
+                <select
+                    id="roleOptions"
+                    value={user.role}
+                    onChange={handleSelectChange}
+                >
+                    <option value="MEMBER">멤버</option>
+                    <option value="SUB_LEADER">서브 리더</option>
+                </select>
+                <br/>
+                <button
+                    className="add_button_2"
+                    onClick={() => handleRemoveMember(user.wsMemberId)}
+                >
+                    추방 하기
+                </button>
+                <button
+                    className="add_button_2"
+                    onClick={() => handleTransferLeader(user.wsMemberId)}
+                >
+                    리더 위임
+                </button>
+                </div>
             </div>
-            <button
-              className="add_button_2"
-              onClick={() => handleRemoveMember(user.wsMemberId)}
-            >
-              추방하기
-            </button>
-
-            <button
-              className="add_button_2"
-              onClick={() => handleTransferLeader(user.wsMemberId)}
-            >
-              리더 위임하기
-            </button>
-
-            <label htmlFor="roleOptions">권한 변경</label>
-            <select
-              id="roleOptions"
-              value={user.role}
-              onChange={handleSelectChange}
-            >
-              <option value="MEMBER">멤버 </option>
-              <option value="SUB_LEADER">서브 리더</option>
-            </select>
-          </div>
         );
       } else {
-        return (
-          <div className="userInfo_detail_modal_container">
-            {renderUserInfo()}
-          </div>
-        );
+          return (
+              <div className="userInfo_detail_container">
+                  <div className="flex_center">
+                      <div>{renderUserInfo()}</div>
+                  </div>
+              </div>
+          );
       }
     }
   };
 
-  return <>{renderContent()}</>;
+    return <>{renderContent()}</>;
 };
 
 export default UserInfoDetail;

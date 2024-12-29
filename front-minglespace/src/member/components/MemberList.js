@@ -26,6 +26,7 @@ const MemberList = ({ members, onClickMember }) => {
   return (
     <div className="section_container myFriends_container_item">
       <h1 className="section_container_title">Members</h1>
+      <br/>
       <div className="myFriends_userInfo_container">
         {members.map((userInfo) => (
           <div
@@ -39,7 +40,6 @@ const MemberList = ({ members, onClickMember }) => {
               email={userInfo.email}
               src={imageUrlPathCheck(userInfo.imageUriPath)}
             />
-            <div>참여중...</div>
           </div>
         ))}
       </div>

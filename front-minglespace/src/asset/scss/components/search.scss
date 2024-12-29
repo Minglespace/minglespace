@@ -3,19 +3,22 @@
   justify-content: flex-end;
   align-items: center;
   width: 180px;
-  margin-left: auto;
-  margin-right: 3px;
-  margin-bottom: 3px;
+  height: 30px;
+  margin: 8px 3px 3px auto;
   border-radius: 5px;
   box-shadow: 1px 1px darkgray;
+  background-color: white;
   >input {
     width: 160px;
     padding: 6px;
     border: none;
     outline: none;
+    background-color: white;
   }
   > svg{
     font-weight: bold;
+    opacity: 0.4;
     font-size: 1.5em;
+
   }
 }

@@ -4,3 +4,28 @@
     text-align: center;
   }
 }
+
+.userInfo_detail_container{
+  .user_pfi{
+    margin: 40px;
+  }
+  p{
+    margin: 10px;
+  }
+  .member_Management_box{
+    margin: 15px 15px 15px 60px;
+
+    >label{
+      margin: 10px;
+    }
+    >select{
+      border-bottom: 1px solid darkgray;
+      border-right: 1px solid darkgray;
+      border-bottom-right-radius: 5px;
+      box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.2);
+    }
+    button{
+      margin: 10px;
+    }
+  }
+}
