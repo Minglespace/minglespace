@@ -15,7 +15,6 @@ import org.modelmapper.ModelMapper;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.time.LocalDateTime;
 import java.util.Collection;
@@ -47,8 +46,6 @@ public class User implements UserDetails {
 
   @CreationTimestamp
   private LocalDateTime regDate;
-
-//  private boolean deleteFlag;
 
   private String verificationCode;
 
@@ -91,15 +88,16 @@ public class User implements UserDetails {
           User from,
           Image image,
           boolean dontUse,
-          PasswordEncoder passwordEncoder,
           ModelMapper modelMapper  ){
 
+    // 변경되지 말아야할 값들을 널처리해서
+    from.setId(null);
+    from.setPassword(null);
+
+    // 매퍼에서 스킵하게 한다.
     modelMapper.map(from, this);
 
-    if (from.getPassword() != null && !from.getPassword().isEmpty()) {
-      this.setPassword(passwordEncoder.encode(from.getPassword()));
-    }
-
+    // 프로필 이미지
     if(dontUse){
       this.image = null;
     }else if(image != null){

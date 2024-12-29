@@ -34,7 +34,7 @@ class Api{
     this.axiosIns.interceptors.request.use(
       (config) => {
 
-        console.log("요청 URI : ", config.url);
+        console.log("요청 : ", config.url);
         
         const skipToken = this.isTokenSkipPacket(config.url); 
         const accessToken = Repo.getAccessToken();
@@ -57,7 +57,7 @@ class Api{
     // 응답 인터셉터 설정
     this.axiosIns.interceptors.response.use(
       (response) => {
-        console.log("응답 URI : " + response.config.url + ", ", response);
+        console.log("응답 : " + response.config.url + ", ", response);
 
         const msStatus = response.data.msStatus;
 
@@ -68,7 +68,6 @@ class Api{
         if (token) {
           const accessToken = token.replace('Bearer ', '');
           Repo.setAccessToken(accessToken);
-          console.log('갱신된 accessToken 저장함.');
         }
 
         // 리프레시 토큰 만료시 로그아웃치리

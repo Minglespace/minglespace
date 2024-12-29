@@ -66,9 +66,6 @@ class Repo{
   }
 
   static setWithdrawalType(withdrawalType){
-    
-    console.log("setWithdrawalType : ", withdrawalType);
-
     if(withdrawalType){
       localStorage.setItem("WithdrawalType", withdrawalType);
     }

@@ -26,13 +26,11 @@ class AuthApi{
     }
   };
 
-
   static logout = async () => {
     try{
       const res = await api.axiosIns.post("/auth/logout");
       if (AuthStatusOk(res.data.msStatus)) {
         Repo.clearItem();
-        // navigate("/auth/login");
       }
     }catch(err){
       throw err;

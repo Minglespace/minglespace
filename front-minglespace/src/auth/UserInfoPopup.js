@@ -1,29 +1,32 @@
 ﻿import React, { useEffect, useRef, useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { LogOut, Settings } from "lucide-react";
-
+import Repo from "./Repo";
+import AuthApi from "../api/AuthApi";
+import Modal from "../common/Layouts/components/Modal";
 import Userinfo from "../common/Layouts/components/Userinfo";
 import ProfileImage from "../common/Layouts/components/ProfileImage";
 
-import Repo from "./Repo";
-import AuthApi from "../api/AuthApi";
 import { HOST_URL } from "../api/Api";
+import { useNavigate } from "react-router-dom";
+import { LogOut, Settings } from "lucide-react";
 import { AuthStatus, AuthStatusOk } from "../api/AuthStatus";
-import Modal from "../common/Layouts/components/Modal";
 
-//============================================================================================
-//============================================================================================
 //============================================================================================
 //============================================================================================
 //============================================================================================
 export default function UserInfoPopup() {
   const navigate = useNavigate();
+
   const popupRef = useRef(null); // 팝업을 참조하기 위한 ref 추가
   const buttonRef = useRef(null); // 버튼 클릭을 위한 ref 추가
+  const fileInputRef = useRef(null);
 
   const [isOpen, setIsOpen] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
-  const [dontUseProfileImage, setDontUseProfileImage] = useState(false);
+
+  const [selectedImage, setSelectedImage] = useState(null); // 선택된 이미지 파일 선택
+  const [message, setMessage] = useState(null);
+
+  const [initialUserInfo, setInitialUserInfo] = useState(null); // 초기 상태 저장
   const [userInfo, setUserInfo] = useState({
     profileImagePath: "",
     name: "",
@@ -34,16 +37,9 @@ export default function UserInfoPopup() {
     localImage: "",
     socialLogin:"",
   });
-  
-
-  const [initialUserInfo, setInitialUserInfo] = useState(null); // 초기 상태 저장
-
-  const [selectedImage, setSelectedImage] = useState(null); // 선택된 이미지 파일 선택
-  const fileInputRef = useRef(null);
-
-  const [message, setMessage] = useState(null);
-
-
+  //============================================================================================
+  //============================================================================================
+  //============================================================================================
   // 처음 로딩시 유저정보를 불러온다.
   useEffect(() => {
     getUserInfo();
@@ -57,6 +53,7 @@ export default function UserInfoPopup() {
           setIsEditing(false);
           return;
         }
+
         if(isOpen){
           setIsOpen(false);
         }
@@ -74,6 +71,7 @@ export default function UserInfoPopup() {
       if (buttonRef.current && buttonRef.current.contains(e.target)) {
         return;
       }
+
       if (popupRef.current && !popupRef.current.contains(e.target)) {
         setIsOpen(false);
         setIsEditing(false);
@@ -84,25 +82,17 @@ export default function UserInfoPopup() {
       document.removeEventListener("mousedown", handleClickOutside);
     };
   }, []);
-
   //============================================================================================
   //============================================================================================
   //============================================================================================
-  //============================================================================================
-  //============================================================================================
-
   const getUserInfo = async () => {
-
     const data = await AuthApi.userInfo();
-
     if (AuthStatusOk(data.msStatus)) {
-      Repo.setItem(data);
+
+      data.dontUseProfileImage = (data.profileImagePath) ? false : true;
       setUserInfo(data);
-      setInitialUserInfo({ ...data }); // 초기 상태 저장
-
+      Repo.setItem(data);
       Repo.setUserName(data.name);
-
-
     }else if(data.msStatus && AuthStatus[data.msStatus]){
       setMessage({
         title: "확인", 
@@ -110,7 +100,6 @@ export default function UserInfoPopup() {
         callbackOk: ()=>{setMessage(null);}
       });
     }
-
   };
 
   const handleClickOpen = async () => {
@@ -157,6 +146,11 @@ export default function UserInfoPopup() {
   }
 
   const handleClickSetting = () => {
+    userInfo.localImage = null;
+    setSelectedImage(null);
+    console.log("handleClickSetting userInfo : ", userInfo);
+    console.log("handleClickSetting selectedImage : ", selectedImage);
+    setInitialUserInfo({ ...userInfo }); // 초기 상태 저장
     setIsEditing(true);
   };
 
@@ -181,8 +175,6 @@ export default function UserInfoPopup() {
 
     if (Object.keys(changedFields).length > 0) {
       console.log("변경된 필드가 있으면 서버로 전송");
-      userInfo.dontUseProfileImage = dontUseProfileImage;
-      
       console.log("변경 before : ", changedFields);
       const data = await AuthApi.updateUserInfo(changedFields, userInfo.localImage);
       console.log("변경 after : ", data);
@@ -191,6 +183,7 @@ export default function UserInfoPopup() {
         setUserInfo(prevUserInfo => ({
           ...prevUserInfo,
           profileImagePath: data.profileImagePath,
+          dontUseProfileImage: (data.profileImagePath) ? false : true,
           name: data.name,
           position: data.position,
           phone: data.phone,
@@ -215,39 +208,37 @@ export default function UserInfoPopup() {
     }
     return changes;
   };
-
   
   const handleImageChange = (e) => {
+
     const file = e.target.files ? e.target.files[0] : null;
     if (file) {
-      setDontUseProfileImage(false);
       setSelectedImage(URL.createObjectURL(file));
       userInfo.localImage = file;
+      userInfo.dontUseProfileImage = false;
+    }else{
+      console.log("handleImageChange 여기로 들어오는 경우는?");
     }
   };
 
   const handleClickDontUseImage = () => {
-    Repo.clearProfileColor();
     setSelectedImage(null);
-    setDontUseProfileImage(true);
+    userInfo.dontUseProfileImage = true;
+    userInfo.localImage = null;
+
+    console.log("handleClickDontUseImage userInfo : ", userInfo);
+
   };
 
   const getHostImagePath = () => {
-    if (dontUseProfileImage) return null;
-
-    if (userInfo.profileImagePath)
-      return `${HOST_URL}` + userInfo.profileImagePath;
-    else return null;
+    return (userInfo.profileImagePath) ? `${HOST_URL}` + userInfo.profileImagePath : null;
   };
-
   //============================================================================================
   //============================================================================================
   //============================================================================================
-  //============================================================================================
-  //============================================================================================
-
   return (
     <div className="relative">
+      {/* 로그인 프로필 이미지 버튼 */}
       <button
         onClick={handleClickOpen}
         className="user-info-button"
@@ -255,13 +246,15 @@ export default function UserInfoPopup() {
         aria-haspopup="true"
         ref={buttonRef}  // 버튼에 ref 추가
       >
+        {/* 프로필 이미지 버튼 */}
         <ProfileImage
-          src={selectedImage || getHostImagePath()}
+          src={getHostImagePath()}
           userName={userInfo.name}
           size={50}
         />
       </button>
 
+      {/* 모달 팝업 */}
       {message && (
         <Modal open={message !== null} onClose={message.callbackOk || message.callbackNo || setMessage(null)}>
           <div className="workspace_add_modal_container">
@@ -274,14 +267,20 @@ export default function UserInfoPopup() {
         </Modal>
       )}
 
+      {/* 유저 정보 팝업 */}
       {isOpen && (
         <div className="popup-content" ref={popupRef}>
           <div className="popup-header">
+            {/* 유저 정보 변경 팝업 */}
             {isEditing ? (
               <div className="user-info">
+                {/* <p>dontUseProfileImage : {userInfo.dontUseProfileImage.toString()}</p>
+                <p>selectedImage : {selectedImage || '없음'}</p>
+                <p>getHostImagePath() : {getHostImagePath()}</p> */}
                 <div className="profile-container">
+                  {/* 유저 프로필 : 유저정보 변경 팝업  */}
                   <ProfileImage
-                    src={selectedImage || getHostImagePath()}
+                    src={(userInfo.dontUseProfileImage===true) ? null : selectedImage || getHostImagePath()}
                     userName={userInfo.name}
                   />
                   <button
@@ -366,6 +365,7 @@ export default function UserInfoPopup() {
                 />
               </div>
             ) : (
+              //{/* 유저 프로필 : 유저정보 팝업  */}
               <Userinfo
                 name={userInfo.name}
                 role={userInfo.position}
