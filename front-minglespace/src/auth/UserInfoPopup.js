@@ -34,6 +34,7 @@ export default function UserInfoPopup() {
     localImage: "",
     socialLogin:"",
   });
+  
 
   const [initialUserInfo, setInitialUserInfo] = useState(null); // 초기 상태 저장
 
@@ -43,16 +44,13 @@ export default function UserInfoPopup() {
   const [message, setMessage] = useState(null);
 
 
+  // 처음 로딩시 유저정보를 불러온다.
   useEffect(() => {
-
     getUserInfo();
-
-
   }, []);
 
   // ESC 키를 누르면 팝업을 닫는 함수
   useEffect(() => {
-
     const handleEscape = (e) => {
       if (e.key === "Escape") {
         if(isEditing){
@@ -64,9 +62,7 @@ export default function UserInfoPopup() {
         }
       }
     };
-
     document.addEventListener("keydown", handleEscape);
-
     return () => {
       document.removeEventListener("keydown", handleEscape);
     };
@@ -122,7 +118,6 @@ export default function UserInfoPopup() {
       setIsOpen(false);
     } else {
       setIsOpen(true);
-      getUserInfo();
     }
   };
   
@@ -208,22 +203,6 @@ export default function UserInfoPopup() {
       console.log("변경된 필드가 없으면 그냥 종료");
       setIsEditing(false);
     }
-
-
-    // userInfo.dontUseProfileImage = dontUseProfileImage;
-    // const data = await AuthApi.updateUserInfo(userInfo, userInfo.localImage);
-    // if (AuthStatusOk(data.msStatus)) {
-    //   setUserInfo(prevUserInfo => ({
-    //     ...prevUserInfo,
-    //     profileImagePath: data.profileImagePath,
-    //     name: data.name,
-    //     position: data.position,
-    //     phone: data.phone,
-    //     introduction: data.introduction,
-    //     socialLogin: data.socialLogin,
-    //   }));
-    //   setIsEditing(false);
-    // }
   };
 
   // 변경된 필드만 추적하는 함수
