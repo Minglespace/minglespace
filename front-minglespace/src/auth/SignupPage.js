@@ -14,14 +14,9 @@ const SignupPage = () => {
   
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  const [isOpenPopup, setIsOpenPopup] = useState(false);
-
   const [message, setMessage] = useState(null);
   const [errors, setErrors] = useState({});
-
-  // 렌더링을 처음 했는지 확인할 수 있는 useRef
-  const isFirstRender = useRef(true);
-  
+  const isFirstRender = useRef(true); // 렌더링을 처음 했는지 확인할 수 있는 useRef
   const [formData, setFormData] = useState({
     email: "codejay2018@gmail.com",
     verificationCode: "Aa!1Aa!1",
@@ -34,28 +29,6 @@ const SignupPage = () => {
     introduction: "Test Data",
     inviteWorkspace: false,
   });
-  // const [formData, setFormData] = useState({
-  //   email: "",
-  //   verificationCode: "",
-  //   password: "",
-  //   confirmPassword: "",
-  //   name: "",
-  //   phone: "",
-  //   role: "",
-  //   position: "",
-  //   introduction: "",
-  //   inviteWorkspace: false,
-  // });
-
-  //워크스페이스에 비회원 초대를 받았을 경우
-  useEffect(() => {
-    if (location.state) {
-      setFormData((prevFormData) => ({
-        ...prevFormData,
-        inviteWorkspace: true,
-      }));
-    }
-  }, [location.state]);
 
   const validate = useCallback(() => {
     const newErrors = {};
@@ -90,7 +63,7 @@ const SignupPage = () => {
     
     return Object.keys(newErrors).length === 0;
   }, [formData]);
-
+  
   useEffect(() => {
     // 첫 번째 렌더링 이후에만 validate 실행
     if (isFirstRender.current) {
@@ -99,6 +72,16 @@ const SignupPage = () => {
     }
     validate();
   }, [formData, validate]);
+
+  //워크스페이스에 비회원 초대를 받았을 경우
+  useEffect(() => {
+    if (location.state) {
+      setFormData((prevFormData) => ({
+        ...prevFormData,
+        inviteWorkspace: true,
+      }));
+    }
+  }, [location.state]);
   //========================================================================
   //========================================================================
   //========================================================================
@@ -117,24 +100,27 @@ const SignupPage = () => {
       await AuthApi.signup(formData).then((data) => {
         console.log("Form submitted data : ", data);
         if (AuthStatusOk(data.msStatus)) {
-          setIsOpenPopup(true);
+          setMessage({
+            title: "회원가입", 
+            content: AuthStatus.SinupRegiDone.desc,  
+            callbackOk: handlePopupCloseGotoLogin
+          });
+
         } else if (data.msStatus && AuthStatus[data.msStatus]) {
           setMessage({
-            title: "확인",
+            title: "회원가입",
             content: AuthStatus[data.msStatus].desc,
+            callbackOk: ()=>{setMessage(null)}
           });
         }
       });
     }
   };
 
-  const handlePopupClose = () => {
+  const handlePopupCloseGotoLogin = () => {
     navigate("/auth/login", { state: { from: location.state?.from } });
   };
 
-  const handleClickMsgPopup = () => {
-    setMessage(null);
-  };
   //========================================================================
   //========================================================================
   //========================================================================
@@ -142,38 +128,21 @@ const SignupPage = () => {
     <div className="signup-page-overlay">
       <div className="signup-page-container">
 
-        {/* 이메일 인증 팝업 */}
-        <Modal open={isOpenPopup} onClose={handlePopupClose}>
-          <div className="workspace_add_modal_container">
-            <h2>인증 이메일 발송되었습니다.</h2>
-            <p className="input_label1">이메일 인증하면 회원등록이 완료됩니다</p>
-            <div className="workspace_button_container">
-              <button className="add_button" onClick={handlePopupClose}>
-                확인
-              </button>
-            </div>
-          </div>
-        </Modal>
-
-        {/* 에러 팝업 관련 */}
-        <Modal open={message !== null} onClose={handleClickMsgPopup}>
-          {message && (
+        {/* 모달 팝업 */}
+        {message && (
+          <Modal open={message !== null} onClose={message.callbackOk || message.callbackNo }>
             <div className="workspace_add_modal_container">
               <p className="form-title">{message.title}</p>
               <p>{message.content}</p>
-              <button
-                type="submit"
-                className="add_button"
-                onClick={handleClickMsgPopup}
-              >
-                확인
-              </button>
+              {message.callbackOk && <button type="submit" className="add_button" onClick={message.callbackOk}>확인</button> }
+              {message.callbackYes && <button type="submit" className="add_button" onClick={message.callbackYes}>네</button> }
+              {message.callbackNo && <button type="submit" className="add_button" onClick={message.callbackNo}>아니요</button> }
             </div>
-          )}
-        </Modal>
+          </Modal>
+        )}
 
         {/* 닫기 */}
-        <button onClick={handlePopupClose} className="signup-page-close-button">
+        <button onClick={handlePopupCloseGotoLogin} className="signup-page-close-button">
           <X size={24} />
         </button>
 

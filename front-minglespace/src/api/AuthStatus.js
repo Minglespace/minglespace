@@ -34,12 +34,14 @@ export const AuthStatus = Object.freeze({
   SinupValidePhoneEmpty:            {value:"SinupValidePhoneEmpty",         desc:"전화번호를 입력해주세요."},
   SinupValidePhoneWrong:            {value:"SinupValidePhoneWrong",         desc:"올바른 전화번호 형식이 아닙니다."},
   SinupValideConfirmPwMismatch:     {value:"SinupValideConfirmPwMismatch",  desc:"비밀번호가 패스워드 확인과 일치하지 않습니다."},
+  SinupRegiDone:                    {value:"SinupRegiDone",                 desc:"인증 이메일 발송되었습니다. 이메일 인증하면 회원등록이 완료됩니다."},
+  SinupDone:                        {value:"SinupDone",                     desc:"회원가입이 완료 되었습니다."},
   
   //회원 탈퇴
   WithdrawalEmailFirst:     {value:"WithdrawalEmailFirst",    desc:"먼저 회원탈퇴 이메일 인증을 완료하세요."},
   WithdrawalEmailAlready:   {value:"WithdrawalEmailAlready",  desc:"이미 회원탈퇴 이메일 인증을 완료 했습니다."},
   
-  WithdrawalAble:           {value:"WithdrawalAble",          desc:"이메일 인증이 완료되었습니다. 로그인후 회원탈퇴 페이지에서 신청 가능합니다."},
+  WithdrawalAble:           {value:"WithdrawalAble",          desc:"<p>이메일 인증이 완료되었습니다.<br/> 로그인후 회원탈퇴 페이지에서 신청 가능합니다.</p>"},
   WithdrawalDeliveration:   {value:"WithdrawalDeliveration",  desc:"회원탈퇴 숙려기간 중입니다."},
   WithdrawalDeliverationAlready:   {value:"WithdrawalDeliverationAlready",  desc:" 이미 회원탈퇴 신청중 입니다."},
   WithdrawalDone:           {value:"WithdrawalDone",          desc:"회원탈퇴가 완료 되었습니다."},
