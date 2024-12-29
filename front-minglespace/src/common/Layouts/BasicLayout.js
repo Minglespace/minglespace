@@ -8,12 +8,15 @@ import WorkspaceApi from "../../api/workspaceApi";
 import { WSMemberRoleContext } from "../../workspace/context/WSMemberRoleContext";
 import { getErrorMessage, getErrorStatus } from "../Exception/errorUtils";
 import api from "../../api/Api";
+import Modal from "./components/Modal";
+import Repo from "../../auth/Repo";
 
 const BasicLayout = ({ children }) => {
+  
   const { workspaceId } = useParams();
   const navigate = useNavigate();
+  const [message, setMessage] = useState(null);
   const [wsMemberData, setWsMEmberData] = useState({ memberId: "", role: "" });
-
   const getWsMemberRole = useCallback(async () => {
     try {
       const wsMemberRoleData = await WorkspaceApi.getWsMemberRole(workspaceId);
@@ -30,14 +33,16 @@ const BasicLayout = ({ children }) => {
 
   useEffect(() => {
 
-    api.setOnWithdrawalAbleCallback(handleWithdrawalAble);
+    api.setOnCallback_RefreshTokenExpired(handleRefreshTokenExpired);
+    api.setOnCallback_WithdrawalAble(handleWithdrawalAble);
 
     if (workspaceId) {
       getWsMemberRole();
     }
 
     return () =>{
-      api.setOnWithdrawalAbleCallback(null);
+      api.setOnCallback_RefreshTokenExpired(null);
+      api.setOnCallback_WithdrawalAble(null);
     }
 
   }, [workspaceId, getWsMemberRole]);
@@ -46,13 +51,25 @@ const BasicLayout = ({ children }) => {
     getWsMemberRole();
   }, [getWsMemberRole]);
 
-  // 회원탈퇴 관련 콜백 함수
-  const handleWithdrawalAble = (msStatus) => {
-    console.log("회원탈퇴가 가능합니다. msStatus: ", msStatus);
-    // 회원탈퇴창으로 이동하는 로직 추가
-    // 예를 들어, 알림 팝업을 띄우거나, 로그인 페이지로 이동하는 등의 처리를 할 수 있습니다.
-    navigate("/auth/withdrawal");
+  // 토큰만료 관련 콜백 함수
+  const handleRefreshTokenExpired = (msStatus) => {
+    console.log("handleRefreshTokenExpired, msStatus : ", msStatus);
+    setMessage({
+      title: "확인",
+      content: "로그인 인증이 만료되었습니다. 다시 로그인 하세요.",
+      callbackOk: ()=>{
+        Repo.clearItem();
+        setMessage(null);
+        navigate("/auth/login");
+      }
+    });
   };
+
+    // 회원탈퇴 관련 콜백 함수
+    const handleWithdrawalAble = (msStatus) => {
+      console.log("handleWithdrawalAble, msStatus : ", msStatus);
+      navigate("/auth/withdrawal");
+    };
   
   return (
     <>
@@ -62,7 +79,23 @@ const BasicLayout = ({ children }) => {
         <Header />
         <div className="midcontainer">
           <Sidebar />
-          <div className="main_container">{children}</div>
+          <div className="main_container">
+            {/* 모달 팝업 */}
+            {message && (
+              <Modal open={message !== null} onClose={message.callbackOk || message.callbackNo }>
+                <div className="workspace_add_modal_container">
+                  <p className="form-title">{message.title}</p>
+                  <p>{message.content}</p>
+                  {message.callbackOk && <button type="submit" className="add_button" onClick={message.callbackOk}>확인</button> }
+                  {message.callbackYes && <button type="submit" className="add_button" onClick={message.callbackYes}>네</button> }
+                  {message.callbackNo && <button type="submit" className="add_button" onClick={message.callbackNo}>아니요</button> }
+                </div>
+              </Modal>
+            )}
+
+            {children}
+            
+          </div>
         </div>
       </WSMemberRoleContext.Provider>
       <Footer />
