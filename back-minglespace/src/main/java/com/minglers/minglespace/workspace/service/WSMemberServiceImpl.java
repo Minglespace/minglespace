@@ -5,6 +5,7 @@ import com.minglers.minglespace.auth.exception.UserException;
 import com.minglers.minglespace.auth.repository.UserFriendRepository;
 import com.minglers.minglespace.auth.repository.UserRepository;
 import com.minglers.minglespace.auth.type.FriendshipStatus;
+import com.minglers.minglespace.chat.service.ChatRoomMemberService;
 import com.minglers.minglespace.common.service.NotificationService;
 import com.minglers.minglespace.common.type.NotificationType;
 import com.minglers.minglespace.todo.entity.Todo;
@@ -45,6 +46,7 @@ public class WSMemberServiceImpl implements WSMemberService {
   private final EmailInviteService emailInviteService;
   private final NotificationService notificationService;
   private final TodoRepository todoRepository;
+  private final ChatRoomMemberService chatRoomMemberService;
 
   ///////////공통 메서드
   //유저정보 가져오기
@@ -198,6 +200,7 @@ public class WSMemberServiceImpl implements WSMemberService {
     WSMember wsMember = wsMemberRepository.findWsMemberByUserIdAndWorkSpaceId(userId, workSpaceId);
     wsMemberRepository.delete(wsMember);
 
+    chatRoomMemberService.forceDelegateLeader(userId);
     return workSpace.getName() + "에서 퇴장하셨습니다.";
   }
 

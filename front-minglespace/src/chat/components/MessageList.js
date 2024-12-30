@@ -12,7 +12,7 @@ const MessageList = ({
   msgHasMore,
   currentChatRoomId,
 }) => {
-  const { currentMemberInfo, handleRegisterAnnouncement, handleDeleteMessage } = useChatRoom();
+  const { currentMemberInfo, handleRegisterAnnouncement, handleDeleteMessage, groupMessagesByDate } = useChatRoom();
   const [announcement, setAnnouncement] = useState(null);
   const [isAnnouncementModalOpen, setIsAnnouncementModalOpen] = useState(false);
   const [selectedAnnounce, setSelectedAnnounce] = useState(null);
@@ -95,6 +95,9 @@ const MessageList = ({
     setSelectedDelete(null);
   };
 
+  const groupedMessages = groupMessagesByDate(messages);
+  // console.log("그룹화된 메시지: ", groupedMessages);
+
   return (
     <div>
       {announcement && (
@@ -119,21 +122,29 @@ const MessageList = ({
             클릭하여 메시지로 이동
           </div>
         )}
-        {messages.map((message) => {
-          return (
-            <MessageListItem
-              key={message.id}
-              message={message}
-              isSameSender={message.writerWsMemberId === currentMemberInfo.wsMemberId}
-              currentMemberInfo={currentMemberInfo}
-              onMessageClick={onMessageClick}
-              onFindParentMessage={findParentMessage}
-              openAnnounceMentModal={openAnnouncementModal}
-              openDeleteModal={openDeleteModal}
-            />
-          );
-        })}
+        {Object.keys(groupedMessages).map((date) => (
+          <div key={date}>
+            <div className="msg-date-header">
+              <span>{date}</span>
+            </div>
+            {groupedMessages[date].map((message) => {
+              return (
+                <MessageListItem
+                  key={message.id}
+                  message={message}
+                  isSameSender={message.writerWsMemberId === currentMemberInfo.wsMemberId}
+                  currentMemberInfo={currentMemberInfo}
+                  onMessageClick={onMessageClick}
+                  onFindParentMessage={findParentMessage}
+                  openAnnounceMentModal={openAnnouncementModal}
+                  openDeleteModal={openDeleteModal}
+                />
+              );
+            })}
+          </div>
+        ))}
       </div>
+
       <Modal open={isAnnouncementModalOpen} onClose={handleAnnounceCancel}>
         <div>
           <p className="text1">공지사항은 하나만 등록 가능합니다.</p>

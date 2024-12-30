@@ -672,6 +672,20 @@
   color: #333;
 }
 
+
+//메시지 날짜
+.msg-date-header {
+  // background-color: #eceaea;
+  border-top: 1px solid #e0e0e0;
+  border-bottom: 1px solid #e0e0e0;
+  color: #333;
+  padding: 5px 0;
+  text-align: center;
+  font-weight: bold;
+  font-size: 13px;
+  margin: 10px 0;
+}
+
 // MessageListItme.js
 .message-container {
   display: flex;

@@ -1,7 +1,9 @@
 package com.minglers.minglespace.workspace.entity;
 
 import com.minglers.minglespace.auth.entity.User;
+import com.minglers.minglespace.chat.entity.ChatMessage;
 import com.minglers.minglespace.chat.entity.ChatRoomMember;
+import com.minglers.minglespace.chat.entity.MsgReadStatus;
 import com.minglers.minglespace.todo.entity.Todo;
 import com.minglers.minglespace.todo.entity.TodoAssignee;
 import com.minglers.minglespace.workspace.role.WSMemberRole;
@@ -40,6 +42,15 @@ public class WSMember {
     @OneToMany(mappedBy = "wsMember", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default
     private List<ChatRoomMember> chatRoomMembers = new ArrayList<>();
+
+    @OneToMany(mappedBy = "wsMember", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Builder.Default
+    private List<MsgReadStatus> msgReadStatuses = new ArrayList<>();
+
+    @OneToMany(mappedBy = "wsMember", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Builder.Default
+    private List<ChatMessage> chatMessages = new ArrayList<>();
+
 
 //    @OneToMany(mappedBy = "wsMember", cascade = CascadeType.ALL, orphanRemoval = true)
 //    private List<Todo> todoList ;

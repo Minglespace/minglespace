@@ -25,14 +25,16 @@ public class ChatMessage {
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long id;
+
   private String content;
 
   //message 보낸 유저
   @ManyToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = "ws_member_id", nullable = false)
   private WSMember wsMember;
 
   @ManyToOne(fetch = FetchType.LAZY)
-  @JoinColumn(name = "chatroom_id")
+  @JoinColumn(name = "chatroom_id", nullable = false)
   private ChatRoom chatRoom;
 
   @ManyToOne(fetch = FetchType.LAZY)
@@ -48,9 +50,13 @@ public class ChatMessage {
   @Builder.Default
   private Boolean isDeleted = false;
 
-  @OneToMany(mappedBy = "chatMessage", orphanRemoval = true)
+  @OneToMany(mappedBy = "chatMessage", orphanRemoval = true, cascade = CascadeType.ALL)
   @Builder.Default
   private List<Image> images = new ArrayList<>();
+
+  @OneToMany(mappedBy = "message", orphanRemoval = true, cascade = CascadeType.ALL)
+  @Builder.Default
+  private List<MsgReadStatus> msgReadStatuses = new ArrayList<>();
 
   public void addImage(Image image) {
     images.add(image);

@@ -31,11 +31,11 @@ public class ChatRoomMember {
     private ChatRole chatRole;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "chatroom_id")
+    @JoinColumn(name = "chatroom_id", nullable = false)
     private ChatRoom chatRoom;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "wsmember_id")
+    @JoinColumn(name = "wsmember_id", nullable = false)
     private WSMember wsMember;
 
     @Builder.Default
