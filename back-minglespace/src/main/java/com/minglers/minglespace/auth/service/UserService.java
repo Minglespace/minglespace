@@ -63,6 +63,7 @@ public class UserService {
         modelMapper.map(req, user);
         user.setPassword(passwordEncoder.encode(req.getPassword()));
         user.setRole(req.getRole());
+        user.setRole("ROLE_USER");
         user.setProvider(Provider.MINGLESPACE);
         user.setWithdrawalType(WithdrawalType.NOT);
 
@@ -162,26 +163,8 @@ public class UserService {
     } catch (BadCredentialsException e) {
       res.setStatus(AuthStatus.MismatchPw); // 잘못된 자격 증명 (비밀번호 틀림)
     } catch (Exception e) {
-      res.setStatus(AuthStatus.Exception);
-    }
-
-    return res;
-  }
-
-  public DefaultResponse deleteUser(Long userId) {
-
-    DefaultResponse res = new DefaultResponse();
-
-    try {
-      Optional<User> opt = usersRepo.findById(userId);
-
-      if (opt.isPresent()) {
-        usersRepo.deleteById(userId);
-        res.setStatus(AuthStatus.Ok);
-      } else {
-        res.setStatus(AuthStatus.NotFoundAccount);
-      }
-    } catch (Exception e) {
+      log.info("[MIRO] {}", e.getMessage());
+      e.printStackTrace();
       res.setStatus(AuthStatus.Exception);
     }
 
@@ -192,33 +175,23 @@ public class UserService {
 
     Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
-    User user = (User) authentication.getPrincipal();
-
-    Long userId = user.getId();
-
-    return updateUser(userId, updateUser, image, dontUse);
-  }
-
-  public UserResponse updateUser(Long userId, User updateUser, Image image, boolean dontUse) {
+    User dbUser = (User) authentication.getPrincipal();
+    Long userId = dbUser.getId();
 
     UserResponse res = new UserResponse();
 
     try {
       Optional<User> opt = usersRepo.findById(userId);
-
       if (opt.isPresent()) {
         User existingUser = opt.get();
-
-        // 변경되지 말아야할 값들을 널처리해서
-        // 매퍼에서 스킵하게 한다.
-        updateUser.setId(null);
-        updateUser.setPassword(null);
-
-        existingUser.change(updateUser, image, dontUse, passwordEncoder, modelMapper);
+        existingUser.change(updateUser, image, dontUse, modelMapper);
 
         User savedUser = usersRepo.save(existingUser);
-
         res.map(savedUser, modelMapper);
+
+        if (image != null) {
+          res.setProfileImagePath(image.getUripath());
+        }
 
         res.setStatus(AuthStatus.Ok);
       } else {

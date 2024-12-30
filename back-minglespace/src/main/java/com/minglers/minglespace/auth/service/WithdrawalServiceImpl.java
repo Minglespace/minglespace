@@ -7,6 +7,7 @@ import com.minglers.minglespace.auth.entity.Withdrawal;
 import com.minglers.minglespace.auth.repository.WithdrawalRepository;
 import com.minglers.minglespace.auth.security.JWTUtils;
 import com.minglers.minglespace.common.apistatus.AuthStatus;
+import com.minglers.minglespace.common.util.MsConfig;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -113,7 +114,9 @@ public class WithdrawalServiceImpl implements WithdrawalService{
     }
 
     // 만료기간을 설정한다
-    withdrawal.setExpireDate(1, "minutes");
+    int hours = MsConfig.getWithdrawalExpireHours();
+    log.error("[MIRO] 회원탈퇴 숙려기간 : {}", hours);
+    withdrawal.setExpireDate(hours, "hours");
     withdrawalRepository.save(withdrawal);
 
     resultMap.put("status", AuthStatus.Ok);
@@ -159,9 +162,9 @@ public class WithdrawalServiceImpl implements WithdrawalService{
     withdrawalRepository.save(withdrawal);
   }
 
-  @Scheduled(cron = "0 */2 * * * ?") // 매 5분마다 실행
+  @Scheduled(fixedDelay = MsConfig.WITHDRAWAL_POLLING_CYCLE_MILLS)
   public void checkExpiredWithdrawals() {
-    log.info("[MIRO][Scheduled] 회원탈퇴 처리할게 있는지 확인하러 왔어요.");
+    log.info("[MIRO][Scheduled] 회원탈퇴 처리할게 있는지 확인하러 왔어요. 검사주기는 : {}", MsConfig.WITHDRAWAL_POLLING_CYCLE_MILLS);
 
     LocalDateTime now = LocalDateTime.now();
 

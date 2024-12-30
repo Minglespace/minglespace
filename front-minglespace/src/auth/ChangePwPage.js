@@ -9,6 +9,7 @@ const ChangePwPage = () => {
 
   const navigate = useNavigate();
   const [message, setMessage] = useState(null);
+  const [errors, setErrors] = useState({});
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [formData, setFormData] = useState({
@@ -17,8 +18,6 @@ const ChangePwPage = () => {
     confirmPassword: "a1a1A!A!",
   });
 
-  const [errors, setErrors] = useState({});
-  
   const validate = useCallback(() => {
     const newErrors = {};
 

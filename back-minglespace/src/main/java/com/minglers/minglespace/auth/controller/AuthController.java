@@ -49,27 +49,38 @@ class AuthController {
   private final WithdrawalService withdrawalService;
 
   @PostMapping("/auth/signup")
-  public ResponseEntity<DefaultResponse> signup(@RequestBody SignupRequest reg, HttpServletRequest request) throws MessagingException {
+  public ResponseEntity<DefaultResponse> signup(
+          @Valid
+          @RequestBody SignupRequest req,
+          BindingResult bindingResult,
+          HttpServletRequest request) throws MessagingException {
+
+    // 유효성 검사
+    if(bindingResult.hasErrors()){
+      String error = bindingResult.getAllErrors().get(0).getDefaultMessage();
+      AuthStatus authStatus = AuthStatus.valueOf(error);
+      return ResponseEntity.ok(new DefaultResponse(authStatus));
+    }
+
+    // 비밀번호 컴펌 검사
+    if(!req.getPassword().equals(req.getConfirmPassword())){
+      return ResponseEntity.ok(new DefaultResponse(AuthStatus.SinupValideConfirmPwMismatch));
+    }
 
     // 이메일 인증 코드 생성
     String code = UUID.randomUUID().toString();
 
     // 유저에 세팅
-    reg.setVerificationCode(code);
+    req.setVerificationCode(code);
 
     // 회원가입 서비스 진행
-    DefaultResponse res = userService.signup(reg);
+    DefaultResponse res = userService.signup(req);
     if (res.equals(AuthStatus.Ok)) {
-
-      log.info("비동기 이메일 전송 - Before");
-      CompletableFuture<String> emailResult = authEmailService.sendEmail(code, reg.getEmail(), request);
-
-      // 비동기 작업이 완료된 후 결과를 기다림
+      // 이메일 인증
+      CompletableFuture<String> emailResult = authEmailService.sendEmail(code, req.getEmail(), request);
       emailResult.thenAccept(result -> {
         log.info("비동기 이메일 전송 결과: {}", result);
       });
-
-      log.info("비동기 이메일 전송 - After : {}", emailResult.toString());
     }
 
     return ResponseEntity.ok(res);
@@ -90,6 +101,7 @@ class AuthController {
 
     switch (verifyType){
       case SIGNUP -> {
+        // 회원가입 이메일 인증 확인
         res = authEmailService.checkVerifyCode(user, code);
         if (res.getMsStatus() == AuthStatus.Ok) {
           user.setVerificationCode("");
@@ -97,6 +109,7 @@ class AuthController {
         }
       }
       case WITHDRAWAL -> {
+        // 회원탈퇴 이메일 인증 확인
         res = withdrawalService.checkVerifyCode(user, code);
         if (res.getMsStatus() == AuthStatus.Ok) {
           user.setWithdrawalType(WithdrawalType.ABLE);
@@ -104,6 +117,7 @@ class AuthController {
         }
       }
       case CHANGE_PW -> {
+        // 비밀번호 변경 이메일 인증 확인
         res = userService.checkVerifyCodeChangePw(user, code);
       }
     }
@@ -114,6 +128,8 @@ class AuthController {
     return ResponseEntity.ok(res);
   }
 
+  // 자체 로그인 부분은 controller -> handler 쪽으로 변경해보자(비지니스 로직과 보안 로직의 구분)
+  // 소셜 로그인 부분은 이미 handler으로 되어 있음.
   @PostMapping("/auth/login")
   public ResponseEntity<LoginResponse> login(@RequestBody LoginRequest req, HttpServletResponse response) {
     LoginResponse res = userService.login(req, response);
@@ -125,17 +141,19 @@ class AuthController {
           HttpServletRequest request,
           HttpServletResponse response) {
 
-    log.info("auth/logout");
-
     logoutCommon(request, response);
 
     return ResponseEntity.ok(new DefaultResponse().setStatus(AuthStatus.Ok));
   }
 
   private void logoutCommon(HttpServletRequest request, HttpServletResponse response) {
+
+    // 쿠키에서 REFRESH_TOKEN 정리
     String refreshToken = CookieManager.get(JWTUtils.REFRESH_TOKEN, request);
     CookieManager.clear(JWTUtils.REFRESH_TOKEN, response);
 
+    // REFRESH_TOKEN 블랙 리스트에 등록, REFRESH_TOKEN 토큰을 무효화 시키는 역할이다.
+    // ACCESS_TOKEN은 만료시간을 짧게 주어, 관리 대상에서 제외한다.
     if (refreshToken != null) {
       LocalDateTime expiresAt = jwtUtils.extractExpiration(refreshToken);
       log.info("Token expires at: {}", expiresAt);
@@ -143,6 +161,9 @@ class AuthController {
     }
   }
 
+  // 소셜 로그인에서 사용한다.
+  // 클라에서 쿠키(http onley, 자바스크립트에서 접근 못하게 막음)에 있는
+  // ACCESS_TOKEN을 헤더에 넣어 보내달라고 요청하는 패킷이다.
   @GetMapping("/auth/token")
   private ResponseEntity<LoginResponse> token(
           HttpServletRequest request,
@@ -166,6 +187,7 @@ class AuthController {
     return ResponseEntity.ok(res);
   }
 
+  // SecurityContextHolder에서 로그인한 유저의 email을 얻어, DB에서 User를 찾아준다.
   private User getLoinedUser() {
     Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
     String email = authentication.getName();
@@ -182,26 +204,27 @@ class AuthController {
     UserResponse response = new UserResponse();
 
     response.map(user, modelMapper);
-
     response.setStatus(AuthStatus.Ok);
+
     return ResponseEntity.ok(response);
   }
 
   @PutMapping("/auth/update")
   public ResponseEntity<DefaultResponse> updateUser(
           @RequestPart("req") UserUpdateRequest req,
-          @RequestPart(value = "image", required = false) MultipartFile image) {
+          @RequestPart(value = "image", required = false)
+          MultipartFile image) {
 
     User updateUser = new User();
 
+    // 새로운 유저에 변경할 정보를 넣은다.
     modelMapper.map(req, updateUser);
 
+    // imageService : 프로필 이미지 처리
     Image saveFile = null;
-    if (image == null) {
-      if (req.isDontUseProfileImage()) {
-        updateUser.setImage(null);
-      }
-    } else {
+    if (req.isDontUseProfileImage()) {
+      updateUser.setImage(null);
+    } else if (image != null){
       try {
         saveFile = imageService.uploadImage(image);
         updateUser.setImage(saveFile);
@@ -210,18 +233,10 @@ class AuthController {
       }
     }
 
+    // userService : 유저에 반영
     UserResponse res = userService.updateUser(updateUser, saveFile, req.isDontUseProfileImage());
 
-    if (saveFile != null) {
-      res.setProfileImagePath(saveFile.getUripath());
-    }
-
     return ResponseEntity.ok(res);
-  }
-
-  @DeleteMapping("/auth/delete/{userId}")
-  public ResponseEntity<DefaultResponse> deleteUSer(@PathVariable Long userId) {
-    return ResponseEntity.ok(userService.deleteUser(userId));
   }
 
   @GetMapping("/auth/withdrawal/Info")
@@ -236,15 +251,15 @@ class AuthController {
       return ResponseEntity.ok(res);
     }
 
-    // 만료일 가져오기
+    // 숙려기간 가져오기
     Map<String, Object> result = withdrawalService.getInfo(user);
     AuthStatus status = (AuthStatus) result.get("status");
     if (status != AuthStatus.Ok) {
       return ResponseEntity.ok(new WithdrawalInfoResponse(status));
     }
-
     LocalDateTime expireDate = (LocalDateTime) result.get("expireDate");
 
+    // 회원탈퇴 정보 세팅
     res.setEmail(user.getEmail());
     res.setName(user.getName());
     res.setExpireDate(expireDate);
@@ -291,10 +306,9 @@ class AuthController {
       log.info("비동기 이메일 전송 결과: {}", result);
     });
 
-    // 인증 초기화
-    logoutCommon(request, response);
-
+    // 로그아웃 처리
     // 클라에서는 로그아웃 패킷 보낼 필요 없이 자체 로그 아웃 하면 된다.
+    logoutCommon(request, response);
 
     return ResponseEntity.ok(new DefaultResponse(AuthStatus.Ok));
   }
