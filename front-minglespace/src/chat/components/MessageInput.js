@@ -312,7 +312,7 @@ const MessageInput = ({
               width: "15%",
               maxHeight: "120px",
               overflowY: "auto",
-              bottom: "28px"
+              bottom: "70px"
             }}
             ref={mentionRef}
           >

@@ -6,6 +6,7 @@ import TodoItem from "./TodoItem";
 import TodoModal from "./TodoModal";
 import MembersApi from "../../api/membersApi";
 import { WSMemberRoleContext } from "../../workspace/context/WSMemberRoleContext";
+import NoData from "../../common/Layouts/components/NoData";
 
 const TodoComponent = () => {
   const [todoItem, setTodoItem] = useState([]);
@@ -230,7 +231,9 @@ const TodoComponent = () => {
       <div className="todo_list_section">
         <div className="todo_item_container">
           {todoItem.length <= 0 ? (
-            <div>부여된 할일이 없습니다.</div>
+            <div style={{ margin: "0 auto" }}>
+              <NoData />
+            </div>
           ) : (
             todoItem.map((todo, index) => (
               <div

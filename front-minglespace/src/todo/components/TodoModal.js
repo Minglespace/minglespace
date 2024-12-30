@@ -193,7 +193,7 @@ const TodoModal = React.memo(
                 />
               )}
               <br />
-              <span>담당자 지정</span>
+              <span>담당자</span>
               {editingTodo && role !== "LEADER" && role !== "SUB_LEADER" ? (
                 <div className="assignee_list">
                   {editingTodo.assignee_list.map((assignee, index) => (
@@ -239,6 +239,7 @@ const TodoModal = React.memo(
                 </div>
               )}
               <div>
+                <label>완료여부 : </label>
                 <input
                   type="checkbox"
                   value={complete}

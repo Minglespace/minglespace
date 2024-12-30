@@ -324,4 +324,23 @@ public class WSMemberServiceImpl implements WSMemberService {
         return "notExistUser";
       }
     }
+
+  @Override
+  @Transactional(readOnly = true)
+  public String withdrawalCheckLeader(Long userId) {
+    List<WSMember> wsMemberList = wsMemberRepository.findAllByUserId(userId);
+
+    StringBuilder stringBuilder = new StringBuilder();
+
+    wsMemberList.forEach(wsMember -> {
+      if("LEADER".equals(wsMember.getRole().name())){
+        stringBuilder.append(wsMember.getWorkSpace().getName()).append(", ");
+      }
+    });
+    if(stringBuilder.isEmpty()){
+      return "SUCCESS";
+    }
+    return stringBuilder.substring(0, stringBuilder.lastIndexOf(", "))+"의 워크스페이스 리더 권한이 남아있습니다." +
+            " 워크스페이스를 삭제하거나 리더권한을 위임해주세요";
   }
+}

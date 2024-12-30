@@ -265,6 +265,7 @@ const Calendar = () => {
 
   //handleEventClick으로 받아온 formData를 가지고 수정작업
   const handleModifyCalendar = async () => {
+    if (!validation()) return false;
     const updatedCalendar = { ...formData };
     await modifyCalendar(updatedCalendar);
     setModalOpen(false);

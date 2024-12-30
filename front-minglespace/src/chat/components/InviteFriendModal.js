@@ -15,7 +15,7 @@ const InviteFriendModal = ({
   participants,
   onUpdateChatRoom,
 }) => {
-  const { chatRoomInfo, isModalOpen, inviteMembers, handleInvite, handleKick } = useChatRoom();
+  const { chatRoomInfo, isModalOpen, inviteMembers, handleInvite, handleKick, handleDelegate } = useChatRoom();
   const [updateRoom, setUpdateRoom] = useState(initUpdateRoom);
   const [selectedImage, setSelectedImage] = useState(null);
   const [selectedTab, setSelectedTab] = useState("info");
@@ -27,7 +27,8 @@ const InviteFriendModal = ({
         ...prev,
         name: chatRoomInfo.name
       }));
-      setSelectedImage(chatRoomInfo.imageUriPath);
+
+      chatRoomInfo.imageUriPath ? setSelectedImage(`${HOST_URL}${chatRoomInfo.imageUriPath}`) : setSelectedImage(null);
     }
   }, [chatRoomInfo]);
 
@@ -97,7 +98,17 @@ const InviteFriendModal = ({
       alert(`${kickMember.name}님이 강퇴되었습니다.`);
       onClose();
     } else {
-      alert("초대할 멤버를 선택해주세요.");
+      alert("강퇴할 멤버를 선택해주세요.");
+    }
+  };
+
+  const handleDelegateModal = async (newLeader) => {
+    if (newLeader) {
+      await handleDelegate(newLeader);
+      alert(`${newLeader.name}님이 방장으로 위임되셨습니다.`);
+      onClose();
+    } else {
+      alert("위임할 멤버를 선택해주세요.");
     }
   };
 
@@ -120,7 +131,7 @@ const InviteFriendModal = ({
             className={selectedTab === "invite" ? "active" : ""}
             onClick={() => setSelectedTab("invite")}
           >
-            초대/강퇴
+            초대/강퇴/위임
           </button>
         </div>
 
@@ -130,7 +141,7 @@ const InviteFriendModal = ({
             <div className="modal_img">
               <img
                 className="chat_update_Img"
-                src={selectedImage ? `${HOST_URL}${selectedImage}` : default_img}
+                src={selectedImage ? `${selectedImage}` : default_img}
                 alt="채팅방 이미지"
               />
             </div>
@@ -173,21 +184,24 @@ const InviteFriendModal = ({
             <div className="invite-friends-list">
               <p>강퇴할 멤버를 선택하세요:</p>
               <ul>
-                {participants
-                  .filter(
-                    (member) => member.userId !== Number(Repo.getUserId())
-                  )
-                  .map((member) => (
-                    <li key={member.wsMemberId}>
-                      {member.email}
-                      <button
-                        className="invite-btn"
-                        onClick={() => handleKickModal(member)}
-                      >
-                        강퇴
-                      </button>
-                    </li>
-                  ))}
+                {participants.filter((member) => member.userId !== Number(Repo.getUserId())).length === 0 ? (
+                  <li>강퇴할 멤버가 없습니다.</li>
+                ) : (
+                  participants
+                    .filter(
+                      (member) => member.userId !== Number(Repo.getUserId())
+                    )
+                    .map((member) => (
+                      <li key={member.wsMemberId}>
+                        {member.email}
+                        <button
+                          className="invite-btn kick"
+                          onClick={() => handleKickModal(member)}
+                        >
+                          강퇴
+                        </button>
+                      </li>
+                    )))}
               </ul>
 
               <p>초대할 멤버를 선택하세요:</p>
@@ -207,6 +221,28 @@ const InviteFriendModal = ({
                     </li>
                   ))
                 )}
+              </ul>
+
+              <p>위임할 멤버를 선택하세요:</p>
+              <ul>
+                {participants.filter((member) => member.userId !== Number(Repo.getUserId())).length === 0 ? (
+                  <li>위임할 멤버가 없습니다.</li>
+                ) : (
+                  participants
+                    .filter(
+                      (member) => member.userId !== Number(Repo.getUserId())
+                    )
+                    .map((member) => (
+                      <li key={member.wsMemberId}>
+                        {member.email}
+                        <button
+                          className="invite-btn delegate"
+                          onClick={() => handleDelegateModal(member)}
+                        >
+                          위임
+                        </button>
+                      </li>
+                    )))}
               </ul>
             </div>
           </div>

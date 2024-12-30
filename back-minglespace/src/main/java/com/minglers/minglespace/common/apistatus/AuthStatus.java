@@ -30,6 +30,15 @@ public enum AuthStatus {
   EmailVerificationAlready("이미 유저 이메일 인증 성공"),
   EmailVerificationCodeMismatch("유저 이메일 인증 번호 틀림"),
   NullProperty("유저 입력 프로퍼티가 비어 있음"),
+  SinupValideEmailEmpty("이메일을 입력해주세요."),
+  SinupValideEmailWrong("올바른 이메일 형식이 아닙니다."),
+  SinupValidePwWEmpty("비밀번호를 입력해주세요."),
+  SinupValidePwWLength("비밀번호를 입력해주세요."),
+  SinupValidePwWrong("최소 8자 이상이며, 대소문자, 특수문자가 포함해야 합니다."),
+  SinupValideNameEmpty("이름을 입력해주세요."),
+  SinupValidePhoneEmpty("전화번호를 입력해주세요."),
+  SinupValidePhoneWrong("올바른 전화번호 형식이 아닙니다."),
+  SinupValideConfirmPwMismatch("비밀번호가 패스워드 확인과 일치하지 않습니다."),
 
   //회원 탈퇴
   WithdrawalEmailFirst("회원탈퇴 이메일 인증 먼저"),

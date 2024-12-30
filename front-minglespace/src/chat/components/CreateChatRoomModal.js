@@ -91,6 +91,7 @@ const CreateChatRoomModal = ({ isOpen, onClose }) => {
   // 모달 닫기 버튼
   const handleClose = () => {
     setErrorMsg(null);
+    setSelectedImage(null);
     onClose(); // 부모 컴포넌트에게 모달을 닫을 것을 알림
   };
 
@@ -111,7 +112,7 @@ const CreateChatRoomModal = ({ isOpen, onClose }) => {
           <div className="modal_img">
             <img
               className="chat_create_Img"
-              src={selectedImage ? `${HOST_URL}${selectedImage}` : default_img}
+              src={selectedImage ? `${selectedImage}` : default_img}
               alt="채팅방 이미지"
             />
           </div>

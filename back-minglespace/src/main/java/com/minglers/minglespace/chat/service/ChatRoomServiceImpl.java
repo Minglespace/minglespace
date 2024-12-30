@@ -75,7 +75,7 @@ public class ChatRoomServiceImpl implements ChatRoomService {
 //              log.info("getRoomsByWsMember_lastMessage: " + lastMsgContent);
 
               // 참여 인원수
-              int participantCount = chatRoomMemberRepository.findByChatRoomIdAndIsLeftFalse(chatRoom.getId()).size();
+              int participantCount = chatRoomMemberRepository.findByChatRoomIdAndIsLeftFalseAndUserWithdrawalTypeNot(chatRoom.getId()).size();
 
               //안읽은 메시지
               long notReadMsgCount = msgReadStatusRepository.countByMessage_ChatRoom_IdAndWsMemberId(chatRoom.getId(), wsMember.getId());
@@ -166,22 +166,26 @@ public class ChatRoomServiceImpl implements ChatRoomService {
             .lastMessage("")
             .participantCount(chatRoom.getChatRoomMembers().size())
             .notReadMsgCount(0)
+            .type("CREATE")
             .build();
 
     //새 채팅방 바로 실시간 알림
     for(Long id: participantsUserIds){
-      Set<String> sessionIds = stompInterceptor.getSessionForUser(id);
-      if(sessionIds != null && !sessionIds.isEmpty()){
-        sessionIds.forEach(sessionId -> {
-          String cleanSession = sessionId.replaceAll("[\\[\\]]", "");
-          SimpMessageHeaderAccessor headerAccessor = SimpMessageHeaderAccessor.create(SimpMessageType.MESSAGE);
-          headerAccessor.setSessionId(cleanSession);
-          headerAccessor.setLeaveMutable(true);
-          simpMessagingTemplate.convertAndSendToUser(cleanSession,"/queue/workspaces/"+responseDTO.getWorkSpaceId()+"/chat", responseDTO,headerAccessor.getMessageHeaders());
-        });
-      }
+//      Set<String> sessionIds = stompInterceptor.getSessionForUser(id);
+//      if(sessionIds != null && !sessionIds.isEmpty()){
+//        sessionIds.forEach(sessionId -> {
+//          String cleanSession = sessionId.replaceAll("[\\[\\]]", "");
+//          SimpMessageHeaderAccessor headerAccessor = SimpMessageHeaderAccessor.create(SimpMessageType.MESSAGE);
+//          headerAccessor.setSessionId(cleanSession);
+//          headerAccessor.setLeaveMutable(true);
+//          simpMessagingTemplate.convertAndSendToUser(cleanSession,"/queue/workspaces/"+responseDTO.getWorkSpaceId()+"/chat", responseDTO,headerAccessor.getMessageHeaders());
+//        });
+//      }
+//      notificationService.sendNotification(id, responseDTO.getName()+"채팅방에 초대되셨습니다.", "/workspace/"+responseDTO.getWorkSpaceId()+"/chat", NotificationType.CHAT);
+      this.chatNotification(responseDTO, id);
       notificationService.sendNotification(id, responseDTO.getName()+"채팅방에 초대되셨습니다.", "/workspace/"+responseDTO.getWorkSpaceId()+"/chat", NotificationType.CHAT);
     }
+
     return responseDTO;
   }
 
@@ -215,7 +219,7 @@ public class ChatRoomServiceImpl implements ChatRoomService {
 
     Map<String, Object> messagesResponse = chatMessageService.getMessagesByChatRoom(chatRoomId, 0, 50);
     List<ChatMsgResponseDTO> messages = (List<ChatMsgResponseDTO>) messagesResponse.get("messages");
-    boolean msgHasMore = (boolean) messagesResponse.get("msgHasMore");
+    boolean msgHasMore = (Boolean) messagesResponse.get("msgHasMore");
     List<ChatRoomMemberDTO> participants = chatRoomMemberService.getParticipantsByChatRoomId(chatRoomId);
 
     String imageUriPath = (chatRoom.getImage() != null && chatRoom.getImage().getUripath() != null) ? chatRoom.getImage().getUripath() : "";
@@ -241,7 +245,7 @@ public class ChatRoomServiceImpl implements ChatRoomService {
       chatRoom.setName(name);
     }
     Image savedImage = chatRoom.getImage();
-    log.info("이미지가 null인가: " + image);
+//    log.info("이미지가 null인가: " + image);
 
     if ("true".equals(isImageDelete)) {
       if (image != null && !image.isEmpty()) {
@@ -260,7 +264,7 @@ public class ChatRoomServiceImpl implements ChatRoomService {
       } else if (image == null || image.isEmpty()) {
         if (savedImage != null) {
           try {
-            log.info("기존 이미지 삭제 중...");
+//            log.info("기존 이미지 삭제 중...");
             imageService.deleteImage(savedImage);
             chatRoom.setImage(null);  // 이미지 필드를 null로 설정
           } catch (IOException e) {
@@ -271,6 +275,19 @@ public class ChatRoomServiceImpl implements ChatRoomService {
     }
 
     chatRoomRepository.save(chatRoom);
+
+    ChatListResponseDTO responseDTO = ChatListResponseDTO.builder()
+            .chatRoomId(chatRoomId)
+            .name(name != null && !name.isEmpty() ? name : chatRoom.getName())
+            .imageUriPath(chatRoom.getImage() != null ? chatRoom.getImage().getUripath() : null)
+            .workSpaceId(chatRoom.getWorkSpace().getId())
+            .type("UPDATE")
+            .build();
+
+    List<ChatRoomMember> chatRoomMembers = chatRoomMemberRepository.findByChatRoomIdAndIsLeftFalseAndUserWithdrawalTypeNot(chatRoomId);
+    for(ChatRoomMember chatRoomMember : chatRoomMembers) {
+      this.chatNotification(responseDTO, chatRoomMember.getWsMember().getUser().getId());
+    }
 
     Map<String, Object> response = new HashMap<>();
     response.put("chatRoomId", chatRoomId);
@@ -287,5 +304,19 @@ public class ChatRoomServiceImpl implements ChatRoomService {
             .build();
 
     simpMessagingTemplate.convertAndSend("/topic/chatRooms/" + chatRoomId + "/message-status", messageStatusDTO);
+  }
+
+  private void chatNotification(ChatListResponseDTO responseDTO, Long id){
+//    log.info("업데이트냐 생성이냐: "+ responseDTO.getType()+ " , id는 "+ id);
+    Set<String> sessionIds = stompInterceptor.getSessionForUser(id);
+    if(sessionIds != null && !sessionIds.isEmpty()){
+      sessionIds.forEach(sessionId -> {
+        String cleanSession = sessionId.replaceAll("[\\[\\]]", "");
+        SimpMessageHeaderAccessor headerAccessor = SimpMessageHeaderAccessor.create(SimpMessageType.MESSAGE);
+        headerAccessor.setSessionId(cleanSession);
+        headerAccessor.setLeaveMutable(true);
+        simpMessagingTemplate.convertAndSendToUser(cleanSession,"/queue/workspaces/"+responseDTO.getWorkSpaceId()+"/chat", responseDTO,headerAccessor.getMessageHeaders());
+      });
+    }
   }
 }

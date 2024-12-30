@@ -47,7 +47,9 @@ const MileStoneModal = ({
   return (
     <Modal open={open} onClose={onClose}>
       <div className="milestone_modal_container">
-        <h2 className="milestone_modal_title">아이템 수정하기</h2>
+        <h2 className="milestone_modal_title">
+          {mode === "titleOnly" ? "그룹 수정하기" : "아이템 수정하기"}
+        </h2>
         <div className="milestone_modal_modify_title">
           <p>Title :</p>
           <input

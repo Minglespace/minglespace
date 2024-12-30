@@ -1,77 +1,88 @@
 ﻿﻿import React, { useEffect, useState } from "react";
-
-import { X, Eye, EyeOff } from "lucide-react";
-
-import { Link, useLocation, useNavigate, useParams } from "react-router-dom";
-
-import Repo from "./Repo";
-import AuthApi from "../api/AuthApi";
 import Modal from "../common/Layouts/components/Modal";
+import AuthApi from "../api/AuthApi";
+import Repo from "./Repo";
+
 import { HOST_URL } from "../api/Api";
+import { Eye, EyeOff } from "lucide-react";
 import { AuthStatus, AuthStatusOk } from "../api/AuthStatus";
+import { Link, useLocation, useNavigate, useParams } from "react-router-dom";
 
 const LoginPage = () => {
   //================================================================================================
   //================================================================================================
   //================================================================================================
   //================================================================================================
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  const {code, encodedEmail, encodedVerifyType} = useParams();
+  const {msg} = useParams();
+
+  const [message, setMessage] = useState(null);
+  const [errors, setErrors] = useState({});
   const [showPassword, setShowPassword] = useState(false);
   const [formData, setFormData] = useState({
     email: "codejay2018@gmail.com",
     password: "Aa!1Aa!1",
+    // password: "a1a1A!A!",
   });
-  const [message, setMessage] = useState(null);
-
-  const [errors, setErrors] = useState({});
-
-  const navigate = useNavigate();
-  const location = useLocation();
-
-  const [isOpenPopup, setIsOpenPopup] = useState(false);
-
-  const {code, encodedEmail, encodedVerifyType} = useParams();
-  const {msg} = useParams();
-  
   //================================================================================================
   //================================================================================================
   //================================================================================================
   //================================================================================================
   useEffect(() => {
     if (msg && AuthStatus[msg]) {
-      console.log("msg : ", msg);
-
-      setMessage({title: "확인", content: AuthStatus[msg].desc,});
+      // 메시지 처리
+      setMessage({
+        title: "확인", 
+        content: AuthStatus[msg].desc,  
+        callbackOk: handleClickMsgPopup
+      });
     }else if(code && encodedEmail && encodedVerifyType){
-
-      console.log("code : ", code);
-      console.log("encodedEmail : ", encodedEmail);
-      console.log("encodedVerifyType : ", encodedVerifyType);
-
+      // 인증 이메일 링크 처리
       setTimeout(() => {
-        AuthApi.verify(code, encodedEmail, encodedVerifyType).then((data) => {
-          console.log("AuthApi.verify data : ", data);
-           
-          if (AuthStatusOk(data.msStatus)) {
-
-            if(data.verifyType === "SIGNUP"){
-              setIsOpenPopup(true);
-            }else if(data.verifyType === "WITHDRAWAL"){
-              setMessage({title: "확인", content: AuthStatus[AuthStatus.WithdrawalAble.value].desc,});
-            }else if(data.verifyType === "CHANGE_PW"){
-              setMessage({title: "확인", content: AuthStatus[AuthStatus.ChangePasswordDone.value].desc,});
-            }else{
-              console.log("새로운 타입이 추가되었는지 확인하세요.");
-            }
-
-          } else {
-            setIsOpenPopup(false);
-          }
-        });
+      sendVerify(code, encodedEmail, encodedVerifyType);
       }, 1000);
-    } else {
-      setIsOpenPopup(false);
     }
   }, []);
+
+  const sendVerify = (code, encodedEmail, encodedVerifyType) => {
+    AuthApi.verify(code, encodedEmail, encodedVerifyType).then((data) => {
+      console.log("AuthApi.verify data : ", data);
+      const title = "로그인";
+      if (AuthStatusOk(data.msStatus)) {
+        if(data.verifyType === "SIGNUP"){
+          setMessage({
+            title: title, 
+            content: AuthStatus.SinupDone.desc,  
+            callbackOk: ()=>{setMessage(null)}
+          });
+        }else if(data.verifyType === "WITHDRAWAL"){
+          setMessage({
+            title: title, 
+            content: AuthStatus.WithdrawalAble.desc,  
+            callbackOk: handleClickMsgPopup
+          });
+        }else if(data.verifyType === "CHANGE_PW"){
+          setMessage({
+            title: title, 
+            content: AuthStatus.ChangePasswordDone.desc,  
+            callbackOk: handleClickMsgPopup
+          });
+        }else{
+          console.log("새로운 타입이 추가되었는지 확인하세요.");
+        }
+      } else {
+        console.log("AuthApi.verify 오류 : ", AuthStatus[data.msStatus].desc);
+        setMessage({
+          title: title, 
+          content: AuthStatus[data.msStatus].desc,  
+          callbackOk: ()=>{setMessage(null)}
+        });
+      }
+    });
+  }
 
   const validate = () => {
     const newErrors = {};
@@ -98,8 +109,6 @@ const LoginPage = () => {
       const data = await AuthApi.login(email, password);
       
       if(AuthStatusOk(data.msStatus)){
-        
-        console.log("AuthApi.login data : ", data);
 
         Repo.setItem(data);
 
@@ -108,13 +117,13 @@ const LoginPage = () => {
         || data.withdrawalType === "DELIVERATION"){
           navigate("/auth/withdrawal");
         }else{
-          // navigate("/main");
           navigate(getUriPath(location), { replace: true });
         }
       }else if(data.msStatus && AuthStatus[data.msStatus]){
         setMessage({
-          title: "확인",
-          content: AuthStatus[data.msStatus].desc,
+          title: "확인", 
+          content: AuthStatus[data.msStatus].desc,  
+          callbackOk: handleClickMsgPopup
         });
       }
     }
@@ -137,10 +146,6 @@ const LoginPage = () => {
   const handleClickMsgPopup = () => {
     setMessage(null);
     navigate("/auth/login");
-  };
-
-  const handleClickPopup = () => {
-    setIsOpenPopup(false);
   };
 
   const getUriPath = () => {
@@ -168,6 +173,19 @@ const LoginPage = () => {
   return (
     <div className="modal-overlay_login_page">
       <div className="modal-container_login_page">
+        {/* 모달 팝업 */}
+        {message && (
+          <Modal open={message !== null} onClose={message.callbackOk || message.callbackNo }>
+            <div className="workspace_add_modal_container">
+              <p className="form-title">{message.title}</p>
+              <p>{message.content}</p>
+              {message.callbackOk && <button type="submit" className="add_button" onClick={message.callbackOk}>확인</button> }
+              {message.callbackYes && <button type="submit" className="add_button" onClick={message.callbackYes}>네</button> }
+              {message.callbackNo && <button type="submit" className="add_button" onClick={message.callbackNo}>아니요</button> }
+            </div>
+          </Modal>
+        )}
+        {/* 왼쪽 협업 이미지 */}
         <div className="image-container">
           <img
             src="https://images.unsplash.com/photo-1522071820081-009f0129c71c?auto=format&fit=crop&w=800"
@@ -175,39 +193,10 @@ const LoginPage = () => {
             className="modal-image"
           />
         </div>
-
-        <Modal open={message !== null} onClose={handleClickMsgPopup}>
-          {message && (
-            <div className="workspace_add_modal_container">
-              <p className="form-title">{message.title}</p>
-              <p>{message.content}</p>
-              <button
-                type="submit"
-                className="add_button"
-                onClick={handleClickMsgPopup}
-              >
-                확인
-              </button>
-            </div>
-          )}
-        </Modal>
-
-        <Modal open={isOpenPopup} onClose={handleClickPopup}>
-          <div className="workspace_add_modal_container">
-            <p className="form-title">이메일 인증완료</p>
-            <p>회원가입이 완료 되었습니다.</p>
-            <button
-              type="submit"
-              className="add_button"
-              onClick={handleClickPopup}
-            >
-              확인
-            </button>
-          </div>
-        </Modal>
-
+        {/* 왼쪽 패널 */}
         <div className="form-container">
           <div className="form-wrapper">
+            {/* 폼 */}
             <h2 className="form-title">로그인</h2>
             <form onSubmit={handleSubmit} className="form">
               <div className="input-group">
@@ -224,7 +213,6 @@ const LoginPage = () => {
                   <span className="error-message">{errors.email}</span>
                 )}
               </div>
-
               <div className="input-group">
                 <label className="input-label">비밀번호</label>
                 <div className="password-container">
@@ -250,18 +238,16 @@ const LoginPage = () => {
                   <span className="error-message">{errors.password}</span>
                 )}
               </div>
-
               <button type="submit" className="submit-button">
                 로그인
               </button>
             </form>
-
+            {/* 소셜 로그인 */}
             <div className="social-login">
               <div className="divider-container">
                 <div className="divider"></div>
                 <span className="divider-text">또는</span>
               </div>
-
               <div className="social-buttons">
                 <button className="google-button" onClick={handleClickGoogle}>
                   <img
@@ -289,7 +275,7 @@ const LoginPage = () => {
                 </button>
               </div>
             </div>
-
+            {/* 기타 링크 */}
             <div className="footer-links">
               <Link to={`/auth/changepw`}>비밀번호 변경</Link>
               <Link to={`/auth/signup`}>회원가입</Link>

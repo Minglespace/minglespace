@@ -24,6 +24,9 @@ public interface ChatRoomMemberService {
   // 방장 위임
   String delegateLeader(Long chatRoomId, Long newLeaderId, Long leaderId);
 
+  // 강제 방장 위임
+  void forceDelegateLeader(Long userId);
+
   // 방에 존재하는지 확인
   boolean existsByChatRoomIdAndWsMemberIdAndIsLeftFalse(Long chatRoomId, Long wsMemberId);
 

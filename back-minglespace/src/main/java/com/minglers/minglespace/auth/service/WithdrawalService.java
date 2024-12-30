@@ -1,6 +1,5 @@
 package com.minglers.minglespace.auth.service;
 
-import com.minglers.minglespace.auth.dto.DefaultResponse;
 import com.minglers.minglespace.auth.dto.EmailVerifyResponse;
 import com.minglers.minglespace.auth.entity.User;
 

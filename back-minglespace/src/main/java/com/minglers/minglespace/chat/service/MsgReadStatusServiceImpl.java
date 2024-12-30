@@ -39,7 +39,7 @@ public class MsgReadStatusServiceImpl implements MsgReadStatusService {
   @Transactional
   public void createMsgForMembers(ChatMessage saveMsg, Set<Long> activeUserIds, List<Long> mentionedIds) {
     try {
-      List<ChatRoomMember> members = chatRoomMemberRepository.findByChatRoomIdAndIsLeftFalse(saveMsg.getChatRoom().getId());
+      List<ChatRoomMember> members = chatRoomMemberRepository.findByChatRoomIdAndIsLeftFalseAndUserWithdrawalTypeNot(saveMsg.getChatRoom().getId());
 
       if (members.isEmpty()) {
         throw new ChatException(HttpStatus.NOT_FOUND.value(), "메시지 저장하는 채팅방에 멤버가 없습니다.");
@@ -92,14 +92,6 @@ public class MsgReadStatusServiceImpl implements MsgReadStatusService {
       WSMember wsMember = wsMemberRepository.findByUserIdAndWorkSpaceId(userId, workspaceId)
               .orElseThrow(() -> new ChatException(HttpStatus.NOT_FOUND.value(), "워크 스페이스 멤버가 아닙니다."));
       long deletedCount = msgReadStatusRepository.deleteByMessage_ChatRoom_IdAndWsMemberId(chatRoomId, wsMember.getId());
-//      if(deletedCount > 0){
-//        MessageStatusDTO messageStatusDTO = MessageStatusDTO.builder()
-//                .chatRoomId(chatRoomId)
-//                .wsMemberId(wsMember.getId())
-//                .type("READ")
-//                .build();
-//        simpMessagingTemplate.convertAndSend("/topic/chatRooms/" + chatRoomId + "/message-status", messageStatusDTO);
-//      }
       log.info("Messages marked as read and deleted for chat room ID: " + chatRoomId + " and user ID: " + wsMember.getId());
 
     } catch (Exception e) {
