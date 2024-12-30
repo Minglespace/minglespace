@@ -19,6 +19,7 @@ const ChatRoomModal = ({
         return (
           <ExitModal
             onClose={onClose}
+            participants={roomMembers}
           />
         );
       case "invite":

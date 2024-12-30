@@ -112,7 +112,7 @@ const ChatRoom = ({
           const statusData = JSON.parse(status.body);
           // console.log("읽음 처리 메시지", statusData);
 
-          if (status.type === "READ") {
+          if (statusData.type === "READ") {
             ///특정 유저가 실시간으로 읽은 메시지 상태 반영
             setChatRoomInfo((prev) => ({
               ...prev,
@@ -124,10 +124,10 @@ const ChatRoom = ({
                 ),
               })),
             }));
-          } else if (status.type === "DELETE") {
+          } else if (statusData.type === "DELETE") {
             setChatRoomInfo((prev) => {
               const updatedMessages = prev.messages.filter(
-                (msg) => Number(msg.id) !== status.messageId
+                (msg) => Number(msg.id) !== statusData.messageId
               );
               return { ...prev, messages: updatedMessages };
             });

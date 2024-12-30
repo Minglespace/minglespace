@@ -18,7 +18,6 @@ import java.util.Optional;
 public interface ChatMessageRepository extends JpaRepository<ChatMessage, Long>, JpaSpecificationExecutor<ChatMessage> {
   @Query("SELECT cm FROM ChatMessage cm LEFT JOIN FETCH cm.images WHERE cm.chatRoom.id = :chatRoomId AND cm.isDeleted = FALSE ORDER BY cm.date DESC")
   Page<ChatMessage> findByChatRoomIdAndIsDeletedFalse(Long chatRoomId, Pageable pageable);
-  List<ChatMessage> findByChatRoom(ChatRoom chatRoom);
   List<ChatMessage> findByChatRoomIdAndContentContaining(Long chatRoomId, String keyword); //search
 
   // 채팅방의 마지막 메시지 조회

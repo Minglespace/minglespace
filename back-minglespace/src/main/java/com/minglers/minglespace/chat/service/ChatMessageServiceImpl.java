@@ -1,6 +1,7 @@
 package com.minglers.minglespace.chat.service;
 
 import com.minglers.minglespace.auth.entity.User;
+import com.minglers.minglespace.auth.type.WithdrawalType;
 import com.minglers.minglespace.chat.dto.ChatMsgRequestDTO;
 import com.minglers.minglespace.chat.dto.ChatMsgResponseDTO;
 import com.minglers.minglespace.chat.dto.MessageStatusDTO;
@@ -43,8 +44,7 @@ public class ChatMessageServiceImpl implements ChatMessageService {
   private final ImageRepository imageRepository;
 
   private final MsgReadStatusService msgReadStatusService;
-  private final NotificationService notificationService;
-  //알림
+
   private final SimpMessagingTemplate simpMessagingTemplate;
 
 
@@ -125,6 +125,9 @@ public class ChatMessageServiceImpl implements ChatMessageService {
                     //아래 map은 Optional 타입인 객체에 값이 존재할 때만 실행하기 때문에 결과 객체를 받자마자 작업을 하기 위해 사용함.
                     .map(member -> {
                       User user = member.getUser();
+                      if(user.getWithdrawalType() != WithdrawalType.NOT){
+                        return null;
+                      }
                       String imageUriPath = (user.getImage() != null && user.getImage().getUripath() != null) ? user.getImage().getUripath() : "";
                       return MemberWithUserInfoDTO.builder()
                               .wsMemberId(member.getId())
