@@ -4,6 +4,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import AuthApi from "../api/AuthApi";
 import Modal from "../common/Layouts/components/Modal";
 import { AuthStatus, AuthStatusOk } from "../api/AuthStatus";
+import ModalMessage from "../common/Layouts/components/ModalMessage";
 
 //========================================================================
 //========================================================================
@@ -129,17 +130,7 @@ const SignupPage = () => {
       <div className="signup-page-container">
 
         {/* 모달 팝업 */}
-        {message && (
-          <Modal open={message !== null} onClose={message.callbackOk || message.callbackNo }>
-            <div className="workspace_add_modal_container">
-              <p className="form-title">{message.title}</p>
-              <p>{message.content}</p>
-              {message.callbackOk && <button type="submit" className="add_button" onClick={message.callbackOk}>확인</button> }
-              {message.callbackYes && <button type="submit" className="add_button" onClick={message.callbackYes}>네</button> }
-              {message.callbackNo && <button type="submit" className="add_button" onClick={message.callbackNo}>아니요</button> }
-            </div>
-          </Modal>
-        )}
+        <ModalMessage message={message} />
 
         {/* 닫기 */}
         <button onClick={handlePopupCloseGotoLogin} className="signup-page-close-button">

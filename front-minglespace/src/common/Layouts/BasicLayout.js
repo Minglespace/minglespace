@@ -10,6 +10,7 @@ import { getErrorMessage, getErrorStatus } from "../Exception/errorUtils";
 import api from "../../api/Api";
 import Modal from "./components/Modal";
 import Repo from "../../auth/Repo";
+import ModalMessage from "./components/ModalMessage";
 
 const BasicLayout = ({ children }) => {
   
@@ -80,19 +81,11 @@ const BasicLayout = ({ children }) => {
         <div className="midcontainer">
           <Sidebar />
           <div className="main_container">
-            {/* 모달 팝업 */}
-            {message && (
-              <Modal open={message !== null} onClose={message.callbackOk || message.callbackNo }>
-                <div className="workspace_add_modal_container">
-                  <p className="form-title">{message.title}</p>
-                  <p>{message.content}</p>
-                  {message.callbackOk && <button type="submit" className="add_button" onClick={message.callbackOk}>확인</button> }
-                  {message.callbackYes && <button type="submit" className="add_button" onClick={message.callbackYes}>네</button> }
-                  {message.callbackNo && <button type="submit" className="add_button" onClick={message.callbackNo}>아니요</button> }
-                </div>
-              </Modal>
-            )}
 
+            {/* 모달 팝업 */}
+            <ModalMessage message={message} />
+
+            {/* 페이지들 */}
             {children}
             
           </div>
