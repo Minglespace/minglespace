@@ -33,6 +33,10 @@ public class UserResponse extends DefaultResponse {
     super(authStatus);
   }
 
+  public UserResponse(AuthStatus authStatus, String msg){
+    super(authStatus, msg);
+  }
+
   public void map(User from, ModelMapper modelMapper){
 
     modelMapper.map(from, this);

@@ -137,9 +137,11 @@ export default function UserInfoPopup() {
         }
       });
     }else if(data.msStatus && AuthStatus[data.msStatus]){
+      const msg = (data.msStatus === AuthStatus.MSG_FROM_SERVER.value) 
+        ? data.msgFromServer : AuthStatus[data.msStatus].desc;
       setMessage({
         title: "확인", 
-        content: AuthStatus[data.msStatus].desc,  
+        content: msg,  
         callbackOk: ()=>{setMessage(null);}
       });
     }

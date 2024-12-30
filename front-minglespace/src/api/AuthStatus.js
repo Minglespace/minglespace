@@ -3,7 +3,8 @@ export const AuthStatus = Object.freeze({
 
   Ok:                 {value:"Ok",                  desc:"정상"},
   Exception:          {value:"Exception",           desc:"예기치 못한 오류가 발생했습니다."},
-
+  MSG_FROM_SERVER:    {value:"MSG_FROM_SERVER",     desc:"서버가 직접 메시지 내용을 보냅니다."},
+  
   //유저
   NotFoundAccount:      {value:"NotFoundAccount",       desc:"이메일 또는 비밀번호를 확인하세요."},
   MismatchPw:           {value:"MismatchPw",            desc:"이메일 또는 비밀번호를 확인하세요."},

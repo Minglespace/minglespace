@@ -8,7 +8,8 @@ public enum AuthStatus {
 
   Ok("정상"),
   Exception("예기치 못한 오류."),
-
+  MSG_FROM_SERVER("서버가 직접 메시지 내용을 보냅니다."),
+  
   //유저
   NotFoundAccount("사용자가 존재하지 않은 경우"),
   MismatchPw("비밀번호가 틀림"),

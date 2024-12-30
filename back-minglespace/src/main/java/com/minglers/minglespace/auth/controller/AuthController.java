@@ -13,6 +13,7 @@ import com.minglers.minglespace.common.apistatus.AuthStatus;
 import com.minglers.minglespace.common.entity.Image;
 import com.minglers.minglespace.common.service.ImageService;
 import com.minglers.minglespace.common.util.CookieManager;
+import com.minglers.minglespace.workspace.service.WSMemberService;
 import jakarta.mail.MessagingException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -47,6 +48,7 @@ class AuthController {
   private final ImageService imageService;
   private final ModelMapper modelMapper;
   private final WithdrawalService withdrawalService;
+  private final WSMemberService wsMemberService;
 
   @PostMapping("/auth/signup")
   public ResponseEntity<DefaultResponse> signup(
@@ -281,6 +283,13 @@ class AuthController {
     User user = getLoinedUser();
     if (user == null) {
       return ResponseEntity.ok(new UserResponse(AuthStatus.NotFoundAccount));
+    }
+
+    // 탈퇴 가능여부 체크
+    String resultLeader = wsMemberService.withdrawalCheckLeader(user.getId());
+    if(!resultLeader.equals("SUCCESS")){
+      log.info("[MIRO] 탈퇴 가능여부 체크 : {}", resultLeader);
+      return ResponseEntity.ok(new UserResponse(AuthStatus.MSG_FROM_SERVER, resultLeader));
     }
 
     // 이메일 인증을 재전송시 체크

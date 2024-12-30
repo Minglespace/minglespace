@@ -15,6 +15,7 @@ import lombok.extern.log4j.Log4j2;
 public class DefaultResponse {
 
   private AuthStatus msStatus;
+  private String msgFromServer;
 
   public DefaultResponse(){
   }
@@ -33,6 +34,7 @@ public class DefaultResponse {
 
   public DefaultResponse setStatus(AuthStatus authStatus, String msg){
     this.msStatus = authStatus;
+    this.msgFromServer = msg;
 
     StackTraceElement[] stackTrace = Thread.currentThread().getStackTrace();
 
