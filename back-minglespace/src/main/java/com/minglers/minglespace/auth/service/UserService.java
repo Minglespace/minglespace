@@ -8,6 +8,7 @@ import com.minglers.minglespace.auth.repository.UserRepository;
 import com.minglers.minglespace.auth.security.JWTUtils;
 import com.minglers.minglespace.auth.type.Provider;
 import com.minglers.minglespace.auth.type.WithdrawalType;
+import com.minglers.minglespace.chat.service.ChatRoomMemberService;
 import com.minglers.minglespace.common.apistatus.AuthStatus;
 import com.minglers.minglespace.common.entity.Image;
 import com.minglers.minglespace.common.util.CookieManager;
@@ -50,6 +51,7 @@ public class UserService {
   private final ModelMapper modelMapper;
   private final WorkspaceInviteRepository workspaceInviteRepository;
   private final WSMemberRepository wsMemberRepository;
+  private final ChatRoomMemberService chatRoomMemberService;
 
   public DefaultResponse signup(SignupRequest req) {
     try {
@@ -216,6 +218,8 @@ public class UserService {
     updateUser.setEmail(modifyEmail);
     updateUser.setWithdrawalType(WithdrawalType.DONE);
     usersRepo.save(updateUser);
+
+    chatRoomMemberService.forceDelegateLeader(updateUser.getId()); //채팅방 강제 위임
   }
   public void updateWithdrawalCancel(User updateUser){
     updateUser.setWithdrawalType(WithdrawalType.NOT);

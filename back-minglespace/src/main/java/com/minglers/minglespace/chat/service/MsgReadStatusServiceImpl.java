@@ -68,7 +68,7 @@ public class MsgReadStatusServiceImpl implements MsgReadStatusService {
         if (!member.getWsMember().getId().equals(saveMsg.getWsMember().getId())) {
           // 멘션 유저 아님
           if (!isMentioned) {
-            notificationService.sendNotification(memberId, saveMsg.getWsMember().getWorkSpace().getName()+"에서 새로운 메시지가 있습니다.",
+            notificationService.sendNotification(memberId, "'"+saveMsg.getWsMember().getWorkSpace().getName()+"' workspace에 새로운 메시지가 있습니다.",
                     path, NotificationType.CHAT_NEW_MESSAGE);
           }else {
             String notifyMsg = saveMsg.getWsMember().getUser().getName() + "님께서 '" + saveMsg.getChatRoom().getName() + "' 채팅방에서 당신을 언급하였습니다.";
