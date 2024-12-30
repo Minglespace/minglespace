@@ -102,6 +102,7 @@ public class WSMemberServiceImpl implements WSMemberService {
 
   //워크스페이스에 참여중인 멤버 리스트 조회 유저 정보와 함꼐
   @Override
+  @Transactional(readOnly = true)
   public List<MemberWithUserInfoDTO> getWsMemberWithUserInfo(Long workspaceId) {
     List<WSMember> wsMembers = wsMemberRepository.findByWorkSpaceIdOrderByCustomRoleAndUserName(workspaceId);
 
@@ -122,6 +123,7 @@ public class WSMemberServiceImpl implements WSMemberService {
               .phone(user.getPhone())
               .introduction(user.getIntroduction())
               .role(member.getRole().name())
+              .withdrawalType(user.getWithdrawalType())
               .build();
 
       wsMemberList.add(dto);
@@ -149,8 +151,9 @@ public class WSMemberServiceImpl implements WSMemberService {
               .name(user.getName())
               .imageUriPath(Objects.isNull(user.getImage()) ? null : user.getImage().getUripath())
               .position(user.getPosition())
+              .withdrawalType(user.getWithdrawalType())
               .inWorkSpace(wsMemberRepository
-                      .existsByWorkSpaceIdAndUserId(workSpaceId, user.getId()))
+              .existsByWorkSpaceIdAndUserId(workSpaceId, user.getId()))
               .build();
     }).toList();
   }

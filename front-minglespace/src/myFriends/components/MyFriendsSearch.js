@@ -119,12 +119,14 @@ const MyFriendsSearch = ({ addFriendRequest }) => {
   };
   return (
     <div className="section_container myFriends_container_item">
-      <h1 className="section_container_title">친구를 찾아보세요.</h1>
+      <div style={{display:"flex", alignItems: "center"}}>
+      <h1 style={{ flexGrow: 2 }} className="section_container_title">Find Friends</h1>
       <Search
-        placeholder={"Email을 검색하세요."}
+        placeholder={"Search by Email"}
         onSearch={handleSearch}
         onKeyDown={handleKeyDown}
       />
+      </div><br/>
       {user.length === 0 ? (
         <NoData />
       ) : (

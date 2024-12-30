@@ -50,19 +50,20 @@ const MemberLinkInvite = () => {
       <h2 className="section_container_title">
         워크스페이스 멤버를 <br />
         이메일로 초대 해보세요.
-      </h2>
-
-      <input type="email" value={email} onChange={handleEmailChange} onKeyDown={handleKeyDown}
-             style={{ borderColor: isValid ? "black" : "red" }}
-             placeholder="이메일 입력하세요" />
-      <button className="add_button_2" onClick={handleInviteMember}>
-        초대하기
-      </button>
-        {email && !isValid && <p style={{ color: "red" }}>유효하지 않은 이메일 형식입니다.</p>}
+      </h2><br/>
+        <div style={{display: "flex", alignItems: "center", justifyContent:"center"}}>
+            <input type="email" value={email} onChange={handleEmailChange} onKeyDown={handleKeyDown}
+                   style={{height:"20px", borderBottom:"1px solid gray"}}
+                   placeholder="이메일을 입력해주세요."/>
+            <button className="add_button_2" onClick={handleInviteMember}>
+                초대하기
+            </button>
+        </div>
+        {email && !isValid && <p style={{color: "red", textAlign:"center"}}>유효하지 않은 이메일 형식입니다.</p>}
         {
             isLoading && (
                 <Modal open={isLoading} onClose={()=> setIsLoading(false)}>
-                    이메일 전송 중 입니다 <BeatLoader />
+                    <p style={{display:"flex", margin:5}}> 이메일 전송 중 입니다.  <BeatLoader/></p>
                 </Modal>
             )
         }
