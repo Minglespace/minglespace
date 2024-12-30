@@ -160,11 +160,11 @@ public class ChatRoomMemberServiceImpl implements ChatRoomMemberService {
                     .findFirst()
                     .orElseThrow(() -> new ChatException(HttpStatus.NOT_FOUND.value(), "새로운 방장 후보가 없습니다."));
 
-            chatRoomMember.setChatRole(ChatRole.CHATMEMBER);
-            chatRoomMember.setLeft(true);
+//            chatRoomMember.setChatRole(ChatRole.CHATMEMBER);
+//            chatRoomMember.setLeft(true);
             newLeader.setChatRole(ChatRole.CHATLEADER);
 
-            chatRoomMemberRepository.save(chatRoomMember);
+            chatRoomMemberRepository.delete(chatRoomMember);
             chatRoomMemberRepository.save(newLeader);
 
             notificationService.sendNotification(newLeader.getWsMember().getUser().getId(),
@@ -180,8 +180,9 @@ public class ChatRoomMemberServiceImpl implements ChatRoomMemberService {
           }
         } else {
 //          log.info("방장아님 그냥 나가기: "+ chatRoomMember.getChatRoom().getId());
-          chatRoomMember.setLeft(true);
-          chatRoomMemberRepository.save(chatRoomMember);
+//          chatRoomMember.setLeft(true);
+//          chatRoomMemberRepository.save(chatRoomMember);
+          chatRoomMemberRepository.delete(chatRoomMember);
         }
       }
     }

@@ -63,8 +63,15 @@ const MessageListItem = ({
     return message
       .split(regex)
       .map((part, index) => {
-        const isMention = wsMemberState.some((member) => member.name === part) || part === currentMemberInfo.name;
-        return isMention ? <span style={{ fontWeight: "bold", color: "#6495ED" }} key={index}>@{part}</span> : part;
+        if (index % 2 === 1) {
+          const isMention = wsMemberState.some((member) => member.name === part) || part === currentMemberInfo.name;
+          return isMention ? (
+            <span style={{ fontWeight: "bold", color: "#6495ED" }} key={index}>@{part}</span>
+          ) : (
+            `@${part}`
+          );
+        }
+        return part;
       });
   };
 

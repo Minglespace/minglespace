@@ -8,6 +8,8 @@ import com.minglers.minglespace.workspace.dto.MemberWithUserInfoDTO;
 import com.minglers.minglespace.workspace.entity.WSMember;
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -28,9 +30,9 @@ public class ChatMessage {
 
   private String content;
 
-  //message 보낸 유저
   @ManyToOne(fetch = FetchType.LAZY)
-  @JoinColumn(name = "ws_member_id", nullable = false)
+  @JoinColumn(name = "ws_member_id")
+  @OnDelete(action = OnDeleteAction.SET_NULL)
   private WSMember wsMember;
 
   @ManyToOne(fetch = FetchType.LAZY)
@@ -87,8 +89,10 @@ public class ChatMessage {
             .map(Image::getUripath)
             .toList();
 
-    String senderName = this.getWsMember().getUser().getWithdrawalType() == WithdrawalType.NOT
+    String senderName = (this.getWsMember() != null && this.getWsMember().getUser().getWithdrawalType() == WithdrawalType.NOT)
             ? this.getWsMember().getUser().getName() : "(알 수 없음)";
+
+    Long writerWsMemberId = (this.getWsMember() != null)  ? this.getWsMember().getId() : 0L;
 
     return ChatMsgResponseDTO.builder()
             .id(this.getId())
@@ -96,7 +100,7 @@ public class ChatMessage {
             .date(this.getDate())
             .content(this.getContent())
             .replyId(replyId)
-            .writerWsMemberId(this.getWsMember().getId())
+            .writerWsMemberId(writerWsMemberId)
             .isAnnouncement(this.getIsAnnouncement())
             .sender(senderName)
             .unReadMembers(unReadMembers)

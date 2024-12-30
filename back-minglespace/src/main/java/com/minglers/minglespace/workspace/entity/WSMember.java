@@ -39,15 +39,15 @@ public class WSMember {
     @JoinColumn(name = "user_id")
     private User user;
 
-    @OneToMany(mappedBy = "wsMember", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "wsMember")
     @Builder.Default
     private List<ChatRoomMember> chatRoomMembers = new ArrayList<>();
 
-    @OneToMany(mappedBy = "wsMember", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "wsMember")
     @Builder.Default
     private List<MsgReadStatus> msgReadStatuses = new ArrayList<>();
 
-    @OneToMany(mappedBy = "wsMember", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "wsMember")
     @Builder.Default
     private List<ChatMessage> chatMessages = new ArrayList<>();
 

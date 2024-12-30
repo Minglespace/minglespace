@@ -8,7 +8,6 @@ import com.minglers.minglespace.auth.type.FriendshipStatus;
 import com.minglers.minglespace.chat.service.ChatRoomMemberService;
 import com.minglers.minglespace.common.service.NotificationService;
 import com.minglers.minglespace.common.type.NotificationType;
-import com.minglers.minglespace.todo.entity.Todo;
 import com.minglers.minglespace.todo.repository.TodoRepository;
 import com.minglers.minglespace.workspace.dto.FriendWithWorkspaceStatusDTO;
 import com.minglers.minglespace.workspace.dto.MemberWithUserInfoDTO;
@@ -195,12 +194,11 @@ public class WSMemberServiceImpl implements WSMemberService {
   @Override
   @Transactional
   public String exitWorkspaceMember(Long userId, Long workSpaceId){
+    chatRoomMemberService.forceDelegateLeader(userId);
     WorkSpace workSpace = findWorkSpaceById(workSpaceId);
     User user = findUserById(userId);
     WSMember wsMember = wsMemberRepository.findWsMemberByUserIdAndWorkSpaceId(userId, workSpaceId);
     wsMemberRepository.delete(wsMember);
-
-    chatRoomMemberService.forceDelegateLeader(userId);
     return workSpace.getName() + "에서 퇴장하셨습니다.";
   }
 

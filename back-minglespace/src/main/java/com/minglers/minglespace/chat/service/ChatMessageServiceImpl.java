@@ -121,23 +121,28 @@ public class ChatMessageServiceImpl implements ChatMessageService {
     //읽지 않는 메시지들 중에 현 메시지가 일치하는 걸 찾아 해당 메시지를 안읽은 wsMember 정보를 가져온다.
     return unreadStatuses.stream()
             .filter(status -> status.getMessage().getId().equals(messageId))
-            .map(status -> wsMemberRepository.findById(status.getWsMember().getId())
-                    //아래 map은 Optional 타입인 객체에 값이 존재할 때만 실행하기 때문에 결과 객체를 받자마자 작업을 하기 위해 사용함.
-                    .map(member -> {
-                      User user = member.getUser();
-                      if(user.getWithdrawalType() != WithdrawalType.NOT){
-                        return null;
-                      }
-                      String imageUriPath = (user.getImage() != null && user.getImage().getUripath() != null) ? user.getImage().getUripath() : "";
-                      return MemberWithUserInfoDTO.builder()
-                              .wsMemberId(member.getId())
-                              .userId(user.getId())
-                              .email(user.getEmail())
-                              .name(user.getName())
-                              .imageUriPath(imageUriPath)
-                              .position(user.getPosition())
-                              .build();
-                    }).orElse(null))
+            .map(status -> {
+              if (status.getWsMember() == null) {
+                return null;
+              }
+              return wsMemberRepository.findById(status.getWsMember().getId())
+                      //아래 map은 Optional 타입인 객체에 값이 존재할 때만 실행하기 때문에 결과 객체를 받자마자 작업을 하기 위해 사용함.
+                      .map(member -> {
+                        User user = member.getUser();
+                        if (user.getWithdrawalType() != WithdrawalType.NOT) {
+                          return null;
+                        }
+                        String imageUriPath = (user.getImage() != null && user.getImage().getUripath() != null) ? user.getImage().getUripath() : "";
+                        return MemberWithUserInfoDTO.builder()
+                                .wsMemberId(member.getId())
+                                .userId(user.getId())
+                                .email(user.getEmail())
+                                .name(user.getName())
+                                .imageUriPath(imageUriPath)
+                                .position(user.getPosition())
+                                .build();
+                      }).orElse(null);
+            })
             .filter(Objects::nonNull)
             .collect(Collectors.toList());
   }

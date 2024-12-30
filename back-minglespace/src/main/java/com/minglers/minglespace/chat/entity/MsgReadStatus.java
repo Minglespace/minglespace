@@ -3,6 +3,8 @@ package com.minglers.minglespace.chat.entity;
 import com.minglers.minglespace.workspace.entity.WSMember;
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 
 @NoArgsConstructor
 @AllArgsConstructor
@@ -21,6 +23,7 @@ public class MsgReadStatus {
   private ChatMessage message;
 
   @ManyToOne(fetch = FetchType.LAZY)
-  @JoinColumn(name = "wsMember_id", nullable = false)
+  @JoinColumn(name = "wsMember_id", nullable = true)
+  @OnDelete(action = OnDeleteAction.SET_NULL)
   private WSMember wsMember;
 }

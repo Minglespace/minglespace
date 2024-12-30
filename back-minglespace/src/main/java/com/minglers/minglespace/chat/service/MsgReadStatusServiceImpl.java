@@ -46,6 +46,7 @@ public class MsgReadStatusServiceImpl implements MsgReadStatusService {
       }
 
       List<MsgReadStatus> list = members.stream()
+              .filter(member -> member.getWsMember() != null)
               .filter(member -> !activeUserIds.contains(member.getWsMember().getUser().getId()))
               .map(member -> MsgReadStatus.builder()
                       .message(saveMsg)
@@ -56,6 +57,9 @@ public class MsgReadStatusServiceImpl implements MsgReadStatusService {
       msgReadStatusRepository.saveAll(list);
 
       for (ChatRoomMember member : members) {
+        if(member.getWsMember() == null){
+          continue;
+        }
         Long memberId = member.getWsMember().getUser().getId();
 
         if(activeUserIds.contains(memberId)){
