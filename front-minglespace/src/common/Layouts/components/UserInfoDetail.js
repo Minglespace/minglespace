@@ -65,50 +65,61 @@ const UserInfoDetail = ({
       if (handleRemoveMember && user.wsMemberId !== memberId) {
         //리더이면서 본인이 아니라면
         return (
-            <div className="userInfo_detail_container">
-                <div className="flex_center">
-                    <div>{renderUserInfo()}</div>
-                </div>
-                <div className="member_Management_box">
-                    <h3>*멤버 관리하기*</h3>
-                <label htmlFor="roleOptions">멤버 권한 변경 : </label>
-                <select
+          <div className="userInfo_detail_container">
+            <div className="flex_center">
+              <div>{renderUserInfo()}</div>
+            </div>
+            <div className="member_Management_box">
+              <h3>*멤버 관리하기*</h3>
+              {user.withdrawalType === "DONE" ? (
+                <button
+                  className="add_button_2"
+                  onClick={() => handleRemoveMember(user.wsMemberId)}
+                >
+                  탈퇴 회원 추방 하기
+                </button>
+              ) : (
+                <>
+                  <label htmlFor="roleOptions">멤버 권한 변경 : </label>
+                  <select
                     id="roleOptions"
                     value={user.role}
                     onChange={handleSelectChange}
-                >
+                  >
                     <option value="MEMBER">멤버</option>
                     <option value="SUB_LEADER">서브 리더</option>
-                </select>
-                <br/>
-                <button
+                  </select>
+                  <br />
+                  <button
                     className="add_button_2"
                     onClick={() => handleRemoveMember(user.wsMemberId)}
-                >
+                  >
                     추방 하기
-                </button>
-                <button
+                  </button>
+                  <button
                     className="add_button_2"
                     onClick={() => handleTransferLeader(user.wsMemberId)}
-                >
+                  >
                     리더 위임
-                </button>
-                </div>
+                  </button>
+                </>
+              )}
             </div>
+          </div>
         );
       } else {
-          return (
-              <div className="userInfo_detail_container">
-                  <div className="flex_center">
-                      <div>{renderUserInfo()}</div>
-                  </div>
-              </div>
-          );
+        return (
+          <div className="userInfo_detail_container">
+            <div className="flex_center">
+              <div>{renderUserInfo()}</div>
+            </div>
+          </div>
+        );
       }
     }
   };
 
-    return <>{renderContent()}</>;
+  return <>{renderContent()}</>;
 };
 
 export default UserInfoDetail;

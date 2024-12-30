@@ -82,45 +82,47 @@ const MyFriendsList = ({ friends, getFriendList, handelSetFriends }) => {
   };
   return (
     <div className="section_container myFriends_container_item">
-      <div style={{display:"flex", alignItems: "center"}}>
-      <h1 style={{ flexGrow: 2 }} className="section_container_title">My Friends</h1>
-      <Search
+      <div style={{ display: "flex", alignItems: "center" }}>
+        <h1 style={{ flexGrow: 2 }} className="section_container_title">
+          My Friends
+        </h1>
+        <Search
           placeholder={"Search by Name"}
           onSearch={handleSearch}
           onKeyDown={handleKeyDown}
-      />
+        />
       </div>
       <br />
       {friends.length === 0 ? (
         <NoData title={"친구를 추가해보세요!"} />
       ) : (
-          <div className="myFriends_userInfo_container">
-            {friends.map((userInfo) => (
-              <div
-                className="myFriends_userInfo_flex myFriends_userInfo_view"
-                key={userInfo.id}
-                onClick={() => handleUserClick(userInfo)}
+        <div className="myFriends_userInfo_container">
+          {friends.map((userInfo) => (
+            <div
+              className="myFriends_userInfo_flex myFriends_userInfo_view"
+              key={userInfo.id}
+              onClick={() => handleUserClick(userInfo)}
+            >
+              <Userinfo
+                name={userInfo.name}
+                role={userInfo.position}
+                email={
+                  userInfo.withdrawalType === "DONE"
+                    ? "unsubscribe"
+                    : userInfo.email
+                }
+                src={imageUrlPathCheck(userInfo.profileImagePath)}
+              />
+              <button
+                className="add_button_2"
+                onClick={(event) => {
+                  handleDeleteFriend(userInfo.id, event);
+                }}
               >
-                  <Userinfo
-                    name={userInfo.name}
-                    role={userInfo.position}
-                    email={
-                      userInfo.withdrawalType === "DONE"
-                        ? "unsubscribe"
-                        : userInfo.email
-                    }
-                    src={imageUrlPathCheck(userInfo.profileImagePath)}
-                  />
-                <button
-                  className="add_button_2"
-                  onClick={(event) => {
-                    handleDeleteFriend(userInfo.id, event);
-                  }}
-                >
-                  친구 삭제
-                </button>
-              </div>
-            ))}
+                친구 삭제
+              </button>
+            </div>
+          ))}
           <Modal open={isModalOpen} onClose={handleCloseModal}>
             {selectedUser && (
               <UserInfoDetail

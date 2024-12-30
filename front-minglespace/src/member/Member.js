@@ -1,7 +1,7 @@
 import React, { useCallback, useContext, useEffect, useState } from "react";
 import MemberList from "./components/MemberList";
 import MembersApi from "../api/membersApi";
-import {useNavigate, useParams} from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import UserInfoDetail from "../common/Layouts/components/UserInfoDetail";
 import { WSMemberRoleContext } from "../workspace/context/WSMemberRoleContext";
 import MemberInvite from "./components/MemberInvite";
@@ -21,6 +21,7 @@ const memberInitData = [
     position: "",
     introduction: "",
     role: "",
+    withdrawalType: "",
   },
 ];
 
@@ -32,6 +33,7 @@ const myFriendInitData = [
     imageUriPath: "",
     position: "",
     inWorkSpace: "",
+    withdrawalType: "",
   },
 ];
 
@@ -83,13 +85,15 @@ const Member = () => {
   //멤버 초대
   const handleInviteMember = useCallback(
     (friendId) => {
-      MembersApi.inviteMember(workspaceId, friendId).then((data) => {
-        getMemberList();
-        getFriendList();
-        alert(data);
-      }).catch((error) => {
-        alert(`맴버 초대 실패 : \n원인:+${getErrorMessage(error)}`);
-      });
+      MembersApi.inviteMember(workspaceId, friendId)
+        .then((data) => {
+          getMemberList();
+          getFriendList();
+          alert(data);
+        })
+        .catch((error) => {
+          alert(`맴버 초대 실패 : \n원인:+${getErrorMessage(error)}`);
+        });
     },
     [workspaceId, getFriendList, getMemberList]
   );
@@ -97,14 +101,16 @@ const Member = () => {
   //멤버 추방
   const handleRemoveMember = useCallback(
     (memberId) => {
-      MembersApi.removeMember(workspaceId, memberId).then((data) => {
-        getMemberList();
-        getFriendList();
-        setSelectedMember(null);
-        alert(data);
-      }).catch((error) => {
-        alert(`맴버 추방 실패 : \n원인:+${getErrorMessage(error)}`);
-      });
+      MembersApi.removeMember(workspaceId, memberId)
+        .then((data) => {
+          getMemberList();
+          getFriendList();
+          setSelectedMember(null);
+          alert(data);
+        })
+        .catch((error) => {
+          alert(`맴버 추방 실패 : \n원인:+${getErrorMessage(error)}`);
+        });
     },
     [workspaceId, getFriendList, getMemberList]
   );
@@ -114,14 +120,16 @@ const Member = () => {
     if (role === "LEADER") {
       alert("리더 권한을 먼저 위임해주시기 바랍니다.");
     } else {
-      MembersApi.exitMember(workspaceId).then((data) => {
-        alert(data);
-        navigate("/workspace");
-      }).catch((error) => {
-        alert(`워크스페이스 나가기 실패 : \n원인:+${getErrorMessage(error)}`);
-      });
+      MembersApi.exitMember(workspaceId)
+        .then((data) => {
+          alert(data);
+          navigate("/workspace");
+        })
+        .catch((error) => {
+          alert(`워크스페이스 나가기 실패 : \n원인:+${getErrorMessage(error)}`);
+        });
     }
-  }
+  };
 
   //리더 위임
   const handleTransferLeader = useCallback(
@@ -216,10 +224,12 @@ const Member = () => {
                 handleTransferLeader={handleTransferLeader}
                 handleTransferRole={handleTransferRole}
               />
-            ):(<>
+            ) : (
+              <>
                 <h2 className="section_container_title">유저 상세보기</h2>
                 <NoData title={"멤버를 클릭해 상세정보를 확인하세요!"} />
-            </>)}
+              </>
+            )}
           </div>
         </>
       );
@@ -227,13 +237,20 @@ const Member = () => {
   };
 
   return (
-      <div className="myFriends_container">
-        <MemberList members={members} onClickMember={handleMemberClick}/>
-        {renderContent()}
-        <button className="add_button_2" onClick={handleExitMember}><p style={{opacity:0.6}}>워크스페이스<br/>나가기</p>
-            <FiLogOut style={{ marginTop:"10px",fontSize: '40px', opacity:0.5}}/>
-        </button>
-      </div>
+    <div className="myFriends_container">
+      <MemberList members={members} onClickMember={handleMemberClick} />
+      {renderContent()}
+      <button className="add_button_2" onClick={handleExitMember}>
+        <p style={{ opacity: 0.6 }}>
+          워크스페이스
+          <br />
+          나가기
+        </p>
+        <FiLogOut
+          style={{ marginTop: "10px", fontSize: "40px", opacity: 0.5 }}
+        />
+      </button>
+    </div>
   );
 };
 

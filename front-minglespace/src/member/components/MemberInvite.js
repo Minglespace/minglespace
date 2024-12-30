@@ -15,7 +15,7 @@ const MemberInvite = ({ friends, handleInviteMember }) => {
       <h2 className="section_container_title">
         워크스페이스 멤버를 <br />내 친구 목록에서 초대 해보세요.
       </h2>
-        <hr style={{marginTop:"4px",padding:0,visibility:"hidden"}}/>
+      <hr style={{ marginTop: "4px", padding: 0, visibility: "hidden" }} />
       {friends.length === 0 ? (
         <NoData title={"친구를 추가해보세요!"} />
       ) : (
@@ -26,14 +26,18 @@ const MemberInvite = ({ friends, handleInviteMember }) => {
                 <Userinfo
                   name={userInfo.name}
                   role={userInfo.position}
-                  email={userInfo.email}
+                  email={
+                    userInfo.withdrawalType === "DONE"
+                      ? "unsubscribe"
+                      : userInfo.email
+                  }
                   src={imageUrlPathCheck(userInfo.imageUriPath)}
                 />
               </div>
               {userInfo.inWorkSpace ? (
-                <p>
-                  참여중...
-                </p>
+                <p>참여중...</p>
+              ) : userInfo.withdrawalType === "DONE" ? (
+                <></>
               ) : (
                 <button
                   className="add_button_2"

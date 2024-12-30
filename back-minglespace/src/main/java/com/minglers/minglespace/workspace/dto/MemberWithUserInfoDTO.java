@@ -1,5 +1,6 @@
 package com.minglers.minglespace.workspace.dto;
 
+import com.minglers.minglespace.auth.type.WithdrawalType;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -19,4 +20,5 @@ public class MemberWithUserInfoDTO {
   private String phone;
   private String introduction;
   private String role;
+  private WithdrawalType withdrawalType;
 }
