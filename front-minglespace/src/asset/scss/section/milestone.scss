@@ -16,7 +16,7 @@
   .milestone_today_button {
     position: absolute;
     top: 30px;
-    left: 20px;
+    left: 150px;
     width: 100px;
     height: 30px;
     border-radius: 5px;
@@ -30,8 +30,8 @@
   .milestone_group_add_button {
     display: flex;
     position: absolute;
-    right: 50px;
-    bottom: -50px;
+    left: 20px;
+    top: 30px;
     justify-content: end;
     margin-bottom: 10px;
     button {
@@ -77,6 +77,19 @@
     cursor: pointer;
     bottom: -30px;
     left: 50px;
+    animation: colorfull 2s infinite;
+  }
+
+  @keyframes colorfull {
+    0% {
+      color: red;
+    }
+    50% {
+      color: greenyellow;
+    }
+    100% {
+      color: red;
+    }
   }
   .milestone_complete_count {
     display: flex;
