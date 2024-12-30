@@ -1,6 +1,5 @@
 package com.minglers.minglespace.chat.service;
 
-import com.minglers.minglespace.chat.dto.MessageStatusDTO;
 import com.minglers.minglespace.chat.entity.ChatMessage;
 import com.minglers.minglespace.chat.entity.ChatRoomMember;
 import com.minglers.minglespace.chat.entity.MsgReadStatus;
@@ -11,7 +10,6 @@ import com.minglers.minglespace.common.service.NotificationService;
 import com.minglers.minglespace.common.type.NotificationType;
 import com.minglers.minglespace.workspace.entity.WSMember;
 import com.minglers.minglespace.workspace.repository.WSMemberRepository;
-import com.minglers.minglespace.workspace.service.WSMemberService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
