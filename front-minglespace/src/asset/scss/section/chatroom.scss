@@ -132,7 +132,7 @@
           font-size: 14px;
           border: none;
           border-radius: 4px;
-          background-color: #A8D0D7;
+          background-color: #a8d0d7;
           color: #555;
           cursor: pointer;
 
@@ -145,8 +145,8 @@
           }
 
           &.delegate {
-            background-color: #E8D8B3;
-            color: #333
+            background-color: #e8d8b3;
+            color: #333;
           }
         }
       }
@@ -292,6 +292,11 @@
       border: 1px solid #ddd;
       border-radius: 6px;
       margin-bottom: 10px;
+      background-color: transparent;
+
+      li.selected {
+        background-color: #f9f5f6;
+      }
 
       &:hover {
         background-color: #f9f5f6;
@@ -309,7 +314,6 @@
         &:hover {
           background-color: #987070;
         }
-
       }
     }
   }
@@ -392,6 +396,85 @@
   border-top: solid 1px #aaa;
 }
 
+.file-preview {
+  display: flex;
+  flex-direction: row;
+  gap: 10px;
+  overflow-x: auto;
+  padding: 10px;
+  border-radius: 5px;
+  background-color: #f0f0f0;
+  margin-bottom: 10px;
+  position: absolute;
+  bottom: 72px;
+  width: 100%;
+}
+
+.file-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  background-color: #fff;
+  min-width: 150px;
+}
+
+.file-name {
+  flex: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.remove-file-button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: red;
+}
+
+.replying-to-message {
+  background-color: #f1f1f1;
+  border: 1px solid #ddd;
+  padding: 5px;
+  border-radius: 10px;
+  display: flex;
+  flex-direction: column;
+
+  // span {
+  //   margin: 10px;
+  //   margin-bottom: 0px;
+  //   font-size: 12px;
+  //   font-weight: bold;
+  //   color: #333;
+  //   white-space: nowrap;
+  // }
+
+  p {
+    font-size: 14px;
+    margin-top: 5px;
+    padding-left: 10px;
+  }
+
+  button {
+    margin-bottom: 5px;
+    margin-right: 12px;
+    background-color: transparent;
+    border: none;
+    color: #4c8bf5;
+    cursor: pointer;
+    font-size: 12px;
+    margin-top: 5px;
+    align-self: flex-end;
+
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+}
+
 .message-input-wrapper {
   flex: 1;
   padding: 12px;
@@ -429,15 +512,29 @@
   }
 }
 
-.lock-icon {
-  margin-left: 10px;
-  padding: 8px;
-  padding-bottom: 1px;
-  background-color: #f0a0a0;
-  border: none;
+.mention-suggestions {
+  position: absolute;
+  background: #ffffff;
+  border: 1px solid #ccc;
   border-radius: 5px;
+  width: 15%;
+  max-height: 120px;
+  overflow-y: auto;
+  bottom: 70px;
+}
+
+.member-item {
+  padding: 10px;
   cursor: pointer;
-  flex-shrink: 0;
+  display: flex;
+}
+
+.member-item.selected {
+  background-color: #f2cfd3;
+}
+
+.member-name {
+  margin-left: 15px;
 }
 
 .send-btn {
@@ -452,48 +549,33 @@
   flex-shrink: 0;
 }
 
-.replying-to-message {
-  background-color: #f1f1f1;
-  border: 1px solid #ddd;
-  padding: 5px;
-  border-radius: 10px;
-  display: flex;
-  flex-direction: column;
-
-  span {
-    margin: 10px;
-    margin-bottom: 0px;
-    font-size: 12px;
-    font-weight: bold;
-    color: #333;
-    white-space: nowrap;
-  }
-
-  p {
-    font-size: 14px;
-    margin-top: 5px;
-    padding-left: 10px;
-  }
-
-  button {
-    margin-bottom: 5px;
-    margin-right: 12px;
-    background-color: transparent;
-    border: none;
-    color: #4c8bf5;
-    cursor: pointer;
-    font-size: 12px;
-    margin-top: 5px;
-    align-self: flex-end;
-
-    &:hover {
-      text-decoration: underline;
-    }
-  }
+.lock-icon {
+  margin-left: 10px;
+  padding: 8px;
+  padding-bottom: 1px;
+  background-color: #f0a0a0;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  flex-shrink: 0;
 }
 
 .file-image {
   margin-left: 8px;
+  cursor: pointer;
+  font-size: 25px;
+}
+
+.modal-message {
+  margin: 25px 15px;
+}
+
+.modal-ok-button {
+  background-color: gray;
+  padding: 10px;
+  border-radius: 5px;
+  margin-left: 133px;
+  font-size: 15px;
 }
 
 //MessageList.js
@@ -585,7 +667,6 @@
   justify-content: center;
 }
 
-
 .new-messages-preview {
   position: absolute;
   bottom: 100px;
@@ -620,6 +701,13 @@
   padding: 0px 10px 10px 10px;
 }
 
+.modal-buttons {
+  display: flex;
+  justify-content: space-around;
+  gap: 10px;
+  margin-top: 20px;
+}
+
 .save-btn {
   background-color: rgb(92, 173, 240);
   padding: 10px;
@@ -642,6 +730,23 @@
   align-items: center;
   justify-content: center;
   cursor: pointer;
+}
+
+.delete-btn {
+  background-color: rgb(253, 113, 113);
+  padding: 10px;
+  border-radius: 5px;
+  width: 80px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.text3 {
+  font-size: 20px;
+  margin: 20px;
 }
 
 /* 공지사항 스타일 */

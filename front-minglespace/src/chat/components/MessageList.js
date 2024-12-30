@@ -12,7 +12,8 @@ const MessageList = ({
   msgHasMore,
   currentChatRoomId,
 }) => {
-  const { currentMemberInfo, handleRegisterAnnouncement, handleDeleteMessage } = useChatRoom();
+  const { currentMemberInfo, handleRegisterAnnouncement, handleDeleteMessage } =
+    useChatRoom();
   const [announcement, setAnnouncement] = useState(null);
   const [isAnnouncementModalOpen, setIsAnnouncementModalOpen] = useState(false);
   const [selectedAnnounce, setSelectedAnnounce] = useState(null);
@@ -36,7 +37,8 @@ const MessageList = ({
 
   ///공지사항
   useEffect(() => {
-    const newAnnouncement = messages.find((message) => message.isAnnouncement) || null;
+    const newAnnouncement =
+      messages.find((message) => message.isAnnouncement) || null;
     setAnnouncement(newAnnouncement);
     // console.log("공지", newAnnouncement)
   }, [messages]);
@@ -73,8 +75,10 @@ const MessageList = ({
 
   const getMessagePreview = (messageContent) => {
     // console.log("msg preview: ", messageContent);
-    return messageContent.length > 10 ? `${messageContent.slice(0, 10)}...` : messageContent;
-  }
+    return messageContent.length > 10
+      ? `${messageContent.slice(0, 10)}...`
+      : messageContent;
+  };
 
   //메시지 삭제 모달
   const openDeleteModal = (message) => {
@@ -108,7 +112,11 @@ const MessageList = ({
         </div>
       )}
 
-      <div className="message-list" onScroll={handleScroll} ref={messageListRef}>
+      <div
+        className="message-list"
+        onScroll={handleScroll}
+        ref={messageListRef}
+      >
         {newMessageVisible && (
           <div className="new-messages-preview" onClick={handleNewMessageClick}>
             새 메시지가 도착했습니다. :
@@ -124,7 +132,9 @@ const MessageList = ({
             <MessageListItem
               key={message.id}
               message={message}
-              isSameSender={message.writerWsMemberId === currentMemberInfo.wsMemberId}
+              isSameSender={
+                message.writerWsMemberId === currentMemberInfo.wsMemberId
+              }
               currentMemberInfo={currentMemberInfo}
               onMessageClick={onMessageClick}
               onFindParentMessage={findParentMessage}
@@ -139,12 +149,13 @@ const MessageList = ({
           <p className="text1">공지사항은 하나만 등록 가능합니다.</p>
           <p className="text2">이 메시지를 공지사항으로 등록하시겠습니까?</p>
           <div
-            style={{
-              display: "flex",
-              justifyContent: "space-around",
-              gap: "10px",
-              marginTop: "20px",
-            }}
+            className="modal-buttons"
+            // style={{
+            //   display: "flex",
+            //   justifyContent: "space-around",
+            //   gap: "10px",
+            //   marginTop: "20px",
+            // }}
           >
             <button className="save-btn" onClick={handleAnnounceConfirm}>
               Save
@@ -158,37 +169,48 @@ const MessageList = ({
 
       <Modal open={isDeleteModalOpen} onClose={handleDeleteCancel}>
         <div>
-          <p style={{ fontSize: "20px", margin: "20px" }}>이 메시지를 삭제하시겠습니까?</p>
-          <div style={{ display: 'flex', justifyContent: 'space-around', gap: '10px', marginTop: '20px' }}>
+          <p className="text3" /*style={{ fontSize: "20px", margin: "20px" }}*/>
+            이 메시지를 삭제하시겠습니까?
+          </p>
+          <div
+            className="modal-buttons"
+            // style={{
+            //   display: "flex",
+            //   justifyContent: "space-around",
+            //   gap: "10px",
+            //   marginTop: "20px",
+            // }}
+          >
             <button
               onClick={handleDeleteConfirm}
-              style={{
-                backgroundColor: "rgb(253, 113, 113)",
-                padding: "10px",
-                borderRadius: "5px",
-                width: "80px",
-                height: "30px",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                cursor: "pointer",
-              }}
+              // style={{
+              //   backgroundColor: "rgb(253, 113, 113)",
+              //   padding: "10px",
+              //   borderRadius: "5px",
+              //   width: "80px",
+              //   height: "30px",
+              //   display: "flex",
+              //   alignItems: "center",
+              //   justifyContent: "center",
+              //   cursor: "pointer",
+              // }}
             >
               Delete
             </button>
             <button
+              className="cancel-btn"
               onClick={handleDeleteCancel}
-              style={{
-                backgroundColor: "gray",
-                padding: "10px",
-                borderRadius: "5px",
-                width: "80px",
-                height: "30px",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                cursor: "pointer",
-              }}
+              // style={{
+              //   backgroundColor: "gray",
+              //   padding: "10px",
+              //   borderRadius: "5px",
+              //   width: "80px",
+              //   height: "30px",
+              //   display: "flex",
+              //   alignItems: "center",
+              //   justifyContent: "center",
+              //   cursor: "pointer",
+              // }}
             >
               Cancel
             </button>

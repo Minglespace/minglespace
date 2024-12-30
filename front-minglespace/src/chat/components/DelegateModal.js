@@ -36,12 +36,17 @@ const DelegateModal = ({ onClose, participants }) => {
             .map((member) => (
               <li
                 key={member.userId}
-                style={{
-                  backgroundColor:
-                    selectedUser?.wsMemberId === member.wsMemberId
-                      ? "#f9f5f6"
-                      : "transparent",
-                }}
+                className={
+                  selectedUser?.wsMemberId === member.wsMemberId
+                    ? "selected"
+                    : ""
+                }
+                // style={{
+                //   backgroundColor:
+                //     selectedUser?.wsMemberId === member.wsMemberId
+                //       ? "#f9f5f6"
+                //       : "transparent",
+                // }}
               >
                 {member.email}
                 <button
