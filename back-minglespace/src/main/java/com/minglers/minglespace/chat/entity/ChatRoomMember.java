@@ -25,7 +25,6 @@ public class ChatRoomMember {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-//    private Timestamp joined_at;
     @Convert(converter = LocalDateTimeAttributeConverter.class)
     private LocalDateTime date;
 
@@ -37,8 +36,7 @@ public class ChatRoomMember {
     private ChatRoom chatRoom;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "wsmember_id", nullable = true)
-    @OnDelete(action = OnDeleteAction.SET_NULL)
+    @JoinColumn(name = "wsmember_id")
     private WSMember wsMember;
 
     @Builder.Default

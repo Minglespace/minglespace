@@ -1,10 +1,22 @@
-﻿import React, { useState } from "react";
+﻿import React, { useEffect, useState } from "react";
 import Repo from "../../../auth/Repo";
 
 const ProfileImage = ({ src, userName, size = 70 }) => {
 
   const [imgError, setImgError] = useState(false);  // 이미지 로딩 실패 여부를 상태로 관리
+  const [backgroundColor, setBackgroundColor] = useState(null);
   const profileImage = src || null;
+
+  useEffect(() => {
+    const savedColor = Repo.getProfileColor(userName);
+    if(!savedColor){
+      const newColor = getRandomColor();
+      Repo.setProfileColor(userName, newColor);
+      setBackgroundColor(newColor);
+    }else{
+      setBackgroundColor(savedColor);
+    }
+  },[userName]);
 
   const handleImageError = () => {
     setImgError(true);  // 이미지 로딩 실패 시 상태 변경
@@ -28,7 +40,6 @@ const ProfileImage = ({ src, userName, size = 70 }) => {
     } else {
       // 이미지가 없으면 이름의 첫 글자로 기본 이미지를 생성
       const firstLetter = (userName) ? userName.charAt(0).toUpperCase() : "A";
-      const backgroundColor = getBkColor(userName);
 
       return (
         <div
@@ -50,18 +61,6 @@ const ProfileImage = ({ src, userName, size = 70 }) => {
       );
     }
   };
-
-  const getBkColor = (userName) => {
-    if(Repo.getUserName() === userName){
-      let color = Repo.getProfileColor();
-      if (color) return color;
-      color = getRandomColor();
-      Repo.setProfileColor(color);
-      return color;
-    }else{
-      return getRandomColor();  
-    }
-  }
 
   const getRandomColor = () => {
     const letters = "0123456789ABCDEF";

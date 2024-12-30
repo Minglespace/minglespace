@@ -27,9 +27,13 @@ public interface ChatRoomMemberService {
   // 강제 방장 위임
   void forceDelegateLeader(Long userId);
 
+  void forceDelegateLeaderByWorkspaceId(Long wsMemberId, Long workspaceId);
+
   // 방에 존재하는지 확인
   boolean existsByChatRoomIdAndWsMemberIdAndIsLeftFalse(Long chatRoomId, Long wsMemberId);
 
   //방이 비었는지 확인
   boolean isChatRoomEmpty(Long chatRoomId);
+
+  void deleteByUserId(Long userId);
 }

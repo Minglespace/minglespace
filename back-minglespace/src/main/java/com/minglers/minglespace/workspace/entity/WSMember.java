@@ -39,11 +39,11 @@ public class WSMember {
     @JoinColumn(name = "user_id")
     private User user;
 
-    @OneToMany(mappedBy = "wsMember")
+    @OneToMany(mappedBy = "wsMember", cascade = CascadeType.ALL)
     @Builder.Default
     private List<ChatRoomMember> chatRoomMembers = new ArrayList<>();
 
-    @OneToMany(mappedBy = "wsMember")
+    @OneToMany(mappedBy = "wsMember", cascade = CascadeType.ALL)
     @Builder.Default
     private List<MsgReadStatus> msgReadStatuses = new ArrayList<>();
 

@@ -136,77 +136,60 @@ public class ChatRoomMemberServiceImpl implements ChatRoomMemberService {
     return "방장 위임 완료";
   }
 
-
-  ///강제 위임 기능만 냅두기. isleft상태 변경이나 삭제 빼고
-  //탈퇴할때는 모든 워크스페이스 방장 위임이고, 워크스페이스는 해당 워크스페이스의 채팅방들만 방장 위임이라 별개일듯
-  //워크스페이스-채팅방 함수를 분리해서 탈퇴함수에 불러 써야 할 듯함.
-  ////--> 상태 변경안하고 강제 위임만 하면 문제점 ) 만약 ui에 done으로 구분해서 보이는거면 
+  //탈퇴 신청 시 > 모든 워크스페이스 찾기
   @Override
   @Transactional
   public void forceDelegateLeader(Long userId) {
     List<WSMember> wsMembers = wsMemberRepository.findAllByUserId(userId);
-
     for (WSMember wsMember : wsMembers) {
-      List<ChatRoomMember> chatRoomMembers = chatRoomMemberRepository.findByWsMemberIdAndIsLeftFalse(wsMember.getId());
+      this.forceDelegateLeaderByWorkspaceId(wsMember.getId(), wsMember.getWorkSpace().getId());
+    }
+  }
 
-      for (ChatRoomMember chatRoomMember : chatRoomMembers) {
-        if (this.isRoomLeader(chatRoomMember.getChatRoom().getId(), wsMember.getId())) {
+  //특정 워크스페이스 내 채팅방장 강제 위임
+  @Override
+  @Transactional
+  public void forceDelegateLeaderByWorkspaceId(Long wsMemberId, Long workSpaceId) {
+    List<ChatRoomMember> chatRoomMembers = chatRoomMemberRepository.findByChatRoom_WorkSpace_IdAndWsMember_IdAndIsLeftFalseOrderByChatRoom_DateDesc(workSpaceId, wsMemberId);
+
+    for (ChatRoomMember chatRoomMember : chatRoomMembers) {
+      if (this.isRoomLeader(chatRoomMember.getChatRoom().getId(), wsMemberId)) {
 //          log.info("방장이어서 위임해야함: "+ chatRoomMember.getChatRoom().getId());
-          List<ChatRoomMember> roomMembers = chatRoomMemberRepository.findByChatRoomIdAndIsLeftFalseAndUserWithdrawalTypeNot(chatRoomMember.getChatRoom().getId());
-          if (roomMembers.size() > 1) {
-            ChatRoomMember newLeader = roomMembers.stream()
-                    .filter(member -> !member.getWsMember().getId().equals(wsMember.getId()))
-                    .findFirst()
-                    .orElseThrow(() -> new ChatException(HttpStatus.NOT_FOUND.value(), "새로운 방장 후보가 없습니다."));
+        List<ChatRoomMember> roomMembers = chatRoomMemberRepository.findByChatRoomIdAndIsLeftFalseAndUserWithdrawalTypeNot(chatRoomMember.getChatRoom().getId());
+        if (roomMembers.size() > 1) {
+          ChatRoomMember newLeader = roomMembers.stream()
+                  .filter(member -> !member.getWsMember().getId().equals(wsMemberId))
+                  .findFirst()
+                  .orElseThrow(() -> new ChatException(HttpStatus.NOT_FOUND.value(), "새로운 방장 후보가 없습니다."));
 
-            chatRoomMember.setChatRole(ChatRole.CHATMEMBER);
-//            chatRoomMember.setLeft(true); //탈퇴 완료 시
-            newLeader.setChatRole(ChatRole.CHATLEADER);
+          chatRoomMember.setChatRole(ChatRole.CHATMEMBER);
+          newLeader.setChatRole(ChatRole.CHATLEADER);
 
-            chatRoomMemberRepository.save(chatRoomMember); //탈퇴 신청 시
-//            chatRoomMemberRepository.delete(chatRoomMember); //ws 나갈때
-            chatRoomMemberRepository.save(newLeader);
+          chatRoomMemberRepository.save(chatRoomMember); //탈퇴 신청 시
+          chatRoomMemberRepository.save(newLeader);
 
-            notificationService.sendNotification(newLeader.getWsMember().getUser().getId(),
-                    "'" + chatRoomMember.getChatRoom().getName() + "' 채팅방의 새로운 방장으로 강제 임명되셨습니다.",
-                    "/workspace/" + chatRoomMember.getChatRoom().getWorkSpace().getId() + "/chat",
-                    NotificationType.CHAT);
-          } else {
-              msgReadStatusRepository.deleteByMessage_ChatRoom_Id(chatRoomMember.getChatRoom().getId());
-              chatMessageRepository.deleteByChatRoomId(chatRoomMember.getChatRoom().getId());
-              chatRoomMemberRepository.deleteByChatRoomId(chatRoomMember.getChatRoom().getId());
-              chatRoomRepository.deleteById(chatRoomMember.getChatRoom().getId());
-              log.info("채팅방 " + chatRoomMember.getChatRoom().getName() + "가 참여자가 없어서 삭제되었습니다.");
-          }
+          notificationService.sendNotification(newLeader.getWsMember().getUser().getId(),
+                  "'" + chatRoomMember.getChatRoom().getName() + "' 채팅방의 새로운 방장으로 강제 임명되셨습니다.",
+                  "/workspace/" + chatRoomMember.getChatRoom().getWorkSpace().getId() + "/chat",
+                  NotificationType.CHAT);
         } else {
-//          log.info("방장아님 그냥 나가기: "+ chatRoomMember.getChatRoom().getId());
-//          chatRoomMember.setLeft(true);
-//          chatRoomMemberRepository.save(chatRoomMember);
-          chatRoomMemberRepository.delete(chatRoomMember);
+          msgReadStatusRepository.deleteByMessage_ChatRoom_Id(chatRoomMember.getChatRoom().getId());
+          chatMessageRepository.deleteByChatRoomId(chatRoomMember.getChatRoom().getId());
+          chatRoomMemberRepository.deleteByChatRoomId(chatRoomMember.getChatRoom().getId());
+          chatRoomRepository.deleteById(chatRoomMember.getChatRoom().getId());
+          log.info("채팅방 " + chatRoomMember.getChatRoom().getName() + "가 참여자가 없어서 삭제되었습니다.");
         }
       }
     }
   }
 
-
-  //탈퇴할 때
-//  @Override
-//  @Transactional
-//  public void deleteChatRoomMember(Long userId){
-//    List<WSMember> wsMembers = wsMemberRepository.findAllByUserId(userId);
-//    for(WSMember wsMember: wsMembers){
-//      List<ChatRoomMember> chatRoomMembers = chatRoomMemberRepository.findByWsMemberId(wsMember.getId()); //wsmemberId를 통해 참여하고 있는 모든 채팅방 가져와서
-//      //전부 삭제
-//      //chatRoomMembers 하나씩 돌려서
-//    }
-//  }
-
-  //워크스페이스 나갈 때
-  //탈퇴랑 타입이든 뭐든 합칠 수 있으면 합치기
-  //workspaceid, userid/wsmemberid 받아와서
-  //해당 wsid에 참여중인 채팅방 목록을 뽑아냄
-  //isLeft 값에 상관없이 뽑아내서 전부 삭제
-
+  //탈퇴하면 읽음, 참여 기록 삭제
+  @Override
+  @Transactional
+  public void deleteByUserId(Long userId) {
+    msgReadStatusRepository.deleteByWsMember_UserId(userId);
+    chatRoomMemberRepository.deleteByWsMember_UserId(userId);
+  }
 
   @Override
   public boolean existsByChatRoomIdAndWsMemberIdAndIsLeftFalse(Long chatRoomId, Long wsMemberId) {

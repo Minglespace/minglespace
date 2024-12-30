@@ -194,10 +194,10 @@ public class WSMemberServiceImpl implements WSMemberService {
   @Override
   @Transactional
   public String exitWorkspaceMember(Long userId, Long workSpaceId){
-    chatRoomMemberService.forceDelegateLeader(userId);
     WorkSpace workSpace = findWorkSpaceById(workSpaceId);
     User user = findUserById(userId);
     WSMember wsMember = wsMemberRepository.findWsMemberByUserIdAndWorkSpaceId(userId, workSpaceId);
+    chatRoomMemberService.forceDelegateLeaderByWorkspaceId(wsMember.getId(), workSpaceId);
     wsMemberRepository.delete(wsMember);
     return workSpace.getName() + "에서 퇴장하셨습니다.";
   }

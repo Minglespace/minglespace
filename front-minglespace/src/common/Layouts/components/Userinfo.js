@@ -1,6 +1,5 @@
 ﻿import React from "react";
 import ProfileImage from "./ProfileImage";
-import Button from "./Button";
 
 const Userinfo = ({ name, role, email, src, size }) => {
   return (

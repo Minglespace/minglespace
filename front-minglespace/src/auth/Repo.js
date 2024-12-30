@@ -79,14 +79,14 @@ class Repo{
     localStorage.removeItem("WithdrawalType");
   }
 
-  static setProfileColor(color){
-    if(color){
-      localStorage.setItem(Repo.getUserName(), color);
+  static setProfileColor(userName, color){
+    if(userName && color){
+      localStorage.setItem(`profileColor-${userName}`, color);
     }
   }
 
-  static getProfileColor() {
-    return localStorage.getItem(Repo.getUserName());
+  static getProfileColor(userName) {
+    return userName ? localStorage.getItem(`profileColor-${userName}`) : null;
   }
 
   static clearProfileColor(){

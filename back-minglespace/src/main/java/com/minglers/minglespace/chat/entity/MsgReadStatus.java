@@ -23,7 +23,6 @@ public class MsgReadStatus {
   private ChatMessage message;
 
   @ManyToOne(fetch = FetchType.LAZY)
-  @JoinColumn(name = "wsMember_id", nullable = true)
-  @OnDelete(action = OnDeleteAction.SET_NULL)
+  @JoinColumn(name = "wsMember_id")
   private WSMember wsMember;
 }
