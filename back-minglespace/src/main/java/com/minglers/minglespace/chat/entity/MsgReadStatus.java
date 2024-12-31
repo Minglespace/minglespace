@@ -1,11 +1,10 @@
 package com.minglers.minglespace.chat.entity;
 
-import com.minglers.minglespace.common.converter.LocalDateTimeAttributeConverter;
 import com.minglers.minglespace.workspace.entity.WSMember;
 import jakarta.persistence.*;
 import lombok.*;
-
-import java.time.LocalDateTime;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 
 @NoArgsConstructor
 @AllArgsConstructor
@@ -20,18 +19,10 @@ public class MsgReadStatus {
   private Long id;
 
   @ManyToOne(fetch = FetchType.LAZY)
-  @JoinColumn(name = "chatMessage_id")
+  @JoinColumn(name = "chatMessage_id", nullable = false)
   private ChatMessage message;
 
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "wsMember_id")
   private WSMember wsMember;
-
-  //불필요시 삭제
-  @Builder.Default
-  private boolean isRead = false;
-
-  //불필요시 삭제
-  @Convert(converter = LocalDateTimeAttributeConverter.class)
-  private LocalDateTime readTime;
 }

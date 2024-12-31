@@ -7,6 +7,8 @@ import com.minglers.minglespace.common.converter.LocalDateTimeAttributeConverter
 import com.minglers.minglespace.workspace.entity.WSMember;
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 
 import java.time.LocalDateTime;
 
@@ -23,7 +25,6 @@ public class ChatRoomMember {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-//    private Timestamp joined_at;
     @Convert(converter = LocalDateTimeAttributeConverter.class)
     private LocalDateTime date;
 
@@ -31,7 +32,7 @@ public class ChatRoomMember {
     private ChatRole chatRole;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "chatroom_id")
+    @JoinColumn(name = "chatroom_id", nullable = false)
     private ChatRoom chatRoom;
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -44,8 +45,10 @@ public class ChatRoomMember {
     public ChatRoomMemberDTO toDTO(){
         User user = this.getWsMember().getUser();
         String uriPath = user.getImage() != null ? user.getImage().getUripath() : "";
+        Long wsMemberId = (this.getWsMember() != null)  ? this.getWsMember().getId() : 0L;
+
         ChatRoomMemberDTO dto = ChatRoomMemberDTO.builder()
-                .wsMemberId(this.getWsMember().getId())
+                .wsMemberId(wsMemberId)
                 .userId(user.getId())
                 .email(user.getEmail())
                 .name(user.getName())

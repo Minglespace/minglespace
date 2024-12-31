@@ -17,7 +17,6 @@ import com.minglers.minglespace.common.service.NotificationService;
 import com.minglers.minglespace.common.type.NotificationType;
 import com.minglers.minglespace.workspace.entity.WSMember;
 import com.minglers.minglespace.workspace.repository.WSMemberRepository;
-import com.minglers.minglespace.workspace.repository.WorkspaceRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
@@ -171,21 +170,9 @@ public class ChatRoomServiceImpl implements ChatRoomService {
 
     //새 채팅방 바로 실시간 알림
     for(Long id: participantsUserIds){
-//      Set<String> sessionIds = stompInterceptor.getSessionForUser(id);
-//      if(sessionIds != null && !sessionIds.isEmpty()){
-//        sessionIds.forEach(sessionId -> {
-//          String cleanSession = sessionId.replaceAll("[\\[\\]]", "");
-//          SimpMessageHeaderAccessor headerAccessor = SimpMessageHeaderAccessor.create(SimpMessageType.MESSAGE);
-//          headerAccessor.setSessionId(cleanSession);
-//          headerAccessor.setLeaveMutable(true);
-//          simpMessagingTemplate.convertAndSendToUser(cleanSession,"/queue/workspaces/"+responseDTO.getWorkSpaceId()+"/chat", responseDTO,headerAccessor.getMessageHeaders());
-//        });
-//      }
-//      notificationService.sendNotification(id, responseDTO.getName()+"채팅방에 초대되셨습니다.", "/workspace/"+responseDTO.getWorkSpaceId()+"/chat", NotificationType.CHAT);
       this.chatNotification(responseDTO, id);
       notificationService.sendNotification(id, responseDTO.getName()+"채팅방에 초대되셨습니다.", "/workspace/"+responseDTO.getWorkSpaceId()+"/chat", NotificationType.CHAT);
     }
-
     return responseDTO;
   }
 

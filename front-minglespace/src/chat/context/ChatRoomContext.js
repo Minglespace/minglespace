@@ -35,6 +35,16 @@ export const ChatRoomProvider = ({ children }) => {
 		console.log("Updated chatRoomInfo:", chatRoomInfo); // 상태가 바뀔 때마다 콘솔로 확인
 	}, [chatRoomInfo]);
 
+	const groupMessagesByDate = (messages) => {
+		return messages.reduce((groups, message) => {
+			const date = message.date.slice(0, 10);
+			if (!groups[date]) {
+				groups[date] = [];
+			}
+			groups[date].push(message);
+			return groups;
+		}, {});
+	};
 
 	const fetchRoomInfo = async () => {
 		try {
@@ -247,7 +257,8 @@ export const ChatRoomProvider = ({ children }) => {
 				handleRegisterAnnouncement,
 				handleDeleteMessage,
 				handleDelegate,
-				handleExit
+				handleExit,
+				groupMessagesByDate
 			}}
 		>
 			{children}

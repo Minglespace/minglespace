@@ -1,9 +1,7 @@
 package com.minglers.minglespace.chat.config.listener;
 
-import com.minglers.minglespace.chat.config.interceptor.CustomHandShakeInterceptor;
 import com.minglers.minglespace.chat.config.interceptor.StompInterceptor;
 import lombok.RequiredArgsConstructor;
-import org.springframework.context.annotation.Lazy;
 import org.springframework.context.event.EventListener;
 import org.springframework.messaging.simp.stomp.StompHeaderAccessor;
 import org.springframework.stereotype.Component;

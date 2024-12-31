@@ -22,21 +22,26 @@ public class ChatRoom {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(nullable = false)
     private String name;
 
     @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private Image image;
 
     @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "work_space_id", nullable = false)
     private WorkSpace workSpace;
 
     @Convert(converter = LocalDateTimeAttributeConverter.class)
     private LocalDateTime date;
 
-    //양방향 데이터 조회 쉽도록 list 관리
     @OneToMany(mappedBy = "chatRoom", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default
     private List<ChatRoomMember> chatRoomMembers = new ArrayList<>();
+
+    @OneToMany(mappedBy = "chatRoom", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Builder.Default
+    private List<ChatMessage> chatMessages = new ArrayList<>();
 
     //참여 멤버 추가
     public void addChatRoomMember(ChatRoomMember chatRoomMember) {

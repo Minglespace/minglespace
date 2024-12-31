@@ -1,8 +1,5 @@
 package com.minglers.minglespace.chat.service;
 
-import com.minglers.minglespace.auth.entity.User;
-import com.minglers.minglespace.auth.repository.UserRepository;
-import com.minglers.minglespace.chat.config.interceptor.CustomHandShakeInterceptor;
 import com.minglers.minglespace.chat.dto.ChatRoomMemberDTO;
 import com.minglers.minglespace.chat.entity.ChatRoom;
 import com.minglers.minglespace.chat.entity.ChatRoomMember;
@@ -19,10 +16,7 @@ import com.minglers.minglespace.workspace.repository.WSMemberRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.springframework.http.HttpStatus;
-import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -142,51 +136,60 @@ public class ChatRoomMemberServiceImpl implements ChatRoomMemberService {
     return "방장 위임 완료";
   }
 
+  //탈퇴 신청 시 > 모든 워크스페이스 찾기
   @Override
   @Transactional
   public void forceDelegateLeader(Long userId) {
     List<WSMember> wsMembers = wsMemberRepository.findAllByUserId(userId);
-
     for (WSMember wsMember : wsMembers) {
-      List<ChatRoomMember> chatRoomMembers = chatRoomMemberRepository.findByWsMemberIdAndIsLeftFalse(wsMember.getId());
+      this.forceDelegateLeaderByWorkspaceId(wsMember.getId(), wsMember.getWorkSpace().getId());
+    }
+  }
 
-      for (ChatRoomMember chatRoomMember : chatRoomMembers) {
-        if (this.isRoomLeader(chatRoomMember.getChatRoom().getId(), wsMember.getId())) {
+  //특정 워크스페이스 내 채팅방장 강제 위임
+  @Override
+  @Transactional
+  public void forceDelegateLeaderByWorkspaceId(Long wsMemberId, Long workSpaceId) {
+    List<ChatRoomMember> chatRoomMembers = chatRoomMemberRepository.findByChatRoom_WorkSpace_IdAndWsMember_IdAndIsLeftFalseOrderByChatRoom_DateDesc(workSpaceId, wsMemberId);
+
+    for (ChatRoomMember chatRoomMember : chatRoomMembers) {
+      if (this.isRoomLeader(chatRoomMember.getChatRoom().getId(), wsMemberId)) {
 //          log.info("방장이어서 위임해야함: "+ chatRoomMember.getChatRoom().getId());
-          List<ChatRoomMember> roomMembers = chatRoomMemberRepository.findByChatRoomIdAndIsLeftFalseAndUserWithdrawalTypeNot(chatRoomMember.getChatRoom().getId());
-          if (roomMembers.size() > 1) {
-            ChatRoomMember newLeader = roomMembers.stream()
-                    .filter(member -> !member.getWsMember().getId().equals(wsMember.getId()))
-                    .findFirst()
-                    .orElseThrow(() -> new ChatException(HttpStatus.NOT_FOUND.value(), "새로운 방장 후보가 없습니다."));
+        List<ChatRoomMember> roomMembers = chatRoomMemberRepository.findByChatRoomIdAndIsLeftFalseAndUserWithdrawalTypeNot(chatRoomMember.getChatRoom().getId());
+        if (roomMembers.size() > 1) {
+          ChatRoomMember newLeader = roomMembers.stream()
+                  .filter(member -> !member.getWsMember().getId().equals(wsMemberId))
+                  .findFirst()
+                  .orElseThrow(() -> new ChatException(HttpStatus.NOT_FOUND.value(), "새로운 방장 후보가 없습니다."));
 
-            chatRoomMember.setChatRole(ChatRole.CHATMEMBER);
-            chatRoomMember.setLeft(true);
-            newLeader.setChatRole(ChatRole.CHATLEADER);
+          chatRoomMember.setChatRole(ChatRole.CHATMEMBER);
+          newLeader.setChatRole(ChatRole.CHATLEADER);
 
-            chatRoomMemberRepository.save(chatRoomMember);
-            chatRoomMemberRepository.save(newLeader);
+          chatRoomMemberRepository.save(chatRoomMember); //탈퇴 신청 시
+          chatRoomMemberRepository.save(newLeader);
 
-            notificationService.sendNotification(newLeader.getWsMember().getUser().getId(),
-                    "'" + chatRoomMember.getChatRoom().getName() + "' 채팅방의 새로운 방장으로 강제 임명되셨습니다.",
-                    "/workspace/" + chatRoomMember.getChatRoom().getWorkSpace().getId() + "/chat",
-                    NotificationType.CHAT);
-          } else {
-              msgReadStatusRepository.deleteByMessage_ChatRoom_Id(chatRoomMember.getChatRoom().getId());
-              chatMessageRepository.deleteByChatRoomId(chatRoomMember.getChatRoom().getId());
-              chatRoomMemberRepository.deleteByChatRoomId(chatRoomMember.getChatRoom().getId());
-              chatRoomRepository.deleteById(chatRoomMember.getChatRoom().getId());
-              log.info("채팅방 " + chatRoomMember.getChatRoom().getName() + "가 참여자가 없어서 삭제되었습니다.");
-          }
+          notificationService.sendNotification(newLeader.getWsMember().getUser().getId(),
+                  "'" + chatRoomMember.getChatRoom().getName() + "' 채팅방의 새로운 방장으로 강제 임명되셨습니다.",
+                  "/workspace/" + chatRoomMember.getChatRoom().getWorkSpace().getId() + "/chat",
+                  NotificationType.CHAT);
         } else {
-//          log.info("방장아님 그냥 나가기: "+ chatRoomMember.getChatRoom().getId());
-          chatRoomMember.setLeft(true);
-          chatRoomMemberRepository.save(chatRoomMember);
+          msgReadStatusRepository.deleteByMessage_ChatRoom_Id(chatRoomMember.getChatRoom().getId());
+          chatMessageRepository.deleteByChatRoomId(chatRoomMember.getChatRoom().getId());
+          chatRoomMemberRepository.deleteByChatRoomId(chatRoomMember.getChatRoom().getId());
+          chatRoomRepository.deleteById(chatRoomMember.getChatRoom().getId());
+          log.info("채팅방 " + chatRoomMember.getChatRoom().getName() + "가 참여자가 없어서 삭제되었습니다.");
         }
       }
     }
   }
 
+  //탈퇴하면 읽음, 참여 기록 삭제
+  @Override
+  @Transactional
+  public void deleteByUserId(Long userId) {
+    msgReadStatusRepository.deleteByWsMember_UserId(userId);
+    chatRoomMemberRepository.deleteByWsMember_UserId(userId);
+  }
 
   @Override
   public boolean existsByChatRoomIdAndWsMemberIdAndIsLeftFalse(Long chatRoomId, Long wsMemberId) {

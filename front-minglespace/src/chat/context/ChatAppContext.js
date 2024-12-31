@@ -40,7 +40,7 @@ export const ChatAppProvider = ({ children }) => {
 			wsMemberDispatch({
 				type: "SET_WS_MEMBERS",
 				payload: wsmembersData.filter(
-					(member) => member.userId !== Number(Repo.getUserId())
+					(member) => member.userId !== Number(Repo.getUserId()) && member.withdrawalType === 'NOT'
 				)
 			});
 		} catch (e) {
@@ -88,21 +88,21 @@ export const ChatAppProvider = ({ children }) => {
 					const newRoom = JSON.parse(room.body);
 					// console.log("생성이냐 업데이트냐: ", room);
 
-					if(newRoom.type === "CREATE"){
+					if (newRoom.type === "CREATE") {
 						roomsDispatch({ type: "ADD_ROOMS", payload: newRoom });
-					}else if(newRoom.type === "UPDATE"){
+					} else if (newRoom.type === "UPDATE") {
 						roomsDispatch({
 							type: "UPDATE_ROOMS",
 							payload: {
 								chatRoomId: newRoom.chatRoomId,
-								updates: { 
+								updates: {
 									name: newRoom.name,
-									imageUriPath: newRoom.imageUriPath  
+									imageUriPath: newRoom.imageUriPath
 								}
 							},
 						});
 					}
-					
+
 				});
 			},
 			onWebSocketError: (error) => {

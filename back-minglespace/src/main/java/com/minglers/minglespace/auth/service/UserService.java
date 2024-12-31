@@ -219,7 +219,7 @@ public class UserService {
     updateUser.setWithdrawalType(WithdrawalType.DONE);
     usersRepo.save(updateUser);
 
-    chatRoomMemberService.forceDelegateLeader(updateUser.getId()); //채팅방 강제 위임
+    chatRoomMemberService.deleteByUserId(updateUser.getId());
   }
   public void updateWithdrawalCancel(User updateUser){
     updateUser.setWithdrawalType(WithdrawalType.NOT);

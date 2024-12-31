@@ -23,7 +23,6 @@ public class ImageController {
   private final ImageService imageService;
 
   //클라이언트에서 통하는 이미지 경로.
-  @CrossOrigin(origins = "http://localhost:3000")
   @GetMapping({"/images/{fileName}", "/files/{fileName}"})
   public ResponseEntity<Resource> getImage(@PathVariable String fileName, HttpServletRequest request) {
     String requestURI = request.getRequestURI();

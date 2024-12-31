@@ -1,4 +1,4 @@
-﻿﻿import React, { useState, useEffect } from "react";
+﻿﻿import React, { useState } from "react";
 import { FiCornerDownRight, FiDownload, FiTrash2 } from "react-icons/fi";
 import { HOST_URL } from "../../api/Api";
 import ProfileImage from "../../common/Layouts/components/ProfileImage";
@@ -63,8 +63,15 @@ const MessageListItem = ({
     return message
       .split(regex)
       .map((part, index) => {
-        const isMention = wsMemberState.some((member) => member.name === part) || part === currentMemberInfo.name;
-        return isMention ? <span style={{ fontWeight: "bold", color: "#6495ED" }} key={index}>@{part}</span> : part;
+        if (index % 2 === 1) {
+          const isMention = wsMemberState.some((member) => member.name === part) || part === currentMemberInfo.name;
+          return isMention ? (
+            <span style={{ fontWeight: "bold", color: "#6495ED" }} key={index}>@{part}</span>
+          ) : (
+            `@${part}`
+          );
+        }
+        return part;
       });
   };
 
@@ -329,20 +336,20 @@ const MessageListItem = ({
         {/* 삭제 아이콘 */}
         {message.writerWsMemberId === currentMemberInfo.wsMemberId && (
           <button
-          className="delete-button"
-          onClick={() => openDeleteModal(message)}
-          style={{
-            backgroundColor: "transparent",
-            border: "none",
-            color: "red",
-            cursor: "pointer",
-            fontSize: "18px",
-          }}
-        >
-          <FiTrash2 />
-        </button>
+            className="delete-button"
+            onClick={() => openDeleteModal(message)}
+            style={{
+              backgroundColor: "transparent",
+              border: "none",
+              color: "red",
+              cursor: "pointer",
+              fontSize: "18px",
+            }}
+          >
+            <FiTrash2 />
+          </button>
         )}
-        
+
 
         {/* 안읽은 카운트 */}
         {message.unReadMembers && message.unReadMembers.length > 0 && (

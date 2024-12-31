@@ -1,4 +1,4 @@
-package com.minglers.minglespace.auth.controller;
+﻿package com.minglers.minglespace.auth.controller;
 
 import com.minglers.minglespace.auth.dto.*;
 import com.minglers.minglespace.auth.entity.User;
@@ -9,6 +9,7 @@ import com.minglers.minglespace.auth.service.UserService;
 import com.minglers.minglespace.auth.service.WithdrawalService;
 import com.minglers.minglespace.auth.type.VerifyType;
 import com.minglers.minglespace.auth.type.WithdrawalType;
+import com.minglers.minglespace.chat.service.ChatRoomMemberService;
 import com.minglers.minglespace.common.apistatus.AuthStatus;
 import com.minglers.minglespace.common.entity.Image;
 import com.minglers.minglespace.common.service.ImageService;
@@ -49,6 +50,7 @@ class AuthController {
   private final ModelMapper modelMapper;
   private final WithdrawalService withdrawalService;
   private final WSMemberService wsMemberService;
+  private final ChatRoomMemberService chatRoomMemberService;
 
   @PostMapping("/auth/signup")
   public ResponseEntity<DefaultResponse> signup(
@@ -300,6 +302,8 @@ class AuthController {
 
     // 회원 탈퇴 이메일 인증 코드 생성
     String code = UUID.randomUUID().toString();
+
+    chatRoomMemberService.forceDelegateLeader(user.getId()); //탈퇴 신청하면 채팅방 강제 위임 진행
 
     // user WithdrawalType 저장
     user.setWithdrawalType(WithdrawalType.EMAIL);

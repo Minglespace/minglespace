@@ -1,6 +1,5 @@
 package com.minglers.minglespace.chat.service;
 
-import com.minglers.minglespace.chat.dto.MessageStatusDTO;
 import com.minglers.minglespace.chat.entity.ChatMessage;
 import com.minglers.minglespace.chat.entity.ChatRoomMember;
 import com.minglers.minglespace.chat.entity.MsgReadStatus;
@@ -11,7 +10,6 @@ import com.minglers.minglespace.common.service.NotificationService;
 import com.minglers.minglespace.common.type.NotificationType;
 import com.minglers.minglespace.workspace.entity.WSMember;
 import com.minglers.minglespace.workspace.repository.WSMemberRepository;
-import com.minglers.minglespace.workspace.service.WSMemberService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
@@ -46,6 +44,7 @@ public class MsgReadStatusServiceImpl implements MsgReadStatusService {
       }
 
       List<MsgReadStatus> list = members.stream()
+              .filter(member -> member.getWsMember() != null)
               .filter(member -> !activeUserIds.contains(member.getWsMember().getUser().getId()))
               .map(member -> MsgReadStatus.builder()
                       .message(saveMsg)
@@ -56,6 +55,9 @@ public class MsgReadStatusServiceImpl implements MsgReadStatusService {
       msgReadStatusRepository.saveAll(list);
 
       for (ChatRoomMember member : members) {
+        if(member.getWsMember() == null){
+          continue;
+        }
         Long memberId = member.getWsMember().getUser().getId();
 
         if(activeUserIds.contains(memberId)){

@@ -22,7 +22,7 @@ public interface ChatRoomMemberRepository extends JpaRepository<ChatRoomMember, 
   List<ChatRoomMember> findByChatRoomIdAndIsLeftFalseAndUserWithdrawalTypeNot(Long chatRoomId); //채팅방에 참여중인 비탈퇴 유저
 //  List<ChatRoomMember> findByChatRoomIdAndIsLeftFalse(Long chatRoomId); //채팅방에 떠나지 않은 멤버 목륵
   List<ChatRoomMember> findByChatRoom_WorkSpace_IdAndWsMember_IdAndIsLeftFalseOrderByChatRoom_DateDesc(Long workSpaceId, Long wsMemberId);  // 특정 워크스페이스와 유저가 참여한 채팅방 목록을 조회하는 쿼리
-  List<ChatRoomMember> findByWsMember_IdAndChatRole(Long wsMemberId, ChatRole chatRole);
+//  List<ChatRoomMember> findByWsMember_IdAndChatRole(Long wsMemberId, ChatRole chatRole);
   List<ChatRoomMember> findByWsMemberIdAndIsLeftFalse(Long wsMemberId); //멤버가 참여하고 있는 채팅방 목록
 
   //특정 채팅방에 특정 멤버에 관한 정보
@@ -33,6 +33,7 @@ public interface ChatRoomMemberRepository extends JpaRepository<ChatRoomMember, 
   boolean existsByChatRoomIdAndIsLeftFalse(Long chatRoomId); //방에 남아있는 멤버가 있는지
 
   void deleteByChatRoomId(Long chatRoomId);
+  void deleteByWsMember_UserId(Long userId);
 
   //isLeft 변경하기(강퇴, 초대 등)
   @Modifying
