@@ -36,7 +36,7 @@ export default function UserInfoPopup() {
     phone: "",
     introduction: "",
     localImage: "",
-    socialLogin:"",
+    socialLogin: "",
   });
   //============================================================================================
   //============================================================================================
@@ -50,12 +50,12 @@ export default function UserInfoPopup() {
   useEffect(() => {
     const handleEscape = (e) => {
       if (e.key === "Escape") {
-        if(isEditing){
+        if (isEditing) {
           setIsEditing(false);
           return;
         }
 
-        if(isOpen){
+        if (isOpen) {
           setIsOpen(false);
         }
       }
@@ -94,11 +94,11 @@ export default function UserInfoPopup() {
       setUserInfo(data);
       Repo.setItem(data);
       Repo.setUserName(data.name);
-    }else if(data.msStatus && AuthStatus[data.msStatus]){
+    } else if (data.msStatus && AuthStatus[data.msStatus]) {
       setMessage({
-        title: "확인", 
-        content: AuthStatus[data.msStatus].desc,  
-        callbackOk: ()=>{setMessage(null);}
+        title: "확인",
+        content: AuthStatus[data.msStatus].desc,
+        callbackOk: () => { setMessage(null); }
       });
     }
   };
@@ -110,16 +110,16 @@ export default function UserInfoPopup() {
       setIsOpen(true);
     }
   };
-  
+
   const handleClickWithdrawalEmail = async () => {
     setMessage({
-      title: "확인", 
-      content: "회원탙퇴를 진행하시겠습니까?",  
-      callbackYes: ()=>{
+      title: "확인",
+      content: "회원탈퇴를 진행하시겠습니까?",
+      callbackYes: () => {
         setMessage(null);
         sendWithdrawalEmail();
       },
-      callbackNo: ()=>{
+      callbackNo: () => {
         setMessage(null);
       }
     });
@@ -129,21 +129,21 @@ export default function UserInfoPopup() {
     const data = await AuthApi.withdrawalEmail();
     if (AuthStatusOk(data.msStatus)) {
       setMessage({
-        title: "확인", 
-        content: "회원탈퇴 인증 이메일을 보냈습니다.",  
-        callbackOk: ()=>{
+        title: "확인",
+        content: "회원탈퇴 인증 이메일을 보냈습니다.",
+        callbackOk: () => {
           setMessage(null);
           Repo.clearItem();
           navigate("/auth/login");
         }
       });
-    }else if(data.msStatus && AuthStatus[data.msStatus]){
-      const msg = (data.msStatus === AuthStatus.MSG_FROM_SERVER.value) 
+    } else if (data.msStatus && AuthStatus[data.msStatus]) {
+      const msg = (data.msStatus === AuthStatus.MSG_FROM_SERVER.value)
         ? data.msgFromServer : AuthStatus[data.msStatus].desc;
       setMessage({
-        title: "확인", 
-        content: msg,  
-        callbackOk: ()=>{setMessage(null);}
+        title: "확인",
+        content: msg,
+        callbackOk: () => { setMessage(null); }
       });
     }
   }
@@ -158,7 +158,7 @@ export default function UserInfoPopup() {
   };
 
   const handleClickLogout = async () => {
-    await AuthApi.logout().then(()=>{
+    await AuthApi.logout().then(() => {
       navigate("/auth/login");
     });
     Repo.clearItem();
@@ -173,7 +173,7 @@ export default function UserInfoPopup() {
   };
 
   const handleSaveChanges = async () => {
-    
+
     const changedFields = compareUserInfo(initialUserInfo, userInfo); // 변경된 필드 찾기
 
     if (Object.keys(changedFields).length > 0) {
@@ -211,7 +211,7 @@ export default function UserInfoPopup() {
     }
     return changes;
   };
-  
+
   const handleImageChange = (e) => {
 
     const file = e.target.files ? e.target.files[0] : null;
@@ -219,7 +219,7 @@ export default function UserInfoPopup() {
       setSelectedImage(URL.createObjectURL(file));
       userInfo.localImage = file;
       userInfo.dontUseProfileImage = false;
-    }else{
+    } else {
       console.log("handleImageChange 여기로 들어오는 경우는?");
     }
   };
@@ -273,7 +273,7 @@ export default function UserInfoPopup() {
                 <div className="profile-container">
                   {/* 유저 프로필 : 유저정보 변경 팝업  */}
                   <ProfileImage
-                    src={(userInfo.dontUseProfileImage===true) ? null : selectedImage || getHostImagePath()}
+                    src={(userInfo.dontUseProfileImage === true) ? null : selectedImage || getHostImagePath()}
                     userName={userInfo.name}
                   />
                   <button

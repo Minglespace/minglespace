@@ -12,7 +12,7 @@ const WithdrawalPage = () => {
   const [message, setMessage] = useState(null);
   const [info, setInfo] = useState(null);
 
-  useEffect(()=>{
+  useEffect(() => {
     sendWithdrawalInfo();
   }, []);
 
@@ -22,28 +22,28 @@ const WithdrawalPage = () => {
 
   const sendWithdrawalInfo = async () => {
     await AuthApi.withdrawalInfo()
-      .then((data)=>{
-        if(data){
+      .then((data) => {
+        if (data) {
           setInfo(data);
-        }else{
+        } else {
           Repo.clearItem();
           navigate("/auth/login");
         }
       })
-      .catch((error)=>{
+      .catch((error) => {
         console.log("sendWithdrawalInfo exception : ", error);
       });
   }
 
-  const handleClickEnroll = () =>{
+  const handleClickEnroll = () => {
     setMessage({
-      title: "확인", 
-      content: "회원탙퇴 신청을 하시겠습니까?",  
-      callbackYes: ()=>{
+      title: "확인",
+      content: "회원탈퇴 신청을 하시겠습니까?",
+      callbackYes: () => {
         setMessage(null);
         sendWithdrawalEnroll();
       },
-      callbackNo: ()=>{
+      callbackNo: () => {
         setMessage(null);
       }
     });
@@ -51,39 +51,39 @@ const WithdrawalPage = () => {
 
   const sendWithdrawalEnroll = async () => {
     await AuthApi.withdrawalEnroll()
-    .then((data)=>{
-      if(AuthStatusOk(data.msStatus)){
-        setMessage({
-          title: "확인", 
-          content: "회원탙퇴 신청이 완료되었습니다.\n 일정기간 이후 자동 탈퇴가 완료 됩니다.\n 기간내에 회원탈퇴 취소가 가능합니다.",  
-          callbackOk: ()=>{
-            setMessage(null);
-            Repo.clearItem();
-            navigate("/auth/login");
-          }
-        });
-      }else if(data.msStatus && AuthStatus[data.msStatus]){
-        setMessage({
-          title: "확인", 
-          content: AuthStatus[data.msStatus].desc,  
-          callbackOk: ()=>{setMessage(null)}
-        });
-      }
-    })
-    .catch((error)=>{
-      console.log("sendWithdrawalEnroll exception : ", error);
-    });
+      .then((data) => {
+        if (AuthStatusOk(data.msStatus)) {
+          setMessage({
+            title: "확인",
+            content: "회원탈퇴 신청이 완료되었습니다.\n 일정기간 이후 자동 탈퇴가 완료 됩니다.\n 기간내에 회원탈퇴 취소가 가능합니다.",
+            callbackOk: () => {
+              setMessage(null);
+              Repo.clearItem();
+              navigate("/auth/login");
+            }
+          });
+        } else if (data.msStatus && AuthStatus[data.msStatus]) {
+          setMessage({
+            title: "확인",
+            content: AuthStatus[data.msStatus].desc,
+            callbackOk: () => { setMessage(null) }
+          });
+        }
+      })
+      .catch((error) => {
+        console.log("sendWithdrawalEnroll exception : ", error);
+      });
   }
 
-  const handleClickImmediately = () =>{
+  const handleClickImmediately = () => {
     setMessage({
-      title: "확인", 
-      content: "즉시 회원탙퇴 하시겠습니까?",  
-      callbackYes: ()=>{
+      title: "확인",
+      content: "즉시 회원탈퇴 하시겠습니까?",
+      callbackYes: () => {
         setMessage(null);
         sendWithdrawalImmediately();
       },
-      callbackNo: ()=>{
+      callbackNo: () => {
         setMessage(null);
       }
     });
@@ -91,40 +91,40 @@ const WithdrawalPage = () => {
 
   const sendWithdrawalImmediately = async () => {
     await AuthApi.withdrawalImmediately()
-    .then((data)=>{
-      if(AuthStatusOk(data.msStatus)){
-        setMessage({
-          title: "확인", 
-          content: "회원탙퇴가 완료되었습니다.",  
-          callbackOk: ()=>{
-            setMessage(null);
-            Repo.clearItem();
-            navigate("/auth/login");
-          }
-        });
+      .then((data) => {
+        if (AuthStatusOk(data.msStatus)) {
+          setMessage({
+            title: "확인",
+            content: "회원탈퇴가 완료되었습니다.",
+            callbackOk: () => {
+              setMessage(null);
+              Repo.clearItem();
+              navigate("/auth/login");
+            }
+          });
 
-      }else if(data.msStatus && AuthStatus[data.msStatus]){
-        setMessage({
-          title: "확인", 
-          content: AuthStatus[data.msStatus].desc,  
-          callbackOk: ()=>{setMessage(null)}
-        });
-      }
-    })
-    .catch((error)=>{
-      console.log("sendWithdrawalImmediately exception : ", error);
-    });
+        } else if (data.msStatus && AuthStatus[data.msStatus]) {
+          setMessage({
+            title: "확인",
+            content: AuthStatus[data.msStatus].desc,
+            callbackOk: () => { setMessage(null) }
+          });
+        }
+      })
+      .catch((error) => {
+        console.log("sendWithdrawalImmediately exception : ", error);
+      });
   }
 
-  const handleClickCancel = () =>{
+  const handleClickCancel = () => {
     setMessage({
-      title: "확인", 
-      content: "회원탙퇴를 취소하시겠습니까?",  
-      callbackYes: ()=>{
+      title: "확인",
+      content: "회원탈퇴를 취소하시겠습니까?",
+      callbackYes: () => {
         setMessage(null);
         sendWithdrawalCancel();
       },
-      callbackNo: ()=>{
+      callbackNo: () => {
         setMessage(null);
       }
     });
@@ -132,30 +132,30 @@ const WithdrawalPage = () => {
 
   const sendWithdrawalCancel = async () => {
     await AuthApi.withdrawalCancel()
-      .then(()=>{
+      .then(() => {
         setMessage({
-          title: "확인", 
-          content: "회원탈퇴신청이 취소 되었습니다.",  
-          callbackOk: ()=>{
+          title: "확인",
+          content: "회원탈퇴신청이 취소 되었습니다.",
+          callbackOk: () => {
             setMessage(null);
             handleClickLogout();
           }
         });
       })
-      .catch((error)=>{
+      .catch((error) => {
         console.log("sendWithdrawalCancel exception : ", error);
       });
   }
 
-  const handleClickReEmail = () =>{
+  const handleClickReEmail = () => {
     setMessage({
-      title: "확인", 
-      content: "회원탙퇴 이메일 인증을 재전송 하시겠습니까?",  
-      callbackYes: ()=>{
+      title: "확인",
+      content: "회원탈퇴 이메일 인증을 재전송 하시겠습니까?",
+      callbackYes: () => {
         setMessage(null);
         sendWithdrawalReEmail();
       },
-      callbackNo: ()=>{
+      callbackNo: () => {
         setMessage(null);
       }
     });
@@ -163,35 +163,35 @@ const WithdrawalPage = () => {
 
   const sendWithdrawalReEmail = async () => {
     await AuthApi.withdrawalEmail()
-      .then((data)=>{
-        if(AuthStatusOk(data.msStatus)){
+      .then((data) => {
+        if (AuthStatusOk(data.msStatus)) {
           setMessage({
-            title: "확인", 
-            content: "회원탈퇴 인증 이메일이 전송 되었습니다.",  
-            callbackOk: ()=>{
+            title: "확인",
+            content: "회원탈퇴 인증 이메일이 전송 되었습니다.",
+            callbackOk: () => {
               setMessage(null);
               handleClickLogout();
             }
           });
-        }else if(data.msStatus && AuthStatus[data.msStatus]){
+        } else if (data.msStatus && AuthStatus[data.msStatus]) {
           setMessage({
-            title: "확인", 
-            content: AuthStatus[data.msStatus].desc,  
-            callbackOk: ()=>{setMessage(null)}
+            title: "확인",
+            content: AuthStatus[data.msStatus].desc,
+            callbackOk: () => { setMessage(null) }
           });
         }
       })
-      .catch((error)=>{
+      .catch((error) => {
         console.log("sendWithdrawalReEmail exception : ", error);
       });
   }
 
-  const handleClickLogout = async () =>{
+  const handleClickLogout = async () => {
     await AuthApi.logout()
-      .then(()=>{
+      .then(() => {
         navigate("/auth/login");
       })
-      .catch((error)=>{
+      .catch((error) => {
         console.log("handleClickLogout exception : ", error);
       });
   };
@@ -199,18 +199,18 @@ const WithdrawalPage = () => {
   //===============================================================================================
   //===============================================================================================
   const formatDate = (dateString) => {
-    if(dateString === null || dateString === "undefined")
+    if (dateString === null || dateString === "undefined")
       return "";
 
     const date = new Date(dateString);
-  
+
     // 연, 월, 일, 시, 분을 각각 추출
     const year = date.getFullYear();
     const month = String(date.getMonth() + 1).padStart(2, '0'); // 1월은 0부터 시작하므로 +1
     const day = String(date.getDate()).padStart(2, '0');
     const hour = String(date.getHours()).padStart(2, '0');
     const minute = String(date.getMinutes()).padStart(2, '0');
-  
+
     // 원하는 형식으로 반환
     return `${year}년 ${month}월 ${day}일 ${hour}시 ${minute}분`;
   };
@@ -226,7 +226,7 @@ const WithdrawalPage = () => {
         return withdrawalType;
     }
   };
-  
+
   //===============================================================================================
   //===============================================================================================
   //===============================================================================================
@@ -289,7 +289,7 @@ const WithdrawalPage = () => {
       </div>
     </div>
 
-    
+
   )
 }
 
