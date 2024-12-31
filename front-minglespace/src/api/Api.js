@@ -2,7 +2,8 @@ import axios from "axios";
 import Repo from "../auth/Repo";
 import { AuthStatus } from "./AuthStatus";
 
-const HOST_URL = "http://localhost:8080/api";
+const HOST_URL_BASE = "http://localhost:8080";
+const HOST_URL = HOST_URL_BASE + "/api";
 
 axios.defaults.withCredentials = true;
 
@@ -131,4 +132,4 @@ const api = new Api();
 Object.freeze(api);
 
 export default api;
-export { HOST_URL };
+export { HOST_URL, HOST_URL_BASE };

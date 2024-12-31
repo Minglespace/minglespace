@@ -3,7 +3,7 @@ import Modal from "../common/Layouts/components/Modal";
 import AuthApi from "../api/AuthApi";
 import Repo from "./Repo";
 
-import { HOST_URL } from "../api/Api";
+import { HOST_URL_BASE } from "../api/Api";
 import { Eye, EyeOff } from "lucide-react";
 import { AuthStatus, AuthStatusOk } from "../api/AuthStatus";
 import { Link, useLocation, useNavigate, useParams } from "react-router-dom";
@@ -155,15 +155,15 @@ const LoginPage = () => {
   };
 
   const handleClickGoogle = () => {
-    const url = `${HOST_URL}/oauth2/authorization/google`;
+    const url = `${HOST_URL_BASE}/oauth2/authorization/google`;
     window.location.href = url;
   };
   const handleClickNaver = () => {
-    const url = `${HOST_URL}/oauth2/authorization/naver`;
+    const url = `${HOST_URL_BASE}/oauth2/authorization/naver`;
     window.location.href = url;
   };
   const handleClicKakao = () => {
-    const url = `${HOST_URL}/oauth2/authorization/kakao`;
+    const url = `${HOST_URL_BASE}/oauth2/authorization/kakao`;
     window.location.href = url;
   };
 
