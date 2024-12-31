@@ -16,7 +16,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 @RestController
-@RequestMapping("/workspace/{workspaceId}/calendar")
+@RequestMapping("/api/workspace/{workspaceId}/calendar")
 @Slf4j
 @RequiredArgsConstructor
 public class CalendarController {

@@ -8,6 +8,7 @@ import com.minglers.minglespace.auth.type.FriendshipStatus;
 import com.minglers.minglespace.chat.service.ChatRoomMemberService;
 import com.minglers.minglespace.common.service.NotificationService;
 import com.minglers.minglespace.common.type.NotificationType;
+import com.minglers.minglespace.common.util.MsConfig;
 import com.minglers.minglespace.todo.repository.TodoRepository;
 import com.minglers.minglespace.workspace.dto.FriendWithWorkspaceStatusDTO;
 import com.minglers.minglespace.workspace.dto.MemberWithUserInfoDTO;
@@ -269,7 +270,8 @@ public class WSMemberServiceImpl implements WSMemberService {
 
       //1. 이메일을 보낸다.(링크+uuid)
       String uuid = UUID.randomUUID().toString();
-      String url = "http://localhost:3000/workspace/" + workspaceId + "/invite/"
+
+      String url = MsConfig.getClientUrl()+"/workspace/" + workspaceId + "/invite/"
               + uuid; //하나로 빌드후 수정해야함
 
       CompletableFuture<String> emailResult = emailInviteService.sendEmail(workSpace.getName(), url, email);

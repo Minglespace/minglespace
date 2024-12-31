@@ -27,7 +27,7 @@ import java.util.Map;
 @RestController
 @RequiredArgsConstructor
 @Log4j2
-@RequestMapping("/workspaces/{workspaceId}/chatRooms")
+@RequestMapping("/api/workspaces/{workspaceId}/chatRooms")
 public class ChatRoomController {
   private final ChatRoomService chatRoomService;
   private final ChatRoomMemberService chatRoomMemberService;

@@ -22,7 +22,7 @@ import java.util.List;
 @Slf4j
 @RequiredArgsConstructor
 @RestController
-@RequestMapping("/workspace/{workspaceId}/todo")
+@RequestMapping("/api/workspace/{workspaceId}/todo")
 public class TodoController {
 
   private final TodoService todoService;

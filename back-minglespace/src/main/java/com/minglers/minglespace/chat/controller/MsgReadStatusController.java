@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequiredArgsConstructor
 @Log4j2
-@RequestMapping("/workspaces/{workspaceId}/chatRooms/{chatRoomId}")
+@RequestMapping("/api/workspaces/{workspaceId}/chatRooms/{chatRoomId}")
 public class MsgReadStatusController {
   private final MsgReadStatusService msgReadStatusService;
   private final WSMemberService wsMemberService;

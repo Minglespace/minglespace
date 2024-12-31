@@ -12,7 +12,7 @@ import java.util.Map;
 @RestController
 @RequiredArgsConstructor
 @Log4j2
-@RequestMapping("/chatRooms/{chatRoomId}/messages")
+@RequestMapping("/api/chatRooms/{chatRoomId}/messages")
 public class ChatMessageController {
   private final ChatMessageService chatMessageService;
 

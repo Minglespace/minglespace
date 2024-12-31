@@ -15,7 +15,7 @@ import org.springframework.web.servlet.function.EntityResponse;
 import java.util.List;
 
 @RestController
-@RequestMapping("/myFriends")
+@RequestMapping("/api/myFriends")
 @RequiredArgsConstructor
 public class MyFriendsController {
 

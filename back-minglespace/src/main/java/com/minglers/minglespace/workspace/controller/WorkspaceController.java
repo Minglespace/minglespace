@@ -15,7 +15,7 @@ import java.util.Map;
 @Slf4j
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/workspace")
+@RequestMapping("/api/workspace")
 public class WorkspaceController {
 
   private final WorkspaceService workspaceService;

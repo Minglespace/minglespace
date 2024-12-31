@@ -11,7 +11,7 @@ import java.util.List;
 @Slf4j
 @RequiredArgsConstructor
 @RestController
-@RequestMapping("/workspace/{workspaceId}/milestone")
+@RequestMapping("/api/workspace/{workspaceId}/milestone")
 public class MilestoneController {
 
   private final MilestoneService milestoneService;

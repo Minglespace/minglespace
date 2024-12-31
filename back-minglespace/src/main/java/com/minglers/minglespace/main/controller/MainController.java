@@ -14,7 +14,7 @@ import java.util.List;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/main")
+@RequestMapping("/api/main")
 @RequiredArgsConstructor
 public class MainController {
   private final JWTUtils jwtUtils;

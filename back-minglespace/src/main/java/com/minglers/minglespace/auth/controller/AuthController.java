@@ -40,6 +40,7 @@ import java.util.concurrent.CompletableFuture;
 @Slf4j
 @RestController
 @RequiredArgsConstructor
+@RequestMapping("/api")
 class AuthController {
 
   private final UserService userService;
