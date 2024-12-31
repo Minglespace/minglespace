@@ -37,7 +37,6 @@ const MessageListItem = ({
 }) => {
   const { wsMemberState } = useChatApp();
 
-
   const parentMessage = message.replyId
     ? onFindParentMessage(message.replyId)
     : null;
@@ -60,12 +59,22 @@ const MessageListItem = ({
 
   const formatMessage = (message) => {
     const regex = /@(\w+)/g;
-    return message
-      .split(regex)
-      .map((part, index) => {
-        const isMention = wsMemberState.some((member) => member.name === part) || part === currentMemberInfo.name;
-        return isMention ? <span style={{ fontWeight: "bold", color: "#6495ED" }} key={index}>@{part}</span> : part;
-      });
+    return message.split(regex).map((part, index) => {
+      const isMention =
+        wsMemberState.some((member) => member.name === part) ||
+        part === currentMemberInfo.name;
+      return isMention ? (
+        <span
+          className="mention"
+          // style={{ fontWeight: "bold", color: "#6495ED" }}
+          key={index}
+        >
+          @{part}
+        </span>
+      ) : (
+        part
+      );
+    });
   };
 
   const openLightbox = (index) => {
@@ -205,42 +214,47 @@ const MessageListItem = ({
         {/* 메시지의 포함된 이미지 표시 */}
         {message.imageUriPaths && message.imageUriPaths.length > 0 && (
           <div
-            style={{
-              marginTop: "10px",
-              display: "grid",
-              gridTemplateColumns: message.imageUriPaths.length === 1 ? "1fr" : "repeat(2, 1fr)",
-              gap: "10px",
-              gridAutoRows: "130px"
-            }}
+            className={`image-message-container ${
+              message.imageUriPaths.length === 1 ? "single" : "multiple"
+            }`}
+            // style={{
+            //   marginTop: "10px",
+            //   display: "grid",
+            //   gridTemplateColumns:
+            //     message.imageUriPaths.length === 1 ? "1fr" : "repeat(2, 1fr)",
+            //   gap: "10px",
+            //   gridAutoRows: "130px",
+            // }}
           >
             {visibleImages.map((imageUri, index) => (
-
               <img
                 key={index}
                 src={`${HOST_URL}${imageUri}`}
                 alt={`chatImage-${index}`}
-                style={{
-                  width: "100%",
-                  height: "100%",
-                  objectFit: "cover",
-                  minWidth: "130px",
-                  maxWidth: "250px",
-                }}
+                className="image-item"
+                // style={{
+                //   width: "100%",
+                //   height: "100%",
+                //   objectFit: "cover",
+                //   minWidth: "130px",
+                //   maxWidth: "250px",
+                // }}
                 onClick={() => openLightbox(index)}
               />
             ))}
             {remainingImageCount > 0 && (
               <div
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  backgroundColor: "#f0f0f0",
-                  cursor: "pointer",
-                  fontSize: "18px",
-                  color: "#555",
-                  height: "130px",
-                }}
+                className="more-images"
+                // style={{
+                //   display: "flex",
+                //   alignItems: "center",
+                //   justifyContent: "center",
+                //   backgroundColor: "#f0f0f0",
+                //   cursor: "pointer",
+                //   fontSize: "18px",
+                //   color: "#555",
+                //   height: "130px",
+                // }}
                 onClick={() => openLightbox(3)}
               >
                 +{remainingImageCount} more
@@ -250,9 +264,13 @@ const MessageListItem = ({
         )}
         {/* 문서 파일 */}
         {message.documentUriPaths && message.documentUriPaths.length > 0 && (
-          <div style={{ marginTop: "10px" }}>
+          <div className="document-container">
             {message.documentUriPaths.map((uri, index) => (
-              <div key={index} style={{ marginBottom: "10px" }}>
+              <div
+                key={index}
+                className="document-item"
+                // style={{ marginBottom: "10px" }}
+              >
                 {renderDocumentPreview(`${HOST_URL}${uri}`)}
               </div>
             ))}
@@ -262,20 +280,22 @@ const MessageListItem = ({
         {isImageOpen && (
           <Lightbox
             mainSrc={`${HOST_URL}${message.imageUriPaths[photoIndex]}`}
-            nextSrc={`${HOST_URL}${message.imageUriPaths[
-              (photoIndex + 1) % message.imageUriPaths.length
-            ]
-              }`}
-            prevSrc={`${HOST_URL}${message.imageUriPaths[
-              (photoIndex + message.imageUriPaths.length - 1) %
-              message.imageUriPaths.length
-            ]
-              }`}
+            nextSrc={`${HOST_URL}${
+              message.imageUriPaths[
+                (photoIndex + 1) % message.imageUriPaths.length
+              ]
+            }`}
+            prevSrc={`${HOST_URL}${
+              message.imageUriPaths[
+                (photoIndex + message.imageUriPaths.length - 1) %
+                  message.imageUriPaths.length
+              ]
+            }`}
             onCloseRequest={() => setIsImageOpen(false)}
             onMovePrevRequest={() =>
               setPhotoIndex(
                 (photoIndex + message.imageUriPaths.length - 1) %
-                message.imageUriPaths.length
+                  message.imageUriPaths.length
               )
             }
             onMoveNextRequest={() =>
@@ -303,10 +323,10 @@ const MessageListItem = ({
       </div>
 
       <div
-        className="message-footer"
-        style={{
-          textAlign: isSameSender ? "right" : "left",
-        }}
+        className={`message-footer ${isSameSender ? "right" : "left"}`}
+        // style={{
+        //   textAlign: isSameSender ? "right" : "left",
+        // }}
       >
         <button
           className="reply-button"
@@ -315,13 +335,14 @@ const MessageListItem = ({
           <FiCornerDownRight />
         </button>
         <span
+          className="pin-icon"
           onClick={() => openAnnounceMentModal(message)}
-          style={{
-            cursor: "pointer",
-            color: "blue",
-            textDecoration: "underline",
-            fontsize: "20px",
-          }}
+          // style={{
+          //   cursor: "pointer",
+          //   color: "blue",
+          //   textDecoration: "underline",
+          //   fontsize: "20px",
+          // }}
         >
           <TbPinFilled />
         </span>
@@ -329,32 +350,31 @@ const MessageListItem = ({
         {/* 삭제 아이콘 */}
         {message.writerWsMemberId === currentMemberInfo.wsMemberId && (
           <button
-          className="delete-button"
-          onClick={() => openDeleteModal(message)}
-          style={{
-            backgroundColor: "transparent",
-            border: "none",
-            color: "red",
-            cursor: "pointer",
-            fontSize: "18px",
-          }}
-        >
-          <FiTrash2 />
-        </button>
+            className="delete-button"
+            onClick={() => openDeleteModal(message)}
+            // style={{
+            //   backgroundColor: "transparent",
+            //   border: "none",
+            //   color: "red",
+            //   cursor: "pointer",
+            //   fontSize: "18px",
+            // }}
+          >
+            <FiTrash2 />
+          </button>
         )}
-        
 
         {/* 안읽은 카운트 */}
         {message.unReadMembers && message.unReadMembers.length > 0 && (
           <span
-            style={{
-              fontWeight: "bold",
-              color: "#FA8072",
-              marginLeft: "10px",
-              cursor: "pointer",
-              fontSize: "15px",
-              //display: "inline-block",
-            }}
+            className="unread-count"
+            // style={{
+            //   fontWeight: "bold",
+            //   color: "#FA8072",
+            //   marginLeft: "10px",
+            //   cursor: "pointer",
+            //   fontSize: "15px",
+            // }}
             onMouseEnter={() => handleUnreadMouseEnter(message.unReadMembers)}
             onMouseLeave={handleUnreadMouseLeave}
           >
@@ -363,13 +383,14 @@ const MessageListItem = ({
               hoveredUnread.map((member) => (
                 <div
                   key={member.wsMemberId}
-                  style={{
-                    display: "flex",
-                    marginLeft: "30px",
-                    marginBottom: "5px",
-                    textAlign: "left",
-                    justifyContent: isSameSender ? "flex-end" : "flex-start",
-                  }}
+                  className={`unread-member ${isSameSender ? "right" : ""}`}
+                  // style={{
+                  //   display: "flex",
+                  //   marginLeft: "30px",
+                  //   marginBottom: "5px",
+                  //   textAlign: "left",
+                  //   justifyContent: isSameSender ? "flex-end" : "flex-start",
+                  // }}
                 >
                   <ProfileImage
                     src={imageUrlPathCheck(member.profileImagePath)}
@@ -392,20 +413,22 @@ const MessageListItem = ({
       {isImageOpen && (
         <Lightbox
           mainSrc={`${HOST_URL}${message.imageUriPaths[photoIndex]}`}
-          nextSrc={`${HOST_URL}${message.imageUriPaths[
-            (photoIndex + 1) % message.imageUriPaths.length
-          ]
-            }`}
-          prevSrc={`${HOST_URL}${message.imageUriPaths[
-            (photoIndex + message.imageUriPaths.length - 1) %
-            message.imageUriPaths.length
-          ]
-            }`}
+          nextSrc={`${HOST_URL}${
+            message.imageUriPaths[
+              (photoIndex + 1) % message.imageUriPaths.length
+            ]
+          }`}
+          prevSrc={`${HOST_URL}${
+            message.imageUriPaths[
+              (photoIndex + message.imageUriPaths.length - 1) %
+                message.imageUriPaths.length
+            ]
+          }`}
           onCloseRequest={() => setIsImageOpen(false)}
           onMovePrevRequest={() =>
             setPhotoIndex(
               (photoIndex + message.imageUriPaths.length - 1) %
-              message.imageUriPaths.length
+                message.imageUriPaths.length
             )
           }
           onMoveNextRequest={() =>

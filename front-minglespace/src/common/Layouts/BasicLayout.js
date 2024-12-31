@@ -12,7 +12,6 @@ import Modal from "./components/Modal";
 import Repo from "../../auth/Repo";
 
 const BasicLayout = ({ children }) => {
-  
   const { workspaceId } = useParams();
   const navigate = useNavigate();
   const [message, setMessage] = useState(null);
@@ -32,7 +31,6 @@ const BasicLayout = ({ children }) => {
   }, [workspaceId, navigate]);
 
   useEffect(() => {
-
     api.setOnCallback_RefreshTokenExpired(handleRefreshTokenExpired);
     api.setOnCallback_WithdrawalAble(handleWithdrawalAble);
 
@@ -40,11 +38,10 @@ const BasicLayout = ({ children }) => {
       getWsMemberRole();
     }
 
-    return () =>{
+    return () => {
       api.setOnCallback_RefreshTokenExpired(null);
       api.setOnCallback_WithdrawalAble(null);
-    }
-
+    };
   }, [workspaceId, getWsMemberRole]);
 
   const refreshMemberContext = useCallback(() => {
@@ -57,20 +54,20 @@ const BasicLayout = ({ children }) => {
     setMessage({
       title: "확인",
       content: "로그인 인증이 만료되었습니다. 다시 로그인 하세요.",
-      callbackOk: ()=>{
+      callbackOk: () => {
         Repo.clearItem();
         setMessage(null);
         navigate("/auth/login");
-      }
+      },
     });
   };
 
-    // 회원탈퇴 관련 콜백 함수
-    const handleWithdrawalAble = (msStatus) => {
-      console.log("handleWithdrawalAble, msStatus : ", msStatus);
-      navigate("/auth/withdrawal");
-    };
-  
+  // 회원탈퇴 관련 콜백 함수
+  const handleWithdrawalAble = (msStatus) => {
+    console.log("handleWithdrawalAble, msStatus : ", msStatus);
+    navigate("/auth/withdrawal");
+  };
+
   return (
     <>
       <WSMemberRoleContext.Provider
@@ -82,23 +79,49 @@ const BasicLayout = ({ children }) => {
           <div className="main_container">
             {/* 모달 팝업 */}
             {message && (
-              <Modal open={message !== null} onClose={message.callbackOk || message.callbackNo }>
+              <Modal
+                open={message !== null}
+                onClose={message.callbackOk || message.callbackNo}
+              >
                 <div className="workspace_add_modal_container">
                   <p className="form-title">{message.title}</p>
                   <p>{message.content}</p>
-                  {message.callbackOk && <button type="submit" className="add_button" onClick={message.callbackOk}>확인</button> }
-                  {message.callbackYes && <button type="submit" className="add_button" onClick={message.callbackYes}>네</button> }
-                  {message.callbackNo && <button type="submit" className="add_button" onClick={message.callbackNo}>아니요</button> }
+                  {message.callbackOk && (
+                    <button
+                      type="submit"
+                      className="add_button"
+                      onClick={message.callbackOk}
+                    >
+                      확인
+                    </button>
+                  )}
+                  {message.callbackYes && (
+                    <button
+                      type="submit"
+                      className="add_button"
+                      onClick={message.callbackYes}
+                    >
+                      네
+                    </button>
+                  )}
+                  {message.callbackNo && (
+                    <button
+                      type="submit"
+                      className="add_button"
+                      onClick={message.callbackNo}
+                    >
+                      아니요
+                    </button>
+                  )}
                 </div>
               </Modal>
             )}
 
             {children}
-            
           </div>
         </div>
       </WSMemberRoleContext.Provider>
-      <Footer />
+      {/* <Footer /> */}
     </>
   );
 };

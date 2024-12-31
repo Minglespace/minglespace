@@ -30,6 +30,7 @@
   border-radius: 8px;
   color: #555;
   //background-color: aliceblue;
+  background-color: var(--background-color-main);
   border: none;
   display: flex;
   justify-content: center;
@@ -56,7 +57,8 @@
   width: 1010px;
   height: 700px;
   position: relative;
-  background-color: #f9f5f6;
+  //background-color: #f9f5f6;
+  background-color: var(--background-color-content);
 }
 
 .no-chat-selected svg {
@@ -105,10 +107,11 @@
 
 .chat_list_container {
   position: relative;
-  background-color: #f9f5f6;
+  //background-color: #f9f5f6;
+  background-color: var(--background-color-content);
   flex-basis: 30%;
   margin: 15px;
-  border: solid 1px;
+  border: solid 1px #aaa;
   width: 500px;
   height: 700px;
   border-radius: 10px;
@@ -138,7 +141,7 @@
   border-radius: 50%;
 
   color: #555;
-  background-color: var(--button-color-positive);
+  background-color: #d7e5ca;
   border: none;
   display: flex;
   justify-content: center;
@@ -152,7 +155,7 @@
 }
 
 .create_button:hover {
-  background-color: var(--button-color-positive-hover);
+  background-color: #99bc85;
 }
 
 ///안읽은 메시지 총 개수
@@ -283,7 +286,7 @@
 .create_btn {
   padding: 10px 18px;
   margin: 15px 10px 0;
-  background-color: var(----button-color-positive);
+  background-color: var(--button-color-positive);
   border: none;
   border-radius: 8px;
   cursor: pointer;
@@ -292,7 +295,7 @@
 .close_btn {
   padding: 10px 18px;
   margin: 15px 10px 0;
-  background-color: var(----button-color-cancel);
+  background-color: var(--button-color-cancel);
   border: none;
   border-radius: 8px;
   cursor: pointer;
@@ -324,7 +327,7 @@
   border-radius: 5px;
   cursor: pointer;
 
-  margin-left: 10px;
+  // margin-left: 10px;
 }
 
 .select_img_btn:hover {
