@@ -1,4 +1,4 @@
-﻿package com.minglers.minglespace.auth.controller;
+package com.minglers.minglespace.auth.controller;
 
 import com.minglers.minglespace.auth.dto.*;
 import com.minglers.minglespace.auth.entity.User;
