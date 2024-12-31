@@ -105,11 +105,11 @@ public class SecurityConfig {
     http.cors(c->c.configurationSource(corsConfigurationSource()));
 
     http.authorizeHttpRequests(request -> request
-            .requestMatchers("/auth/**", "/public/**","/upload/**","/ws/**").permitAll()
-            .requestMatchers("/workspace/{workspaceId}/invite/{uuid}").permitAll()
-            .requestMatchers("/admin/**").hasAnyAuthority("ADMIN")
-            .requestMatchers("/user/**").hasAnyAuthority("USER")
-            .requestMatchers("/adminuser/**").hasAnyAuthority("ADMIN", "USER")
+            .requestMatchers("/api/auth/**", "/api/public/**","/api/upload/**","/api/ws/**").permitAll()
+            .requestMatchers("/api/workspace/{workspaceId}/invite/{uuid}").permitAll()
+            .requestMatchers("/api/admin/**").hasAnyAuthority("ADMIN")
+            .requestMatchers("/api/user/**").hasAnyAuthority("USER")
+            .requestMatchers("/api/adminuser/**").hasAnyAuthority("ADMIN", "USER")
             .requestMatchers("/", "/index.html", "/static/**", "/profile1.png", "/workspace/**",
                     "/myfriends/**", "/auth/**", "/aboutus/**", "/main/**").permitAll()
             .anyRequest().authenticated());
