@@ -28,6 +28,8 @@ export const ChatRoomProvider = ({ children }) => {
 	const [isRoomOwner, setIsRoomOwner] = useState(false);
 	const [isModalOpen, setIsModalOpen] = useState(false);
 	const [currentMemberInfo, setCurrentMemberInfo] = useState(null);
+	const [showAlert, setShowAlert] = useState(false);
+	const [alertMessage, setAlertMessage] = useState("");
 
 	const navigate = useNavigate();
 
@@ -220,8 +222,6 @@ export const ChatRoomProvider = ({ children }) => {
 					participants: updatedParticipants,
 				};
 			});
-
-			handleExit();
 		} catch (error) {
 			console.error("error fetching delegateChatLeader: ", error);
 		}
@@ -241,6 +241,14 @@ export const ChatRoomProvider = ({ children }) => {
 		}
 	};
 
+	const showAlertMessage = (message) => {
+		setAlertMessage(message);
+		setShowAlert(true);
+		setTimeout(() => {
+			setShowAlert(false);
+		}, 5000);
+	};
+
 	return (
 		<ChatRoomContext.Provider
 			value={{
@@ -258,7 +266,10 @@ export const ChatRoomProvider = ({ children }) => {
 				handleDeleteMessage,
 				handleDelegate,
 				handleExit,
-				groupMessagesByDate
+				groupMessagesByDate,
+				showAlertMessage,
+				showAlert,
+				alertMessage
 			}}
 		>
 			{children}
