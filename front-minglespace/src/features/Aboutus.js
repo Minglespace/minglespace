@@ -7,6 +7,7 @@ import {
   FaTasks,
   FaRocket,
 } from "react-icons/fa";
+import Footer from "../common/Layouts/section/Footer";
 
 const Aboutus = () => {
   return (
@@ -86,6 +87,7 @@ const Aboutus = () => {
         </p>
         {/* <button className="cta-button">더 알아보기</button> */}
       </div>
+      <Footer />
     </div>
   );
 };
