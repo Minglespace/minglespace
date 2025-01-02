@@ -241,8 +241,8 @@ const Member = () => {
       <MemberList members={members} onClickMember={handleMemberClick} />
       {renderContent()}
       <button className="add_button_2" onClick={handleExitMember}>
-        <p style={{ opacity: 0.6 }}>
-          워크스페이스
+        <p style={{ opacity: 0.6, color:"black"}}>
+          워크<br/>스페이스
           <br />
           나가기
         </p>

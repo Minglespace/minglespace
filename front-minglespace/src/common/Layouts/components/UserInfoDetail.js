@@ -91,13 +91,13 @@ const UserInfoDetail = ({
                   </select>
                   <br />
                   <button
-                    className="add_button_2"
+                    className="delete_button"
                     onClick={() => handleRemoveMember(user.wsMemberId)}
                   >
                     추방 하기
                   </button>
                   <button
-                    className="add_button_2"
+                    className="update_button"
                     onClick={() => handleTransferLeader(user.wsMemberId)}
                   >
                     리더 위임

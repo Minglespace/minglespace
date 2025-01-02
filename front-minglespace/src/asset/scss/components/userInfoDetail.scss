@@ -13,8 +13,11 @@
     margin: 10px;
   }
   .member_Management_box{
-    margin: 15px 15px 15px 60px;
-
+    margin: 0 auto;
+    text-align: center;
+    >h3{
+      margin: 10px;
+    }
     >label{
       margin: 10px;
     }

@@ -114,7 +114,7 @@ const MyFriendsList = ({ friends, getFriendList, handelSetFriends }) => {
                 src={imageUrlPathCheck(userInfo.profileImagePath)}
               />
               <button
-                className="add_button_2"
+                className="delete_button"
                 onClick={(event) => {
                   handleDeleteFriend(userInfo.id, event);
                 }}

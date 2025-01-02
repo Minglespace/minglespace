@@ -4,19 +4,39 @@
   border-radius: 10px;
   padding: 5px;
 }
-
-.add_button_2 {
-  background-color: #7f8fdf;
-  color: #fff;
+////친구,멤버전용
+.ys_button{
   width: 80px;
   border-radius: 10px;
   padding: 5px;
   cursor: pointer;
+}
+.add_button_2 {
+  @extend .ys_button;
+  color: gray;
+  background-color: var(--button-color-positive);
   &:hover {
-    background-color: #5c6ac4;
+    background-color: var(--button-color-positive-hover);
   }
 }
 
+.update_button {
+  @extend .ys_button;
+  color: gray;
+  background-color: var(--button-color-update);
+  &:hover {
+    background-color: var(--button-color-update-hover);
+  }
+}
+.delete_button{
+  @extend .ys_button;
+  color: gray;
+  background-color: var(--button-color-negative);
+  &:hover {
+    background-color: var(--button-color-negative-hover);
+  }
+}
+//////////////////////////
 .exit_button {
   background-color: red;
   border: solid 1px;
