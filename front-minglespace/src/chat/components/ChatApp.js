@@ -28,11 +28,16 @@ import { useChatApp } from "../context/ChatAppContext";
 // ];
 
 const ChatApp = () => {
-  const { fetchChatRooms, fetchWsMembers, chatRoomId, setChatRoomId, workspaceId } = useChatApp();
+  const {
+    fetchChatRooms,
+    fetchWsMembers,
+    chatRoomId,
+    setChatRoomId,
+    workspaceId,
+  } = useChatApp();
 
   const [isFold, setFold] = useState(false); // 채팅방 목록을 접고 펼치는 상태.
   const location = useLocation();
-
 
   useEffect(() => {
     const chatRoomId = new URLSearchParams(location.search).get("chatRoomId");
@@ -40,12 +45,10 @@ const ChatApp = () => {
     setChatRoomId(chatRoomId);
   }, [location.search, location.pathname, setChatRoomId]);
 
-
   useEffect(() => {
     fetchChatRooms();
     fetchWsMembers();
   }, [workspaceId]);
-
 
   const toggleFold = () => {
     setFold((prevFold) => !prevFold);
@@ -53,21 +56,17 @@ const ChatApp = () => {
 
   return (
     <div className={`chat_app ${isFold ? "folded" : ""}`}>
+      <ChatList isFold={isFold} />
       <button className="chat_toggle" onClick={toggleFold}>
         <FiChevronsLeft />
       </button>
-      <ChatList
-        isFold={isFold}
-      />
       {chatRoomId === null ? (
         <div className="no-chat-selected">
           <IoLogoWechat />
           <span>채팅방을 선택해주세요.</span>
         </div>
       ) : (
-        <ChatRoom
-          isFold={isFold}
-        />
+        <ChatRoom isFold={isFold} />
       )}
     </div>
   );

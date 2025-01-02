@@ -217,14 +217,6 @@ const MessageListItem = ({
             className={`image-message-container ${
               message.imageUriPaths.length === 1 ? "single" : "multiple"
             }`}
-            // style={{
-            //   marginTop: "10px",
-            //   display: "grid",
-            //   gridTemplateColumns:
-            //     message.imageUriPaths.length === 1 ? "1fr" : "repeat(2, 1fr)",
-            //   gap: "10px",
-            //   gridAutoRows: "130px",
-            // }}
           >
             {visibleImages.map((imageUri, index) => (
               <img
@@ -232,31 +224,11 @@ const MessageListItem = ({
                 src={`${HOST_URL}${imageUri}`}
                 alt={`chatImage-${index}`}
                 className="image-item"
-                // style={{
-                //   width: "100%",
-                //   height: "100%",
-                //   objectFit: "cover",
-                //   minWidth: "130px",
-                //   maxWidth: "250px",
-                // }}
                 onClick={() => openLightbox(index)}
               />
             ))}
             {remainingImageCount > 0 && (
-              <div
-                className="more-images"
-                // style={{
-                //   display: "flex",
-                //   alignItems: "center",
-                //   justifyContent: "center",
-                //   backgroundColor: "#f0f0f0",
-                //   cursor: "pointer",
-                //   fontSize: "18px",
-                //   color: "#555",
-                //   height: "130px",
-                // }}
-                onClick={() => openLightbox(3)}
-              >
+              <div className="more-images" onClick={() => openLightbox(3)}>
                 +{remainingImageCount} more
               </div>
             )}
@@ -322,12 +294,7 @@ const MessageListItem = ({
         )}
       </div>
 
-      <div
-        className={`message-footer ${isSameSender ? "right" : "left"}`}
-        // style={{
-        //   textAlign: isSameSender ? "right" : "left",
-        // }}
-      >
+      <div className={`message-footer ${isSameSender ? "right" : "left"}`}>
         <button
           className="reply-button"
           onClick={() => onMessageClick(message)}
@@ -337,12 +304,6 @@ const MessageListItem = ({
         <span
           className="pin-icon"
           onClick={() => openAnnounceMentModal(message)}
-          // style={{
-          //   cursor: "pointer",
-          //   color: "blue",
-          //   textDecoration: "underline",
-          //   fontsize: "20px",
-          // }}
         >
           <TbPinFilled />
         </span>
@@ -352,13 +313,6 @@ const MessageListItem = ({
           <button
             className="delete-button"
             onClick={() => openDeleteModal(message)}
-            // style={{
-            //   backgroundColor: "transparent",
-            //   border: "none",
-            //   color: "red",
-            //   cursor: "pointer",
-            //   fontSize: "18px",
-            // }}
           >
             <FiTrash2 />
           </button>
@@ -368,13 +322,6 @@ const MessageListItem = ({
         {message.unReadMembers && message.unReadMembers.length > 0 && (
           <span
             className="unread-count"
-            // style={{
-            //   fontWeight: "bold",
-            //   color: "#FA8072",
-            //   marginLeft: "10px",
-            //   cursor: "pointer",
-            //   fontSize: "15px",
-            // }}
             onMouseEnter={() => handleUnreadMouseEnter(message.unReadMembers)}
             onMouseLeave={handleUnreadMouseLeave}
           >
@@ -384,13 +331,6 @@ const MessageListItem = ({
                 <div
                   key={member.wsMemberId}
                   className={`unread-member ${isSameSender ? "right" : ""}`}
-                  // style={{
-                  //   display: "flex",
-                  //   marginLeft: "30px",
-                  //   marginBottom: "5px",
-                  //   textAlign: "left",
-                  //   justifyContent: isSameSender ? "flex-end" : "flex-start",
-                  // }}
                 >
                   <ProfileImage
                     src={imageUrlPathCheck(member.profileImagePath)}

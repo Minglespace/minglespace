@@ -155,7 +155,7 @@ const InviteFriendModal = ({ onClose, participants, onUpdateChatRoom }) => {
               변경
             </button>
             <button
-              className="select_img_btn"
+              className="delete_img_btn"
               // style={{ marginLeft: "10px" }}
               onClick={handleImageDelete} // 버튼 클릭 시 파일 선택창 열기
             >
@@ -255,7 +255,7 @@ const InviteFriendModal = ({ onClose, participants, onUpdateChatRoom }) => {
             </div>
           </div>
         )}
-        <button className="close_btn" onClick={handleSave}>
+        <button className="create_btn" onClick={handleSave}>
           확인
         </button>
         {/* 모달 닫기 버튼 */}

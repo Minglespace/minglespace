@@ -5,17 +5,19 @@
   background-color: var(--background-color-content);
   border: solid 1px #aaa;
   margin: 15px;
+  margin-left: 0;
   border-radius: 10px;
   transition: all 0.3s ease;
-  width: 1010px;
+  width: 1230px;
   height: 700px;
   position: relative;
   display: flex;
   flex-direction: column;
 
   &.folded {
-    margin: 20px;
-    width: 1440px;
+    // margin: 20px;
+    margin-left: 55px;
+    width: 1640px;
   }
 }
 
@@ -444,7 +446,7 @@
 }
 
 .replying-to-message {
-  background-color: #f1f1f1;
+  background-color: #f3e6c4;
   border: 1px solid #ddd;
   padding: 5px;
   border-radius: 10px;
@@ -471,11 +473,12 @@
     margin-right: 12px;
     background-color: transparent;
     border: none;
-    color: #4c8bf5;
+    color: #00796b;
     cursor: pointer;
     font-size: 12px;
     margin-top: 5px;
     align-self: flex-end;
+    font-weight: bold;
 
     &:hover {
       text-decoration: underline;
