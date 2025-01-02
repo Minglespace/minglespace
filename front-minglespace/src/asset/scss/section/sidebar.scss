@@ -11,20 +11,29 @@
     font-size: 18px;
     text-align: center;
     .workspace_sidemenu {
-      margin-bottom: 10px;
+      margin-bottom: 5px;
+      text-align: left;
+      font-size: 12px;
+      color: #888;
     }
     li {
       min-width: 150px;
       padding: 5px;
-      margin-bottom: 20px;
-      border-bottom: solid 2px #888;
-      border-top: solid 1px #888;
-      transition: transform 0.5s, border-bottom 0.5s, border-top 0.5s;
+      text-align: left;
+      margin-bottom: 10px;
+      // border-bottom: solid 2px #888;
+      // border-top: solid 1px #888;
+      transition: transform 0.5s, color 0.5s;
       &:hover {
         transform: scale(1.1);
-        border-bottom: solid 2px #02a7dc;
-        border-top: solid 1px #02a7dc;
+        color: #99bc85;
+        // border-bottom: solid 2px #02a7dc;
+        // border-top: solid 1px #02a7dc;
       }
+    }
+    .side_about_us {
+      position: absolute;
+      bottom: 60px;
     }
   }
 }

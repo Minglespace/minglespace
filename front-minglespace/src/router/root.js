@@ -41,7 +41,7 @@ const root = createBrowserRouter([
   },
   {
     path: "/workspace/:workspaceId",
-    element: <SuspenseWithPrivateRoute page={MileStone} />,
+    element: <SuspenseWithPrivateRoute page={Calendar} />,
   },
   {
     path: "/workspace/:workspaceId/milestone",
@@ -124,9 +124,12 @@ const root = createBrowserRouter([
   },
   {
     path: "/auth/changepw",
-    element: (<Suspense fallback={Loading}><ChangePwPage /></Suspense>),
+    element: (
+      <Suspense fallback={Loading}>
+        <ChangePwPage />
+      </Suspense>
+    ),
   },
-
 
   //잘못된 경로
   {
