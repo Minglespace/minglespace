@@ -1,5 +1,4 @@
 ﻿﻿import React, { useEffect, useState } from "react";
-import Modal from "../common/Layouts/components/Modal";
 import AuthApi from "../api/AuthApi";
 import Repo from "./Repo";
 
@@ -24,9 +23,8 @@ const LoginPage = () => {
   const [errors, setErrors] = useState({});
   const [showPassword, setShowPassword] = useState(false);
   const [formData, setFormData] = useState({
-    email: "codejay2018@gmail.com",
-    password: "Aa!1Aa!1",
-    // password: "a1a1A!A!",
+    email: "",
+    password: "",
   });
   //================================================================================================
   //================================================================================================
@@ -191,7 +189,7 @@ const LoginPage = () => {
             {/* 폼 */}
             <h2 className="form-title">로그인</h2>
             <form onSubmit={handleSubmit} className="form">
-              <div className="input-group">
+              <div className="input-group-login">
                 <label className="input-label">이메일</label>
                 <input
                   type="email"
@@ -205,7 +203,7 @@ const LoginPage = () => {
                   <span className="error-message">{errors.email}</span>
                 )}
               </div>
-              <div className="input-group">
+              <div className="input-group-login">
                 <label className="input-label">비밀번호</label>
                 <div className="password-container">
                   <input

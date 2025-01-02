@@ -1,7 +1,6 @@
 ﻿import React, { useEffect, useRef, useState } from "react";
 import Repo from "./Repo";
 import AuthApi from "../api/AuthApi";
-import Modal from "../common/Layouts/components/Modal";
 import Userinfo from "../common/Layouts/components/Userinfo";
 import ProfileImage from "../common/Layouts/components/ProfileImage";
 

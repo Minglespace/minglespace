@@ -3,7 +3,6 @@ import AuthApi from '../api/AuthApi';
 import { useNavigate } from 'react-router-dom';
 import Repo from './Repo';
 import { AuthStatus, AuthStatusOk } from '../api/AuthStatus';
-import Modal from '../common/Layouts/components/Modal';
 import ModalMessage from '../common/Layouts/components/ModalMessage';
 
 const WithdrawalPage = () => {
