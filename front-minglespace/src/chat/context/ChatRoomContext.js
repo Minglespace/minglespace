@@ -20,7 +20,7 @@ const initChatRoomInfo = {
 };
 
 export const ChatRoomProvider = ({ children }) => {
-	const { workspaceId, chatRoomId, wsMemberState, updateRoomParticipantCount, removeRoom } = useChatApp();
+	const { workspaceId, chatRoomId, wsMemberState, removeRoom } = useChatApp();
 
 
 	const [chatRoomInfo, setChatRoomInfo] = useState(initChatRoomInfo);
@@ -116,10 +116,6 @@ export const ChatRoomProvider = ({ children }) => {
 
 			setInviteMembers(updatedInviteMembers);
 
-			//목록에 보이는 참여 카운트 갱신
-			updateRoomParticipantCount(chatRoomId, 1);
-
-			// alert(addMember.name, "님 채팅방 초대 완료: ", data);
 			setIsModalOpen(false);
 		} catch (error) {
 			console.error("error fetching addMemberToRoom: ", error);
@@ -151,9 +147,6 @@ export const ChatRoomProvider = ({ children }) => {
 
 			setInviteMembers((prev) => [...prev, kickedMember]);
 
-			updateRoomParticipantCount(chatRoomId, -1);
-
-			// alert(kickMember.name, "님 채팅방 강퇴 완료: ", data);
 			setIsModalOpen(false);
 		} catch (error) {
 			console.error("error fetching kickMemberToRoom: ", error);

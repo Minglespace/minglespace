@@ -1,6 +1,9 @@
 package com.minglers.minglespace.chat.service;
 
+import com.minglers.minglespace.chat.config.interceptor.StompInterceptor;
+import com.minglers.minglespace.chat.dto.ChatListResponseDTO;
 import com.minglers.minglespace.chat.dto.ChatRoomMemberDTO;
+import com.minglers.minglespace.chat.entity.ChatMessage;
 import com.minglers.minglespace.chat.entity.ChatRoom;
 import com.minglers.minglespace.chat.entity.ChatRoomMember;
 import com.minglers.minglespace.chat.exception.ChatException;
@@ -17,10 +20,15 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.http.HttpStatus;
+import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
+import org.springframework.messaging.simp.SimpMessageType;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
@@ -34,6 +42,8 @@ public class ChatRoomMemberServiceImpl implements ChatRoomMemberService {
   private final ChatMessageRepository chatMessageRepository;
 
   private final NotificationService notificationService;
+  private final StompInterceptor stompInterceptor;
+  private final SimpMessagingTemplate simpMessagingTemplate;
 
   @Override
   @Transactional
@@ -70,6 +80,9 @@ public class ChatRoomMemberServiceImpl implements ChatRoomMemberService {
       chatRoom.addChatRoomMember(chatRoomMember);
       chatRoomMemberRepository.save(chatRoomMember);
     }
+    List<ChatRoomMember> chatRoomMembers = chatRoomMemberRepository.findByChatRoomIdAndIsLeftFalseAndUserWithdrawalTypeNot(chatRoomId);
+
+    this.chatNotification(chatRoom,chatRoomMembers, member.getUser().getId(), "ADD", chatRoom.getChatRoomMembers().size());
     notificationService.sendNotification(member.getUser().getId(), "'" + chatRoom.getName() + "' 채팅방에 초대되었습니다.", "/workspace/" + chatRoom.getWorkSpace().getId() + "/chat", NotificationType.CHAT);
 
     return "참여자 추가 완료";
@@ -78,12 +91,17 @@ public class ChatRoomMemberServiceImpl implements ChatRoomMemberService {
   @Override
   @Transactional
   public String kickMemberFromRoom(Long chatRoomId, Long wsMemberId) {
-    chatRoomMemberRepository.updateIsLeftStatus(true, chatRoomId, wsMemberId);
+    List<ChatRoomMember> chatRoomMembers = chatRoomMemberRepository.findByChatRoomIdAndIsLeftFalseAndUserWithdrawalTypeNot(chatRoomId);
 
     ChatRoom chatRoom = chatRoomRepository.findById(chatRoomId)
             .orElseThrow(() -> new ChatException(HttpStatus.NOT_FOUND.value(), "채팅방을 찾지 못했습니다."));
     WSMember wsMember = wsMemberRepository.findById(wsMemberId)
             .orElseThrow(() -> new ChatException(HttpStatus.NOT_FOUND.value(), "강퇴할 멤버를 찾지 못했습니다."));
+
+    chatRoomMemberRepository.updateIsLeftStatus(true, chatRoomId, wsMemberId);
+
+    this.chatNotification(chatRoom, chatRoomMembers, wsMember.getUser().getId(), "DELETE", chatRoom.getChatRoomMembers().size() - 1);
+
     notificationService.sendNotification(wsMember.getUser().getId(), "'" + chatRoom.getName() + "' 채팅방에서 강퇴되었습니다.", "/workspace/" + chatRoom.getWorkSpace().getId() + "/chat", NotificationType.CHAT);
     return "참여자 강퇴 완료";
   }
@@ -196,7 +214,42 @@ public class ChatRoomMemberServiceImpl implements ChatRoomMemberService {
     return chatRoomMemberRepository.existsByChatRoomIdAndWsMemberIdAndIsLeftFalse(chatRoomId, wsMemberId);
   }
 
+  @Override
   public boolean isChatRoomEmpty(Long chatRoomId) {
     return !chatRoomMemberRepository.existsByChatRoomIdAndIsLeftFalse(chatRoomId);
+  }
+
+  private void chatNotification(ChatRoom chatRoom, List<ChatRoomMember> chatRoomMembers, Long targetUserId, String type, int participantCount){
+    String imageUriPath = (chatRoom.getImage() != null && chatRoom.getImage().getUripath() != null) ? chatRoom.getImage().getUripath() : "";
+    Optional<ChatMessage> lastMessage = chatMessageRepository.findLatestMessageByChatRoomId(chatRoom.getId());
+    String lastMsgContent = lastMessage
+            .map(ChatMessage::getContent) // 메시지가 있으면 content 가져옴
+            .map(content -> content.isEmpty() ? "(파일)" : content)
+            .orElse(null);
+
+    for(ChatRoomMember chatRoomMember : chatRoomMembers){
+      ChatListResponseDTO responseDTO = ChatListResponseDTO.builder()
+              .chatRoomId(chatRoom.getId())
+              .name(chatRoom.getName())
+              .imageUriPath(imageUriPath)
+              .workSpaceId(chatRoom.getWorkSpace().getId())
+              .date(chatRoom.getDate())
+              .participantCount(participantCount)
+              .lastMessage(lastMsgContent)
+              .type(type)
+              .targetUserId(targetUserId)
+              .build();
+      Set<String> sessionIds = stompInterceptor.getSessionForUser(chatRoomMember.getWsMember().getUser().getId());
+      if(sessionIds != null && !sessionIds.isEmpty()){
+        sessionIds.forEach(sessionId -> {
+          String cleanSession = sessionId.replaceAll("[\\[\\]]", "");
+          SimpMessageHeaderAccessor headerAccessor = SimpMessageHeaderAccessor.create(SimpMessageType.MESSAGE);
+          headerAccessor.setSessionId(cleanSession);
+          headerAccessor.setLeaveMutable(true);
+          simpMessagingTemplate.convertAndSendToUser(cleanSession,"/queue/workspaces/"+responseDTO.getWorkSpaceId()+"/chat", responseDTO, headerAccessor.getMessageHeaders());
+        });
+      }
+    }
+
   }
 }

@@ -22,4 +22,5 @@ public class ChatListResponseDTO {
   private long notReadMsgCount;
   private LocalDateTime lastLogDate; //이건 마지막 메시지 date
   private String type;
+  private Long targetUserId;
 }
