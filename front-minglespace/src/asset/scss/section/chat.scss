@@ -16,31 +16,26 @@
 
   &.folded {
     .chat_toggle {
-      top: 100px;
-      left: 164px;
+      margin-left: -30px;
+      // top: 100px;
+      // left: 164px;
     }
   }
 }
 
 .chat_toggle {
   font-size: 38px;
-
-  width: 30px;
   height: 730px;
   border-radius: 8px;
-
   color: #555;
-  background-color: aliceblue;
+  background-color: var(--background-color-main);
   border: none;
   display: flex;
   justify-content: center;
   align-items: center;
   cursor: pointer;
-
   position: sticky;
-  left: 175px;
   transition: all 0.3s ease;
-  // z-index: 9999;
 }
 
 .no-chat-selected {
@@ -59,7 +54,8 @@
   width: 1010px;
   height: 700px;
   position: relative;
-  background-color: #f9f5f6;
+  //background-color: #f9f5f6;
+  background-color: var(--background-color-content);
 }
 
 .no-chat-selected svg {
@@ -81,7 +77,6 @@
   text-align: center;
   font-size: 25px;
   color: #888;
-
   margin: 15px;
   border-radius: 10px;
   flex-grow: 1;
@@ -109,17 +104,20 @@
 
 .chat_list_container {
   position: relative;
-  background-color: #f9f5f6;
+  background-color: var(--background-color-content);
   flex-basis: 30%;
   margin: 15px;
-  border: solid 1px;
+  margin-right: 0px;
+  margin-left: 30px;
+  border: solid 1px #aaa;
   width: 500px;
   height: 700px;
   border-radius: 10px;
   overflow-y: auto;
   transition: width 0.3s ease, visibility 0.3s ease;
 
-  .p {}
+  .p {
+  }
 
   &.collapsed {
     width: 0;
@@ -141,7 +139,7 @@
   border-radius: 50%;
 
   color: #555;
-  background-color: #ffd0d0;
+  background-color: #d7e5ca;
   border: none;
   display: flex;
   justify-content: center;
@@ -155,7 +153,7 @@
 }
 
 .create_button:hover {
-  background-color: pink;
+  background-color: #99bc85;
 }
 
 ///안읽은 메시지 총 개수
@@ -283,11 +281,19 @@
   font-weight: bold;
 }
 
-.create_btn,
+.create_btn {
+  padding: 10px 18px;
+  margin: 15px 10px 0;
+  background-color: var(--button-color-positive);
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
 .close_btn {
   padding: 10px 18px;
   margin: 15px 10px 0;
-  background-color: #e1acac;
+  background-color: var(--button-color-cancel);
   border: none;
   border-radius: 8px;
   cursor: pointer;
@@ -314,14 +320,29 @@
   margin-top: 10px;
   padding: 5px 10px;
   font-size: 12px;
-  background-color: #e1acac;
+  background-color: var(--button-color-update);
   border: none;
   border-radius: 5px;
   cursor: pointer;
 }
 
 .select_img_btn:hover {
-  background-color: #ca8787;
+  background-color: var(--button-color-update-hover);
+}
+
+.delete_img_btn {
+  display: inline-block;
+  margin-top: 10px;
+  margin-left: 10px;
+  padding: 5px 10px;
+  font-size: 12px;
+  background-color: var(--button-color-negative);
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+.delete_img_btn:hover {
+  background-color: var(--button-color-negative-hover);
 }
 
 .hidden-file-input {
@@ -383,6 +404,13 @@
   border-radius: 3px;
   border: 2px solid #555;
   cursor: pointer;
+}
+
+.error-message {
+  color: #e52500;
+  font-size: 14px;
+  margin-top: 10px;
+  text-align: center;
 }
 
 // ChatApp.js

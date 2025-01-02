@@ -10,7 +10,7 @@ const MessageInput = ({
   replyToMessage,
   setReplyToMessage,
   participants,
-  currentChatRoomId
+  currentChatRoomId,
 }) => {
   const { currentMemberInfo } = useChatRoom();
   const [newMessage, setNewMessage] = useState("");
@@ -25,7 +25,7 @@ const MessageInput = ({
   const MAX_TOTAL_SIZE = 100 * 1024 * 1024; //100MB
 
   //멘션 관리 상태
-  const [mentioning, setMentioning] = useState(false);//멘션 활성화
+  const [mentioning, setMentioning] = useState(false); //멘션 활성화
   const [filteredMembers, setFilteredMembers] = useState([]); //필터링된 멤버
   const [selectedIndex, setSelectedIndex] = useState(-1); //선택된 목록
   const mentionRef = useRef(null);
@@ -40,11 +40,14 @@ const MessageInput = ({
       if (mentionMatch) {
         const query = mentionMatch[1];
         const filteredList = query
-          ? participants.filter((member) =>
-            member.name.toLowerCase().includes(query.toLowerCase()) &&
-            member.userId !== currentMemberInfo.userId  // currentMemberInfo.id와 동일한 멤버 제외
-          )
-          : participants.filter((member) => member.userId !== currentMemberInfo.userId);
+          ? participants.filter(
+              (member) =>
+                member.name.toLowerCase().includes(query.toLowerCase()) &&
+                member.userId !== currentMemberInfo.userId // currentMemberInfo.id와 동일한 멤버 제외
+            )
+          : participants.filter(
+              (member) => member.userId !== currentMemberInfo.userId
+            );
 
         setMentioning(true);
         setFilteredMembers(filteredList);
@@ -54,7 +57,6 @@ const MessageInput = ({
       setFilteredMembers([]);
     }
   }, [newMessage, participants, currentMemberInfo]);
-
 
   //멘션 선택 유저가 있다면 목록 스크롤 조정
   useEffect(() => {
@@ -77,7 +79,6 @@ const MessageInput = ({
     }
   };
 
-
   // 메시지 전송 처리 함수  <<--------- 멘션 정보 같이 보내기 / 보내고 멘션 상태 초기화
   const handleSendMessage = () => {
     if (newMessage.trim() || files.length > 0) {
@@ -88,7 +89,9 @@ const MessageInput = ({
       while ((match = regex.exec(newMessage)) !== null) {
         const mentionedName = match[1];
 
-        const member = participants.find((m) => m.name.toLowerCase() === mentionedName.toLowerCase());
+        const member = participants.find(
+          (m) => m.name.toLowerCase() === mentionedName.toLowerCase()
+        );
         if (member) {
           mentionedIds.push(member.userId);
         }
@@ -99,7 +102,7 @@ const MessageInput = ({
       const messageToSend = {
         content: newMessage,
         replyId: replyToMessage ? replyToMessage.id : null,
-        mentionedIds: mentionedIds
+        mentionedIds: mentionedIds,
       };
       onSendMessage(messageToSend, files);
       setNewMessage("");
@@ -117,12 +120,18 @@ const MessageInput = ({
       if (e.key === "ArrowDown") {
         setSelectedIndex((prev) => (prev + 1) % filteredMembers.length);
       } else if (e.key === "ArrowUp") {
-        setSelectedIndex((prev) => (prev - 1 + filteredMembers.length) % filteredMembers.length);
+        setSelectedIndex(
+          (prev) => (prev - 1 + filteredMembers.length) % filteredMembers.length
+        );
       } else if (e.key === "Enter" && selectedIndex >= 0) {
         handleMentionSelect(filteredMembers[selectedIndex]);
       }
     } else {
-      if (e.key === "Enter" && !e.shiftKey && (newMessage.trim() || files.length > 0)) {
+      if (
+        e.key === "Enter" &&
+        !e.shiftKey &&
+        (newMessage.trim() || files.length > 0)
+      ) {
         // e.preventDefault();
         handleSendMessage();
       }
@@ -147,16 +156,13 @@ const MessageInput = ({
   //멘션 목록에서 항목 선택한 경우
   const handleMentionSelect = (member) => {
     // console.log("클릭된 멤버 멘션: ", member);
-    const updatedMessage = newMessage.replace(
-      /@(\S*)$/,
-      `@${member.name} `
-    );
+    const updatedMessage = newMessage.replace(/@(\S*)$/, `@${member.name} `);
     setNewMessage(updatedMessage);
     setMentioning(false);
     setFilteredMembers([]);
     setSelectedIndex(-1);
 
-    document.querySelector('input').focus();
+    document.querySelector("input").focus();
   };
 
   const handleFileChange = (e) => {
@@ -210,62 +216,61 @@ const MessageInput = ({
     else return null;
   };
 
-
   return (
     <div className="message-input-container">
       {/* 선택 파일 목록 */}
       {files.length > 0 && (
         <div
           className="file-preview"
-          style={{
-            display: "flex",
-            flexDirection: "row",
-            gap: "10px",
-            overflowX: "auto",
-            padding: "10px",
-            borderRadius: "5px",
-            backgroundColor: "#f0f0f0",
-            marginBottom: "10px",
-            position: "absolute",
-            bottom: "72px",
-            width: "100%",
-          }}
+          // style={{
+          //   display: "flex",
+          //   flexDirection: "row",
+          //   gap: "10px",
+          //   overflowX: "auto",
+          //   padding: "10px",
+          //   borderRadius: "5px",
+          //   backgroundColor: "#f0f0f0",
+          //   marginBottom: "10px",
+          //   position: "absolute",
+          //   bottom: "72px",
+          //   width: "100%",
+          // }}
         >
           {files.map((file, index) => (
             <div
               key={index}
               className="file-card"
-              style={{
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "space-between",
-                padding: "10px",
-                border: "1px solid #ccc",
-                borderRadius: "5px",
-                backgroundColor: "#fff",
-                minWidth: "150px",
-              }}
+              // style={{
+              //   display: "flex",
+              //   alignItems: "center",
+              //   justifyContent: "space-between",
+              //   padding: "10px",
+              //   border: "1px solid #ccc",
+              //   borderRadius: "5px",
+              //   backgroundColor: "#fff",
+              //   minWidth: "150px",
+              // }}
             >
               <span
                 className="file-name"
-                style={{
-                  flex: "1",
-                  whiteSpace: "nowrap",
-                  overflow: "hidden",
-                  textOverflow: "ellipsis",
-                }}
+                // style={{
+                //   flex: "1",
+                //   whiteSpace: "nowrap",
+                //   overflow: "hidden",
+                //   textOverflow: "ellipsis",
+                // }}
               >
                 {file.name}
               </span>
               <button
                 onClick={() => handleRemoveFile(index)}
                 className="remove-file-button"
-                style={{
-                  background: "none",
-                  border: "none",
-                  cursor: "pointer",
-                  color: "red",
-                }}
+                // style={{
+                //   background: "none",
+                //   border: "none",
+                //   cursor: "pointer",
+                //   color: "red",
+                // }}
               >
                 <FaTrashAlt />
               </button>
@@ -303,17 +308,18 @@ const MessageInput = ({
 
         {/* 멘션이 활성화된 경우, 사용자를 필터링하여 보여줍니다 */}
         {mentioning && filteredMembers.length > 0 && (
-          <div className="mention-suggestions"
-            style={{
-              position: "absolute",
-              background: "#ffffff",
-              border: "1px solid #ccc",
-              borderRadius: "5px",
-              width: "15%",
-              maxHeight: "120px",
-              overflowY: "auto",
-              bottom: "70px"
-            }}
+          <div
+            className="mention-suggestions"
+            // style={{
+            //   position: "absolute",
+            //   background: "#ffffff",
+            //   border: "1px solid #ccc",
+            //   borderRadius: "5px",
+            //   width: "15%",
+            //   maxHeight: "120px",
+            //   overflowY: "auto",
+            //   bottom: "70px"
+            // }}
             ref={mentionRef}
           >
             <ul>
@@ -321,15 +327,27 @@ const MessageInput = ({
                 <li
                   key={member.wsMemberId}
                   onClick={() => handleMentionSelect(member)}
-                  style={{
-                    padding: "10px",
-                    cursor: "pointer",
-                    backgroundColor: selectedIndex === index ? '#f2cfd3' : '#ffffff',
-                    display: "flex",
-                  }}
+                  className={`member-item ${
+                    selectedIndex === index ? "selected" : ""
+                  }`}
+                  // style={{
+                  //   padding: "10px",
+                  //   cursor: "pointer",
+                  //   backgroundColor:
+                  //     selectedIndex === index ? "#f2cfd3" : "#ffffff",
+                  //   display: "flex",
+                  // }}
                 >
-                  <ProfileImage src={imageUrlPathCheck(member.profileImagePath)} userName={member.name} size={20} />
-                  <span style={{ marginLeft: "15px" }}>{member.name}</span>
+                  <ProfileImage
+                    src={imageUrlPathCheck(member.profileImagePath)}
+                    userName={member.name}
+                    size={20}
+                  />
+                  <span
+                    className="member-name" /*style={{ marginLeft: "15px" }}*/
+                  >
+                    {member.name}
+                  </span>
                 </li>
               ))}
             </ul>
@@ -353,10 +371,10 @@ const MessageInput = ({
         <FaFileImage
           className="file-image"
           onClick={() => fileInputRef.current.click()} // 클릭 시 input 엽니다.
-          style={{
-            cursor: "pointer",
-            fontSize: "25px", // 원하는 아이콘 크기
-          }}
+          // style={{
+          //   cursor: "pointer",
+          //   fontSize: "25px",
+          // }}
         />
         {/* 잠금 아이콘: 클릭 시 잠금 상태 토글 */}
         <div className="lock-icon" onClick={toggleLock}>
@@ -364,16 +382,19 @@ const MessageInput = ({
         </div>
 
         <Modal open={isModalOpen} onClose={handleCloseModal}>
-          <p style={{ margin: "25px 15px" }}>{modalMessage}</p>
+          <p className="modal-message" /*style={{ margin: "25px 15px" }*/>
+            {modalMessage}
+          </p>
           <button
+            className="modal-ok-button"
             onClick={handleCloseModal}
-            style={{
-              backgroundColor: "gray",
-              padding: "10px",
-              borderRadius: "5px",
-              marginLeft: "133px",
-              fontSize: "15px",
-            }}
+            // style={{
+            //   backgroundColor: "gray",
+            //   padding: "10px",
+            //   borderRadius: "5px",
+            //   marginLeft: "133px",
+            //   fontSize: "15px",
+            // }}
           >
             OK
           </button>

@@ -4,15 +4,16 @@ import CreateChatRoomModal from "./CreateChatRoomModal";
 import { IoLogoWechat } from "react-icons/io5";
 import { useChatApp } from "../context/ChatAppContext";
 
-const ChatList = ({
-  isFold
-}) => {
+const ChatList = ({ isFold }) => {
   const { roomsState } = useChatApp();
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const getTotalUnreadMessages = () => {
-    return roomsState.reduce((total, room) => total + (room.notReadMsgCount || 0), 0);
-  }
+    return roomsState.reduce(
+      (total, room) => total + (room.notReadMsgCount || 0),
+      0
+    );
+  };
   const totalUnreadMessages = getTotalUnreadMessages();
 
   const openModal = () => {
@@ -27,8 +28,12 @@ const ChatList = ({
     <div>
       <div className={`chat_list_container ${isFold ? "collapsed" : ""}`}>
         {!isFold && <h1>채팅방 목록</h1>}
-        <div className={`unread-msgCount ${totalUnreadMessages === 0 ? "zero-msgCount" : "valid-msgCount"}`}>
-          < p > 안 읽은 메시지: {getTotalUnreadMessages()}</p>
+        <div
+          className={`unread-msgCount ${
+            totalUnreadMessages === 0 ? "zero-msgCount" : "valid-msgCount"
+          }`}
+        >
+          <p> 안 읽은 메시지: {getTotalUnreadMessages()}</p>
         </div>
         {roomsState && roomsState.length === 0 ? (
           <div className="no-chatroom-selected">
@@ -38,21 +43,15 @@ const ChatList = ({
           </div>
         ) : (
           roomsState.map((room) => (
-            <ChatListItem
-              key={room.chatRoomId}
-              chat={room}
-            />
+            <ChatListItem key={room.chatRoomId} chat={room} />
           ))
         )}
         <button className="create_button" onClick={openModal}>
           +
         </button>
-        <CreateChatRoomModal
-          isOpen={isModalOpen}
-          onClose={closeModal}
-        />
-      </div >
-    </div >
+        <CreateChatRoomModal isOpen={isModalOpen} onClose={closeModal} />
+      </div>
+    </div>
   );
 };
 

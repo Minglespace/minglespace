@@ -45,34 +45,35 @@
   --color-button-logout: #afc8e2;
   --color-button-logout-hover: #6b87c4;
 
-
   // 버튼
   // 네 // 확인 // 저장 // 생성
-  --button-color-positive : #f4f4f4;
-  // 할일추가 ADD 변경 최대하기 위임하기 리더위임하기 
-  --button-color-update : #f4f4f4;
+  --button-color-positive: #d7e5ca;
+  --button-color-positive-hover: #99bc85;
 
-  // 삭제 친구삭제 강퇴하기 추방하기 
-  --button-color-negative : #f4f4f4;
+  // 할일추가 ADD 변경 최대하기 위임하기 리더위임하기
+  --button-color-update: #f9f3cc;
+  --button-color-update-hover: #f4f4f4;
+
+  // 삭제 친구삭제 강퇴하기 추방하기
+  --button-color-negative: #f5b7b1;
+  --button-color-negative-hover: #ec6f6f;
 
   // 아니오 닫기 취소
-  --button-color-cancel : #f4f4f4;
+  --button-color-cancel: #c0c0c0;
+  --button-color-cancel-hover: #b0b0b0;
 
   // 글꼴
   // --font-family
-  
+
   // 배경색
   // 메인배경
-  --background-color-main : #f4f4f4;
+  --background-color-main: #f4f4f4;
 
   // 컨텐트배경
-  --background-color-content : #2ff3ea;
+  --background-color-content: #f6f4eb;
 
   // 로고
-  // --logo-main: 
-
-
-
+  // --logo-main:
 
   @media (max-width: 800px) {
     font-size: 14px;

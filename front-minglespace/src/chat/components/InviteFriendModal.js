@@ -7,15 +7,18 @@ import { useChatRoom } from "../context/ChatRoomContext";
 const initUpdateRoom = {
   name: "",
   image: null,
-  isImageDelete: "false"
-}
+  isImageDelete: "false",
+};
 
-const InviteFriendModal = ({
-  onClose,
-  participants,
-  onUpdateChatRoom,
-}) => {
-  const { chatRoomInfo, isModalOpen, inviteMembers, handleInvite, handleKick, handleDelegate } = useChatRoom();
+const InviteFriendModal = ({ onClose, participants, onUpdateChatRoom }) => {
+  const {
+    chatRoomInfo,
+    isModalOpen,
+    inviteMembers,
+    handleInvite,
+    handleKick,
+    handleDelegate,
+  } = useChatRoom();
   const [updateRoom, setUpdateRoom] = useState(initUpdateRoom);
   const [selectedImage, setSelectedImage] = useState(null);
   const [selectedTab, setSelectedTab] = useState("info");
@@ -25,20 +28,22 @@ const InviteFriendModal = ({
     if (chatRoomInfo) {
       setUpdateRoom((prev) => ({
         ...prev,
-        name: chatRoomInfo.name
+        name: chatRoomInfo.name,
       }));
 
-      chatRoomInfo.imageUriPath ? setSelectedImage(`${HOST_URL}${chatRoomInfo.imageUriPath}`) : setSelectedImage(null);
+      chatRoomInfo.imageUriPath
+        ? setSelectedImage(`${HOST_URL}${chatRoomInfo.imageUriPath}`)
+        : setSelectedImage(null);
     }
   }, [chatRoomInfo]);
 
   if (!isModalOpen) return null;
 
-
   //폼에서 채팅방 이름을 변경하는 함수
   const handleInputChange = (e) => {
-    setUpdateRoom(prev => ({
-      ...prev, name: e.target.value
+    setUpdateRoom((prev) => ({
+      ...prev,
+      name: e.target.value,
     }));
   };
 
@@ -72,7 +77,7 @@ const InviteFriendModal = ({
       onUpdateChatRoom({
         updateName: updateRoom.name,
         image: updateRoom.image,
-        isImageDelete: updateRoom.isImageDelete
+        isImageDelete: updateRoom.isImageDelete,
       });
       alert("채팅방 정보가 업데이트되었습니다.");
       onClose();
@@ -80,7 +85,6 @@ const InviteFriendModal = ({
       alert("채팅방 이름과 이미지를 모두 입력해주세요.");
     }
   };
-
 
   const handleInviteModal = async (addMember) => {
     if (addMember) {
@@ -111,8 +115,6 @@ const InviteFriendModal = ({
       alert("위임할 멤버를 선택해주세요.");
     }
   };
-
-
 
   return (
     <div className="invite_modal_wrapper">
@@ -153,8 +155,8 @@ const InviteFriendModal = ({
               변경
             </button>
             <button
-              className="select_img_btn"
-              style={{ marginLeft: "10px" }}
+              className="delete_img_btn"
+              // style={{ marginLeft: "10px" }}
               onClick={handleImageDelete} // 버튼 클릭 시 파일 선택창 열기
             >
               삭제
@@ -184,7 +186,9 @@ const InviteFriendModal = ({
             <div className="invite-friends-list">
               <p>강퇴할 멤버를 선택하세요:</p>
               <ul>
-                {participants.filter((member) => member.userId !== Number(Repo.getUserId())).length === 0 ? (
+                {participants.filter(
+                  (member) => member.userId !== Number(Repo.getUserId())
+                ).length === 0 ? (
                   <li>강퇴할 멤버가 없습니다.</li>
                 ) : (
                   participants
@@ -201,7 +205,8 @@ const InviteFriendModal = ({
                           강퇴
                         </button>
                       </li>
-                    )))}
+                    ))
+                )}
               </ul>
 
               <p>초대할 멤버를 선택하세요:</p>
@@ -225,7 +230,9 @@ const InviteFriendModal = ({
 
               <p>위임할 멤버를 선택하세요:</p>
               <ul>
-                {participants.filter((member) => member.userId !== Number(Repo.getUserId())).length === 0 ? (
+                {participants.filter(
+                  (member) => member.userId !== Number(Repo.getUserId())
+                ).length === 0 ? (
                   <li>위임할 멤버가 없습니다.</li>
                 ) : (
                   participants
@@ -242,12 +249,13 @@ const InviteFriendModal = ({
                           위임
                         </button>
                       </li>
-                    )))}
+                    ))
+                )}
               </ul>
             </div>
           </div>
         )}
-        <button className="close_btn" onClick={handleSave}>
+        <button className="create_btn" onClick={handleSave}>
           확인
         </button>
         {/* 모달 닫기 버튼 */}

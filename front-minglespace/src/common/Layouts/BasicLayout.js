@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from "react";
+﻿import React, { useCallback, useEffect, useState } from "react";
 import Sidebar from "./section/SideBar";
 import Footer from "./section/Footer";
 import Header from "./section/Header";
@@ -13,7 +13,6 @@ import Repo from "../../auth/Repo";
 import ModalMessage from "./components/ModalMessage";
 
 const BasicLayout = ({ children }) => {
-  
   const { workspaceId } = useParams();
   const navigate = useNavigate();
   const [message, setMessage] = useState(null);
@@ -33,7 +32,6 @@ const BasicLayout = ({ children }) => {
   }, [workspaceId, navigate]);
 
   useEffect(() => {
-
     api.setOnCallback_RefreshTokenExpired(handleRefreshTokenExpired);
     api.setOnCallback_WithdrawalAble(handleWithdrawalAble);
 
@@ -41,11 +39,10 @@ const BasicLayout = ({ children }) => {
       getWsMemberRole();
     }
 
-    return () =>{
+    return () => {
       api.setOnCallback_RefreshTokenExpired(null);
       api.setOnCallback_WithdrawalAble(null);
-    }
-
+    };
   }, [workspaceId, getWsMemberRole]);
 
   const refreshMemberContext = useCallback(() => {
@@ -58,20 +55,20 @@ const BasicLayout = ({ children }) => {
     setMessage({
       title: "확인",
       content: "로그인 인증이 만료되었습니다. 다시 로그인 하세요.",
-      callbackOk: ()=>{
+      callbackOk: () => {
         Repo.clearItem();
         setMessage(null);
         navigate("/auth/login");
-      }
+      },
     });
   };
 
-    // 회원탈퇴 관련 콜백 함수
-    const handleWithdrawalAble = (msStatus) => {
-      console.log("handleWithdrawalAble, msStatus : ", msStatus);
-      navigate("/auth/withdrawal");
-    };
-  
+  // 회원탈퇴 관련 콜백 함수
+  const handleWithdrawalAble = (msStatus) => {
+    console.log("handleWithdrawalAble, msStatus : ", msStatus);
+    navigate("/auth/withdrawal");
+  };
+
   return (
     <>
       <WSMemberRoleContext.Provider
@@ -87,11 +84,10 @@ const BasicLayout = ({ children }) => {
 
             {/* 페이지들 */}
             {children}
-            
           </div>
         </div>
       </WSMemberRoleContext.Provider>
-      <Footer />
+      {/* <Footer /> */}
     </>
   );
 };

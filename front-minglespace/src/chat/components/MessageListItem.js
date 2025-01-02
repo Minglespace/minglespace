@@ -1,4 +1,4 @@
-﻿﻿import React, { useState } from "react";
+﻿﻿﻿import React, { useState } from "react";
 import { FiCornerDownRight, FiDownload, FiTrash2 } from "react-icons/fi";
 import { HOST_URL } from "../../api/Api";
 import ProfileImage from "../../common/Layouts/components/ProfileImage";
@@ -36,7 +36,6 @@ const MessageListItem = ({
   openDeleteModal,
 }) => {
   const { wsMemberState } = useChatApp();
-
 
   const parentMessage = message.replyId
     ? onFindParentMessage(message.replyId)
@@ -212,44 +211,21 @@ const MessageListItem = ({
         {/* 메시지의 포함된 이미지 표시 */}
         {message.imageUriPaths && message.imageUriPaths.length > 0 && (
           <div
-            style={{
-              marginTop: "10px",
-              display: "grid",
-              gridTemplateColumns: message.imageUriPaths.length === 1 ? "1fr" : "repeat(2, 1fr)",
-              gap: "10px",
-              gridAutoRows: "130px"
-            }}
+            className={`image-message-container ${
+              message.imageUriPaths.length === 1 ? "single" : "multiple"
+            }`}
           >
             {visibleImages.map((imageUri, index) => (
-
               <img
                 key={index}
                 src={`${HOST_URL}${imageUri}`}
                 alt={`chatImage-${index}`}
-                style={{
-                  width: "100%",
-                  height: "100%",
-                  objectFit: "cover",
-                  minWidth: "130px",
-                  maxWidth: "250px",
-                }}
+                className="image-item"
                 onClick={() => openLightbox(index)}
               />
             ))}
             {remainingImageCount > 0 && (
-              <div
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  backgroundColor: "#f0f0f0",
-                  cursor: "pointer",
-                  fontSize: "18px",
-                  color: "#555",
-                  height: "130px",
-                }}
-                onClick={() => openLightbox(3)}
-              >
+              <div className="more-images" onClick={() => openLightbox(3)}>
                 +{remainingImageCount} more
               </div>
             )}
@@ -257,9 +233,13 @@ const MessageListItem = ({
         )}
         {/* 문서 파일 */}
         {message.documentUriPaths && message.documentUriPaths.length > 0 && (
-          <div style={{ marginTop: "10px" }}>
+          <div className="document-container">
             {message.documentUriPaths.map((uri, index) => (
-              <div key={index} style={{ marginBottom: "10px" }}>
+              <div
+                key={index}
+                className="document-item"
+                // style={{ marginBottom: "10px" }}
+              >
                 {renderDocumentPreview(`${HOST_URL}${uri}`)}
               </div>
             ))}
@@ -269,20 +249,22 @@ const MessageListItem = ({
         {isImageOpen && (
           <Lightbox
             mainSrc={`${HOST_URL}${message.imageUriPaths[photoIndex]}`}
-            nextSrc={`${HOST_URL}${message.imageUriPaths[
-              (photoIndex + 1) % message.imageUriPaths.length
-            ]
-              }`}
-            prevSrc={`${HOST_URL}${message.imageUriPaths[
-              (photoIndex + message.imageUriPaths.length - 1) %
-              message.imageUriPaths.length
-            ]
-              }`}
+            nextSrc={`${HOST_URL}${
+              message.imageUriPaths[
+                (photoIndex + 1) % message.imageUriPaths.length
+              ]
+            }`}
+            prevSrc={`${HOST_URL}${
+              message.imageUriPaths[
+                (photoIndex + message.imageUriPaths.length - 1) %
+                  message.imageUriPaths.length
+              ]
+            }`}
             onCloseRequest={() => setIsImageOpen(false)}
             onMovePrevRequest={() =>
               setPhotoIndex(
                 (photoIndex + message.imageUriPaths.length - 1) %
-                message.imageUriPaths.length
+                  message.imageUriPaths.length
               )
             }
             onMoveNextRequest={() =>
@@ -309,12 +291,7 @@ const MessageListItem = ({
         )}
       </div>
 
-      <div
-        className="message-footer"
-        style={{
-          textAlign: isSameSender ? "right" : "left",
-        }}
-      >
+      <div className={`message-footer ${isSameSender ? "right" : "left"}`}>
         <button
           className="reply-button"
           onClick={() => onMessageClick(message)}
@@ -322,13 +299,8 @@ const MessageListItem = ({
           <FiCornerDownRight />
         </button>
         <span
+          className="pin-icon"
           onClick={() => openAnnounceMentModal(message)}
-          style={{
-            cursor: "pointer",
-            color: "blue",
-            textDecoration: "underline",
-            fontsize: "20px",
-          }}
         >
           <TbPinFilled />
         </span>
@@ -354,14 +326,7 @@ const MessageListItem = ({
         {/* 안읽은 카운트 */}
         {message.unReadMembers && message.unReadMembers.length > 0 && (
           <span
-            style={{
-              fontWeight: "bold",
-              color: "#FA8072",
-              marginLeft: "10px",
-              cursor: "pointer",
-              fontSize: "15px",
-              //display: "inline-block",
-            }}
+            className="unread-count"
             onMouseEnter={() => handleUnreadMouseEnter(message.unReadMembers)}
             onMouseLeave={handleUnreadMouseLeave}
           >
@@ -370,13 +335,7 @@ const MessageListItem = ({
               hoveredUnread.map((member) => (
                 <div
                   key={member.wsMemberId}
-                  style={{
-                    display: "flex",
-                    marginLeft: "30px",
-                    marginBottom: "5px",
-                    textAlign: "left",
-                    justifyContent: isSameSender ? "flex-end" : "flex-start",
-                  }}
+                  className={`unread-member ${isSameSender ? "right" : ""}`}
                 >
                   <ProfileImage
                     src={imageUrlPathCheck(member.profileImagePath)}
@@ -399,20 +358,22 @@ const MessageListItem = ({
       {isImageOpen && (
         <Lightbox
           mainSrc={`${HOST_URL}${message.imageUriPaths[photoIndex]}`}
-          nextSrc={`${HOST_URL}${message.imageUriPaths[
-            (photoIndex + 1) % message.imageUriPaths.length
-          ]
-            }`}
-          prevSrc={`${HOST_URL}${message.imageUriPaths[
-            (photoIndex + message.imageUriPaths.length - 1) %
-            message.imageUriPaths.length
-          ]
-            }`}
+          nextSrc={`${HOST_URL}${
+            message.imageUriPaths[
+              (photoIndex + 1) % message.imageUriPaths.length
+            ]
+          }`}
+          prevSrc={`${HOST_URL}${
+            message.imageUriPaths[
+              (photoIndex + message.imageUriPaths.length - 1) %
+                message.imageUriPaths.length
+            ]
+          }`}
           onCloseRequest={() => setIsImageOpen(false)}
           onMovePrevRequest={() =>
             setPhotoIndex(
               (photoIndex + message.imageUriPaths.length - 1) %
-              message.imageUriPaths.length
+                message.imageUriPaths.length
             )
           }
           onMoveNextRequest={() =>

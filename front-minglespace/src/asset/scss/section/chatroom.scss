@@ -1,20 +1,23 @@
 ﻿// ChatRomm.js
 
 .chatroom-container {
-  background-color: #f9f5f6;
+  //background-color: #f9f5f6;
+  background-color: var(--background-color-content);
   border: solid 1px #aaa;
   margin: 15px;
+  margin-left: 0;
   border-radius: 10px;
   transition: all 0.3s ease;
-  width: 1010px;
+  width: 1230px;
   height: 700px;
   position: relative;
   display: flex;
   flex-direction: column;
 
   &.folded {
-    margin: 20px;
-    width: 1440px;
+    // margin: 20px;
+    margin-left: 55px;
+    width: 1640px;
   }
 }
 
@@ -132,21 +135,24 @@
           font-size: 14px;
           border: none;
           border-radius: 4px;
-          background-color: #A8D0D7;
+          //background-color: #a8d0d7;
+          background-color: var(--button-color-update);
           color: #555;
           cursor: pointer;
 
-          &:hover {
-            background-color: #987070;
-          }
+          // &:hover {
+          //   background-color: #987070;
+          // }
 
           &.kick {
-            background-color: #dbb5b5;
+            //background-color: #dbb5b5;
+            background-color: var(--button-color-negative);
           }
 
           &.delegate {
-            background-color: #E8D8B3;
-            color: #333
+            //background-color: #e8d8b3;
+            background-color: var(--button-color-update);
+            color: #333;
           }
         }
       }
@@ -214,9 +220,9 @@
 }
 
 .tabs button.active {
-  background-color: #dbb5b5;
+  background-color: #99bc85;
   color: white;
-  border-bottom: 2px solid #dbb5b5;
+  border-bottom: 2px solid #d7e5ca;
 }
 
 .tabs button:focus {
@@ -292,9 +298,14 @@
       border: 1px solid #ddd;
       border-radius: 6px;
       margin-bottom: 10px;
+      background-color: transparent;
+
+      li.selected {
+        background-color: #f9f5f6;
+      }
 
       &:hover {
-        background-color: #f9f5f6;
+        background-color: #e1f0da;
       }
 
       .invite-btn {
@@ -302,14 +313,15 @@
         font-size: 14px;
         border: none;
         border-radius: 4px;
-        background-color: #dbb5b5;
+        //background-color: #dbb5b5;
+        background-color: var(--button-color-update);
         color: #fff;
         cursor: pointer;
 
         &:hover {
-          background-color: #987070;
+          //background-color: #987070;
+          background-color: var(--button-color-update-hover);
         }
-
       }
     }
   }
@@ -370,6 +382,7 @@
   min-width: 40px;
   flex-shrink: 0;
   z-index: 10;
+  background-color: var(--background-color-content);
 }
 
 .chatroom-close-btn {
@@ -388,8 +401,89 @@
   justify-content: flex-start;
   position: absolute;
   bottom: 0;
-  background-color: #f9f5f6;
+  //background-color: #f9f5f6;
+  background-color: var(--background-color-content);
   border-top: solid 1px #aaa;
+}
+
+.file-preview {
+  display: flex;
+  flex-direction: row;
+  gap: 10px;
+  overflow-x: auto;
+  padding: 10px;
+  border-radius: 5px;
+  background-color: #f0f0f0;
+  margin-bottom: 10px;
+  position: absolute;
+  bottom: 72px;
+  width: 100%;
+}
+
+.file-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  background-color: #fff;
+  min-width: 150px;
+}
+
+.file-name {
+  flex: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.remove-file-button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: red;
+}
+
+.replying-to-message {
+  background-color: #f3e6c4;
+  border: 1px solid #ddd;
+  padding: 5px;
+  border-radius: 10px;
+  display: flex;
+  flex-direction: column;
+
+  // span {
+  //   margin: 10px;
+  //   margin-bottom: 0px;
+  //   font-size: 12px;
+  //   font-weight: bold;
+  //   color: #333;
+  //   white-space: nowrap;
+  // }
+
+  p {
+    font-size: 14px;
+    margin-top: 5px;
+    padding-left: 10px;
+  }
+
+  button {
+    margin-bottom: 5px;
+    margin-right: 12px;
+    background-color: transparent;
+    border: none;
+    color: #00796b;
+    cursor: pointer;
+    font-size: 12px;
+    margin-top: 5px;
+    align-self: flex-end;
+    font-weight: bold;
+
+    &:hover {
+      text-decoration: underline;
+    }
+  }
 }
 
 .message-input-wrapper {
@@ -421,7 +515,7 @@
   margin: 10px 0;
 
   &:focus {
-    border-color: #f0a0a0;
+    border-color: #99bc85;
   }
 
   &::placeholder {
@@ -429,15 +523,29 @@
   }
 }
 
-.lock-icon {
-  margin-left: 10px;
-  padding: 8px;
-  padding-bottom: 1px;
-  background-color: #f0a0a0;
-  border: none;
+.mention-suggestions {
+  position: absolute;
+  background: #ffffff;
+  border: 1px solid #ccc;
   border-radius: 5px;
+  width: 15%;
+  max-height: 120px;
+  overflow-y: auto;
+  bottom: 70px;
+}
+
+.member-item {
+  padding: 10px;
   cursor: pointer;
-  flex-shrink: 0;
+  display: flex;
+}
+
+.member-item.selected {
+  background-color: #f2cfd3;
+}
+
+.member-name {
+  margin-left: 15px;
 }
 
 .send-btn {
@@ -448,52 +556,39 @@
   border: none;
   border-radius: 15px;
   cursor: pointer;
-  background-color: #e1acac;
+  //background-color: #e1acac;
+  background-color: #99bc85;
   flex-shrink: 0;
 }
 
-.replying-to-message {
-  background-color: #f1f1f1;
-  border: 1px solid #ddd;
-  padding: 5px;
-  border-radius: 10px;
-  display: flex;
-  flex-direction: column;
-
-  span {
-    margin: 10px;
-    margin-bottom: 0px;
-    font-size: 12px;
-    font-weight: bold;
-    color: #333;
-    white-space: nowrap;
-  }
-
-  p {
-    font-size: 14px;
-    margin-top: 5px;
-    padding-left: 10px;
-  }
-
-  button {
-    margin-bottom: 5px;
-    margin-right: 12px;
-    background-color: transparent;
-    border: none;
-    color: #4c8bf5;
-    cursor: pointer;
-    font-size: 12px;
-    margin-top: 5px;
-    align-self: flex-end;
-
-    &:hover {
-      text-decoration: underline;
-    }
-  }
+.lock-icon {
+  margin-left: 10px;
+  padding: 8px;
+  padding-bottom: 1px;
+  //background-color: #f0a0a0;
+  background-color: #99bc85;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  flex-shrink: 0;
 }
 
 .file-image {
   margin-left: 8px;
+  cursor: pointer;
+  font-size: 25px;
+}
+
+.modal-message {
+  margin: 25px 15px;
+}
+
+.modal-ok-button {
+  background-color: gray;
+  padding: 10px;
+  border-radius: 5px;
+  margin-left: 133px;
+  font-size: 15px;
 }
 
 //MessageList.js
@@ -527,14 +622,14 @@
 
   &.sender {
     margin-left: 10px;
-    background-color: #c4d7ff;
+    background-color: #f1e1a6;
     align-self: flex-end;
     border-bottom-right-radius: 0;
   }
 
   &.received {
     color: #333;
-    background-color: #ffffff;
+    background-color: #fff;
     align-self: flex-start;
     border-bottom-left-radius: 0;
     border: 1px solid #ddd;
@@ -580,12 +675,6 @@
   }
 }
 
-.announcement {
-  display: flex;
-  justify-content: center;
-}
-
-
 .new-messages-preview {
   position: absolute;
   bottom: 100px;
@@ -595,7 +684,8 @@
 
   left: 10px;
   right: 10px;
-  background: #e0e7ff;
+  //background: #e0e7ff;
+  background-color: #d7e5ca;
   border-radius: 8px;
   box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
   font-size: 14px;
@@ -620,8 +710,16 @@
   padding: 0px 10px 10px 10px;
 }
 
+.modal-buttons {
+  display: flex;
+  justify-content: space-around;
+  gap: 10px;
+  margin-top: 20px;
+}
+
 .save-btn {
-  background-color: rgb(92, 173, 240);
+  //background-color: rgb(92, 173, 240);
+  background-color: var(--button-color-positive);
   padding: 10px;
   border-radius: 5px;
   width: 80px;
@@ -633,7 +731,8 @@
 }
 
 .cancel-btn {
-  background-color: gray;
+  //background-color: gray;
+  background-color: var(--button-color-cancel);
   padding: 10px;
   border-radius: 5px;
   width: 80px;
@@ -644,9 +743,28 @@
   cursor: pointer;
 }
 
+.delete-btn {
+  background-color: rgb(253, 113, 113);
+  padding: 10px;
+  border-radius: 5px;
+  width: 80px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.text3 {
+  font-size: 20px;
+  margin: 20px;
+}
+
 /* 공지사항 스타일 */
 .announcement {
-  background-color: #e3f2fd;
+  display: flex;
+  justify-content: center;
+  background-color: #e8f5e9;
   padding: 10px;
   border-radius: 5px;
   display: flex;
@@ -657,7 +775,7 @@
 
 .announcement-icon {
   font-size: 20px;
-  color: #2196f3;
+  color: #00796b;
   margin-right: 10px;
 }
 
@@ -705,6 +823,142 @@
 .message-time {
   font-size: 12px;
   color: #333;
+}
+
+.mention {
+  font-weight: bold;
+  color: #6495ed;
+}
+
+/* 이미지 그리드 레이아웃 */
+.image-message-container {
+  margin-top: 10px;
+  display: grid;
+  gap: 10px;
+  grid-auto-rows: 130px;
+}
+
+/* 1개의 이미지일 경우 1열로, 그 외에는 2열 */
+.image-message-container.single {
+  grid-template-columns: 1fr;
+}
+
+.image-message-container.multiple {
+  grid-template-columns: repeat(2, 1fr);
+}
+
+/* 이미지 스타일 */
+.image-item {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  min-width: 130px;
+  max-width: 250px;
+}
+
+/* 더 보기 버튼 */
+.more-images {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #f0f0f0;
+  cursor: pointer;
+  font-size: 18px;
+  color: #555;
+  height: 130px;
+}
+
+/* 문서 파일 미리보기 컨테이너 */
+.document-container {
+  margin-top: 10px;
+}
+
+.document-item {
+  margin-bottom: 10px;
+}
+
+/* message-footer 스타일 */
+.message-footer {
+  align-items: center;
+  justify-content: space-between;
+}
+
+.message-footer.right {
+  text-align: right;
+}
+
+.message-footer.left {
+  text-align: left;
+}
+
+/* 버튼 스타일 */
+
+.delete-button {
+  background-color: transparent;
+  border: none;
+  cursor: pointer;
+  font-size: 18px;
+  margin-left: 4px;
+}
+
+.reply-button {
+  background-color: transparent;
+  border: none;
+  cursor: pointer;
+  font-size: 18px;
+  color: #555;
+}
+
+.delete-button {
+  color: red;
+}
+
+/* pin 아이콘 */
+.pin-icon {
+  cursor: pointer;
+  color: #00796b;
+  text-decoration: underline;
+  font-size: 20px;
+  margin-left: 5px;
+}
+
+/* 안읽은 카운트 */
+.unread-count {
+  font-weight: bold;
+  color: #fa8072;
+  margin-left: 10px;
+  cursor: pointer;
+  font-size: 15px;
+}
+
+/* 안읽은 멤버 리스트 스타일 */
+.unread-members-list {
+  display: flex;
+  flex-direction: column;
+  margin-left: 30px;
+  text-align: left;
+}
+
+.unread-member {
+  display: flex;
+  margin-bottom: 5px;
+  justify-content: flex-start;
+}
+
+.unread-member.right {
+  justify-content: flex-end;
+}
+
+.unread-member-name {
+  margin-left: 10px;
+  font-size: 18px;
+}
+
+/* 프로필 이미지 스타일 */
+.profile-image {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
 }
 
 /* CustomLightboxStyles.css - 혜린 */

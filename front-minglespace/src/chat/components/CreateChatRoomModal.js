@@ -8,7 +8,7 @@ const initCreateChatRoomRequest = {
   name: "",
   workspaceId: 0,
   participantIds: [],
-  image: null
+  image: null,
 };
 
 const CreateChatRoomModal = ({ isOpen, onClose }) => {
@@ -170,18 +170,7 @@ const CreateChatRoomModal = ({ isOpen, onClose }) => {
             </ul>
           </div>
 
-          {errorMsg && (
-            <p
-              style={{
-                color: "#e52500",
-                fontSize: "14px",
-                marginTop: "10px",
-                textAlign: "center",
-              }}
-            >
-              {errorMsg}
-            </p>
-          )}
+          {errorMsg && <p className="error-message">{errorMsg}</p>}
           <button className="create_btn" onClick={handleCreate}>
             생성
           </button>
