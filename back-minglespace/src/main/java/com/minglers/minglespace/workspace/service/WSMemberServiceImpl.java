@@ -239,12 +239,16 @@ public class WSMemberServiceImpl implements WSMemberService {
     @Transactional
     public String transferRole (Long workspaceId, Long memberId, String role){
       WSMember wsMember = findById(memberId);
+      WorkSpace workSpace = findWorkSpaceById(workspaceId);
       if ("MEMBER".equals(role))
         wsMember.changeRole(WSMemberRole.MEMBER);
       else if ("SUB_LEADER".equals(role))
         wsMember.changeRole(WSMemberRole.SUB_LEADER);
       WSMember savedMember = wsMemberRepository.save(wsMember);
 
+      notificationService.sendNotification(wsMember.getUser().getId(),
+              workSpace.getName() + "의 권한이"+savedMember.getRole().name()+"로 변경 되었습니다.",
+              "/workspace/" + workSpace.getId() + "/member", NotificationType.MEMBER);
       return savedMember.getUser().getName() + "님의 권한을 " + savedMember.getRole().name() +
               "으로 변경하였습니다";
     }
@@ -272,7 +276,7 @@ public class WSMemberServiceImpl implements WSMemberService {
       String uuid = UUID.randomUUID().toString();
 
       String url = MsConfig.getClientUrl()+"/workspace/" + workspaceId + "/invite/"
-              + uuid; //하나로 빌드후 수정해야함
+              + uuid;
 
       CompletableFuture<String> emailResult = emailInviteService.sendEmail(workSpace.getName(), url, email);
       String returnString = emailResult.thenApply((result) -> {

@@ -50,7 +50,7 @@ const MyFriendsPending = ({ friendPending, refuseFriend, acceptFriend }) => {
                 수락
               </button>
               <button
-                className="add_button_2"
+                className="delete_button"
                 onClick={() => {
                   handleFriendRefuse(userInfo.id);
                 }}

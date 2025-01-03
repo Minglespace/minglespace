@@ -53,10 +53,19 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-mail'
 }
 
+//gradle.properties에 있는 변수env를 application.properties에서 사용하기위한 코드
+def env = project.findProperty('env') ?: 'develop'
+def auth = env == 'service' ? project.findProperty('serviceAuthEnv') : project.findProperty('developAuthEnv')
+processResources {
+	filesMatching('application.properties') {
+		expand(env: env, auth: auth) }
+}
+
 tasks.named('test') {
 	useJUnitPlatform()
+	if(env == 'service')
+	{ enabled = false }
 }
-tasks.named('test') { enabled = false }
 def frontendDir = "../front-minglespace"
 
 sourceSets {
@@ -68,7 +77,9 @@ sourceSets {
 }
 
 processResources {
-	dependsOn "copyReactBuildFiles"
+	if(env == 'service') {
+		dependsOn "copyReactBuildFiles"
+	}
 }
 
 tasks.register('installReact', Exec) {

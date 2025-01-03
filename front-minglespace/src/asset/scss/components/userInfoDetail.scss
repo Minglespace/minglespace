@@ -3,16 +3,9 @@
     margin: 10px;
     text-align: center;
   }
-  .user_pfi {
-    margin: 20px 0;
-  }
-  p {
-    margin-bottom: 10px;
-  }
 }
 
 .userInfo_detail_container {
-  margin: auto;
   .user_pfi {
     margin: 40px;
   }
@@ -20,16 +13,27 @@
     margin: 10px;
   }
   .member_Management_box {
-    margin: 15px 15px 15px 60px;
-
-    > label {
+    margin: 0 auto;
+    text-align: center;
+    > h3 {
       margin: 10px;
     }
-    > select {
-      border-bottom: 1px solid darkgray;
-      border-right: 1px solid darkgray;
-      border-bottom-right-radius: 5px;
-      box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.2);
+    .userInfo_lable_FiInfoBox {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+
+      > label {
+        margin: 10px;
+      }
+      > select {
+        height: 25px;
+        margin-right: 5px;
+        border-bottom: 1px solid darkgray;
+        border-right: 1px solid darkgray;
+        border-bottom-right-radius: 5px;
+        box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.2);
+      }
     }
     button {
       margin: 10px;
