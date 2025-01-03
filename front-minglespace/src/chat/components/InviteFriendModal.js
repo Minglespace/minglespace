@@ -18,6 +18,7 @@ const InviteFriendModal = ({ onClose, participants, onUpdateChatRoom }) => {
     handleInvite,
     handleKick,
     handleDelegate,
+    showAlertMessage
   } = useChatRoom();
   const [updateRoom, setUpdateRoom] = useState(initUpdateRoom);
   const [selectedImage, setSelectedImage] = useState(null);
@@ -79,7 +80,7 @@ const InviteFriendModal = ({ onClose, participants, onUpdateChatRoom }) => {
         image: updateRoom.image,
         isImageDelete: updateRoom.isImageDelete,
       });
-      alert("채팅방 정보가 업데이트되었습니다.");
+      showAlertMessage("채팅방 정보가 업데이트되었습니다.");
       onClose();
     } else {
       alert("채팅방 이름과 이미지를 모두 입력해주세요.");
@@ -89,7 +90,7 @@ const InviteFriendModal = ({ onClose, participants, onUpdateChatRoom }) => {
   const handleInviteModal = async (addMember) => {
     if (addMember) {
       await handleInvite(addMember);
-      alert(`${addMember.name}님이 초대되었습니다.`);
+      showAlertMessage(`${addMember.name}님이 초대되었습니다.`);
       onClose();
     } else {
       alert("초대할 멤버를 선택해주세요.");
@@ -99,7 +100,7 @@ const InviteFriendModal = ({ onClose, participants, onUpdateChatRoom }) => {
   const handleKickModal = async (kickMember) => {
     if (kickMember) {
       await handleKick(kickMember);
-      alert(`${kickMember.name}님이 강퇴되었습니다.`);
+      showAlertMessage(`${kickMember.name}님이 강퇴되었습니다.`);
       onClose();
     } else {
       alert("강퇴할 멤버를 선택해주세요.");
@@ -109,7 +110,7 @@ const InviteFriendModal = ({ onClose, participants, onUpdateChatRoom }) => {
   const handleDelegateModal = async (newLeader) => {
     if (newLeader) {
       await handleDelegate(newLeader);
-      alert(`${newLeader.name}님이 방장으로 위임되셨습니다.`);
+      showAlertMessage(`${newLeader.name}님이 방장으로 위임되셨습니다.`);
       onClose();
     } else {
       alert("위임할 멤버를 선택해주세요.");

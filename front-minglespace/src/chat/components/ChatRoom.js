@@ -131,6 +131,20 @@ const ChatRoom = ({ isFold }) => {
                 );
                 return { ...prev, messages: updatedMessages };
               });
+            } else if (statusData.type === "ANNOUNCEMENT") {
+              console.log("새 공지 왔음: ", statusData)
+              setChatRoomInfo((prev) => {
+                const updatedMessages = prev.messages.map((msg) => {
+                  if (msg.isAnnouncement) {
+                    return { ...msg, isAnnouncement: false };
+                  }
+                  if (Number(msg.id) === statusData.messageId) {
+                    return { ...msg, isAnnouncement: true };
+                  }
+                  return msg;
+                });
+                return { ...prev, messages: updatedMessages };
+              });
             }
           }
         );

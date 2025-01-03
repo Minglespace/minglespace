@@ -166,7 +166,7 @@ public class WSMemberServiceImpl implements WSMemberService {
   public String inviteMember(Long friendId, Long workSpaceId) {
     User user = findUserById(friendId);
     WorkSpace workSpace = findWorkSpaceById(workSpaceId);
-    if (!wsMemberRepository.existsByWorkSpaceIdAndUserId(friendId, workSpaceId)) {
+    if (!wsMemberRepository.existsByWorkSpaceIdAndUserId(workSpaceId,friendId)) {
       WSMember wsMember = WSMember.builder()
               .role(WSMemberRole.MEMBER)
               .workSpace(workSpace)
