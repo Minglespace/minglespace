@@ -55,10 +55,9 @@ dependencies {
 
 //gradle.properties에 있는 변수env를 application.properties에서 사용하기위한 코드
 def env = project.findProperty('env') ?: 'develop'
-def auth = env == 'service' ? project.findProperty('serviceAuthEnv') : project.findProperty('developAuthEnv')
 processResources {
 	filesMatching('application.properties') {
-		expand(env: env, auth: auth) }
+		expand(env: env) }
 }
 
 tasks.named('test') {
@@ -111,13 +110,6 @@ tasks.register('copyReactBuildFiles', Copy) {
 	dependsOn "buildReact"
 	from "$frontendDir/build"
 	into layout.buildDirectory.dir("resources/main/static")
-}
-
-bootJar {
-	dependsOn 'copyReactBuildFiles'
-	from ("$frontendDir/build") {
-		into "static"
-	}
 }
 
 jar {
