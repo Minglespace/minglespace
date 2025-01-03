@@ -55,10 +55,10 @@
   margin-bottom: 1rem;
 }
 
-.input-group {
-  display: flex;
-  gap: 10px;
-}
+// .input-group {
+//   display: flex;
+//   gap: 10px;
+// }
 
 .input {
   width: 100%;
@@ -74,6 +74,13 @@
 .error-message {
   color: red;
   font-size: 0.8rem;
+}
+
+.text-area{
+  height: 150px;        
+  max-height: 300px;    
+  min-Height: 40px;
+  resize: vertical;     
 }
 
 .verify-button {
