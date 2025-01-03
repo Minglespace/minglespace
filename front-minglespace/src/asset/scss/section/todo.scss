@@ -42,6 +42,21 @@
       }
     }
   }
+  .todo_delete_button {
+    background-color: var(--button-color-negative);
+    transform: background-color 0.5s;
+    &:hover {
+      background-color: var(--button-color-negative-hover);
+    }
+  }
+  .completely {
+    text-align: center;
+    width: 300px;
+    input {
+      width: 15px !important;
+      height: 15px;
+    }
+  }
   .todo_list_section {
     margin: 20px;
     padding: 5px;

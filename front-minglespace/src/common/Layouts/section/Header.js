@@ -11,6 +11,8 @@ import { WSMemberRoleContext } from "../../../workspace/context/WSMemberRoleCont
 import WorkspaceModify from "../../../workspace/components/WorkspaceModify";
 import NotificationIcon from "../../../notification/NotificationIcon";
 import { NotificationProvider } from "../../../notification/context/NotificationContext";
+import Modal from "../components/Modal";
+import Confirm from "../components/Confirm";
 
 const initData = {
   id: "",
@@ -25,6 +27,7 @@ const Header = () => {
   const [workspaceData, setWorkspaceData] = useState({ ...initData });
   //토글 수정삭제메뉴 설정
   const [menuOpen, setMenuOpen] = useState(false);
+  const [confirmModalOpen, setConfirmModalOpen] = useState(false);
 
   //워크스페이스 수정을위한 모달,편집
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -86,10 +89,9 @@ const Header = () => {
 
   const handleDeleteClick = (e) => {
     e.stopPropagation();
-    if (window.confirm("정말 삭제하시겠습니까?")) {
-      deleteWorkspace();
-    }
+    deleteWorkspace();
     setMenuOpen(false);
+    setConfirmModalOpen(false);
   };
   //수정시 상태업데이트 위한코드
   const handleModifyWorkspace = (newWorkspace) => {
@@ -102,6 +104,10 @@ const Header = () => {
 
   const handleCloseModal = () => {
     setIsModalOpen(false);
+    setConfirmModalOpen(false);
+  };
+  const handleOpenCofirmModal = () => {
+    setConfirmModalOpen(true);
   };
 
   return (
@@ -125,7 +131,7 @@ const Header = () => {
                 <p className="menu_item" onClick={handleOpenModal}>
                   수정
                 </p>
-                <p className="menu_item" onClick={handleDeleteClick}>
+                <p className="menu_item" onClick={handleOpenCofirmModal}>
                   삭제
                 </p>
               </div>
@@ -152,6 +158,9 @@ const Header = () => {
         onModifyWorkspace={handleModifyWorkspace}
         workspaceData={workspaceData}
       />
+      <Modal open={confirmModalOpen} onClose={handleCloseModal}>
+        <Confirm onClose={handleCloseModal} onDelete={handleDeleteClick} />
+      </Modal>
     </header>
   );
 };

@@ -34,12 +34,17 @@
     top: 30px;
     justify-content: end;
     margin-bottom: 10px;
+
     button {
       width: 120px;
       height: 30px;
       border-radius: 5px;
       cursor: pointer;
-      background-color: rgba($color: #ff0000, $alpha: 0.5);
+      background-color: var(--button-color-positive);
+      transform: background-color 0.5s;
+      &:hover {
+        background-color: var(--button-color-positive-hover);
+      }
     }
   }
   .milestone_category {
