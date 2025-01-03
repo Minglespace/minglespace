@@ -46,19 +46,10 @@
   overflow-y: auto;
 }
 
-.form-title {
-  text-align: center;
-  margin-bottom: 2rem;
-}
 
 .form-group {
-  // margin-bottom: 1rem;
+  margin-bottom: 0.2rem;
 }
-
-// .input-group {
-//   display: flex;
-//   gap: 10px;
-// }
 
 .input {
   width: 100%;
@@ -71,9 +62,13 @@
   border: 1px solid red;
 }
 
-.error-message {
-  color: red;
-  font-size: 0.8rem;
+.input-error {
+  border: 1px solid #ef4444;
+}
+
+.auth-error-message {
+  color: #ef4444;
+  font-size: 0.75rem;
 }
 
 .text-area{
@@ -102,7 +97,7 @@
 .password-toggle {
   position: absolute;
   right: 10px;
-  top: 50%;
+  top: 55%;
   transform: translateY(-50%);
   background: none;
   border: none;

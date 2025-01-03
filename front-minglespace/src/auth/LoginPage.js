@@ -82,27 +82,92 @@ const LoginPage = () => {
       }
     });
   }
-
-  const validate = () => {
-    const newErrors = {};
-    if (!formData.email) {
-      newErrors.email = "이메일을 입력해주세요";
-    } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
-      newErrors.email = "올바른 이메일 형식이 아닙니다";
+   
+  const validateField = (name, value) => {
+  
+    const newError = {};
+  
+    switch (name) {
+      case "email":
+        if (!value) {
+          newError.email = "이메일을 입력해주세요";
+        } else if (!/\S+@\S+\.\S+/.test(value)) {
+          newError.email = "올바른 이메일 형식이 아닙니다";
+        }
+        break;
+  
+      case "password":
+        if (!value) {
+          newError.password = "비밀번호를 입력해주세요";
+        } else if (!/(?=.*[a-z])(?=.*[A-Z])(?=.*[@$!%*?&]).{8,}$/.test(value)) {
+          newError.password = "최소 8자 이상이며, 대소문자, 특수문자가 포함해야 합니다.";
+        }
+        break;
+  
+      default:
+        break;
     }
-    if (!formData.password) {
-      newErrors.password = "비밀번호를 입력해주세요";
-    }
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
+  
+    return newError;
   };
   //================================================================================================
   //================================================================================================
   //================================================================================================
   //================================================================================================
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((prev) => {
+      const newFormData = { ...prev, [name]: value };
+      const newErrors = validateField(name, value);
+
+      setErrors((prevErrors) => {
+        const updatedErrors = { ...prevErrors };
+        if (newErrors[name]) {
+          updatedErrors[name] = newErrors[name];
+        } else {
+          delete updatedErrors[name];
+        }
+        return updatedErrors;
+      });
+      return newFormData;
+    });
+  };
+
+  const validateAll = () => {
+    let formValid = true;
+  
+    Object.keys(formData).forEach((field) => {
+  
+      const fieldValue = formData[field];
+      const fieldError = errors[field];
+      // formData 필드가 비어있거나 errors 필드에 오류가 있으면 formValid를 false로 설정
+      if (!fieldValue || fieldValue.trim() === "" || fieldError) {
+        formValid = false;
+      }
+    });
+  
+    return formValid;
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (validate()) {
+
+    // Form 제출 전에 모든 필드의 유효성 검사
+    const newErrors = {};
+    Object.keys(formData).forEach((field) => {
+      const fieldValue = formData[field];
+      const fieldError = validateField(field, fieldValue);
+      if (fieldError && fieldError[field]) {
+        newErrors[field] = fieldError[field]; // 각 필드에 오류 메시지를 저장
+      }
+    });
+    
+    // 모든 오류를 상태에 설정
+    setErrors(newErrors);    
+
+
+    if (validateAll()) {
 
       const {email, password} = formData;
       const data = await AuthApi.login(email, password);
@@ -125,20 +190,6 @@ const LoginPage = () => {
           callbackOk: handleClickMsgPopup
         });
       }
-    }
-  };
-
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
-    if (errors[name]) {
-      setErrors((prev) => ({
-        ...prev,
-        [name]: "",
-      }));
     }
   };
 
@@ -189,45 +240,50 @@ const LoginPage = () => {
             {/* 폼 */}
             <h2 className="form-title">로그인</h2>
             <form onSubmit={handleSubmit} className="form">
-              <div className="input-group-login">
+
+              <div className="form-group">
                 <label className="input-label">이메일</label>
-                <input
-                  type="email"
-                  name="email"
-                  value={formData.email}
-                  onChange={handleChange}
-                  className={`input-field ${errors.email ? "input-error" : ""}`}
-                  placeholder="이메일을 입력하세요"
-                />
-                {errors.email && (
-                  <span className="error-message">{errors.email}</span>
-                )}
+                <div>
+                  <input
+                    type="email"
+                    name="email"
+                    value={formData.email}
+                    onChange={handleChange}
+                    className={`input-field ${errors.email ? "error" : ""}`}
+                    placeholder="이메일을 입력하세요"
+                  />
+                </div>
+                <span className="auth-error-message" 
+                  style={{visibility: errors.email ? 'visible' : 'hidden'}}>
+                  {errors.email || 'blank'} 
+                </span>              
               </div>
-              <div className="input-group-login">
+
+              <div className="form-group">
                 <label className="input-label">비밀번호</label>
-                <div className="password-container">
+                <div className="password-input">
                   <input
                     type={showPassword ? "text" : "password"}
                     name="password"
                     value={formData.password}
                     onChange={handleChange}
-                    className={`input-field ${
-                      errors.password ? "input-error" : ""
-                    }`}
+                    className={`input-field ${errors.password ? "error" : ""}`}
                     placeholder="비밀번호를 입력하세요"
                   />
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="toggle-password"
+                    className="password-toggle"
                   >
                     {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
                   </button>
                 </div>
-                {errors.password && (
-                  <span className="error-message">{errors.password}</span>
-                )}
+                <span className="auth-error-message" 
+                  style={{visibility: errors.password ? 'visible' : 'hidden'}}>
+                  {errors.password || 'blank'} 
+                </span>    
               </div>
+
               <button type="submit" className="submit-button">
                 로그인
               </button>

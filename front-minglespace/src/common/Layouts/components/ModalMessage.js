@@ -18,9 +18,9 @@ const ModalMessage = ({message}) => {
 
         {/* 버튼들 */}
         <div className="modal-message-button-container">
-          {message.callbackOk && <button type="submit" className="modal-message-button-common" onClick={message.callbackOk}>확인</button> }
-          {message.callbackYes && <button type="submit" className="modal-message-button-common" onClick={message.callbackYes}>네</button> }
-          {message.callbackNo && <button type="submit" className="modal-message-button-common" onClick={message.callbackNo}>아니요</button> }
+          {message.callbackOk && <button type="submit" className="auth-button-yes" onClick={message.callbackOk}>확인</button> }
+          {message.callbackYes && <button type="submit" className="auth-button-yes" onClick={message.callbackYes}>네</button> }
+          {message.callbackNo && <button type="submit" className="auth-button-no" onClick={message.callbackNo}>아니요</button> }
         </div>
       </div>
     </div>

@@ -18,42 +18,96 @@ const ChangePwPage = () => {
     confirmPassword: "",
   });
 
-  const validate = useCallback(() => {
-    const newErrors = {};
-
-    if (!formData.email) {
-      newErrors.email = "이메일을 입력해주세요";
-    } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
-      newErrors.email = "올바른 이메일 형식이 아닙니다";
-    }
-
-    if (!formData.password) {
-      newErrors.password = "비밀번호를 입력해주세요";
-    } else if (!/(?=.*[a-z])(?=.*[A-Z])(?=.*[@$!%*?&]).{8,}$/.test(formData.password)) {
-      newErrors.password = "최소 8자 이상이며, 대소문자, 특수문자가 포함해야 합니다.";
-    }
-
-    if (formData.password !== formData.confirmPassword) {
-      newErrors.confirmPassword = "비밀번호가 일치하지 않습니다";
-    }
-
-    setErrors(newErrors);
-    
-    return Object.keys(newErrors).length === 0;
-
-  }, [formData]);
-
-  useEffect(() => {
-    validate();
-  }, [formData, validate]);
-
-
   //===============================================================================================
   //===============================================================================================
   //===============================================================================================
+  
+  const validateField = (name, value) => {
+  
+    const newError = {};
+  
+    switch (name) {
+      case "email":
+        if (!value) {
+          newError.email = "이메일을 입력해주세요";
+        } else if (!/\S+@\S+\.\S+/.test(value)) {
+          newError.email = "올바른 이메일 형식이 아닙니다";
+        }
+        break;
+  
+      case "password":
+        if (!value) {
+          newError.password = "비밀번호를 입력해주세요";
+        } else if (!/(?=.*[a-z])(?=.*[A-Z])(?=.*[@$!%*?&]).{8,}$/.test(value)) {
+          newError.password = "최소 8자 이상이며, 대소문자, 특수문자가 포함해야 합니다.";
+        }
+        break;
+  
+      case "confirmPassword":
+        if (formData.password && value !== formData.password) {
+          newError.confirmPassword = "비밀번호가 일치하지 않습니다";
+        }
+        break;
+  
+      default:
+        break;
+    }
+  
+    return newError;
+  };
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((prev) => {
+      const newFormData = { ...prev, [name]: value };
+      const newErrors = validateField(name, value);
+
+      setErrors((prevErrors) => {
+        const updatedErrors = { ...prevErrors };
+        if (newErrors[name]) {
+          updatedErrors[name] = newErrors[name];
+        } else {
+          delete updatedErrors[name];
+        }
+        return updatedErrors;
+      });
+      return newFormData;
+    });
+  };
+
+  const validateAll = () => {
+    let formValid = true;
+  
+    Object.keys(formData).forEach((field) => {
+  
+      const fieldValue = formData[field];
+      const fieldError = errors[field];
+      // formData 필드가 비어있거나 errors 필드에 오류가 있으면 formValid를 false로 설정
+      if (!fieldValue || fieldValue.trim() === "" || fieldError) {
+        formValid = false;
+      }
+    });
+  
+    return formValid;
+  };
+
   const handleClickRequest = async (e) => {
     e.preventDefault();
-    if (validate()) {
+
+    // Form 제출 전에 모든 필드의 유효성 검사
+    const newErrors = {};
+    Object.keys(formData).forEach((field) => {
+      const fieldValue = formData[field];
+      const fieldError = validateField(field, fieldValue);
+      if (fieldError && fieldError[field]) {
+        newErrors[field] = fieldError[field]; // 각 필드에 오류 메시지를 저장
+      }
+    });
+    
+    // 모든 오류를 상태에 설정
+    setErrors(newErrors);
+
+    if (validateAll()) {
       setMessage({
         title: "확인", 
         content: "비밀번호를 변경 하시겠습니까?",  
@@ -93,13 +147,7 @@ const ChangePwPage = () => {
     navigate("/auth/login");
   };
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
-  };
+
   //===============================================================================================
   //===============================================================================================
   //===============================================================================================
@@ -130,32 +178,34 @@ const ChangePwPage = () => {
             <h2 className="form-title">비밀번호 변경</h2>
               {/* 폼 */}
               <form onSubmit={handleClickRequest}>
+
                 <div className="form-group">
-                  <label>이메일</label>
-                  <div className="input-group">
+                  <label className="input-label">이메일</label>
+                  <div>
                     <input
                       type="email"
                       name="email"
                       value={formData.email}
                       onChange={handleChange}
-                      className={`input ${errors.email ? "error" : ""}`}
+                      className={`input-field ${errors.email ? "error" : ""}`}
                       placeholder="이메일을 입력하세요"
                     />
                   </div>
-                  {errors.email && (
-                    <span className="error-message">{errors.email}</span>
-                  )}
-                </div>
+                  <span className="auth-error-message" 
+                    style={{visibility: errors.email ? 'visible' : 'hidden'}}>
+                    {errors.email || 'blank'} 
+                  </span>              
+                </div>                
 
                 <div className="form-group">
-                  <label>비밀번호</label>
+                  <label className="input-label">비밀번호</label>
                   <div className="password-input">
                     <input
                       type={showPassword ? "text" : "password"}
                       name="password"
                       value={formData.password}
                       onChange={handleChange}
-                      className={`input ${errors.password ? "error" : ""}`}
+                      className={`input-field ${errors.password ? "error" : ""}`}
                       placeholder="비밀번호를 입력하세요"
                     />
                     <button
@@ -166,20 +216,21 @@ const ChangePwPage = () => {
                       {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
                     </button>
                   </div>
-                  {errors.password && (
-                    <span className="error-message">{errors.password}</span>
-                  )}
+                  <span className="auth-error-message" 
+                    style={{visibility: errors.password ? 'visible' : 'hidden'}}>
+                    {errors.password || 'blank'} 
+                  </span>    
                 </div>
 
                 <div className="form-group">
-                  <label>비밀번호 확인</label>
+                  <label className="input-label">비밀번호 확인</label>
                   <div className="password-input">
                     <input
                       type={showConfirmPassword ? "text" : "password"}
                       name="confirmPassword"
                       value={formData.confirmPassword}
                       onChange={handleChange}
-                      className={`input ${errors.confirmPassword ? "error" : ""}`}
+                      className={`input-field ${errors.confirmPassword ? "error" : ""}`}
                       placeholder="비밀번호를 다시 입력하세요"
                     />
                     <button
@@ -194,19 +245,16 @@ const ChangePwPage = () => {
                       )}
                     </button>
                   </div>
-                  {errors.confirmPassword && (
-                    <span className="error-message">{errors.confirmPassword}</span>
-                  )}
+                  <span className="auth-error-message" 
+                    style={{visibility: errors.confirmPassword ? 'visible' : 'hidden'}}>
+                    {errors.confirmPassword || 'blank'} 
+                  </span>    
                 </div>
 
                 <div className="form-group">
-                  <div className="input">
+                  <div className="input input-label">
                     비밀번호를 변경하면<br/>이메일 인증후 반영됩니다.
                   </div>
-                </div>
-
-                <div className="divider-container">
-                  <div className="divider"></div>
                 </div>
 
                 <button type="submit" className="submit-button">변경하기</button>
