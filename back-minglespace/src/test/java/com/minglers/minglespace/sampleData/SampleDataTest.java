@@ -102,9 +102,9 @@ public class SampleDataTest {
     public void insertUserTest() {
         userRepository.save(User.builder()
                 .name(generateRandomKoreanName())
-                .email("123@123.com")
+                .email("test@naver.com")
                 .introduction("안녕하세요")
-                .password(passwordEncoder.encode("123"))
+                .password(passwordEncoder.encode("123123"))
                 .phone("000-0000-0000")
                 .withdrawalType(WithdrawalType.NOT)
                 .position(generateRandomPosition())
@@ -112,7 +112,19 @@ public class SampleDataTest {
                 .provider(Provider.MINGLESPACE)
                 .verificationCode("")
                 .build());
-        for(int i = 0; i<100; i ++){
+        userRepository.save(User.builder()
+                .name(generateRandomKoreanName())
+                .email(generateRandomEmail())
+                .introduction("안녕하세요")
+                .password(passwordEncoder.encode("123123"))
+                .phone("000-0000-0000")
+                .withdrawalType(WithdrawalType.DONE)
+                .position(generateRandomPosition())
+                .role("ADMIN")
+                .provider(Provider.MINGLESPACE)
+                .verificationCode("")
+                .build());
+        for(int i = 0; i<50; i ++){
             userRepository.save(User.builder()
                     .name(generateRandomKoreanName())
                     .email(generateRandomEmail())
@@ -134,7 +146,7 @@ public class SampleDataTest {
     @Commit
     public void insertFriendTest() {
         User user = userRepository.findById(1L).orElseThrow();
-        for (int i = 2; i < 50; i++) {
+        for (int i = 2; i < 25; i++) {
             User userfriend = userRepository.findById((long) i).orElseThrow();
             userFriendRepository.save(UserFriend.builder()
                     .user(user)

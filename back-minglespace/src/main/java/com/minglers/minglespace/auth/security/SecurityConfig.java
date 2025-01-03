@@ -111,7 +111,7 @@ public class SecurityConfig {
             .requestMatchers("/api/user/**").hasAnyAuthority("USER")
             .requestMatchers("/api/adminuser/**").hasAnyAuthority("ADMIN", "USER")
             .requestMatchers("/", "/index.html", "/static/**", "/profile1.png", "/workspace/**",
-                    "/myfriends/**", "/auth/**", "/aboutus/**", "/main/**").permitAll()
+                    "/myfriends/**", "/auth/**", "/aboutus/**", "/main/**", "/minglespace_logo.png", "/favicon.ico").permitAll()
             .anyRequest().authenticated());
 
     http.sessionManagement(manager -> manager.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
