@@ -30,7 +30,7 @@ class Api {
     // 요청 인터셉터 설정
     this.axiosIns.interceptors.request.use(
       (config) => {
-        console.log("요청 : ", config.url);
+        console.log("요청 : ", config.baseURL + config.url);
 
         const skipToken = this.isTokenSkipPacket(config.url);
         const accessToken = Repo.getAccessToken();

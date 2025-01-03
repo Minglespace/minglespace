@@ -63,7 +63,7 @@
 
 .common-button {
   width: 100%;
-  color: white;
+  color: rgb(39, 35, 35);
   border: none;
   border-radius: 0.375rem;
   padding: 0.75rem;
@@ -73,11 +73,51 @@
 
 .submit-button {
   @extend .common-button;
-  background-color: var(--color-button-submit);
+  background-color: var(--button-color-positive);
   &:hover {
-    background-color: var(--color-button-submit-hover);
+    background-color: var(--button-color-positive-hover);
   }
 }
+
+.auth-button-withdrawal-enroll {
+  @extend .common-button;
+  background-color: var(--button-color-positive);
+  &:hover {
+    background-color: var(--button-color-positive-hover);
+  }
+}
+.auth-button-withdrawal-immediate {
+  @extend .common-button;
+  background-color: var(--button-color-positive);
+  &:hover {
+    background-color: var(--button-color-positive-hover);
+  }
+}
+.auth-button-withdrawal-email {
+  @extend .common-button;
+  background-color: var(--button-color-update);
+  &:hover {
+    background-color: var(--button-color-update-hover);
+  }
+}
+
+.auth-button-withdrawal-cancel {
+  @extend .common-button;
+  background-color: var(--button-color-cancel);
+  &:hover {
+    background-color: var(--button-color-cancel-hover);
+  }
+}
+
+.auth-button-withdrawal-logout {
+  @extend .common-button;
+  background-color: var(--button-color-cancel);
+  &:hover {
+    background-color: var(--button-color-cancel-hover);
+  }
+}
+
+
 
 .logout-button {
   @extend .common-button;
@@ -87,13 +127,16 @@
   }
 }
 
-.logout-button-info {
+.auth-button {
   display: flex;
   justify-content: center;
   align-items: center;
   width: 80%;
   gap: 8px;
+  
   padding: 8px 16px;
+  margin: 0 10px; /* 버튼들 간의 간격 */
+
   font-size: 14px;
   font-weight: 500;
   color: #4b5563; /* text-gray-700 */
@@ -103,15 +146,63 @@
   cursor: pointer;
 }
 
-.logout-button-info:hover {
-  background-color: #f3f4f6; /* hover:bg-gray-100 */
+.auth-button-save {
+  @extend .auth-button;
+  background-color: var(--button-color-positive);
+  &:hover {
+    background-color: var(--button-color-positive-hover);
+  }
 }
 
-.userInfo-button {
-  padding: 8px 16px;
-  font-size: 14px;
-  color: #4b5563; /* text-gray-700 */
-  background-color: #f9fafb; /* bg-gray-50 */
-  border-radius: 8px;
-  cursor: pointer;
+.auth-button-cancel {
+  @extend .auth-button;
+  background-color: var(--button-color-cancel);
+  &:hover {
+    background-color: var(--button-color-cancel-hover);
+  }
 }
+
+
+.auth-button-withdrawal {
+  @extend .auth-button;
+  background-color: var(--button-color-negative);
+  &:hover {
+    background-color: var(--button-color-negative-hover);
+  }
+}
+
+
+.auth-button-change {
+  @extend .auth-button;
+  background-color: var(--button-color-update);
+  &:hover {
+    background-color: var(--button-color-update-hover);
+  }
+}
+
+
+.auth-button-logout {
+  @extend .auth-button;
+  background-color: var(--button-color-cancel);
+  &:hover {
+    background-color: var(--button-color-cancel-hover);
+  }
+}
+
+.auth-button-yes {
+  @extend .auth-button;
+  background-color: var(--button-color-positive);
+  &:hover {
+    background-color: var(--button-color-positive-hover);
+  }
+}
+
+.auth-button-no {
+  @extend .auth-button;
+  background-color: var(--button-color-cancel);
+  &:hover {
+    background-color: var(--button-color-cancel-hover);
+  }
+}
+
+

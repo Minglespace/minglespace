@@ -33,9 +33,9 @@ public class WithdrawalFilter extends OncePerRequestFilter {
 
   // 검사대상 제외 URL 목록
   String[] checkUrlList = {
-          "/auth/logout",
-          "/auth/verify",
-          "/auth/withdrawal/",
+          "/api/auth/logout",
+          "/api/auth/verify",
+          "/api/auth/withdrawal/",
   };
 
   @Override

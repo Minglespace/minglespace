@@ -251,38 +251,74 @@ const WithdrawalPage = () => {
             <h2 className="form-title">회원탈퇴</h2>
             {info && (
               <>
-                <div className="form-group">
-                  <p >이메일</p>
-                  <p className="input-field" >{info.email}</p>
+
+<div className="form-group">
+                  <label className="input-label">이메일</label>
+                  <div>
+                    <input
+                      type="email"
+                      name="email"
+                      className="input-field"
+                      value={info.email}
+                      disabled
+                    />
+                  </div>
                 </div>
                 <div className="form-group">
-                  <p >이름</p>
-                  <p className="input-field" >{info.name}</p>
+                  <label className="input-label">이름</label>
+                  <div>
+                    <input
+                      type="text"
+                      name="name"
+                      className="input-field"
+                      value={info.name}
+                      disabled
+                    />
+                  </div>
                 </div>
                 <div className="form-group">
-                  <p className="input-label">상태</p>
-                  <p className="input-field" >{getWithdrawalMessage(info.withdrawalType)}</p>
+                  <label className="input-label">상태</label>
+                  <div>
+                    <input
+                      type="text"
+                      name="name"
+                      className="input-field"
+                      value={getWithdrawalMessage(info.withdrawalType)}
+                      disabled
+                    />
+                  </div>
                 </div>
+
                 {info.expireDate &&
                   <div className="form-group">
-                    <p >만료일</p>
-                    <p className="input-field">{info.expireDate && `${formatDate(info.expireDate)} 이후에 회원탈퇴 처리 됩니다.`}</p>
-                  </div>
+                    <label className="input-label">만료일</label>
+                    <div>
+                      <input
+                        type="text"
+                        name="name"
+                        className="input-field"
+                        value={
+                          info.expireDate && `${formatDate(info.expireDate)} 이후에 회원탈퇴 처리 됩니다.`
+                        }
+                        disabled
+                      />
+                    </div>
+                  </div>                
                 }
               </>
             )}
             <div className="divider-container">
               <div className="divider"></div>
             </div>
-            <button className="submit-button" onClick={handleClickEnroll}>회원 탈퇴 신청</button>
-            <button className="submit-button" onClick={handleClickImmediately}>즉시 회원 탈퇴</button>
-            <button className="submit-button" onClick={handleClickCancel}>회원 탈퇴 취소</button>
-            <button className="submit-button" onClick={handleClickReEmail}>이메일 인증 재전송</button>
+            <button className="auth-button-withdrawal-enroll" onClick={handleClickEnroll}>회원 탈퇴 신청</button>
+            <button className="auth-button-withdrawal-immediate" onClick={handleClickImmediately}>즉시 회원 탈퇴</button>
+            <button className="auth-button-withdrawal-email" onClick={handleClickReEmail}>이메일 인증 재전송</button>
+            <button className="auth-button-withdrawal-cancel" onClick={handleClickCancel}>회원 탈퇴 취소</button>
             <div className="divider-container">
               <div className="divider"></div>
               {/* <span className="divider-text">-</span> */}
             </div>
-            <button className="logout-button" onClick={handleClickLogout}>로그아웃</button>
+            <button className="auth-button-withdrawal-logout" onClick={handleClickLogout}>로그아웃</button>
           </div>
         </div>
       </div>

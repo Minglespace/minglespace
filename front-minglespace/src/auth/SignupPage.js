@@ -174,7 +174,6 @@ const SignupPage = () => {
       });
     }
   };
-  
 
   const handlePopupCloseGotoLogin = () => {
     navigate("/auth/login", { state: { from: location.state?.from } });
@@ -209,33 +208,34 @@ const SignupPage = () => {
           <h2 className="form-title">회원가입</h2>
           {/* 폼 */}
           <form onSubmit={handleSubmit}>
+
             <div className="form-group">
-              <label>이메일</label>
-              <div className="input-group">
+              <label className="input-label">이메일</label>
+              <div>
                 <input
                   type="email"
                   name="email"
                   value={formData.email}
                   onChange={handleChange}
-                  className={`input ${errors.email ? "error" : ""}`}
+                  className={`input-field ${errors.email ? "error" : ""}`}
                   placeholder="이메일을 입력하세요"
                 />
               </div>
-              <span className="error-message" 
+              <span className="auth-error-message" 
                 style={{visibility: errors.email ? 'visible' : 'hidden'}}>
                 {errors.email || 'blank'} 
               </span>              
             </div>
 
             <div className="form-group">
-              <label>비밀번호</label>
+              <label className="input-label">비밀번호</label>
               <div className="password-input">
                 <input
                   type={showPassword ? "text" : "password"}
                   name="password"
                   value={formData.password}
                   onChange={handleChange}
-                  className={`input ${errors.password ? "error" : ""}`}
+                  className={`input-field ${errors.password ? "error" : ""}`}
                   placeholder="비밀번호를 입력하세요"
                 />
                 <button
@@ -246,21 +246,21 @@ const SignupPage = () => {
                   {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
                 </button>
               </div>
-              <span className="error-message" 
+              <span className="auth-error-message" 
                 style={{visibility: errors.password ? 'visible' : 'hidden'}}>
                 {errors.password || 'blank'} 
               </span>    
             </div>
 
             <div className="form-group">
-              <label>비밀번호 확인</label>
+              <label className="input-label">비밀번호 확인</label>
               <div className="password-input">
                 <input
                   type={showConfirmPassword ? "text" : "password"}
                   name="confirmPassword"
                   value={formData.confirmPassword}
                   onChange={handleChange}
-                  className={`input ${errors.confirmPassword ? "error" : ""}`}
+                  className={`input-field ${errors.confirmPassword ? "error" : ""}`}
                   placeholder="비밀번호를 다시 입력하세요"
                 />
                 <button
@@ -275,66 +275,66 @@ const SignupPage = () => {
                   )}
                 </button>
               </div>
-              <span className="error-message" 
+              <span className="auth-error-message" 
                 style={{visibility: errors.confirmPassword ? 'visible' : 'hidden'}}>
                 {errors.confirmPassword || 'blank'} 
               </span>    
             </div>
 
             <div className="form-group">
-              <label>이름</label>
+              <label className="input-label">이름</label>
               <input
                 type="text"
                 name="name"
                 value={formData.name}
                 onChange={handleChange}
-                className={`input ${errors.name ? "error" : ""}`}
+                className={`input-field ${errors.name ? "error" : ""}`}
                 placeholder="이름을 입력하세요"
               />
-              <span className="error-message" 
+              <span className="auth-error-message" 
                 style={{visibility: errors.name ? 'visible' : 'hidden'}}>
                 {errors.name || 'blank'} 
               </span>                  
             </div>
 
             <div className="form-group">
-              <label>전화번호</label>
+              <label className="input-label">전화번호</label>
               <input
                 type="tel"
                 name="phone"
                 value={formData.phone}
                 onChange={handleChange}
-                className={`input ${errors.phone ? "error" : ""}`}
+                className={`input-field ${errors.phone ? "error" : ""}`}
                 placeholder="전화번호를 입력하세요"
               />
-              <span className="error-message" 
+              <span className="auth-error-message" 
                 style={{visibility: errors.phone ? 'visible' : 'hidden'}}>
                 {errors.phone || 'blank'} 
               </span>                  
             </div>
 
             <div className="form-group">
-              <label>직책</label>
+              <label className="input-label">직책</label>
               <input
                 type="text"
                 name="position"
                 value={formData.position}
                 onChange={handleChange}
-                className={`input ${errors.position ? "error" : ""}`}
+                className={`input-field ${errors.position ? "error" : ""}`}
                 placeholder="직책을 입력하세요"
               />
               {errors.position && (
-                <span className="error-message">{errors.position}</span>
+                <span className="auth-error-message">{errors.position}</span>
               )}
             </div>
 
             <div className="form-group">
-              <label>소개글</label>
+              <label className="input-label">소개글</label>
               <textarea
                 name="introduction"
                 value={formData.introduction}
                 onChange={handleChange}
-                className="input text-area"
+                className="input-field text-area"
                 placeholder="자기소개를 입력하세요"
               />
             </div>

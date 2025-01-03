@@ -276,14 +276,14 @@ export default function UserInfoPopup() {
                     userName={userInfo.name}
                   />
                   <button
-                    className="userInfo-button"
+                    className="select_img_btn"
                     onClick={() => fileInputRef.current.click()} // 버튼 클릭 시 파일 선택창 열기
                     disabled={userInfo.socialLogin}
                   >
                     변경
                   </button>
                   <button
-                    className="userInfo-button"
+                    className="delete_img_btn"
                     onClick={handleClickDontUseImage}
                     disabled={userInfo.socialLogin}
                   >
@@ -387,27 +387,27 @@ export default function UserInfoPopup() {
           <div className="popup-footer">
             {isEditing ? (
               <>
-                <button onClick={handleSaveChanges} className="logout-button-info">
+                <button onClick={handleSaveChanges} className="auth-button-save">
                   저장
                 </button>
                 <button
                   onClick={() => setIsEditing(false)} // Exit edit mode
-                  className="logout-button-info"
+                  className="auth-button-cancel"
                 >
                   취소
                 </button>
               </>
             ) : (
               <>
-                <button onClick={handleClickWithdrawalEmail} className="logout-button-info">
+                <button onClick={handleClickWithdrawalEmail} className="auth-button-withdrawal">
                   <Settings size={16} />
                   회원탈퇴
                 </button>
-                <button onClick={handleClickSetting} className="logout-button-info">
+                <button onClick={handleClickSetting} className="auth-button-change">
                   <Settings size={16} />
                   정보변경
                 </button>
-                <button onClick={handleClickLogout} className="logout-button-info">
+                <button onClick={handleClickLogout} className="auth-button-logout">
                   <LogOut size={16} />
                   로그아웃
                 </button>
