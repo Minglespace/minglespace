@@ -1,7 +1,7 @@
-﻿import React, { useCallback, useContext, useEffect, useState } from "react";
+﻿import React, { useContext, useEffect, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import UserInfoPopup from "../../../auth/UserInfoPopup";
-import { FiMoreVertical } from "react-icons/fi";
+import { FaPenToSquare } from "react-icons/fa6";
 import {
   getErrorStatus,
   getErrorMessage,
@@ -108,28 +108,34 @@ const Header = () => {
     <header>
       {/* <h1>Mingle Space에 오신것을 환영합니다.</h1> */}
       <Link to="/">
-        <img className="logo_icon" src="/profile1.png" alt="" />
+        <img className="logo_icon" src="/minglespace_logo.png" alt="" />
       </Link>
-      <h1 className="title">{workspaceData.name}</h1>
+      <div className={workspaceData.id ? "title_and_icon" : ""}>
+        <h1 className={workspaceData.id ? "title left_align" : "title"}>
+          {workspaceData.name}
+        </h1>
+        {role === "LEADER" ? (
+          <div className="menu_container">
+            <FaPenToSquare className="menu_icon" onClick={handleMenuToggle} />
+            {menuOpen && (
+              <div
+                className="menu_dropdown"
+                onClick={(e) => e.stopPropagation()}
+              >
+                <p className="menu_item" onClick={handleOpenModal}>
+                  수정
+                </p>
+                <p className="menu_item" onClick={handleDeleteClick}>
+                  삭제
+                </p>
+              </div>
+            )}
+          </div>
+        ) : (
+          <></>
+        )}
+      </div>
 
-      {/* 버튼을 우측 정렬하는 div */}
-      {role === "LEADER" ? (
-        <div className="menu_container">
-          <FiMoreVertical className="menu_icon" onClick={handleMenuToggle} />
-          {menuOpen && (
-            <div className="menu_dropdown" onClick={(e) => e.stopPropagation()}>
-              <p className="menu_item" onClick={handleOpenModal}>
-                수정
-              </p>
-              <p className="menu_item" onClick={handleDeleteClick}>
-                삭제
-              </p>
-            </div>
-          )}
-        </div>
-      ) : (
-        <></>
-      )}
       <div
         className="button-container"
         style={{ display: "flex", alignItems: "center" }}

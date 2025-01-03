@@ -104,19 +104,22 @@ const CalendarFormModal = ({
         <div className="calendar_modal_editbuttons">
           {formData.id ? (
             <>
-              <button className="add_button_2" onClick={handleModifyCalendar}>
+              <button className="calendar_edit" onClick={handleModifyCalendar}>
                 수정
               </button>
-              <button className="exit_button" onClick={handleDeleteCalendar}>
+              <button
+                className="calendar_delete"
+                onClick={handleDeleteCalendar}
+              >
                 삭제
               </button>
             </>
           ) : (
-            <button className="add_button_2" onClick={handleAddCalendar}>
+            <button className="calendar_add" onClick={handleAddCalendar}>
               추가
             </button>
           )}
-          <button className="cancle_button" onClick={handleModalClose}>
+          <button className="calendar_cancel" onClick={handleModalClose}>
             닫기
           </button>
         </div>

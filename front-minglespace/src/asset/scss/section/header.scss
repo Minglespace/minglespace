@@ -14,12 +14,52 @@ header {
     height: 80px;
     margin-left: 10px;
   }
-  .title {
-    margin-left: 10px;
-  }
-  .menu_container {
-    position: absolute;
-    top: 40px;
-    left: 90%;
+
+  .title_and_icon {
+    margin-right: auto;
+    position: relative;
+    .title {
+      margin-left: 10px;
+    }
+    .left_align {
+      margin-left: 50px;
+      margin-right: auto;
+    }
+    .menu_container {
+      position: absolute;
+      color: #555;
+      right: -80px;
+      bottom: 4px;
+    }
+    .menu_dropdown {
+      position: absolute;
+      right: -110px;
+      bottom: -25px;
+      .menu_item:first-child {
+        background-color: var(--button-color-update);
+        box-shadow: 2px 2px 2px #888;
+
+        &:hover {
+          background-color: var(--button-color-update-hover);
+          box-shadow: 2px 2px 2px #000;
+        }
+      }
+      .menu_item:last-child {
+        background-color: var(--button-color-negative);
+        box-shadow: 2px 2px 2px #888;
+        &:hover {
+          background-color: var(--button-color-negative-hover);
+          box-shadow: 2px 2px 2px #000;
+        }
+      }
+      .menu_item {
+        width: 100px;
+        margin: 5px 0;
+        text-align: center;
+        padding: 5px 10px;
+        border-radius: 5px;
+        z-index: 5000;
+      }
+    }
   }
 }

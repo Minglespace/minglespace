@@ -71,15 +71,15 @@
 }
 ::-webkit-scrollbar-track {
   border-radius: 10px; /* 트랙 모서리 둥글게 */
-  background-color: #7f8fdf;
+  background-color: #f9f3cc;
 }
 ::-webkit-scrollbar-thumb {
-  background: #0061f3; /* 스크롤바 색상 */
+  background: #c4dbaf; /* 스크롤바 색상 */
   border-radius: 10px; /* 스크롤바 모서리 둥글게 */
-  border: 3px solid #e4efff;
+  border: 3px solid #f9f3cc;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #8034fc; /* 호버 시 스크롤바 색상 */
+  background: #99bc85; /* 호버 시 스크롤바 색상 */
 }
 
 .workspace_member_count {
@@ -272,24 +272,25 @@
     justify-content: end;
     .add_button {
       margin-left: 10px;
-      background-color: #7f8fdf;
+      background-color: var(--button-color-positive);
       color: #fff;
       width: 80px;
       border-radius: 10px;
       padding: 5px;
       cursor: pointer;
       &:hover {
-        background-color: #5c6ac4;
+        background-color: var(--button-color-positive-hover);
       }
     }
     .cancle_button {
-      background-color: lightgray;
+      margin-left: 10px;
+      background-color: var(--button-color-cancel);
       width: 80px;
       border-radius: 10px;
       padding: 5px;
       cursor: pointer;
       &:hover {
-        background-color: gray;
+        background-color: var(--button-color-cancel-hover);
       }
     }
   }
