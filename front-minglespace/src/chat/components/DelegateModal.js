@@ -41,16 +41,14 @@ const DelegateModal = ({ onClose, participants }) => {
                     ? "selected"
                     : ""
                 }
-                // style={{
-                //   backgroundColor:
-                //     selectedUser?.wsMemberId === member.wsMemberId
-                //       ? "#f9f5f6"
-                //       : "transparent",
-                // }}
               >
                 {member.email}
                 <button
-                  className="invite-btn"
+                  className={`invite-btn ${
+                    selectedUser?.wsMemberId === member.wsMemberId
+                      ? "selected"
+                      : ""
+                  }`}
                   onClick={() => handleUserSelect(member)}
                 >
                   위임

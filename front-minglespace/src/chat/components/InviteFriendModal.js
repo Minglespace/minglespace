@@ -156,7 +156,6 @@ const InviteFriendModal = ({ onClose, participants, onUpdateChatRoom }) => {
             </button>
             <button
               className="delete_img_btn"
-              // style={{ marginLeft: "10px" }}
               onClick={handleImageDelete} // 버튼 클릭 시 파일 선택창 열기
             >
               삭제
