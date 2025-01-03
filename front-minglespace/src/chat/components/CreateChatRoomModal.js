@@ -26,10 +26,16 @@ const CreateChatRoomModal = ({ isOpen, onClose }) => {
 
   //폼에서 채팅방 이름을 변경하는 함수
   const handleInputChange = (e) => {
-    setNewChatRoomData((prev) => ({
-      ...prev,
-      name: e.target.value,
-    }));
+    const value = e.target.value;
+    if (value.length > 20) {
+      setErrorMsg("채팅방 이름은 20자 이하만 가능합니다.");
+    } else {
+      setErrorMsg("");
+      setNewChatRoomData((prev) => ({
+        ...prev,
+        name: value,
+      }));
+    }
   };
 
   const handleMemberSelect = (e, memberId) => {
@@ -139,6 +145,7 @@ const CreateChatRoomModal = ({ isOpen, onClose }) => {
             value={newChatRoomData.name}
             onChange={handleInputChange}
             placeholder="채팅방 이름을 입력해주세요"
+            maxLength={30}
           />
 
           {/* 친구 추가 목록 */}
