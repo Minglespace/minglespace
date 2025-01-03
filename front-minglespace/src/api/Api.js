@@ -2,8 +2,7 @@
 import Repo from "../auth/Repo";
 import { AuthStatus } from "./AuthStatus";
 
-// const HOST_URL_BASE = "http://minglespace.store";
-const HOST_URL_BASE = "http://localhost:8080";
+const HOST_URL_BASE = "http://minglespace.store";
 const HOST_URL = HOST_URL_BASE + "/api";
 
 axios.defaults.withCredentials = true;
