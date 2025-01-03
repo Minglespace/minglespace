@@ -9,7 +9,7 @@ const Modal = ({ open, onClose, children }) => {
         <button className="modal-close-button" onClick={onClose}>
           X
         </button>
-        {children}
+        <div style={{ marginTop: "13px" }}>{children}</div>
       </div>
     </div>
   );

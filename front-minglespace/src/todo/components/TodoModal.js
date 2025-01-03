@@ -4,6 +4,7 @@ import { useParams } from "react-router-dom";
 import MembersApi from "../../api/membersApi";
 import Userinfo from "../../common/Layouts/components/Userinfo";
 import { formatDateToKST } from "../../common/DateFormat/dateUtils";
+import Confirm from "../../common/Layouts/components/Confirm";
 
 const initTodo = {
   title: "",
@@ -31,6 +32,7 @@ const TodoModal = React.memo(
     const titleRef = useRef(null);
     const contentRef = useRef(null);
     const [complete, setComplete] = useState(false);
+    const [confirmModalOpen, setConfirmModalOpen] = useState(false);
 
     useEffect(() => {
       if (editingTodo) {
@@ -116,6 +118,10 @@ const TodoModal = React.memo(
         onAdd(newTodo);
         onRendering(false);
       }
+    };
+    const handleDelete = () => {
+      setConfirmModalOpen(false);
+      onDelete();
     };
 
     return (
@@ -238,7 +244,7 @@ const TodoModal = React.memo(
                   ))}
                 </div>
               )}
-              <div>
+              <div className="completely">
                 <label>완료여부 : </label>
                 <input
                   type="checkbox"
@@ -255,18 +261,30 @@ const TodoModal = React.memo(
                   Save
                 </button>
               )}
-              <button className="cancle_button" onClick={onClose}>
-                Cancel
-              </button>
               {editingTodo && (role === "LEADER" || role === "SUB_LEADER") ? (
-                <button className="exit_button" onClick={onDelete}>
+                <button
+                  className="exit_button todo_delete_button"
+                  onClick={() => setConfirmModalOpen(true)}
+                >
                   Delete
                 </button>
               ) : (
                 <></>
               )}
+              <button className="cancle_button" onClick={onClose}>
+                Cancel
+              </button>
             </div>
           </div>
+        </Modal>
+        <Modal
+          open={confirmModalOpen}
+          onClose={() => setConfirmModalOpen(false)}
+        >
+          <Confirm
+            onDelete={handleDelete}
+            onClose={() => setConfirmModalOpen(false)}
+          />
         </Modal>
       </div>
     );

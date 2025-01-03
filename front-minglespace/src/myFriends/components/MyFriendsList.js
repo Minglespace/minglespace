@@ -7,11 +7,14 @@ import UserInfoDetail from "../../common/Layouts/components/UserInfoDetail";
 import api, { HOST_URL } from "../../api/Api";
 import { getErrorMessage } from "../../common/Exception/errorUtils";
 import NoData from "../../common/Layouts/components/NoData";
+import Confirm from "../../common/Layouts/components/Confirm";
 
 const MyFriendsList = ({ friends, getFriendList, handelSetFriends }) => {
   const [searchKeyword, setSearchKeyword] = useState("");
   const [selectedUser, setSelectedUser] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [confirmModalOpen, setConfirmModalOpen] = useState(false);
+  const [selectedFriendId, setSelectedFriendId] = useState(null);
 
   //자음체크
   const isValidKoreanCharacter = (char) => {
@@ -47,21 +50,24 @@ const MyFriendsList = ({ friends, getFriendList, handelSetFriends }) => {
     },
     [getFriendList, searchKeyword]
   );
-
+  const handleConfirmModalOpen = (friendId, event) => {
+    event.stopPropagation();
+    setSelectedFriendId(friendId);
+    setConfirmModalOpen(true);
+  };
   //친구삭제 핸들러
   const handleDeleteFriend = useCallback(
     (friendId, event) => {
       event.stopPropagation();
-      if (window.confirm("정말 삭제하시겠습니까?")) {
-        myFriendsApi
-          .remove(friendId)
-          .then((data) => {
-            handelSetFriends(data);
-          })
-          .catch((error) => {
-            alert(`친구삭제 실패 : \n원인:+${getErrorMessage(error)}`);
-          });
-      }
+      myFriendsApi
+        .remove(friendId)
+        .then((data) => {
+          handelSetFriends(data);
+          setConfirmModalOpen(false);
+        })
+        .catch((error) => {
+          alert(`친구삭제 실패 : \n원인:+${getErrorMessage(error)}`);
+        });
     },
     [handelSetFriends]
   );
@@ -115,9 +121,7 @@ const MyFriendsList = ({ friends, getFriendList, handelSetFriends }) => {
               />
               <button
                 className="delete_button"
-                onClick={(event) => {
-                  handleDeleteFriend(userInfo.id, event);
-                }}
+                onClick={(event) => handleConfirmModalOpen(userInfo.id, event)}
               >
                 친구 삭제
               </button>
@@ -131,6 +135,15 @@ const MyFriendsList = ({ friends, getFriendList, handelSetFriends }) => {
                 src={imageUrlPathCheck(selectedUser.profileImagePath)}
               />
             )}
+          </Modal>
+          <Modal
+            open={confirmModalOpen}
+            onClose={() => setConfirmModalOpen(false)}
+          >
+            <Confirm
+              onClose={() => setConfirmModalOpen(false)}
+              onDelete={(event) => handleDeleteFriend(selectedFriendId, event)}
+            />
           </Modal>
         </div>
       )}

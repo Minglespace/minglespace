@@ -10,6 +10,8 @@ import { getErrorMessage } from "../common/Exception/errorUtils";
 import MemberLinkInvite from "./components/MemberLinkInvite";
 import { FiLogOut } from "react-icons/fi";
 import NoData from "../common/Layouts/components/NoData";
+import Modal from "../common/Layouts/components/Modal";
+import Confirm from "../common/Layouts/components/Confirm";
 
 const memberInitData = [
   {
@@ -49,6 +51,8 @@ const Member = () => {
   const [myFriends, setMyFreinds] = useState([...myFriendInitData]);
   //선택됫을때 상세정보 보여주기위한 useState
   const [selectedMember, setSelectedMember] = useState(null);
+  const [modalOpen, setModalOpen] = useState(null);
+  const [confirmModalOpen, setConfirmModalOpen] = useState(false);
   const navigate = useNavigate();
   //멤버 목록조회
   const getMemberList = useCallback(() => {
@@ -89,7 +93,8 @@ const Member = () => {
         .then((data) => {
           getMemberList();
           getFriendList();
-          alert(data);
+          // alert(data);
+          setModalOpen(data);
         })
         .catch((error) => {
           alert(`맴버 초대 실패 : \n원인:+${getErrorMessage(error)}`);
@@ -106,7 +111,8 @@ const Member = () => {
           getMemberList();
           getFriendList();
           setSelectedMember(null);
-          alert(data);
+          // alert(data);
+          setModalOpen(data);
         })
         .catch((error) => {
           alert(`맴버 추방 실패 : \n원인:+${getErrorMessage(error)}`);
@@ -117,18 +123,14 @@ const Member = () => {
 
   //워크스페이스 퇴장 아직 navigate 안붙인 상태
   const handleExitMember = () => {
-    if (role === "LEADER") {
-      alert("리더 권한을 먼저 위임해주시기 바랍니다.");
-    } else {
-      MembersApi.exitMember(workspaceId)
-        .then((data) => {
-          alert(data);
-          navigate("/workspace");
-        })
-        .catch((error) => {
-          alert(`워크스페이스 나가기 실패 : \n원인:+${getErrorMessage(error)}`);
-        });
-    }
+    MembersApi.exitMember(workspaceId)
+      .then((data) => {
+        // alert(data);
+        navigate("/workspace");
+      })
+      .catch((error) => {
+        alert(`워크스페이스 나가기 실패 : \n원인:+${getErrorMessage(error)}`);
+      });
   };
 
   //리더 위임
@@ -139,7 +141,8 @@ const Member = () => {
           getMemberList();
           setSelectedMember(null);
           refreshMemberContext();
-          alert(data);
+          // alert(data);
+          setModalOpen(data);
         })
         .catch((error) => {
           alert(`리더 위임 실패 : \n원인:+${getErrorMessage(error)}`);
@@ -155,7 +158,8 @@ const Member = () => {
         .then((data) => {
           getMemberList();
           setSelectedMember(null);
-          alert(data);
+          // alert(data);
+          setModalOpen(data);
         })
         .catch((error) => {
           alert(`멤버 권한 바꾸기 실패 : \n원인:+${getErrorMessage(error)}`);
@@ -235,14 +239,24 @@ const Member = () => {
       );
     }
   };
+  const handleConfirmModalOpen = () => {
+    if (role === "LEADER") {
+      setModalOpen("리더 권한을 먼저 위임해주시기 바랍니다.");
+    } else {
+      setConfirmModalOpen(true);
+      console.log("setConfirmModalOpen : ", confirmModalOpen);
+    }
+  };
 
   return (
     <div className="myFriends_container">
       <MemberList members={members} onClickMember={handleMemberClick} />
       {renderContent()}
-      <button className="add_button_2" onClick={handleExitMember}>
-        <p style={{ opacity: 0.6, color:"black"}}>
-          워크<br/>스페이스
+      <button className="add_button_2" onClick={handleConfirmModalOpen}>
+        <p style={{ opacity: 0.6, color: "black" }}>
+          워크
+          <br />
+          스페이스
           <br />
           나가기
         </p>
@@ -250,6 +264,18 @@ const Member = () => {
           style={{ marginTop: "10px", fontSize: "40px", opacity: 0.5 }}
         />
       </button>
+
+      <Modal
+        open={modalOpen}
+        onClose={() => setModalOpen(null)}
+        children={modalOpen}
+      />
+      <Modal open={confirmModalOpen} onClose={() => setConfirmModalOpen(false)}>
+        <Confirm
+          onClose={() => setConfirmModalOpen(false)}
+          onDelete={handleExitMember}
+        />
+      </Modal>
     </div>
   );
 };
