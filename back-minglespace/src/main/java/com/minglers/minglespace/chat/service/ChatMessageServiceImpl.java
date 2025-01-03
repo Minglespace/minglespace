@@ -187,6 +187,15 @@ public class ChatMessageServiceImpl implements ChatMessageService {
       }, () -> {
         throw new ChatException(HttpStatus.NOT_FOUND.value(), "공지로 설정할 메시지를 찾지 못했습니다.");
       });
+
+      MessageStatusDTO messageStatusDTO = MessageStatusDTO.builder()
+              .chatRoomId(chatRoomId)
+              .messageId(messageId)
+              .type("ANNOUNCEMENT")
+              .build();
+
+      simpMessagingTemplate.convertAndSend("/topic/chatRooms/" + chatRoomId + "/message-status", messageStatusDTO);
+
       return "공지 등록 완료";
     } catch (Exception e) {
       throw new ChatException(HttpStatus.INTERNAL_SERVER_ERROR.value(), "공지 등록 중 오류 발생");

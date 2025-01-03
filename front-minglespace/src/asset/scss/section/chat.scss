@@ -116,9 +116,6 @@
   overflow-y: auto;
   transition: width 0.3s ease, visibility 0.3s ease;
 
-  .p {
-  }
-
   &.collapsed {
     width: 0;
     visibility: hidden;
@@ -341,6 +338,7 @@
   border-radius: 5px;
   cursor: pointer;
 }
+
 .delete_img_btn:hover {
   background-color: var(--button-color-negative-hover);
 }

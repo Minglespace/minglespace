@@ -294,7 +294,6 @@ public class ChatRoomServiceImpl implements ChatRoomService {
   }
 
   private void chatNotification(ChatListResponseDTO responseDTO, Long id){
-//    log.info("업데이트냐 생성이냐: "+ responseDTO.getType()+ " , id는 "+ id);
     Set<String> sessionIds = stompInterceptor.getSessionForUser(id);
     if(sessionIds != null && !sessionIds.isEmpty()){
       sessionIds.forEach(sessionId -> {

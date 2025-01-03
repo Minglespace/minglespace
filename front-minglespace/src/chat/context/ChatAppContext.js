@@ -86,7 +86,7 @@ export const ChatAppProvider = ({ children }) => {
 
 				stompClient.subscribe(`/user/queue/workspaces/${workspaceId}/chat`, (room) => {
 					const newRoom = JSON.parse(room.body);
-					// console.log("생성이냐 업데이트냐: ", room);
+					// console.log("생성이냐 업데이트냐: ", newRoom);
 
 					if (newRoom.type === "CREATE") {
 						roomsDispatch({ type: "ADD_ROOMS", payload: newRoom });
@@ -101,6 +101,46 @@ export const ChatAppProvider = ({ children }) => {
 								}
 							},
 						});
+					}else if(newRoom.type === "DELETE"){
+						if(Number(Repo.getUserId()) === newRoom.targetUserId){
+							roomsDispatch({
+								type:"REMOVE_ROOM",
+								payload:{chatRoomId: newRoom.chatRoomId},
+							});
+
+							const currentUrl = new URL(window.location.href);
+							if(currentUrl.searchParams.get("chatRoomId") === String(newRoom.chatRoomId)){
+								currentUrl.searchParams.delete("chatRoomId");
+								window.location.href = currentUrl.toString();
+							}
+						}else {
+							roomsDispatch({
+								type:"UPDATE_ROOMS",
+								payload:{
+									chatRoomId: newRoom.chatRoomId,
+									updates:{
+										participantCount: newRoom.participantCount
+									},
+								},
+							});
+						}
+					}else if(newRoom.type === "ADD"){
+						if(Number(Repo.getUserId()) === newRoom.targetUserId){
+							roomsDispatch({
+								type:"ADD_ROOMS",
+								payload:newRoom,
+							});
+						}else {
+							roomsDispatch({
+								type:"UPDATE_ROOMS",
+								payload:{
+									chatRoomId: newRoom.chatRoomId,
+									updates:{
+										participantCount: newRoom.participantCount
+									},
+								},
+							});
+						}
 					}
 
 				});
