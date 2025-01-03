@@ -21,6 +21,7 @@
       padding: 5px;
       text-align: left;
       margin-bottom: 10px;
+      font-size: 14px;
       // border-bottom: solid 2px #888;
       // border-top: solid 1px #888;
       transition: transform 0.5s, color 0.5s;
@@ -33,7 +34,8 @@
     }
     .side_about_us {
       position: absolute;
-      bottom: 60px;
+      bottom: 120px;
+      text-align: center;
     }
   }
 }

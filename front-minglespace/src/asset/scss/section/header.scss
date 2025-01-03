@@ -37,15 +37,19 @@ header {
       bottom: -25px;
       .menu_item:first-child {
         background-color: var(--button-color-update);
+        box-shadow: 2px 2px 2px #888;
 
         &:hover {
           background-color: var(--button-color-update-hover);
+          box-shadow: 2px 2px 2px #000;
         }
       }
       .menu_item:last-child {
         background-color: var(--button-color-negative);
+        box-shadow: 2px 2px 2px #888;
         &:hover {
           background-color: var(--button-color-negative-hover);
+          box-shadow: 2px 2px 2px #000;
         }
       }
       .menu_item {
