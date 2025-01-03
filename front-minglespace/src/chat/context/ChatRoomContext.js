@@ -239,7 +239,7 @@ export const ChatRoomProvider = ({ children }) => {
 		setShowAlert(true);
 		setTimeout(() => {
 			setShowAlert(false);
-		}, 5000);
+		}, 6000);
 	};
 
 	return (
