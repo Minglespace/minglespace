@@ -2,7 +2,6 @@ import React, { useCallback, useEffect, useState } from 'react'
 import AuthApi from '../api/AuthApi';
 import { useNavigate } from 'react-router-dom';
 import { AuthStatus, AuthStatusOk } from '../api/AuthStatus';
-import Modal from '../common/Layouts/components/Modal';
 import { Eye, EyeOff, X } from 'lucide-react';
 import ModalMessage from '../common/Layouts/components/ModalMessage';
 
@@ -14,9 +13,9 @@ const ChangePwPage = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [formData, setFormData] = useState({
-    email: "codejay2018@gmail.com",
-    password: "a1a1A!A!",
-    confirmPassword: "a1a1A!A!",
+    email: "",
+    password: "",
+    confirmPassword: "",
   });
 
   const validate = useCallback(() => {
