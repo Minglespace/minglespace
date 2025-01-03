@@ -1,5 +1,6 @@
 import React, { useContext, useState } from "react";
 import ProfileImage from "./ProfileImage";
+import { FiInfo } from "react-icons/fi";
 import { WSMemberRoleContext } from "../../../workspace/context/WSMemberRoleContext";
 const UserInfoDetail = ({
   user,
@@ -12,7 +13,8 @@ const UserInfoDetail = ({
   const {
     wsMemberData: { memberId },
   } = useContext(WSMemberRoleContext);
-  //중복 제거해야하는데 css로 적용하고 나서 진행예정
+
+  const [showInfo, setShowInfo] = useState(false);
 
   const handleSelectChange = (event) => {
     handleTransferRole(user.wsMemberId, event.target.value);
@@ -71,6 +73,7 @@ const UserInfoDetail = ({
             </div>
             <div className="member_Management_box">
               <h3>*멤버 관리하기*</h3>
+
               {user.withdrawalType === "DONE" ? (
                 <button
                   className="add_button_2"
@@ -80,16 +83,31 @@ const UserInfoDetail = ({
                 </button>
               ) : (
                 <>
-                  <label htmlFor="roleOptions">멤버 권한 변경 : </label>
-                  <select
-                    id="roleOptions"
-                    value={user.role}
-                    onChange={handleSelectChange}
-                  >
-                    <option value="MEMBER">멤버</option>
-                    <option value="SUB_LEADER">서브 리더</option>
-                  </select>
-                  <br />
+                  <div className="userInfo_lable_FiInfoBox">
+                    <label htmlFor="roleOptions">멤버 권한 변경 : </label>
+                    <select
+                      id="roleOptions"
+                      value={user.role}
+                      onChange={handleSelectChange}
+                    >
+                      <option value="MEMBER">멤버</option>
+                      <option value="SUB_LEADER">서브 리더</option>
+                    </select>
+                    <FiInfo
+                      style={{ margin: 0 }}
+                      className="info-icon"
+                      onClick={() => setShowInfo(!showInfo)}
+                    />
+                  </div>
+                  {showInfo && (
+                    <div
+                      className="info-message"
+                      style={{ position: "absolute", right: "40px" }}
+                    >
+                      <p>서브리더 기능 : 마일스톤, 캘린더공지, 할일부여</p>
+                    </div>
+                  )}
+
                   <button
                     className="delete_button"
                     onClick={() => handleRemoveMember(user.wsMemberId)}

@@ -5,7 +5,7 @@
   padding: 5px;
 }
 ////친구,멤버전용
-.ys_button{
+.ys_button {
   width: 80px;
   border-radius: 10px;
   padding: 5px;
@@ -13,7 +13,7 @@
 }
 .add_button_2 {
   @extend .ys_button;
-  color: gray;
+  color: black;
   background-color: var(--button-color-positive);
   &:hover {
     background-color: var(--button-color-positive-hover);
@@ -22,15 +22,15 @@
 
 .update_button {
   @extend .ys_button;
-  color: gray;
+  color: black;
   background-color: var(--button-color-update);
   &:hover {
     background-color: var(--button-color-update-hover);
   }
 }
-.delete_button{
+.delete_button {
   @extend .ys_button;
-  color: gray;
+  color: black;
   background-color: var(--button-color-negative);
   &:hover {
     background-color: var(--button-color-negative-hover);
@@ -60,7 +60,6 @@
     background-color: gray;
   }
 }
-
 
 .common-button {
   width: 100%;

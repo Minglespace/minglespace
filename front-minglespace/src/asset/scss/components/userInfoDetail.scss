@@ -5,29 +5,37 @@
   }
 }
 
-.userInfo_detail_container{
-  .user_pfi{
+.userInfo_detail_container {
+  .user_pfi {
     margin: 40px;
   }
-  p{
+  p {
     margin: 10px;
   }
-  .member_Management_box{
+  .member_Management_box {
     margin: 0 auto;
     text-align: center;
-    >h3{
+    > h3 {
       margin: 10px;
     }
-    >label{
-      margin: 10px;
+    .userInfo_lable_FiInfoBox {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+
+      > label {
+        margin: 10px;
+      }
+      > select {
+        height: 25px;
+        margin-right: 5px;
+        border-bottom: 1px solid darkgray;
+        border-right: 1px solid darkgray;
+        border-bottom-right-radius: 5px;
+        box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.2);
+      }
     }
-    >select{
-      border-bottom: 1px solid darkgray;
-      border-right: 1px solid darkgray;
-      border-bottom-right-radius: 5px;
-      box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.2);
-    }
-    button{
+    button {
       margin: 10px;
     }
   }
