@@ -1,6 +1,7 @@
 import React, { useRef, useState } from "react";
 import Modal from "../../common/Layouts/components/Modal";
 import { now } from "moment";
+import Confirm from "../../common/Layouts/components/Confirm";
 const MileStoneModal = ({
   open,
   onClose,
@@ -19,6 +20,8 @@ const MileStoneModal = ({
   const inputFocus = useRef(null);
   const endTimeFocus = useRef(null);
   const [currentEndTime, setCurrentEndTime] = useState(endTime);
+  const [confirmModalOpen, setConfirmModalOpen] = useState(false);
+
   const handleSave = () => {
     if (!title.trim()) {
       alert("내용을 입력해 주세요");
@@ -44,60 +47,73 @@ const MileStoneModal = ({
     onTaskStatusChange(newTaskStatus);
   };
 
+  const handleDelete = () => {
+    setConfirmModalOpen(false);
+    onDelete();
+  };
+
   return (
-    <Modal open={open} onClose={onClose}>
-      <div className="milestone_modal_container">
-        <h2 className="milestone_modal_title">
-          {mode === "titleOnly" ? "그룹 수정하기" : "아이템 수정하기"}
-        </h2>
-        <div className="milestone_modal_modify_title">
-          <p>Title :</p>
-          <input
-            ref={inputFocus}
-            type="text"
-            value={title}
-            onChange={(e) => onTitleChange(e.target.value)}
-            required
-            maxLength={15}
-          />
+    <>
+      <Modal open={open} onClose={onClose}>
+        <div className="milestone_modal_container">
+          <h2 className="milestone_modal_title">
+            {mode === "titleOnly" ? "그룹 수정하기" : "아이템 수정하기"}
+          </h2>
+          <div className="milestone_modal_modify_title">
+            <p>Title :</p>
+            <input
+              ref={inputFocus}
+              type="text"
+              value={title}
+              onChange={(e) => onTitleChange(e.target.value)}
+              required
+              maxLength={15}
+            />
+          </div>
+          {mode != "titleOnly" && (
+            <>
+              <div className="milestone_modal_modify_starttime">
+                <p>Start Time :</p>
+                <input
+                  ref={endTimeFocus}
+                  type="datetime-local"
+                  value={startTime}
+                  onChange={(e) => onStartTimeChange(e.target.value)}
+                />
+              </div>
+              <div className="milestone_modal_modify_endtime">
+                <p>End Time :</p>
+                <input
+                  type="datetime-local"
+                  value={endTime}
+                  onChange={handleEndTimeChange}
+                />
+              </div>
+              <div className="milestone_modal_taskStatus">
+                <p>Task Status : </p>
+                <select value={taskStatus} onChange={handleTaskStatusChange}>
+                  <option value="NOT_START">시작 전</option>
+                  <option value="IN_PROGRESS">진행중</option>
+                  <option value="COMPLETED">완료</option>
+                  <option value="ON_HOLD">보류</option>
+                </select>
+              </div>
+            </>
+          )}
+          <div className="milestone_modal_modify_button">
+            <button onClick={handleSave}>Save</button>
+            <button onClick={() => setConfirmModalOpen(true)}>Delete</button>
+            <button onClick={onClose}>Cancel</button>
+          </div>
         </div>
-        {mode != "titleOnly" && (
-          <>
-            <div className="milestone_modal_modify_starttime">
-              <p>Start Time :</p>
-              <input
-                ref={endTimeFocus}
-                type="datetime-local"
-                value={startTime}
-                onChange={(e) => onStartTimeChange(e.target.value)}
-              />
-            </div>
-            <div className="milestone_modal_modify_endtime">
-              <p>End Time :</p>
-              <input
-                type="datetime-local"
-                value={endTime}
-                onChange={handleEndTimeChange}
-              />
-            </div>
-            <div className="milestone_modal_taskStatus">
-              <p>Task Status : </p>
-              <select value={taskStatus} onChange={handleTaskStatusChange}>
-                <option value="NOT_START">시작 전</option>
-                <option value="IN_PROGRESS">진행중</option>
-                <option value="COMPLETED">완료</option>
-                <option value="ON_HOLD">보류</option>
-              </select>
-            </div>
-          </>
-        )}
-        <div className="milestone_modal_modify_button">
-          <button onClick={handleSave}>Save</button>
-          <button onClick={onDelete}>Delete</button>
-          <button onClick={onClose}>Cancel</button>
-        </div>
-      </div>
-    </Modal>
+      </Modal>
+      <Modal open={confirmModalOpen} onClose={() => setConfirmModalOpen(false)}>
+        <Confirm
+          onDelete={handleDelete}
+          onClose={() => setConfirmModalOpen(false)}
+        />
+      </Modal>
+    </>
   );
 };
 

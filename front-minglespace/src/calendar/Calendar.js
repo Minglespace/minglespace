@@ -115,7 +115,8 @@ const Calendar = () => {
         workspaceId,
         updatedCalendar.id
       );
-      alert(`${result}`);
+      // alert(`${result}`);
+      // setModalOpen(false);
     } catch (error) {
       alert(
         `캘린더 삭제 중 에러가 발생했습니다.\n원인:${getErrorMessage(error)}`

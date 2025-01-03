@@ -1,4 +1,6 @@
 import React, { useState } from "react";
+import Modal from "../../common/Layouts/components/Modal";
+import Confirm from "../../common/Layouts/components/Confirm";
 
 const CalendarFormModal = ({
   formData,
@@ -12,6 +14,7 @@ const CalendarFormModal = ({
   addType,
   focusDescription,
 }) => {
+  const [confirmModalOpen, setConfirmModalOpen] = useState(false);
   return (
     <div className="calendar_modal_container">
       <div className="calendar_type_buttons">
@@ -109,7 +112,7 @@ const CalendarFormModal = ({
               </button>
               <button
                 className="calendar_delete"
-                onClick={handleDeleteCalendar}
+                onClick={() => setConfirmModalOpen(true)}
               >
                 삭제
               </button>
@@ -124,6 +127,12 @@ const CalendarFormModal = ({
           </button>
         </div>
       </div>
+      <Modal open={confirmModalOpen} onClose={() => setConfirmModalOpen(false)}>
+        <Confirm
+          onDelete={handleDeleteCalendar}
+          onClose={() => setConfirmModalOpen(false)}
+        />
+      </Modal>
     </div>
   );
 };
