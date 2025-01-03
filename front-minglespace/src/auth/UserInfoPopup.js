@@ -224,17 +224,36 @@ export default function UserInfoPopup() {
   };
 
   const handleClickDontUseImage = () => {
+    // 이미지 사용하지 않기로 설정
     setSelectedImage(null);
-    userInfo.dontUseProfileImage = true;
-    userInfo.localImage = null;
-
+    setUserInfo(prevUserInfo => ({
+      ...prevUserInfo,
+      dontUseProfileImage: true,
+      localImage: null, // 로컬 이미지도 삭제
+    }));
     console.log("handleClickDontUseImage userInfo : ", userInfo);
-
   };
+
 
   const getHostImagePath = () => {
     return (userInfo.profileImagePath) ? `${HOST_URL}` + userInfo.profileImagePath : null;
   };
+
+  const getImageUrl = () => {
+    // dontUseProfileImage가 true일 경우 이미지 비사용 상태
+    if (userInfo.dontUseProfileImage === true) {
+      console.log(" getImageUrl dontUseProfileImage : ", userInfo.dontUseProfileImage);
+      return null;
+    } else if (selectedImage !== null) {
+      console.log(" getImageUrl selectedImage : ", selectedImage);
+      return selectedImage;
+    } else {
+      const path = getHostImagePath();
+      console.log(" getImageUrl getHostImagePath : ", path);
+      return path;
+    }
+  };
+
   //============================================================================================
   //============================================================================================
   //============================================================================================
@@ -272,7 +291,7 @@ export default function UserInfoPopup() {
                 <div className="profile-container">
                   {/* 유저 프로필 : 유저정보 변경 팝업  */}
                   <ProfileImage
-                    src={(userInfo.dontUseProfileImage === true) ? null : selectedImage || getHostImagePath()}
+                    src={getImageUrl()}
                     userName={userInfo.name}
                   />
                   <button
@@ -287,7 +306,7 @@ export default function UserInfoPopup() {
                     onClick={handleClickDontUseImage}
                     disabled={userInfo.socialLogin}
                   >
-                    제거
+                    삭제
                   </button>
                   <input
                     className="hidden-file-input"
@@ -331,7 +350,7 @@ export default function UserInfoPopup() {
                   value={userInfo.email}
                   onChange={handleInputChange}
                   className="input-field"
-                  disabled={userInfo.socialLogin}
+                  disabled
                 />
                 <label className="input-label" htmlFor="phone">
                   전화번호

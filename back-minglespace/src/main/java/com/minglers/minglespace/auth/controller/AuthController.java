@@ -222,6 +222,9 @@ class AuthController {
 
     User updateUser = new User();
 
+    // 예방코드 : 이메일 변경은 불허한다.
+    req.setEmail(null);
+
     // 새로운 유저에 변경할 정보를 넣은다.
     modelMapper.map(req, updateUser);
 
