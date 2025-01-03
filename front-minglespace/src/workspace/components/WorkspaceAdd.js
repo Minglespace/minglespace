@@ -78,11 +78,11 @@ const WorkspaceAdd = ({ open, onClose, onAddWorkspace, editingWorkspace }) => {
           placeholder="워크스페이스 설명을 기입하세요"
         />
         <div className="workspace_button_container">
-          <button className="cancle_button" onClick={onClose}>
-            취소
-          </button>
           <button className="add_button" onClick={handleClickAdd}>
             추가
+          </button>
+          <button className="cancle_button" onClick={onClose}>
+            취소
           </button>
         </div>
       </div>

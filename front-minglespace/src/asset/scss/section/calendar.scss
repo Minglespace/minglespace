@@ -18,6 +18,7 @@
 }
 .fc-scrollgrid-section {
   border-bottom: 1px solid #000 !important;
+  background-color: white !important;
 }
 
 .fc .fc-toolbar.fc-header-toolbar {
@@ -77,17 +78,19 @@
       width: 80px;
       height: 30px;
       margin-right: 5px;
+      margin-bottom: 10px;
       border-radius: 5px;
-      background-color: #7f8fdf;
+      box-shadow: 2px 2px 4px #888;
+      background-color: var(--button-color-positive);
       transition: background-color 0.2s, box-shadow 0.2s;
 
       &:hover {
-        background-color: #5c6ac4;
+        background-color: var(--button-color-positive-hover);
         box-shadow: 2px 2px 2px #000;
       }
     }
     .checked {
-      background-color: #5c6ac4;
+      background-color: var(--button-color-positive-hover);
       box-shadow: 2px 2px 2px #000;
     }
   }
@@ -102,11 +105,31 @@
     border: 1px solid #888;
     border-radius: 5px;
   }
+  .calendar_edit {
+    background-color: var(--button-color-update) !important;
+    &:hover {
+      background-color: var(--button-color-update-hover) !important;
+    }
+  }
+  .calendar_delete {
+    background-color: var(--button-color-negative) !important;
+    &:hover {
+      background-color: var(--button-color-negative-hover) !important;
+    }
+  }
+  .calendar_cancel {
+    background-color: var(--button-color-cancel) !important;
+    &:hover {
+      background-color: var(--button-color-cancel-hover) !important;
+    }
+  }
 }
 .calendar_modal_container {
   height: 350px;
   .calendar_modal_inputbox {
-    height: 270px;
+    margin-top: 30px;
+    margin-bottom: -35px;
+    height: 300px;
   }
   .calendar_modal_editbuttons {
     display: flex;

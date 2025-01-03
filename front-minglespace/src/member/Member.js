@@ -242,7 +242,10 @@ const Member = () => {
       {renderContent()}
       <button className="add_button_2" onClick={handleExitMember}>
         <p style={{ opacity: 0.6 }}>
-          워크스페이스
+          워크
+          <br />
+          스페이스
+          <br />
           <br />
           나가기
         </p>
