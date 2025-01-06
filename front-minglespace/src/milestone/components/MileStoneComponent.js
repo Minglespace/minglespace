@@ -162,7 +162,7 @@ const MileStoneComponent = () => {
     // 크기 조정 후 서버에 업데이트 요청
     const resizedItem = updatedItems.find((item) => item.id === itemId);
     if (resizedItem.end_time - resizedItem.start_time < 3600000) {
-      alert("X");
+      alert("1시간 이하로 수정 할 수 없습니다. ");
       return false;
     }
     if (resizedItem) {

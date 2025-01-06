@@ -183,6 +183,10 @@ public class WorkspaceServiceImpl implements WorkspaceService {
     workSpace.changeDeletedAt(LocalDateTime.now());
 
     WorkSpace savedWorkSpace = workspaceRepository.save(workSpace);
+    //리더를 멤버로 바꿔준다.(회원삭제를 위해필요한작업)
+    WSMember wsMember = wsMemberRepository.findWsMemberByUserIdAndWorkSpaceId(userId, workSpaceId);
+      wsMember.changeRole(WSMemberRole.MEMBER);
+      wsMemberRepository.save(wsMember);
     return "워크스페이스 : " + savedWorkSpace.getName() + "을 삭제하였습니다.";
   }
 
