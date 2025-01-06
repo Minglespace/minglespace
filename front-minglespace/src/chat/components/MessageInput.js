@@ -314,8 +314,9 @@ const MessageInput = ({
             {modalMessage}
           </p>
           <button
-            className="modal-ok-button"
+            className="cancel-btn"
             onClick={handleCloseModal}
+            style={{ margin: "0 auto" }}
           >
             OK
           </button>

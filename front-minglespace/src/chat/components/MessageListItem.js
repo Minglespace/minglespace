@@ -1,4 +1,4 @@
-﻿﻿﻿import React, { useState } from "react";
+﻿﻿import React, { useState } from "react";
 import { FiCornerDownRight, FiDownload, FiTrash2 } from "react-icons/fi";
 import { HOST_URL } from "../../api/Api";
 import ProfileImage from "../../common/Layouts/components/ProfileImage";
@@ -65,7 +65,7 @@ const MessageListItem = ({
         if (index % 2 === 1) {
           const isMention = wsMemberState.some((member) => member.name === part) || part === currentMemberInfo.name;
           return isMention ? (
-            <span style={{ fontWeight: "bold", color: "#6495ED" }} key={index}>@{part}</span>
+            <span style={{ fontWeight: "bold", color: "#d17b3c" }} key={index}>@{part}</span>
           ) : (
             `@${part}`
           );
@@ -199,21 +199,17 @@ const MessageListItem = ({
         {/* 답장 내용 추가 */}
         {parentMessage && (
           <>
-            <div className="reply-to-text">{parentMessage.content}</div>
+            <div className="reply-to-text">{formatMessage(parentMessage.content)}</div>
             <div className="reply-line"></div>
-            <div className="reply-text">{message.content}</div>
+            <div className="reply-text">{formatMessage(message.content)}</div>
           </>
         )}
-
-        {/* 메시지 시간 표시  */}
-        <div className="message-time">{getFormattedTime(message.date)}</div>
 
         {/* 메시지의 포함된 이미지 표시 */}
         {message.imageUriPaths && message.imageUriPaths.length > 0 && (
           <div
-            className={`image-message-container ${
-              message.imageUriPaths.length === 1 ? "single" : "multiple"
-            }`}
+            className={`image-message-container ${message.imageUriPaths.length === 1 ? "single" : "multiple"
+              }`}
           >
             {visibleImages.map((imageUri, index) => (
               <img
@@ -238,7 +234,7 @@ const MessageListItem = ({
               <div
                 key={index}
                 className="document-item"
-                // style={{ marginBottom: "10px" }}
+              // style={{ marginBottom: "10px" }}
               >
                 {renderDocumentPreview(`${HOST_URL}${uri}`)}
               </div>
@@ -246,25 +242,26 @@ const MessageListItem = ({
           </div>
         )}
 
+        {/* 메시지 시간 표시  */}
+        <div className="message-time">{getFormattedTime(message.date)}</div>
+
         {isImageOpen && (
           <Lightbox
             mainSrc={`${HOST_URL}${message.imageUriPaths[photoIndex]}`}
-            nextSrc={`${HOST_URL}${
-              message.imageUriPaths[
-                (photoIndex + 1) % message.imageUriPaths.length
-              ]
-            }`}
-            prevSrc={`${HOST_URL}${
-              message.imageUriPaths[
-                (photoIndex + message.imageUriPaths.length - 1) %
-                  message.imageUriPaths.length
-              ]
-            }`}
+            nextSrc={`${HOST_URL}${message.imageUriPaths[
+              (photoIndex + 1) % message.imageUriPaths.length
+            ]
+              }`}
+            prevSrc={`${HOST_URL}${message.imageUriPaths[
+              (photoIndex + message.imageUriPaths.length - 1) %
+              message.imageUriPaths.length
+            ]
+              }`}
             onCloseRequest={() => setIsImageOpen(false)}
             onMovePrevRequest={() =>
               setPhotoIndex(
                 (photoIndex + message.imageUriPaths.length - 1) %
-                  message.imageUriPaths.length
+                message.imageUriPaths.length
               )
             }
             onMoveNextRequest={() =>
@@ -358,22 +355,20 @@ const MessageListItem = ({
       {isImageOpen && (
         <Lightbox
           mainSrc={`${HOST_URL}${message.imageUriPaths[photoIndex]}`}
-          nextSrc={`${HOST_URL}${
-            message.imageUriPaths[
-              (photoIndex + 1) % message.imageUriPaths.length
-            ]
-          }`}
-          prevSrc={`${HOST_URL}${
-            message.imageUriPaths[
-              (photoIndex + message.imageUriPaths.length - 1) %
-                message.imageUriPaths.length
-            ]
-          }`}
+          nextSrc={`${HOST_URL}${message.imageUriPaths[
+            (photoIndex + 1) % message.imageUriPaths.length
+          ]
+            }`}
+          prevSrc={`${HOST_URL}${message.imageUriPaths[
+            (photoIndex + message.imageUriPaths.length - 1) %
+            message.imageUriPaths.length
+          ]
+            }`}
           onCloseRequest={() => setIsImageOpen(false)}
           onMovePrevRequest={() =>
             setPhotoIndex(
               (photoIndex + message.imageUriPaths.length - 1) %
-                message.imageUriPaths.length
+              message.imageUriPaths.length
             )
           }
           onMoveNextRequest={() =>
