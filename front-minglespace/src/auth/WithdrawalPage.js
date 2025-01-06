@@ -54,7 +54,7 @@ const WithdrawalPage = () => {
         if (AuthStatusOk(data.msStatus)) {
           setMessage({
             title: "확인",
-            content: "회원탈퇴 신청이 완료되었습니다.\n 일정기간 이후 자동 탈퇴가 완료 됩니다.\n 기간내에 회원탈퇴 취소가 가능합니다.",
+            content: "회원탈퇴 신청이 완료되었습니다.<br/> 일정기간 이후 자동 탈퇴가 완료 됩니다.</br> 기간내에 회원탈퇴 취소가 가능합니다.",
             callbackOk: () => {
               setMessage(null);
               Repo.clearItem();
@@ -292,17 +292,12 @@ const WithdrawalPage = () => {
                 {info.expireDate &&
                   <div className="form-group">
                     <label className="input-label">만료일</label>
-                    <div>
-                      <input
-                        type="text"
-                        name="name"
-                        className="input-field"
-                        value={
-                          info.expireDate && `${formatDate(info.expireDate)} 이후에 회원탈퇴 처리 됩니다.`
-                        }
-                        disabled
-                      />
-                    </div>
+                    <textarea
+                      name="name"
+                      className="input-field"
+                      value={`${formatDate(info.expireDate)} 이후에 \n회원탈퇴 처리 됩니다.`}
+                      disabled
+                    />
                   </div>                
                 }
               </>
