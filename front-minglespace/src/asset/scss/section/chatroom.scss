@@ -340,14 +340,17 @@
         cursor: pointer;
         color: #1010104d;
         transition: background-color 0.3s, color 0.3s;
+
         &:hover {
           background-color: var(--button-color-update-hover);
         }
       }
+
       .invite-btn.selected {
         color: #000000;
       }
     }
+
     li.selected {
       background-color: #e1f0da;
     }
@@ -771,7 +774,7 @@
 }
 
 .delete-btn {
-  background-color: rgb(253, 113, 113);
+  background-color: var(--button-color-negative-hover);
   padding: 10px;
   border-radius: 5px;
   width: 80px;

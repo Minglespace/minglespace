@@ -1,4 +1,4 @@
-﻿﻿import React, { useEffect, useState } from "react";
+﻿import React, { useEffect, useState } from "react";
 import MessageListItem from "./MessageListItem";
 import Modal from "../../common/Layouts/components/Modal";
 import useMessageListScroll from "../hooks/useMessageListScroll";
@@ -158,12 +158,6 @@ const MessageList = ({
           <p className="text2">이 메시지를 공지사항으로 등록하시겠습니까?</p>
           <div
             className="modal-buttons"
-            // style={{
-            //   display: "flex",
-            //   justifyContent: "space-around",
-            //   gap: "10px",
-            //   marginTop: "20px",
-            // }}
           >
             <button className="save-btn" onClick={handleAnnounceConfirm}>
               Save
@@ -177,48 +171,21 @@ const MessageList = ({
 
       <Modal open={isDeleteModalOpen} onClose={handleDeleteCancel}>
         <div>
-          <p className="text3" /*style={{ fontSize: "20px", margin: "20px" }}*/>
+          <p className="text3">
             이 메시지를 삭제하시겠습니까?
           </p>
           <div
             className="modal-buttons"
-            // style={{
-            //   display: "flex",
-            //   justifyContent: "space-around",
-            //   gap: "10px",
-            //   marginTop: "20px",
-            // }}
           >
             <button
+              className="delete-btn"
               onClick={handleDeleteConfirm}
-              // style={{
-              //   backgroundColor: "rgb(253, 113, 113)",
-              //   padding: "10px",
-              //   borderRadius: "5px",
-              //   width: "80px",
-              //   height: "30px",
-              //   display: "flex",
-              //   alignItems: "center",
-              //   justifyContent: "center",
-              //   cursor: "pointer",
-              // }}
             >
               Delete
             </button>
             <button
               className="cancel-btn"
               onClick={handleDeleteCancel}
-              // style={{
-              //   backgroundColor: "gray",
-              //   padding: "10px",
-              //   borderRadius: "5px",
-              //   width: "80px",
-              //   height: "30px",
-              //   display: "flex",
-              //   alignItems: "center",
-              //   justifyContent: "center",
-              //   cursor: "pointer",
-              // }}
             >
               Cancel
             </button>

@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { FiChevronsLeft } from "react-icons/fi";
 import ChatList from "./ChatList";
 import ChatRoom from "./ChatRoom";

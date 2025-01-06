@@ -6,9 +6,9 @@ import { useNavigate } from "react-router-dom";
 import { useChatApp } from "../context/ChatAppContext";
 
 const ChatListItem = ({ chat }) => {
-  const {handleReadMsg, workspaceId} = useChatApp();
+  const { handleReadMsg, workspaceId } = useChatApp();
   const navigate = useNavigate();
-  
+
   const handleClick = async () => {
     // console.log("chatlistitem_click: ", typeof chat.chatRoomId);
     try {
@@ -34,15 +34,6 @@ const ChatListItem = ({ chat }) => {
       <div className="chat_info">
         <div className="chat_header">
           <h3 className="chat_name">{chat.name}</h3>
-
-          {/* 채팅방 정보 수정 버튼  */}
-          {/* <button
-            onClick={}
-            className="modify-content"
-          >
-            <FaUserPlus  />
-          </button> */}
-
           <span className="participants_count">
             <BsPeopleFill />
             {chat.participantCount}명 참여중

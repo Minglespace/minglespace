@@ -1,4 +1,4 @@
-﻿import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { FaLock, FaLockOpen, FaTrashAlt, FaFileImage } from "react-icons/fa";
 import Modal from "../../common/Layouts/components/Modal";
 import ProfileImage from "../../common/Layouts/components/ProfileImage";
@@ -41,13 +41,13 @@ const MessageInput = ({
         const query = mentionMatch[1];
         const filteredList = query
           ? participants.filter(
-              (member) =>
-                member.name.toLowerCase().includes(query.toLowerCase()) &&
-                member.userId !== currentMemberInfo.userId // currentMemberInfo.id와 동일한 멤버 제외
-            )
+            (member) =>
+              member.name.toLowerCase().includes(query.toLowerCase()) &&
+              member.userId !== currentMemberInfo.userId // currentMemberInfo.id와 동일한 멤버 제외
+          )
           : participants.filter(
-              (member) => member.userId !== currentMemberInfo.userId
-            );
+            (member) => member.userId !== currentMemberInfo.userId
+          );
 
         setMentioning(true);
         setFilteredMembers(filteredList);
@@ -138,21 +138,6 @@ const MessageInput = ({
     }
   };
 
-  // 메시지 내 멘션을 폰트만 굵게 표시하는 함수 <<-------- 멘션 관련
-  // const formatMessage = (message) => {
-  //   const regex = /@(\S+)/g; // @멘션 형식으로 추출
-  //   return message.split(regex).map((part, index) => {
-  //     if (regex.test(`${part}`)) {
-  //       return (
-  //         <span key={index} style={{ fontWeight: "bold", color: "#007bff" }}>
-  //           {part}
-  //         </span>
-  //       );
-  //     }
-  //     return part;
-  //   });
-  // };
-
   //멘션 목록에서 항목 선택한 경우
   const handleMentionSelect = (member) => {
     // console.log("클릭된 멤버 멘션: ", member);
@@ -222,55 +207,20 @@ const MessageInput = ({
       {files.length > 0 && (
         <div
           className="file-preview"
-          // style={{
-          //   display: "flex",
-          //   flexDirection: "row",
-          //   gap: "10px",
-          //   overflowX: "auto",
-          //   padding: "10px",
-          //   borderRadius: "5px",
-          //   backgroundColor: "#f0f0f0",
-          //   marginBottom: "10px",
-          //   position: "absolute",
-          //   bottom: "72px",
-          //   width: "100%",
-          // }}
         >
           {files.map((file, index) => (
             <div
               key={index}
               className="file-card"
-              // style={{
-              //   display: "flex",
-              //   alignItems: "center",
-              //   justifyContent: "space-between",
-              //   padding: "10px",
-              //   border: "1px solid #ccc",
-              //   borderRadius: "5px",
-              //   backgroundColor: "#fff",
-              //   minWidth: "150px",
-              // }}
             >
               <span
                 className="file-name"
-                // style={{
-                //   flex: "1",
-                //   whiteSpace: "nowrap",
-                //   overflow: "hidden",
-                //   textOverflow: "ellipsis",
-                // }}
               >
                 {file.name}
               </span>
               <button
                 onClick={() => handleRemoveFile(index)}
                 className="remove-file-button"
-                // style={{
-                //   background: "none",
-                //   border: "none",
-                //   cursor: "pointer",
-                //   color: "red",
-                // }}
               >
                 <FaTrashAlt />
               </button>
@@ -310,16 +260,6 @@ const MessageInput = ({
         {mentioning && filteredMembers.length > 0 && (
           <div
             className="mention-suggestions"
-            // style={{
-            //   position: "absolute",
-            //   background: "#ffffff",
-            //   border: "1px solid #ccc",
-            //   borderRadius: "5px",
-            //   width: "15%",
-            //   maxHeight: "120px",
-            //   overflowY: "auto",
-            //   bottom: "70px"
-            // }}
             ref={mentionRef}
           >
             <ul>
@@ -327,16 +267,8 @@ const MessageInput = ({
                 <li
                   key={member.wsMemberId}
                   onClick={() => handleMentionSelect(member)}
-                  className={`member-item ${
-                    selectedIndex === index ? "selected" : ""
-                  }`}
-                  // style={{
-                  //   padding: "10px",
-                  //   cursor: "pointer",
-                  //   backgroundColor:
-                  //     selectedIndex === index ? "#f2cfd3" : "#ffffff",
-                  //   display: "flex",
-                  // }}
+                  className={`member-item ${selectedIndex === index ? "selected" : ""
+                    }`}
                 >
                   <ProfileImage
                     src={imageUrlPathCheck(member.profileImagePath)}
@@ -344,7 +276,7 @@ const MessageInput = ({
                     size={20}
                   />
                   <span
-                    className="member-name" /*style={{ marginLeft: "15px" }}*/
+                    className="member-name"
                   >
                     {member.name}
                   </span>
@@ -371,10 +303,6 @@ const MessageInput = ({
         <FaFileImage
           className="file-image"
           onClick={() => fileInputRef.current.click()} // 클릭 시 input 엽니다.
-          // style={{
-          //   cursor: "pointer",
-          //   fontSize: "25px",
-          // }}
         />
         {/* 잠금 아이콘: 클릭 시 잠금 상태 토글 */}
         <div className="lock-icon" onClick={toggleLock}>
@@ -382,19 +310,12 @@ const MessageInput = ({
         </div>
 
         <Modal open={isModalOpen} onClose={handleCloseModal}>
-          <p className="modal-message" /*style={{ margin: "25px 15px" }*/>
+          <p className="modal-message">
             {modalMessage}
           </p>
           <button
             className="modal-ok-button"
             onClick={handleCloseModal}
-            // style={{
-            //   backgroundColor: "gray",
-            //   padding: "10px",
-            //   borderRadius: "5px",
-            //   marginLeft: "133px",
-            //   fontSize: "15px",
-            // }}
           >
             OK
           </button>

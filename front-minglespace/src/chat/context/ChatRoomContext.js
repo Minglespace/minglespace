@@ -182,7 +182,7 @@ export const ChatRoomProvider = ({ children }) => {
 				return { ...prev, messages: updatedMessages };
 			});
 		} catch (error) {
-			console.error("chatroom _ 공지 등록 에러: ", error);
+			console.error("chatroom _ 메시지 삭제 에러: ", error);
 		}
 	};
 
@@ -194,12 +194,11 @@ export const ChatRoomProvider = ({ children }) => {
 				chatRoomId,
 				newLeader.wsMemberId
 			);
-
 			//방장 위임 로컬 업데이트
 			setChatRoomInfo((prev) => {
 				const updatedParticipants = prev.participants.map((member) => {
 					//현재 방장 역할 변경
-					if (Number(member.userId) === Number(Repo.getUserId)) {
+					if (Number(member.userId) === Number(Repo.getUserId())) {
 						return { ...member, chatRole: "CHATMEMBER" };
 					}
 
@@ -215,6 +214,7 @@ export const ChatRoomProvider = ({ children }) => {
 					participants: updatedParticipants,
 				};
 			});
+			setIsRoomOwner(false);
 		} catch (error) {
 			console.error("error fetching delegateChatLeader: ", error);
 		}
