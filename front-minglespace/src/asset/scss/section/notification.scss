@@ -81,7 +81,7 @@
 
 ////전체 삭제 버튼
 .clear-all-notification {
-	background-color: rgb(253, 113, 113);
+	background-color: var(--button-color-negative);
 	color: #fff;
 	border: none;
 	padding: 0px 5px;
@@ -94,7 +94,7 @@
 	box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 
 	&:hover {
-		background-color: #ff4d4d;
+		background-color: var(--button-color-negative-hover);
 		transform: translateY(-1px);
 		box-shadow: 0 6px 8px rgba(0, 0, 0, 0.15);
 	}

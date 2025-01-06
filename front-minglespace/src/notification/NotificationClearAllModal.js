@@ -24,34 +24,14 @@ const NotificationClearAllModal = () => {
 						}}
 					>
 						<button
+							className='delete-btn'
 							onClick={handleClearAllNotifications}
-							style={{
-								backgroundColor: "rgb(253, 113, 113)",
-								padding: "10px",
-								borderRadius: "5px",
-								width: "80px",
-								height: "30px",
-								display: "flex",
-								alignItems: "center",
-								justifyContent: "center",
-								cursor: "pointer",
-							}}
 						>
 							Delete
 						</button>
 						<button
+							className='cancel-btn'
 							onClick={handleClearModalClose}
-							style={{
-								backgroundColor: "gray",
-								padding: "10px",
-								borderRadius: "5px",
-								width: "80px",
-								height: "30px",
-								display: "flex",
-								alignItems: "center",
-								justifyContent: "center",
-								cursor: "pointer",
-							}}
 						>
 							Cancel
 						</button>
