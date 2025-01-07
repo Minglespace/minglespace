@@ -58,14 +58,17 @@ const MessageListItem = ({
   };
 
   const formatMessage = (message) => {
-    console.log("멤버 목록: ", wsMemberState);
-    console.log("현재 멤버: ", currentMemberInfo);
-    const regex = /@(\w+)/g;
+    // console.log("멤버 목록: ", wsMemberState);
+    // console.log("현재 멤버: ", currentMemberInfo);
+    const regex = /@([\w가-힣]+)/g;
+
     return message
       .split(regex)
       .map((part, index) => {
+        // console.log("part: ", part, "/ index: ", index);
         if (index % 2 === 1) {
           const isMention = wsMemberState.some((member) => member.name === part) || part === currentMemberInfo.name;
+          // console.log("isMention: ", isMention, "/ part: ", part, " / 타입: ", typeof part);
           return isMention ? (
             <span style={{ fontWeight: "bold", color: "#d17b3c" }} key={index}>@{part}</span>
           ) : (
@@ -75,6 +78,7 @@ const MessageListItem = ({
         return part;
       });
   };
+
 
   const openLightbox = (index) => {
     setPhotoIndex(index);
