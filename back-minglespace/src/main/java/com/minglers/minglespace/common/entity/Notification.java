@@ -6,6 +6,7 @@ import com.minglers.minglespace.common.dto.NotificationDTO;
 import com.minglers.minglespace.common.type.NotificationType;
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDateTime;
 
@@ -30,7 +31,7 @@ public class Notification {
   @JoinColumn(name = "recipient_user_id", nullable = false)
   private User user;
 
-  @Convert(converter = LocalDateTimeAttributeConverter.class)
+  @CreationTimestamp
   @Column(name = "notice_time", columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
   private LocalDateTime noticeTime;
 

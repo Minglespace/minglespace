@@ -7,6 +7,7 @@ import com.minglers.minglespace.common.converter.LocalDateTimeAttributeConverter
 import com.minglers.minglespace.workspace.entity.WSMember;
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 
@@ -25,7 +26,7 @@ public class ChatRoomMember {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Convert(converter = LocalDateTimeAttributeConverter.class)
+    @CreationTimestamp
     private LocalDateTime date;
 
     @Enumerated(EnumType.STRING)

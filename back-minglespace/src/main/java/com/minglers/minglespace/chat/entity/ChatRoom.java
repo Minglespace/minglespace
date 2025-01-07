@@ -5,6 +5,7 @@ import com.minglers.minglespace.common.entity.Image;
 import com.minglers.minglespace.workspace.entity.WorkSpace;
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -32,7 +33,7 @@ public class ChatRoom {
     @JoinColumn(name = "work_space_id", nullable = false)
     private WorkSpace workSpace;
 
-    @Convert(converter = LocalDateTimeAttributeConverter.class)
+    @CreationTimestamp
     private LocalDateTime date;
 
     @OneToMany(mappedBy = "chatRoom", cascade = CascadeType.ALL, orphanRemoval = true)
