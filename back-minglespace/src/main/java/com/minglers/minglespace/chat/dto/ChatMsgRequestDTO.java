@@ -33,7 +33,6 @@ public class ChatMsgRequestDTO {
             .wsMember(wsMember)
             .chatRoom(chatRoom)
             .parentMessage(parentMsg)
-            .date(LocalDateTime.now())
             .isAnnouncement(this.getIsAnnouncement())
 //            .images(images)
             .build();

@@ -2,7 +2,6 @@ package com.minglers.minglespace.chat.entity;
 
 import com.minglers.minglespace.auth.type.WithdrawalType;
 import com.minglers.minglespace.chat.dto.ChatMsgResponseDTO;
-import com.minglers.minglespace.common.converter.LocalDateTimeAttributeConverter;
 import com.minglers.minglespace.common.entity.Image;
 import com.minglers.minglespace.workspace.dto.MemberWithUserInfoDTO;
 import com.minglers.minglespace.workspace.entity.WSMember;

@@ -121,7 +121,6 @@ public class ChatRoomServiceImpl implements ChatRoomService {
             .image(saveFile)
             .name(requestDTO.getName())
             .workSpace(createMember.getWorkSpace())
-            .date(LocalDateTime.now())
             .build();
 
     chatRoom = chatRoomRepository.save(chatRoom);
@@ -131,7 +130,6 @@ public class ChatRoomServiceImpl implements ChatRoomService {
             .chatRoom(chatRoom)
             .wsMember(createMember)
             .chatRole(ChatRole.CHATLEADER)
-            .date(LocalDateTime.now())
             .build();
 
     chatRoom.addChatRoomMember(creatorChatRoomMember);
@@ -147,7 +145,6 @@ public class ChatRoomServiceImpl implements ChatRoomService {
               .chatRoom(chatRoom)
               .wsMember(member)
               .chatRole(ChatRole.CHATMEMBER)
-              .date(LocalDateTime.now())
               .build();
       participantsUserIds.add(member.getUser().getId());
       chatRoom.addChatRoomMember(chatRoomMember);

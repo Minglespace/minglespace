@@ -3,7 +3,6 @@ package com.minglers.minglespace.chat.entity;
 import com.minglers.minglespace.auth.entity.User;
 import com.minglers.minglespace.chat.dto.ChatRoomMemberDTO;
 import com.minglers.minglespace.chat.role.ChatRole;
-import com.minglers.minglespace.common.converter.LocalDateTimeAttributeConverter;
 import com.minglers.minglespace.workspace.entity.WSMember;
 import jakarta.persistence.*;
 import lombok.*;

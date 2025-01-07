@@ -1,7 +1,6 @@
 package com.minglers.minglespace.common.entity;
 
 import com.minglers.minglespace.auth.entity.User;
-import com.minglers.minglespace.common.converter.LocalDateTimeAttributeConverter;
 import com.minglers.minglespace.common.dto.NotificationDTO;
 import com.minglers.minglespace.common.type.NotificationType;
 import jakarta.persistence.*;
@@ -38,12 +37,12 @@ public class Notification {
   @Builder.Default
   private boolean isRead = false;
 
-  @PrePersist
-  public void prePersist(){
-    if(noticeTime == null){
-      noticeTime = LocalDateTime.now();
-    }
-  }
+//  @PrePersist
+//  public void prePersist(){
+//    if(noticeTime == null){
+//      noticeTime = LocalDateTime.now();
+//    }
+//  }
 
   public NotificationDTO toDTO() {
     return NotificationDTO.builder()

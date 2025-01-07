@@ -74,7 +74,6 @@ public class ChatRoomMemberServiceImpl implements ChatRoomMemberService {
               .chatRoom(chatRoom)
               .chatRole(ChatRole.CHATMEMBER)
               .wsMember(member)
-              .date(LocalDateTime.now())
               .build();
 
       chatRoom.addChatRoomMember(chatRoomMember);
