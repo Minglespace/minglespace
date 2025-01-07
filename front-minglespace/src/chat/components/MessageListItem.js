@@ -58,6 +58,8 @@ const MessageListItem = ({
   };
 
   const formatMessage = (message) => {
+    console.log("멤버 목록: ", wsMemberState);
+    console.log("현재 멤버: ", currentMemberInfo);
     const regex = /@(\w+)/g;
     return message
       .split(regex)
