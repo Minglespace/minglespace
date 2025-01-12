@@ -1,5 +1,12 @@
 <div align="center">
-<h2>Mingle Space</h2>
+<h1>Mingle Space</h1>
+
+<div align="center">
+
+![image](https://postfiles.pstatic.net/MjAyNTAxMTJfMjAw/MDAxNzM2Njc0OTM4NTI5.V3xwXKySYzOanEk3fEyHDeFZ9P_tvN5X8kucKRqhl7kg.BUMv1g8d6HVk9GQoagtrJg-bUk2Htvhsk77Nx3Frk2wg.PNG/minglespace_logo.png?type=w773)
+  
+</div>
+  
 팀 워크스페이스 생성, 관리, 실시간 채팅 등 협업을 통한 작업의 생산성, 소통을 증대시킬 수 있는 온라인 협업 도구 Mingle Space입니다.
 </div>
 
