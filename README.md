@@ -15,6 +15,7 @@
     - [마일스톤 페이지](#마일스톤-페이지)
     - [할일 페이지](#할일-페이지)
     - [채팅 페이지](#채팅-페이지)
+    - [About Us](#About-us)
 
 ## 개요
 - **프로젝트 이름** : MingleSpace 🏠
@@ -295,3 +296,23 @@ Websocket과 Stomp를 활용해 1:N 채팅 기능을 제공하는 실시간 소�
   - 채팅방 관리
     - **방장** 채팅방 정보 수정/참여 멤버 강퇴 및 초대/방장 위임
     - **멤버** 방 나가기
+
+---
+
+### About Us
+
+<div align="right">
+  
+[목차로](#목차)
+
+</div>
+
+<div align="center">
+
+|![image](https://postfiles.pstatic.net/MjAyNTAxMTJfMzgg/MDAxNzM2Njc0NjQ4Mzgw.REJu9UTavmiMyVW-h2E9lJvCBad6PPvknkapY6ghSKAg.gE-RFxnWhXglQ4q-jJ_71m4b7lQ6AspOIRi4KrQm13Ag.PNG/aboutus.PNG?type=w773)|
+|:---:|
+|About Us|
+
+</div>
+
+Mingle Space 도구에 대한 주요 기능 정보를 제공하는 페이지 
