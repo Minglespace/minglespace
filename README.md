@@ -52,7 +52,7 @@
 ### 채팅페이지
 |![image](https://github.com/user-attachments/assets/6b431f62-5b00-4462-b465-a350278dde4a)|![image](https://github.com/user-attachments/assets/dd838ff6-d801-40c5-aded-5864bc224934)|
 |:---:|:---:|
-|로그인|회원가입|
+|채팅목록|채팅방|
 
 Websocket과 Stomp를 활용해 1:N 채팅 기능을 제공하는 실시간 소통을 위한 채팅 페이지입니다. 
 
