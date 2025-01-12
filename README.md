@@ -6,6 +6,15 @@
 ## 목차
   - [개요](#개요) 
   - [프로젝트 설명](#프로젝트-설명)
+    - [로그인 & 회원가입](#로그인_&_회원가입)
+    - [메인 페이지](#메인_페이지)
+    - [친구 페이지](#친구_페이지)
+    - [워크스페이스 페이지](#워크스페이스_페이지)
+    - [멤버 페이지](#멤버_페이지)
+    - [캘린더 페이지](#캘린더_페이지)
+    - [마일스톤 페이지](#마일스톤_페이지)
+    - [할일 페이지](#할일_페이지)
+    - [채팅 페이지](#채팅_페이지)
 
 ## 개요
 - **프로젝트 이름** : MingleSpace 🏠
@@ -13,12 +22,11 @@
 - **개발 언어** : React & Spring Boot
   - 사용 기술 : JWT & OAuth2.0(로그인, 회원가입), WebSocket(실시간 채팅, 알림), 외부 라이브러리(FullCalendar, React-Calendar-Timeline, React-slick)
 - **멤버** (팀 Minglers)
-  - 팀장 : 한형호 (메인페이지, 캘린더, 마일스톤, 할일)
-  - 팀원
-    - 김지현 : 채팅, About Us
-    - 이영수 : 워크스페이스, 친구 & 멤버, 캘린더, 마일스톤
-    - 정회광 : 로그인, 회원가입
-    - 정혜린 : 채팅, 알림
+  - 김지현 : 채팅, About Us
+  - 이영수 : 워크스페이스, 친구 & 멤버, 캘린더, 마일스톤
+  - 정회광 : 로그인, 회원가입
+  - 정혜린 : 채팅, 알림
+  - 한형호 : 팀장, 메인페이지, 캘린더, 마일스톤, 할일
 
 ## 프로젝트 설명
 ### 로그인 & 회원가입
@@ -73,7 +81,7 @@ OAuth 2.0을 사용하면 애플리케이션은 사용자 로그인 정보나 �
 - 모바일 및 분산 시스템 지원
 ---
 
-### 메인페이지
+### 메인 페이지
 |![image](https://postfiles.pstatic.net/MjAyNTAxMTJfMjMx/MDAxNzM2NjU5MTE1MzEx.T5iQhQRO1TZhX0IOMiGKyWIrDeichda8pfN8IvyMq4Yg.rK4GgZwRjsRZGvKLe9MZimgQrHHjHwEzm0Qh3h74iKgg.PNG/%EB%A9%94%EC%9D%B8%ED%8E%98%EC%9D%B4%EC%A7%80.PNG?type=w773)|
 |:---:|
 |메인 페이지|
@@ -91,7 +99,7 @@ OAuth 2.0을 사용하면 애플리케이션은 사용자 로그인 정보나 �
 
 ---
 
-### 친구페이지
+### 친구 페이지
 |![image](https://github.com/user-attachments/assets/fffe5a8c-f339-4236-8fee-85e05f41e817)|
 |:---:|
 |친구 관리|
@@ -129,7 +137,51 @@ OAuth 2.0을 사용하면 애플리케이션은 사용자 로그인 정보나 �
 
 ---
 
-### 채팅페이지
+### 캘린더 페이지
+|![image](https://postfiles.pstatic.net/MjAyNTAxMTJfMTEx/MDAxNzM2NjU5MTE1MzAw.Pug2Ob9GpJRQO20x4MWTKf3kFrS3wUe8j_RyHTvUTJsg.smIH0WYLABEwQvOotuvWryX6gCcMxnbrhVrKeHsURZog.PNG/%EC%BA%98%EB%A6%B0%EB%8D%941.PNG?type=w773)|
+|:---:|
+|캘린더|
+
+캘린더는 워크스페이스의 모든 일정을 한눈에 확인할 수 있는 페이지입니다.
+  - FullCalendar API 사용
+  - 마일스톤, 할일과 데이터 연동
+  - 리더, 서브리더에 의한 공지사항 작성
+  - 개인 일정 관리 및 부여받은 할일 확인
+
+---
+
+### 마일스톤 페이지
+|![image](https://postfiles.pstatic.net/MjAyNTAxMTJfMTY0/MDAxNzM2NjU5MTE1Mjk1.WhxKp--6EzqztW25yITZEBvWxd6SmVYyYRE1yHcbGMwg.WJcMJY5iokcxAP0S7GLMHH_vj8T1q8ZtCauuF7Z9ob8g.PNG/%EB%A7%88%EC%9D%BC%EC%8A%A4%ED%86%A4.PNG?type=w773)|
+|:---:|
+|마일스톤|
+
+마일스톤은 그룹을 지정하여 세부적인 일정을 타임라인 형식으로 관리할 수 있는 페이지입니다.
+  - React-Calendar-TimeLine API 사용
+  - 리더, 서브리더에 의해 그룹과 아이템 생성 가능
+  - 상태(시작전, 진행중, 완료, 보류)에 따른 진행률 표시
+  - 연도, 월, 일별 세부적인 일정 확인 가능
+  - 사용자 편의성을 고려한 드래그, 캔버스 및 그룹, 아이템 더블클릭 이벤트 제공
+    - 그룹 및 아이템 더블클릭 : 수정 기능
+    - 캔버스 더블클릭 : 새로운 아이템 추가
+    - 아이템 드래그 : 아이템 일정 수정
+    - 아이템 리사이즈 : 아이템 기간 수정
+
+---
+
+### 할일 페이지
+|![image](https://postfiles.pstatic.net/MjAyNTAxMTJfNTMg/MDAxNzM2NjU5MTE1Mjk5.8OHA_mf69qVRotgZgrTBpplRrKBq8Velk2gMwEuy4n0g.2bMhD6v2-NZ_-SP96ZnhliY_oaa6BCmZjUZO-525If8g.PNG/%ED%95%A0%EC%9D%BC.PNG?type=w773)|![image](https://postfiles.pstatic.net/MjAyNTAxMTJfMjUy/MDAxNzM2NjU5MTE1Mjk2.nvsKCuURNap05MBAzGiSmN03GxSLc6hJHu8tMCzuaUMg.v3DwpjXhB3VP9A_0MnrZWbOnji7sfLKC_9jWfikYxIAg.PNG/%ED%95%A0%EC%9D%BC%EC%9E%91%EC%84%B1.PNG?type=w773)|
+|:---:|:---:|
+|할일 페이지|할일 추가|
+
+할일은 워크스페이스의 리더 또는 서브리더가 참여중인 멤버에게 개별적인 작업을 부여할 수 있는 페이지입니다.
+  - 상태(완료여부)에 따른 진행상태 표시
+  - 제목 및 내용, 작업자 대상 검색기능
+  - 제목순, 내용순, 오래된순, 최신순 정렬기능
+  - 20개 항목 기본 생성 후 무한스크롤 기능
+   
+---
+
+### 채팅 페이지
 |![image](https://github.com/user-attachments/assets/6b431f62-5b00-4462-b465-a350278dde4a)|![image](https://github.com/user-attachments/assets/dd838ff6-d801-40c5-aded-5864bc224934)|
 |:---:|:---:|
 |채팅목록|채팅방|
