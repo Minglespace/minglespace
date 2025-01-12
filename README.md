@@ -26,11 +26,52 @@
 |:---:|:---:|
 |로그인|회원가입|
 
-로그인 회원가입에 대한 설명이 기술되는 줄
-- JWT<br>
-  JWT는 000기술 구현
-- OAuth2.0<br>
-  OAuth2.0은 000기술 구현
+
+| Libraries | Version |
+|:---------:|:-------:|
+| Security  |  org.springframework.boot:spring-boot-starter-security:3.4.0   |
+|  OAuth2   |  org.springframework.boot:spring-boot-starter-oauth2-client:3.4.0   |
+|    JWT    |  io.jsonwebtoken:jjwt-api:0.12.5<br/>io.jsonwebtoken:jjwt-impl:0.12.5<br/>io.jsonwebtoken:jjwt-jackson:0.12.5   |
+
+JWT (JSON Web Token)를 MingleSpace에서 인증 및 권한 부여를 처리하는데 사용하였습니다.
+- Stateless Authentication
+  - JWT는 세션 정보를 서버에 저장하지 않고, 클라이언트 측에서 토큰을 관리합니다.
+  - 이로 인해 서버는 클라이언트의 인증 상태를 추적할 필요가 없으며, 인증 정보를 상태없이 전달하고 처리할 수 있습니다.
+  - 서버 측에서 세션을 유지하지 않기 때문에 확장성이 좋아집니다.
+- 확장성
+  - 여러 서버나 서비스가 동일한 토큰을 사용할 수 있어 분산 시스템에서 매우 유용합니다.
+  - 마이크로서비스 아키텍처나 분산 시스템에서 인증과 권한 부여를 처리하는 데 매우 유용합니다.
+  - SSO (Single Sign-On): JWT는 여러 애플리케이션 간에 동일한 인증 정보를 공유할 수 있게 해 주므로, SSO(단일 로그인) 구현에 적합합니다.
+- 단기 토큰과 갱신 기능
+  - 단기 토큰 ( Access Token )
+    - JWT는 비교적 짧은 만료 시간을 설정할 수 있어, 민감한 정보에 대해 보다 안전한 접근을 제공할 수 있습니다.
+    - 만약 토큰이 탈취되더라도 짧은 기간 내에 만료되어 위험을 줄일 수 있습니다.
+  - 갱신 기능 ( Refresh Token )
+    - 만료된 토큰을 자동으로 처리할 수 있어 보안성을 강화할 수 있습니다.
+    - 비교적 긴 만료 시간을 가지며, 만료된 Access Token을 갱신하는데 사용한다.
+    - Refresh Token은 scure 설정 및 http only cookie에 넣어서 관리하여, 토큰 탈취를 예방할 수 있다.
+- Logout
+  - JWT는 서버 상태를 저장하지 않는 방식으로 인증을 처리하기 때문에, 서버에서 명시적으로 "로그아웃" 처리를 할 필요가 없습니다.
+  - 하지만 JWT를 사용한 시스템에서 로그아웃을 처리하려면 토큰 무효화나 만료와 관련된 몇 가지 방법을 사용할 수 있습니다
+  - MingleSpace에서는 블랙리스트 기법을 사용하여 로그아웃 시 특정 토큰을 무효화하고 있습니다.
+
+OAuth 2.0을 사용하면 애플리케이션은 사용자 로그인 정보나 자격 증명을 직접 처리하지 않고,<br/>
+다른 신뢰할 수 있는 서비스(Google, Kakao, Naver)를 통해 인증을 처리할 수 있습니다.
+- MingleSpace에서는 Google, Kakao, Naver를 지원합니다.
+- 보안성 향상
+  - 사용자 자격 증명을 제3자 애플리케이션에 노출하지 않도록 해 줍니다. 이는 보안을 크게 향상시킵니다.
+  - 사용자는 자신의 로그인 정보(아이디, 비밀번호)를 제3자 애플리케이션에 제공하지 않고,
+  - 대신 해당 애플리케이션은 인증 서버로부터 발급받은 토큰을 통해 권한을 부여받습니다.
+- 단일 로그인 (Single Sign-On, SSO)
+  - OAuth 2.0은 단일 로그인(SSO) 기능을 지원하여, 사용자가 여러 애플리케이션에 대해 한번의 로그인으로 접근할 수 있게 합니다.
+  - 예를 들어, 사용자가 구글 계정으로 로그인하면 구글에서 발급한 액세스 토큰을 통해 여러 서비스에 동일한 방식으로 인증을 받을 수 있습니다.
+- 권한 부여 및 최소 권한 원칙 (Principle of Least Privilege)
+  - **권한 부여 범위(Scope)**를 세밀하게 설정할 수 있습니다.
+  - 즉, 애플리케이션이 사용자 데이터를 요청할 때, 해당 애플리케이션이 필요한 최소한의 권한만 요청할 수 있습니다.
+- 확장성 및 유연성
+- 리소스 서버와 클라이언트의 분리
+- 모바일 및 분산 시스템 지원
+---
 
 ### 메인페이지
 |![image](https://postfiles.pstatic.net/MjAyNTAxMTJfMjMx/MDAxNzM2NjU5MTE1MzEx.T5iQhQRO1TZhX0IOMiGKyWIrDeichda8pfN8IvyMq4Yg.rK4GgZwRjsRZGvKLe9MZimgQrHHjHwEzm0Qh3h74iKgg.PNG/%EB%A9%94%EC%9D%B8%ED%8E%98%EC%9D%B4%EC%A7%80.PNG?type=w773)|
