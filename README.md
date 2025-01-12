@@ -30,16 +30,26 @@
 
 ## 프로젝트 설명
 ### 로그인 & 회원가입
+
+<div align="right">
+  
+[목차로](#목차)
+
+</div>
+
 |![image](https://postfiles.pstatic.net/MjAyNTAxMTJfMjg1/MDAxNzM2NjU4ODYxMjA4.Doz-uTbUNGYmJRKzWfehy-I0ZKC3bpqJORtoTjXJqscg._B216Ojv1a4ApgNiZqMy1NAnXv3bMhtkHMbSqOhUfEMg.PNG/%EB%A1%9C%EA%B7%B8%EC%9D%B8.PNG?type=w773)|![image](https://postfiles.pstatic.net/MjAyNTAxMTJfMTY5/MDAxNzM2NjU4ODYxMjA4.fmjL1_ME8N9VYFzb9yZHOKS2yzLxJAbYnqLGqjraBe4g.Mck57IGGc6gbH8YdaIp28ji7bv8_3l7wLkB4yCjDz9Qg.PNG/%ED%9A%8C%EC%9B%90%EA%B0%80%EC%9E%85.PNG?type=w773)|
 |:---:|:---:|
 |로그인|회원가입|
 
-
+<div align="center">
+  
 | Libraries | Version |
 |:---------:|:-------:|
 | Security  |  org.springframework.boot:spring-boot-starter-security:3.4.0   |
 |  OAuth2   |  org.springframework.boot:spring-boot-starter-oauth2-client:3.4.0   |
 |    JWT    |  io.jsonwebtoken:jjwt-api:0.12.5<br/>io.jsonwebtoken:jjwt-impl:0.12.5<br/>io.jsonwebtoken:jjwt-jackson:0.12.5   |
+
+</div>
 
 JWT (JSON Web Token)를 MingleSpace에서 인증 및 권한 부여를 처리하는데 사용하였습니다.
 - Stateless Authentication
@@ -79,12 +89,24 @@ OAuth 2.0을 사용하면 애플리케이션은 사용자 로그인 정보나 �
 - 확장성 및 유연성
 - 리소스 서버와 클라이언트의 분리
 - 모바일 및 분산 시스템 지원
+
 ---
 
 ### 메인 페이지
+
+<div align="right">
+  
+[목차로](#목차)
+
+</div>
+
+<div align="center">
+
 |![image](https://postfiles.pstatic.net/MjAyNTAxMTJfMjMx/MDAxNzM2NjU5MTE1MzEx.T5iQhQRO1TZhX0IOMiGKyWIrDeichda8pfN8IvyMq4Yg.rK4GgZwRjsRZGvKLe9MZimgQrHHjHwEzm0Qh3h74iKgg.PNG/%EB%A9%94%EC%9D%B8%ED%8E%98%EC%9D%B4%EC%A7%80.PNG?type=w773)|
 |:---:|
 |메인 페이지|
+
+</div>
 
 메인페이지는 유저가 로그인 후에 최초에 보게되는 페이지로 MingleSpace의 얼굴과 같은 페이지 입니다.
 - 레이아웃
@@ -100,6 +122,13 @@ OAuth 2.0을 사용하면 애플리케이션은 사용자 로그인 정보나 �
 ---
 
 ### 친구 페이지
+
+<div align="right">
+  
+[목차로](#목차)
+
+</div>
+
 |![image](https://github.com/user-attachments/assets/fffe5a8c-f339-4236-8fee-85e05f41e817)|
 |:---:|
 |친구 관리|
@@ -113,9 +142,20 @@ OAuth 2.0을 사용하면 애플리케이션은 사용자 로그인 정보나 �
 ---
 
 ### 워크스페이스 페이지
+
+<div align="right">
+  
+[목차로](#목차)
+
+</div>
+
+<div align="center">
+
 |![image](https://github.com/user-attachments/assets/4337cd71-6944-4748-be8e-874c36c7be4b)|
 |:---:|
 |워크스페이스 리스트|
+
+</div>
 
 각 프로젝트마다 워크스페이스를 개설할 수 있고 워크스페이스 내부에서 캘린더, 마일스톤, 할일부여, 채팅을 이용할 수 있습니다.
   - 워크스페이스 리스트에서는 마일스톤 진행상황을 간략하게 확인할 수 있음.
@@ -125,9 +165,20 @@ OAuth 2.0을 사용하면 애플리케이션은 사용자 로그인 정보나 �
 ---
 
 ### 멤버 페이지
+
+<div align="right">
+  
+[목차로](#목차)
+
+</div>
+
+<div align="center">
+
 |![image](https://github.com/user-attachments/assets/a669c2d1-de7a-46cd-8458-1ed8a4d5584f)|![image](https://github.com/user-attachments/assets/0e861487-9267-448a-843b-28863eb5a624)|
 |:---:|:---:|
 |리더 화면|서브리더/멤버 화면|
+
+</div>
 
 워크스페이스 멤버를 관리할 수 있는 페이지 입니다.
   - 친구목록, 이메일 링크를 통해 멤버를 초대할 수 있음
@@ -138,9 +189,20 @@ OAuth 2.0을 사용하면 애플리케이션은 사용자 로그인 정보나 �
 ---
 
 ### 캘린더 페이지
+
+<div align="right">
+  
+[목차로](#목차)
+
+</div>
+
+<div align="center">
+
 |![image](https://postfiles.pstatic.net/MjAyNTAxMTJfMTEx/MDAxNzM2NjU5MTE1MzAw.Pug2Ob9GpJRQO20x4MWTKf3kFrS3wUe8j_RyHTvUTJsg.smIH0WYLABEwQvOotuvWryX6gCcMxnbrhVrKeHsURZog.PNG/%EC%BA%98%EB%A6%B0%EB%8D%941.PNG?type=w773)|
 |:---:|
 |캘린더|
+
+</div>
 
 캘린더는 워크스페이스의 모든 일정을 한눈에 확인할 수 있는 페이지입니다.
   - FullCalendar API 사용
@@ -151,9 +213,20 @@ OAuth 2.0을 사용하면 애플리케이션은 사용자 로그인 정보나 �
 ---
 
 ### 마일스톤 페이지
+
+<div align="right">
+  
+[목차로](#목차)
+
+</div>
+
+<div align="center">
+
 |![image](https://postfiles.pstatic.net/MjAyNTAxMTJfMTY0/MDAxNzM2NjU5MTE1Mjk1.WhxKp--6EzqztW25yITZEBvWxd6SmVYyYRE1yHcbGMwg.WJcMJY5iokcxAP0S7GLMHH_vj8T1q8ZtCauuF7Z9ob8g.PNG/%EB%A7%88%EC%9D%BC%EC%8A%A4%ED%86%A4.PNG?type=w773)|
 |:---:|
 |마일스톤|
+
+</div>
 
 마일스톤은 그룹을 지정하여 세부적인 일정을 타임라인 형식으로 관리할 수 있는 페이지입니다.
   - React-Calendar-TimeLine API 사용
@@ -169,9 +242,20 @@ OAuth 2.0을 사용하면 애플리케이션은 사용자 로그인 정보나 �
 ---
 
 ### 할일 페이지
+
+<div align="right">
+  
+[목차로](#목차)
+
+</div>
+
+<div align="center">
+  
 |![image](https://postfiles.pstatic.net/MjAyNTAxMTJfNTMg/MDAxNzM2NjU5MTE1Mjk5.8OHA_mf69qVRotgZgrTBpplRrKBq8Velk2gMwEuy4n0g.2bMhD6v2-NZ_-SP96ZnhliY_oaa6BCmZjUZO-525If8g.PNG/%ED%95%A0%EC%9D%BC.PNG?type=w773)|![image](https://postfiles.pstatic.net/MjAyNTAxMTJfMjUy/MDAxNzM2NjU5MTE1Mjk2.nvsKCuURNap05MBAzGiSmN03GxSLc6hJHu8tMCzuaUMg.v3DwpjXhB3VP9A_0MnrZWbOnji7sfLKC_9jWfikYxIAg.PNG/%ED%95%A0%EC%9D%BC%EC%9E%91%EC%84%B1.PNG?type=w773)|
 |:---:|:---:|
 |할일 페이지|할일 추가|
+
+</div>
 
 할일은 워크스페이스의 리더 또는 서브리더가 참여중인 멤버에게 개별적인 작업을 부여할 수 있는 페이지입니다.
   - 상태(완료여부)에 따른 진행상태 표시
@@ -182,9 +266,20 @@ OAuth 2.0을 사용하면 애플리케이션은 사용자 로그인 정보나 �
 ---
 
 ### 채팅 페이지
+
+<div align="right">
+  
+[목차로](#목차)
+
+</div>
+
+<div align="center">
+
 |![image](https://github.com/user-attachments/assets/6b431f62-5b00-4462-b465-a350278dde4a)|![image](https://github.com/user-attachments/assets/dd838ff6-d801-40c5-aded-5864bc224934)|
 |:---:|:---:|
 |채팅목록|채팅방|
+
+</div>
 
 Websocket과 Stomp를 활용해 1:N 채팅 기능을 제공하는 실시간 소통을 위한 채팅 페이지입니다. 
 
