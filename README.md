@@ -31,9 +31,9 @@
   - 사용 기술 : JWT & OAuth2.0(로그인, 회원가입), WebSocket(실시간 채팅, 알림), 외부 라이브러리(FullCalendar, React-Calendar-Timeline, React-slick)
 - **멤버** (팀 Minglers)
   - [김지현](https://github.com/jh0549) : 채팅, About Us
-    - `rlawl5544@naver.com / 010-2329-05491
+    - `rlawl5544@naver.com / 010-2329-0549`
   - [이영수](https://github.com/lys118) : 워크스페이스, 친구 & 멤버, 캘린더, 마일스톤 / 
-    - `dldudtn118@naver.com / 010-6393-92731
+    - `dldudtn118@naver.com / 010-6393-9273`
   - [정회광](https://github.com/codejay2018) : 로그인, 회원가입
     - `codejay2018@naver.com / `
   - [정혜린](https://github.com/hyerinhyerin) : 채팅, 알림
