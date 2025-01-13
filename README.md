@@ -39,7 +39,7 @@
   - [정혜린](https://github.com/hyerinhyerin) : 채팅, 알림
     - `jhr6454@naver.com / 010-2271-6454`
   - [한형호](https://github.com/Immuyoung) : 팀장, 메인페이지, 캘린더, 마일스톤, 할일
-    - `gksgudgh0487@naver.co` / 010-7688-7221`
+    - `gksgudgh0487@naver.com / 010-7688-7221`
 
 ## 프로젝트 설명
 ### 로그인 회원가입
