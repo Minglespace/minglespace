@@ -30,11 +30,11 @@
 - **개발 언어** : React & Spring Boot
   - 사용 기술 : JWT & OAuth2.0(로그인, 회원가입), WebSocket(실시간 채팅, 알림), 외부 라이브러리(FullCalendar, React-Calendar-Timeline, React-slick)
 - **멤버** (팀 Minglers)
-  - 김지현(010-2329-0549) : 채팅, About Us
-  - 이영수(010-6393-9273) : 워크스페이스, 친구 & 멤버, 캘린더, 마일스톤
-  - 정회광 : 로그인, 회원가입
-  - 정혜린(010-2271-6454) : 채팅, 알림
-  - 한형호(010-7688-7221) : 팀장, 메인페이지, 캘린더, 마일스톤, 할일
+  - [김지현](https://github.com/jh0549) : 채팅, About Us / 010-2329-0549
+  - [이영수](https://github.com/lys118) : 워크스페이스, 친구 & 멤버, 캘린더, 마일스톤 / 010-6393-9273
+  - [정회광](https://github.com/codejay2018) : 로그인, 회원가입
+  - [정혜린](https://github.com/hyerinhyerin) : 채팅, 알림 / 010-2271-6454
+  - [한형호](https://github.com/Immuyoung) : 팀장, 메인페이지, 캘린더, 마일스톤, 할일 / 010-7688-7221
 
 ## 프로젝트 설명
 ### 로그인 회원가입
